@@ -1,0 +1,4 @@
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans %}Lod4Stat would like to confirm your email address{% endblocktrans %}
+{% endautoescape %}

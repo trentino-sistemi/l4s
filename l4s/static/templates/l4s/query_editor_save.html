@@ -1,0 +1,70 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% load i18n %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+ html, body {
+    background-color: #eef4f8;
+    height: 100%;
+    padding-top: 0px;
+}
+</style>
+</head>
+
+<body>
+
+<form id='frm' method="POST" action="." role="form" class="form-horizontal">
+    {% csrf_token %}
+    <table class="table table-striped" style="width=100%">
+        {{ form.title.errors }}
+        <tbody>
+        <tr>
+            <th>
+                <label>{% trans "Title" %}:</label>
+            </th>
+            <td><textarea class="form-control" id="id_title" name="title">{% if form.title.value %}{{form.title.value}}{% endif %}</textarea></td>
+        </tr>
+        {{ form.description.errors }}
+        <tr>
+            <th>
+                <label>{% trans "Description" %}:</label>
+            </th>
+            <td><textarea style="height:180" class="form-control" id="id_description" name="description">{% if form.description.value %}{{form.description.value}}{% endif %}</textarea></td>
+        </tr>
+        <textarea style="display: none;" id="id_sql" name="sql">{{ form.sql.value }}</textarea>
+        <input style="display: none;" id="id_created_by" name="created_by" type="text" value="{{ form.created_by.value }}" />
+        </tbody>
+    </table>
+    <p></p>
+
+    <p align="center">
+        <button class="btn btn-default" type="submit">
+            {% trans "Submit" %}
+        </button>
+    </p>
+</form>
+</body>

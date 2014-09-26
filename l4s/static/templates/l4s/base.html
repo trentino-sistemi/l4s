@@ -1,0 +1,235 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% load url from future %}
+{% load i18n %}
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lod4Stat</title>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/codemirror/3.19.0/codemirror.min.css"
+          rel="stylesheet">
+    <link rel="shortcut icon"
+          href="http://www.statistica.provincia.tn.it/favicon.ico">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js">
+    </script>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+    <script type="text/javascript">
+        var getparams = function(el) {
+            var params$ = $(el).closest("form").find(".param");
+            var o = false;
+            if(params$.length) {
+                o = new Object;
+                params$.each(function() {
+                    o[this.id.replace("_param", "")] = $(this).val();
+                });
+            }
+            return o;
+        }
+
+
+    </script>
+</head>
+<body style="background-color:#eef4f8">
+
+<div class="container">
+    <div class="navbar-fixed-top">
+        <div class="container">
+            <a href="http://www.provincia.tn.it/">
+                <img src="/static/img/testata_Statistica.jpg"
+                     style="width:100%;max-width:100%;height:110px"/>
+            </a>
+
+
+            <div class="nav navbar-default navbar-collapse collapse navbar-default-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/">{% trans "Home" %}</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle"
+                           data-toggle="dropdown">{% trans "Query" %}<b
+                                class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="/query_editor">
+                                    {% trans "Query Editor" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/explorer">
+                                    {% trans "List Query" %}
+                                </a>
+                            </li>
+                            {% if request.user.is_staff %}
+                            <li>
+                                <a href="/explorer/recent_queries/">
+                                    {% trans "Queries history" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/manual_request_list">
+                                    {% trans "Manual requests" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/manual_request_history">
+                                    {% trans "Manual requests history" %}
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% if request.user.is_staff %}
+                    <li>
+                        <a href="/table_list">
+                            {% trans "Join Metadata"%}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/test_table">
+                            {% trans "Test"%}
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.user.is_superuser %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle"
+                           data-toggle="dropdown">{% trans "Administer" %}<b
+                                class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="/admin">{% trans "Admin Site" %}</a>
+                            </li>
+                            <li>
+                                <a href="/source_table_list">{% trans "Synchronize" %}</a>
+                            </li>
+                            <li>
+                                <a href="/ontology">
+                                    {% trans "Load ontology" %}
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+                <ul class="nav navbar-nav navbar-right nav-pills">
+                    <li><a href="/about">{% trans "About" %}</a></li>
+                    <li>
+                        <a href="#" onclick="$('body').chardinJs('start')"
+                           data-intro="{% trans " Overlay help" %};{% trans "click on any point to exit"%}">
+                        {% trans "Help" %}
+                        </a>
+                    </li>
+                    {% if request.user.is_authenticated %}
+                    <li>
+                        <a class="btn-info" href="/user_profile"
+                           data-position="top"
+                           data-intro="{% trans " Logged user profile" %}">
+                        {% trans "Profile" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn-info" href="/accounts/logout/"
+                           data-intro="{% trans " Logout from" %} Lod4Stat">
+                        {% trans "Logout" %}
+                        </a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a class="btn-info" href="/accounts/login/"
+                           data-position="top"
+                           data-intro="{% trans " Login with user and password to" %} Lod4Stat">
+                        {% trans "Login" %}
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn-info" href="/accounts/signup/"
+                           data-intro="{% trans " Signup to" %} Lod4Stat">
+                        {% trans "Sign Up" %}
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="wrap">
+        {% block l4s_container %}
+        {% endblock %}
+    </div>
+    <div class="footer-style" style="color:white">
+        <table align="center" style="width:95%;vertical-align: middle;">
+            <tr>
+                <td>
+                    <div align="left"
+                         style="color:white">
+                        <a href="http://www.provincia.tn.it/">
+                            <img height="41" src="/static/img/logo_footer.png"
+                                 alt="Visita il portale della Provincia Autonoma di Trento">
+                        </a>
+
+                        <div class="footer_box_testo"><p>Piazza Dante,15 -
+                            38122
+                            Trento (It) - tel. +39 0461 495111 - C.F. e
+                            P.IVA
+                            00337460224 - Numero verde 800 903606</p>
+                        </div>
+                        <div class="clear">&nbsp;</div>
+                    </div>
+
+                </td>
+                <td>
+                    <div class="navbar navbar-right"
+                         style="color:white">
+                        <table>
+                            <tr>
+                                <td>
+                                    <a class="footer_box_testo"
+                                       href="/credits">> {% trans "credits" %}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a class="footer_box_testo"
+                                       href="/legal_notes">> {% trans "legal notes" %}</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+<link href="/static/css/chardinjs.css" rel="stylesheet">
+<script src="/static/js/chardinjs.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js">
+</script>
+{% block sql_explorer_scripts %}{% endblock %}
+</body>
+</html>

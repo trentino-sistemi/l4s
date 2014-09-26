@@ -1,0 +1,32 @@
+Django==1.6.5
+
+# PostgreSQL adapter
+psycopg2==2.5.2
+requests==2.2.1
+
+# User authentication and subscription.
+django-allauth==0.16.1
+django-jsonify
+
+# Sql editor.
+-e git+https://github.com/pilolli/django-sql-explorer.git#egg=django_sql_explorer-dev
+
+# Excel 1997 xls export.
+xlwt
+
+# Excel 2007 xlsx export.
+#XlsxWriter
+openpyxl==1.8.6
+
+# In order to connect to the source M$ Sql server with odbc
+pyodbc
+django-pyodbc
+
+# In order to use bopotstrap in the django admin site
+django-admin-bootstrapped
+
+# Used for rdf export.
+rdflib
+
+# Used for pivot.
+pandas

@@ -1,0 +1,99 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+{% load dictionary_extras %}
+
+{% block l4s_container %}
+<h3>{{ title }}</h3>
+<div style="overflow: auto; max-heigth: 100%;" id="overflow_wrapper">
+    <center>
+        <table border="1" class="dataframe table table-striped">
+            {% for agg in agg_col %}
+            <thead>
+            <tr>
+                <th>{{ agg_col|lookup:agg|lookup:"title" }}</th>
+            </tr>
+            </thead>
+            {% endfor %}
+            {% for sel in sel_tab %}
+            <thead>
+            <tr>
+                <th>{{ sel }}</th>
+                <th colspan="17" halign="left">{{ sel_tab|lookup:sel }}</th>
+            </tr>
+            </thead>
+            {% endfor %}
+        </table>
+    </center>
+{% if error %}
+<div class="alert alert-danger">
+    {{ error|escape }}
+</div>
+{% else %}
+
+<button class="btn btn-default" onclick="OpenCustomizePopup();">{% trans "Customize" %}</button>
+{% if request.user.is_authenticated %}
+<button class="btn btn-default" onclick="OpenSavePopup();">{% trans "Save" %}</button>
+{% endif %}
+
+{% if dataframe %}
+<div style="overflow: auto; max-heigth: 100%;" id="overflow_wrapper">
+    <center>
+    {{ dataframe|safe }}
+    </center>
+</div>
+{% endif %}
+<form id="form" method="post">
+    {% csrf_token %}
+</form>
+<script>
+function OpenPopupCenter(pageURL, title, w, h) {
+    var left = (screen.width - w) / 2;
+    var top = (screen.height - h) / 4;  // for 25% - divide by 4  |  for 33% - divide by 3
+    var targetWin = window.open(pageURL, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+}
+function OpenCustomizePopup() {
+    url = '/query_editor_customize?table={{ table_name }}&rows={{ rows }}&columns={{ columns }}';
+    agg = '{{ sel_aggregate }}';
+    if (agg != "") {
+         url = url + '&aggregate=' + agg
+    }
+    debug = '{{ debug }}';
+    if (debug=='True') {
+         url = url + '&debug=true'
+    }
+    title = '{% trans "Customize" %}';
+    w = 1000;
+    h = 650;
+    OpenPopupCenter(url, title, w, h);
+}
+function OpenSavePopup() {
+    url = '/query_editor_save?table={{ table_name }}&rows={{ rows }}&columns={{ columns }}';
+    title = '{% trans "Save" %}';
+    w = 800;
+    h = 340;
+    OpenPopupCenter(url, title, w, h);
+}
+</script>
+{% endif %}
+{% endblock %}
+

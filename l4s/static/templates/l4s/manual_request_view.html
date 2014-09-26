@@ -1,0 +1,113 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+
+{% block l4s_container %}
+{% if manual_request.dispatched %}
+<div data-intro="{% trans "Dispatched manual request" %}">
+<h3>{% trans "Dispatched manual request" %} {{ manual_request.id }}</h3>
+{% else %}
+<div data-intro="{% trans "Manual request" %}">
+<h3>{% trans "Manual request" %} {{ manual_request.id }}</h3>
+{% endif %}
+<table class="table table-striped">
+        <thead>
+    <tr>
+        <th>{% trans "Subject" %}</th>
+        <th>{{ manual_request.subject }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>{% trans "Inquirer" %}</td>
+        <td>{{ manual_request.inquirer }}</td>
+    </tr>
+    {% if manual_request.dispatched %}
+    <tr>
+        <td>{% trans "Dispatcher" %}</td>
+        <td>{{ manual_request.dispatcher }}</td>
+    </tr>
+    <tr>
+        <td>{% trans "Dispatch note" %}</td>
+        <td>{{ manual_request.dispatch_note }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>{% trans "Request date" %}</td>
+        <td>{{ manual_request.request_date }}</td>
+    </tr>
+    {% if manual_request.dispatched %}
+    <tr>
+        <td>{% trans "Dispatch date" %}</td>
+        <td>{{ manual_request.dispatch_date }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td>{% trans "Goal" %}</td>
+        <td>{{ manual_request.goal }}</td>
+    </tr>
+    <tr>
+        <td>{% trans "Requested data" %}</td>
+        <td>{{ manual_request.requested_data }}</td>
+    </tr>
+    <tr>
+        <td>{% trans "References years" %}</td>
+        <td>{{ manual_request.references_years }}</td>
+    </tr>
+    <tr>
+        <td>{% trans "Territorial level" %}</td>
+        <td>{{ manual_request.territorial_level }}</td>
+    </tr>
+    {% if manual_request.other_territorial_level %}
+    <tr>
+        <td>{% trans "Other territorial level" %}</td>
+        <td>{{ manual_request.other_territorial_level }}</td>
+    </tr>
+    {% endif %}
+    {% if manual_request.specific_territorial_level %}
+    <tr>
+        <td>{% trans "Specific territorial level" %}</td>
+        <td>{{ manual_request.specific_territorial_level }}</td>
+    </tr>
+    {% endif %}
+    {% if manual_request.query %}
+    <tr>
+        <td>{% trans "Query" %}</td>
+        <td><a href="/explorer/{{ manual_request.query }}/">{{ query.title }}</a></td>
+    </tr>
+    {% endif %}
+    </tbody>
+</table>
+{% if not manual_request.dispatched %}
+<form method="POST" action=".">
+    {% csrf_token %}
+    <table>{{ form.as_table }}</table>
+    <p></p>
+    <p align="center">
+        <input type="submit"
+               class="btn btn-default"
+               value="{% trans " Dispatched" %}"/>
+    </p>
+</form>
+{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,3 @@
+*.pyc
+reports
+l4s/settings_local.py

@@ -1,0 +1,54 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+{% load dictionary_extras %}
+
+{% block l4s_container %}
+<h3>
+    <a href="/table/metadata/?table={{ table_name }};column=NULL">
+        {% trans "Table " %} {{ table_name }}
+    </a>
+</h3>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>{% trans "Column name" %}</th>
+        <th>{% trans "Description" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for field in table_schema %}
+    <tr>
+        <td>
+            <a href="/table/metadata/?table={{ table_name }};column={{field.name}}">{{field.name}}</a>
+        </td>
+        {% if forloop.counter0 in column_description_dict %}
+        <td>{{ column_description|lookup:forloop.counter0|lookup:"description" }}</td>
+        {% else %}
+        <td></td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+    </thead>
+</table>
+{% endblock %}

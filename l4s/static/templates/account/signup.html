@@ -1,0 +1,90 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+Neo4j is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "account/base.html" %}
+
+{% load url from future %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Signup" %}{% endblock %}
+
+{% block content %}
+
+<div class="inset" style="width:600px;height:477px">
+    <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+        <p><b>{% trans "Sign Up" %}</b></p>
+        <p>{% trans "All fields marked with an asterisk" %}(<span style="color:red;" class="required">*</span>) {% trans "are required" %}</p>
+        {% csrf_token %}
+        <table>
+        {{ form.email }} <span style="color:red;" class="required">*</span> {{ form.email.errors }}
+        <tr>
+        {{ form.first_name }} <span style="color:red;" class="required">*</span> {{ form.first_name.errors }}
+        </tr>
+        <tr>
+        {{ form.last_name}}  <span style="color:red;" class="required">*</span> {{ form.last_name.errors }}
+        </tr>
+        <tr>
+        {{ form.phone_number }} <span> </span> {{ form.phone_number.errors }}
+        </tr>
+        <tr>
+        {{ form.user_type }} <span style="color:red;" class="required">*</span> {{ form.user_type.errors }}
+        </tr>
+        <tr>
+        {{ form.password1 }} <span style="color:red;" class="required">*</span> {{ form.password1.errors }}
+        </tr>
+        <tr>
+        {{ form.password2 }} <span style="color:red;" class="required">*</span> {{ form.password2.errors }}
+        </tr>
+        </table>
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+        {% endif %}
+        {{ form.non_field_errors }}
+        <button class="btn" type="submit">{% trans "Sign Up" %} &raquo;</button>
+    </form>
+    <div class="footnote">
+        {% trans "Already have an account?"%}<a href="{{ login_url }}">{% trans "Sign in"%}</a>
+    </div>
+</div>
+<script>
+  var pub_elem = document.getElementById('id_password2');
+  new_text  = "{% trans "Password (again)" %}"
+  pub_elem.placeholder = new_text;
+</script>
+{% endblock %}

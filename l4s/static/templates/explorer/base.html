@@ -1,0 +1,68 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "l4s/base.html" %}
+{% load i18n %}
+
+{% block l4s_container %}
+{% block sql_explorer_content %}
+
+<form method="GET">
+    <input type="text"
+           name="search"
+           value="{{ request.GET.search }}">
+    <input type="submit"
+           value="{% trans " Search" %}" &raquo;>
+</form>
+<h3>{% trans "Public Queries" %}</h3>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>{% trans "Name" %}</th>
+        {% if can_change %}
+        <th>{% trans "Delete" %}</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for object in object_list %}
+    {% if object_is_public == TRUE %}
+    <tr>
+        <td>
+            <a href="explorer/{{ object.id }}/">
+                {{ object }}
+            </a>
+        </td>
+        {% if can_change and object.created_by = user.email %}
+        <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
+            <a href="{{ object.id }}/delete">
+                <i class="glyphicon glyphicon-trash"
+                   style="font-size: 18px;">
+                </i>
+            </a>
+        </td>
+        {% endif %}
+    </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+{% endblock %}

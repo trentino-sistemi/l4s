@@ -1,0 +1,94 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+{% load dictionary_extras %}
+
+{% block l4s_container %}
+<h3>{% trans "Query editor" %}
+</h3>
+<div class="col-lg-4 nav navbar-nav navbar-right">
+    <form method="GET">
+
+        <select name='topic'
+                data-position="left"
+                class="form-control"
+                data-intro="{% trans " Filter list of tables by topics; push 'Search' button to filter tables" %}">
+        <option value="0">{% trans "All topics" %}</option>
+        {% for topic in topics %}
+        {% if topic == selected_topic %}
+        <option value="{{ topic }}" selected>
+            {{ topics|lookup:topic }}
+        </option>
+        {% else %}
+        <option value="{{ topic }}">
+            {{ topics|lookup:topic }}
+        </option>
+        {% endif %}
+        {% endfor %}
+        </select>
+        <div data-position="right"
+             class="input-group"
+             data-intro="{% trans " Filter list of tables by name and description; push 'Search' button to filter tables" %}">
+             <input type="text"
+                    class="form-control"
+                    name="search"
+                    value="{{ request.GET.search }}">
+             <span class="input-group-btn">
+                 <button class="btn btn-default" type="submit">{% trans "Search" %}</button>
+            </span>
+         </div>
+     </form>
+</div>
+<table class="table table-striped">
+    <tbody>
+    {% if topic == 0 and search == "" %}
+    <h4>{% trans "Choose a topic" %}
+    </h4>
+    {% for topic in topics %}
+    <tr>
+        <td width="100px">
+            <a href="/query_editor?topic={{ topic }}">
+                <img align="left"
+                     src="/static/img/economy.png"
+                     height="80px"/>
+            </a>
+        <td>
+            <p><a href="/query_editor?topic={{ topic }}">{{ topics|lookup:topic }}</a>({{ topics_counter|lookup:topic }} dataset)</p>
+            <p>Tutte le attività che si occupano di statistiche a livello di economia</p>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    {% else %}
+    <h4>{% trans "Choose a dataset" %}
+    </h4>
+    {% for table in table_list %}
+    <tr>
+        <td>
+            <a href="/query_editor_view?table={{ table }}">{{ table_description|lookup:table }}</a></p>
+        </td>
+    </tr>
+    {% endfor %}
+    {% endif %}
+</table>
+{% endblock %}
+

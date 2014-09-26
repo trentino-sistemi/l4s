@@ -1,0 +1,47 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+{% load dictionary_extras %}
+
+{% block l4s_container %}
+<div class="container"
+     data-position="left"
+     data-intro="{% trans " List of source database tables" %}">
+    <h3>{% trans "List of source database tables" %}</h3>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>{% trans "Name" %}</th>
+            <th>{% trans "Description" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for table in table_list %}
+        <tr>
+            <td>{{ table }}</td>
+            <td>{{ table_description_dict|lookup:table }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

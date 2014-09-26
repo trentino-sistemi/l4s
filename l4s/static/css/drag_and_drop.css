@@ -1,0 +1,33 @@
+.pvtAxisContainer, .pvtVals {
+    border: 1px solid #1F556F;
+    padding: 5px;
+    min-width: 20px;
+    min-height: 20px;
+}
+.pvtAxisContainer li {
+    padding: 8px 6px;
+    list-style-type: none;
+    cursor:move;
+}
+
+.pvtAxisContainer li span.pvtAttr {
+    background: #1F556F;
+    border: 1px solid #1F556F;
+    color: white;
+    padding: 2px 5px;
+    white-space:nowrap;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.pvtHorizList li { display: inline; }
+.pvtVertList { vertical-align: top; }
+
+
+#button{text-align:center}
+p, input{display:inline-block}
+
+.btn-default .caret {
+  border-top-color: #FFFFFF;
+}

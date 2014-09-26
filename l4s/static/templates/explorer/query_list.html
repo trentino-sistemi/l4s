@@ -1,0 +1,301 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+
+{% block sql_explorer_content %}
+
+
+<div class="col-lg-3 nav navbar-nav navbar-right">
+    <form method="GET"
+          data-position="right"
+          data-intro="{% trans "Search queries by name and description; insert a word and push the 'Search' button in order to search queries" %}">
+
+    <div class="input-group">
+        <input type="text" class="form-control"
+               name="search"
+               value="{{ request.GET.search }}">
+      <span class="input-group-btn">
+        <button title="{% trans "Search queries by name and description; insert a word and push the 'Search' button in order to search queries" %}" class="btn btn-default" type="submit">{% trans "Search" %}
+        </button>
+      </span>
+
+    </div>
+    </form>
+</div>
+
+
+<ul id="myTab" class="nav nav-tabs">
+    <li class="active">
+        <a title="{% trans "Your personal queries" %}" href="#my_queries" data-toggle="tab">
+            {% trans "My Queries" %}
+        </a>
+    </li>
+    <li>
+        <a title="{% trans "Public queries; you can see, execute and copy query build by other users" %}" href="#public_queries" data-toggle="tab">
+            {% trans "Public Queries" %}
+        </a>
+    </li>
+</ul>
+
+<div id="myTabContent" class="tab-content">
+    <div class="tab-pane fade" id="public_queries">
+        <h3>{% trans "Public Queries" %}</h3>
+        {% if object_list|length > 0 %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th data-intro="{% trans "Query id" %}">
+                     <a title="{% trans "Sort queries for id" %}"
+                        href="/explorer?order_by=id">{% trans "Id" %}
+                     </a>
+                     <a id="title" href="/explorer?order_by=title">
+                        <span class="caret"></span>
+                     </a>
+                </th>
+                <th data-intro="{% trans "Query name" %}">
+                     <a title="{% trans "Sort queries in alphabetical order by name" %}"
+                        href="/explorer?order_by=title">{% trans "Name" %}
+                     </a>
+                     <a id="title" href="/explorer?order_by=title">
+                        <span class="caret"></span>
+                     </a>
+                </th>
+                <th data-intro="{% trans "Query author" %}">
+                     <a  title="{% trans "Sort queries by author" %}"
+                        href="/explorer?order_by=created_by">{% trans "Author" %}
+                     </a>
+                     <a id="created_by" href="/explorer?order_by=created_by">
+                        <span class="caret"></span>
+                     </a>
+                </th>
+                <th data-intro="{% trans "Query creation date" %}">
+                     <a  title="{% trans "Sort queries by date (most recent first)" %}"
+                        href="/explorer?order_by=-created_at">{% trans "Creation date" %}
+                     </a>
+                     <a id="created_at" href="/explorer?order_by=-created_at">
+                        <span class="caret"></span>
+                     </a>
+                </th>
+                <th data-intro="{% trans "Query actions; you can import query in your query list and delete it" %}">{% trans "Actions" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for object in object_list %}
+            {% if object.is_public %}
+            <tr>
+                <td>
+                    <a href="{{ object.id }}/"
+                    {% if object.description and object.description.strip != "" %}
+                       title="{{ object.description.strip }}"
+                    {% endif %}>{{ object.id }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ object.id }}/"
+                    {% if object.description and object.description.strip != "" %}
+                       title="{{ object.description.strip }}"
+                    {% endif %}>{{ object }}
+                    </a>
+                </td>
+                <td>{{ object.created_by }}</td>
+                <td>{{ object.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
+                {% if can_change and object.created_by == request.user.email %}
+                <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
+                    <a href="{{ object.id }}/delete"
+                       title="{% trans "Delete query" %}">
+                       <i class="glyphicon glyphicon-trash"
+                          style="font-size: 18px;">
+                       </i>
+                    </a>
+                </td>
+                {% else %}
+                <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
+                    <a href="/explorer/copy/?id={{ object.id }}"
+                       title="{% trans "Copy query in your query list" %}">
+                       <i class="glyphicon glyphicon-import"
+                          style="font-size: 18px;">
+                       </i>
+                    </a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-warning">
+            {% trans "No queries found for selected criteria" %}
+        </div>
+        {% endif %}
+    </div>
+    <div class="tab-pane fade in active" id="my_queries">
+        <h3>{% trans "My Queries" %}</h3>
+        {% if request.user.is_authenticated %}
+        {% if object_list|length > 0 %}
+        {% if request.user.is_staff %}
+        <input type="button"
+               class="btn btn-default"
+               title="{% trans "Create a new query" %}"
+               value="{% trans "New query" %}"
+               onclick="location.href='/explorer/new/'"/>
+        {% else %}
+        <input type="button"
+               class="btn btn-default"
+               value="{% trans "New query" %}"
+        onclick="location.href='/no_implemented/'"/>
+        {% endif %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th data-intro="{% trans "Query id" %}">
+                     <a title="{% trans "Sort queries for id" %}"
+                        href="/explorer?order_by=id">{% trans "Id" %}
+                     </a>
+                     <a id="title" href="/explorer?order_by=title">
+                        <span class="caret"></span>
+                     </a>
+                </th>
+                <th data-intro="{% trans "Query name" %}">
+                     <a title="{% trans "Sort queries in alphabetical order by name" %}"
+                        href="/explorer?order_by=title">{% trans "Name" %}
+                     </a>
+                     <a id="title_private" href="/explorer?order_by=title">
+                        <span class="caret"></span>
+                     </a>
+                </th>
+                <th data-intro="{% trans "Query creation date" %}">
+                     <a  title="{% trans "Sort queries by date (most recent first)" %}"
+                        href="/explorer?order_by=-created_at">{% trans "Creation date" %}
+                     </a>
+                     <a id="created_at_private" href="/explorer?order_by=-created_at">
+                        <span class="caret"></span>
+                     </a>
+                </th>
+                {% if can_change %}
+                <th data-intro="{% trans "Query visibility; open eye means that others can see your query"  %}">{% trans "Visibility" %}</th>
+                <th data-intro="{% trans "Query actions; you can delete it clicking on trash" %}">{% trans "Actions" %}</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+            {% if object.created_by == request.user.email %}
+            <tr>
+                <td>
+                    <a href="{{ object.id }}/"
+                    {% if object.description and object.description.strip != "" %}
+                       title="{{ object.description.strip }}"
+                    {% endif %}>{{ object.id }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{{ object.id }}/"
+                    {% if object.description and object.description.strip != "" %}
+                       title="{{ object.description.strip }}"
+                    {% endif %}>{{ object }}
+                    </a>
+                </td>
+                <td>{{ object.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
+                {% if can_change and object.created_by == request.user.email %}
+                {% if object.is_public %}
+                <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
+                    <i class="glyphicon glyphicon-eye-open"
+                       style="font-size: 18px;"></i></a>
+                </td>
+                {% else %}
+                <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
+                    <i class="glyphicon glyphicon-eye-close"
+                       style="font-size: 18px;"></i></a>
+                </td>
+                {% endif %}
+                <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
+                    <a href="{{ object.id }}/delete"
+                       title="{% trans "Delete query" %}">
+                        <i class="glyphicon glyphicon-trash"
+                           style="font-size: 18px;"></i></a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-warning">
+            {% trans "No queries found for selected criteria" %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="hero-unit">
+            <h1>
+                {% trans "You can see some public queries only!" %}
+            </h1>
+            <p>
+                {% trans "In order to edit new queries you need to register."%}
+            </p>
+            <p>
+                <a class="btn btn-large btn-primary" href="/accounts/login">
+                    {% trans "Register now" %}
+                </a>
+            </p>
+        </div>
+
+        {% endif %}
+    </div>
+</div>
+<script>
+$(document).ready(function(){
+    //console.log($('a[data-toggle="tab"]:first').tab('show'))
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+        //save the latest tab; use cookies if you like 'em better:
+        localStorage.setItem('lastTab', $(this).attr('href'));
+    });
+
+    //go to the latest tab, if it exists:
+    var lastTab = localStorage.getItem('lastTab');
+    if ($('a[href=' + lastTab + ']').length > 0) {
+        $('a[href=' + lastTab + ']').tab('show');
+    }
+    else
+    {
+        // Set the first tab if cookie do not exist
+        $('a[data-toggle="tab"]:first').tab('show');
+    }
+    order_by = "{{ order_by }}";
+    if (order_by == "None" || order_by == "-created_at") {
+        var pub_elem = document.getElementById('created_at');
+        var priv_elem = document.getElementById('created_at_private');
+    }
+    else {
+        var pub_elem = document.getElementById(order_by);
+        var priv_elem = document.getElementById(order_by + "_private");
+    }
+    var s = '<i class="glyphicon glyphicon-chevron-down" style="font-size: 18px;"></i>';
+    pub_elem.innerHTML = s
+    priv_elem.innerHTML = s
+})
+</script>
+{% endblock %}
+
+

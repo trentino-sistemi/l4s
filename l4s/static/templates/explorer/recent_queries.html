@@ -1,0 +1,60 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+{% load dictionary_extras %}
+
+{% block sql_explorer_content %}
+<form method="GET">
+    <div class="col-lg-3">
+        <div class="input-group">
+            <input type="text" class="form-control" name="search"
+                   value="{{ request.GET.search }}">
+      <span class="input-group-btn">
+        <button class="btn btn-default" type="submit">{% trans "Search" %}
+        </button>
+      </span>
+        </div>
+    </div>
+</form>
+<br><br>
+<h3>{% trans "Most Recently Used" %}</h3>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Last Run" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for object in recent_queries %}
+    <tr>
+        <td>
+            <a href="{{ object.id }}/">
+                {{ object }}
+            </a>
+        </td>
+        <td>{{ object.last_run_date|date:"SHORT_DATETIME_FORMAT" }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,354 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% load i18n %}
+{% load jsonify %}
+{% load dictionary_extras %}
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js">
+    </script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+    <script type="text/javascript"
+            src="/static/js/query_editor_customize.js"></script>
+    <link href="/static/css/drag_and_drop.css" rel="stylesheet">
+    <style>
+        .radio_container { border:2px solid #ccc; width:300px; height: 100px; overflow-y: scroll; }
+        html, body {
+        background-color: #eef4f8;
+        height: 100%;
+        padding-top: 0px;
+        }
+    </style>
+</head>
+
+<body style="cursor: auto;">
+<h3>{% trans "Drag items on rows and columns" %}</h3>
+<table>
+<tr>
+<td>
+<div id="legend" style="BACKGROUND-COLOR: #A1284C; BORDER: #1F556F thin solid; HEIGHT: 20px; WIDTH: 20px"></div>
+</td>
+<td>
+{% trans "The field with this colour can be grouped" %}
+</td>
+</tr>
+</table>
+<table border="1" class="table">
+    <tr>
+        <th>{% trans "Undisplayed" %}</th>
+    </tr>
+    <tr>
+        <td class="pvtAxisContainer pvtUnused pvtHorizList ui-sortable drag_ul"
+            id="unselectedFields">
+            {% for field in fields %}
+            {% if not field in obs_values %}
+            {% if not field in columns %}
+            {% if not field in rows %}
+            <li class="dropdown">
+                <span id="{{ field }}"
+                      class="pvtAttr btn btn-default dropdown-toggle"
+                      data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
+                      <span style="display:None">{{ field }}</span>
+                      <span class="caret"></span>
+                </span>
+                <span id="drop" class="dropdown-menu" role="menu">
+                {% for agg in aggregations %}
+                {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
+                <script>colour('{{ field }}');</script>
+                    {% trans "Show" %} 
+                    <div class="radio" id="radio_{{field}}">
+                        <label>
+                            <input onclick="handleRadio(this, '{{ field }}', '{{ values|lookup:field|jsonify|escapejs }}', false, true);"
+                                   type="radio"
+                                   name="unused"
+                                   checked="checked"
+                                   value="{{ agg }}">
+                            </input>
+                            {{ agg }}
+                        </label>
+                    </div>
+                    {% for ag in aggregations|lookup:agg %}
+                    <div class="radio" id="radio_agg_{{ag}}">
+                        <label>
+                            <input onclick="handleRadio(this, '{{ field }}', '{{ agg_values|lookup:ag|jsonify|escapejs }}', true, true);"
+                                   type="radio"
+                                   name="unused"
+                                   id="{{ ag }}"
+                            {% if ag in sel_aggregation %}
+                                   checked="checked"
+                            {% endif %}
+                                   value="{{aggregations|lookup:agg|lookup:ag}}">
+                            </input>
+                            {{aggregations|lookup:agg|lookup:ag}}
+                        </label>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                {% endfor %}
+                {% trans "Select" %}
+                    <button type="button"
+                            class="btn btn-default"
+                            onclick="checkByParent('select_{{field}}', true)">
+                            {% trans "All" %}
+                    </button>
+                    <button type="button"
+                            class="btn btn-default"
+                            onclick="checkByParent('select_{{field}}', false)">
+                            {% trans "None" %}
+                    </button>
+                    <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
+                    {% for val in values|lookup:field %}
+                        <input type="checkbox"
+                               name="input_{{ field }}"
+                               id="{{ field }}_input_{{val.0}}"
+                               value="{{val.0}}">{{val.1}}<br>
+                    {% endfor %}
+                    </div>
+                </span>
+            </li>
+            {% endif %}
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+
+<br>
+
+<table border="1" class="table">
+    <tr>
+        <td></td>
+        <th>{% trans "Column" %}</th>
+    </tr>
+    <tr>
+        <th>{% trans "Row" %}</th>
+        <td class="pvtAxisContainer pvtHorizList pvtCols ui-sortable drag_ul"
+            id="columnFields">
+            {% for field in fields %}
+            {% if field in columns %}
+            <li class="dropdown">
+                <span id="{{ field }}"
+                      class="pvtAttr btn btn-default dropdown-toggle"
+                      data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
+                      <span style="display:None">{{ field }}</span>
+                      <span class="caret"></span>
+                </span>
+                <span class="dropdown-menu" role="menu">
+                {% for agg in aggregations %}
+                {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
+                <script>colour('{{ field }}');</script>
+                    {% trans "Show" %} 
+                    <div class="radio" id="radio_{{field}}">
+                        <label>
+                            <input onclick="handleRadio(this, '{{ field }}', '{{ values|lookup:field|jsonify|escapejs }}', false, true);"
+                                   type="radio"
+                                   name="columns"
+                                   checked="checked"
+                                   value="{{ agg }}">
+                            </input>
+                            {{ agg }}
+                        </label>
+                    </div>
+                    {% for ag in aggregations|lookup:agg %}
+                    <div class="radio" id="radio_agg_{{ag}}">
+                        <label>
+                            <input onclick="handleRadio(this, '{{ field }}', '{{ agg_values|lookup:ag|jsonify|escapejs }}', true, true);"
+                                   type="radio"
+                                   name="columns"
+                                   id="{{ ag }}"
+                            {% if ag in sel_aggregation %}
+                                   checked="checked"
+                            {% endif %}
+                                   value="{{aggregations|lookup:agg|lookup:ag}}">
+                            </input>
+                            {{aggregations|lookup:agg|lookup:ag}}
+                        </label>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                {% endfor %}
+                {% trans "Select" %}
+                    <button type="button"
+                            class="btn btn-default"
+                            onclick="checkByParent('select_{{field}}', true)">
+                            {% trans "All" %}
+                    </button>
+                    <button type="button"
+                            class="btn btn-default"
+                            onclick="checkByParent('select_{{field}}', false)">
+                            {% trans "None" %}
+                    </button>
+                    <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
+                    {% for val in values|lookup:field %}
+                        <input type="checkbox"
+                               name="input_{{ field }}"
+                               id="{{ field }}_input_{{val.0}}"
+                               value="{{val.0}}">{{val.1}}<br>
+                    {% endfor %}
+                    </div>
+                </span>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+    <tr style="height:280px">
+        <td style="width:80px" valign="top"
+            class="pvtAxisContainer pvtRows ui-sortable drag_ul"
+            id="rowFields">
+            {% for field in fields %}
+            {% if field in rows %}
+            <li class="dropdown">
+                <span id="{{ field }}"
+                      class="pvtAttr btn btn-default dropdown-toggle"
+                      data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
+                    <span style="display:None">{{ field }}</span>
+                    <span class="caret"></span>
+                </span>
+                <span class="dropdown-menu" role="menu">
+                {% for agg in aggregations %}
+                {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
+                <script>colour('{{ field }}');</script>
+                    {% trans "Show" %} 
+                    <div class="radio" id="radio_{{field}}">
+                        <label>
+                            <input onclick="handleRadio(this, '{{ field }}', '{{ values|lookup:field|jsonify|escapejs }}', false, true);"
+                                   type="radio"
+                                   name="rows"
+                                   checked="checked"
+                                   value="{{ agg }}">
+                            </input>
+                            {{ agg }}
+                        </label>
+                    </div>
+                    {% for ag in aggregations|lookup:agg %}
+                    <div class="radio" id="radio_agg_{{ag}}">
+                        <label>
+                            <input onclick="handleRadio(this, '{{ field }}', '{{ agg_values|lookup:ag|jsonify|escapejs }}', true, true);"
+                                   type="radio"
+                                   name="rows"
+                                   id="{{ ag }}"
+                            {% if ag in sel_aggregation %}
+                                   checked="checked"
+                            {% endif %}
+                                   value="{{aggregations|lookup:agg|lookup:ag}}">
+                            </input>
+                            {{aggregations|lookup:agg|lookup:ag}}
+                        </label>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                {% endfor %}
+                {% trans "Select" %}
+                    <button type="button"
+                            class="btn btn-default"
+                            onclick="checkByParent('select_{{field}}', true)">
+                            {% trans "All" %}
+                    </button>
+                    <button type="button"
+                            class="btn btn-default"
+                            onclick="checkByParent('select_{{field}}', false)">
+                            {% trans "None" %}
+                    </button>
+                    <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
+                    {% for val in values|lookup:field %}
+                        <input type="checkbox"
+                               name="input_{{ field }}"
+                               id="{{ field }}_input_{{val.0}}"
+                               value="{{val.0}}">{{val.1}}<br>
+                    {% endfor %}
+                    </div>
+                </span>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </td>
+        <td>
+            <table style="width:100%;height:260px" border="1" class="table">
+                <th>{% trans "Data" %}</th>
+                <tr>
+                    <td style="width:150px;height:100%" valign="top"
+                        class="pvtAxisContainer pvtRows ui-sortable drag_ul"
+                        id="valueFields">
+                        <!-- The data values -->
+                        {% for field in fields %}
+                        {% if field in obs_values %}
+                        <li class="dropdown">
+                            <span class="pvtAttr btn btn-default dropdown-toggle"
+                                  data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
+                                <span style="display:None">{{ field }}</span>
+                            </span>
+                            {% endif %}
+                            {% endfor %}
+                    </td>
+                </tr>
+            </table>
+        </td>
+
+    </tr>
+</table>
+<script>select_filters('{{ filters|jsonify|escapejs }}');</script>
+{% for field in fields %}
+    {% for agg in aggregations %}
+        {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
+            {% for ag in aggregations|lookup:agg %}
+                {% if ag in sel_aggregation %}
+                    <script>setFieldLabel('{{ ag }}', '{{ field }}', '{{ agg_values|lookup:ag|jsonify|escapejs }}')</script>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+<script>select_agg_filters('{{ agg_filters|jsonify|escapejs }}');</script>
+<table align="center">
+    {% if request.user.is_staff %}
+    <tr>
+        <td>
+            <label class="control-label col-sm-2">
+                {% trans "Debug" %}
+            </label>
+        </td>
+        <td>
+            <input type="checkbox"
+                   id="debug"
+            {% if debug %}
+            checked
+            {% endif %} />
+        </td>
+        {% endif %}
+        <td>
+            <input type="submit"
+                   class="btn btn-default"
+                   name="btn_close"
+                   id="btn_close"
+                   onclick="submit_popup('{{ values|jsonify|escapejs }}', '{{ agg_values|jsonify|escapejs }}', '{{ table_name }}', '{% trans " The table must have at least one field in row" %}', '{% trans "The table must have at least one field in column" %}');"
+                   value="{% trans " Apply" %}"/>
+        </td>
+</table>
+</body>
+</html>

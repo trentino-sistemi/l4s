@@ -1,0 +1,46 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+
+{% block l4s_container %}
+<div data-intro="{% trans " List of manual requests" %}">
+<h3>{% trans "Manual requests" %}</h3>
+<table class="table table-striped">
+        <thead>
+    <tr>
+        <th>Id</th>
+        <th>{% trans "Inquirer" %}</th>
+        <th>{% trans "Subject" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for object in object_list %}
+    <tr>
+        <td><a href="/manual_request_view/?id={{ object.id }}">{{ object.id }}</a></td>
+        <td>{{ object.inquirer }}</td>
+        <td>{{ object.subject }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

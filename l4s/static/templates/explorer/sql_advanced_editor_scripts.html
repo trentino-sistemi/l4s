@@ -1,0 +1,55 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<script>
+    function decorate_sql_editor() {
+             var editor = CodeMirror.fromTextArea(document.getElementById('id_sql'), {
+            mode: "text/x-sql",
+            lineNumbers: 't',
+            autofocus: true,
+            extraKeys: {
+                "Ctrl-Enter": function() {
+                    $('#editor').submit();
+                },
+                "Cmd-Enter": function() {
+                    $('#editor').submit();
+               }
+            }
+            });
+    }
+    $(document).ready( function () {
+        $("#show_sql_editor_button").click(function() {
+            var sql_editor$ = $("#sql_editor_frame");
+            sql_editor$.show();
+            $(this).hide()
+            $("#hide_sql_editor_button").show()
+            decorate_sql_editor();
+            return false;
+        });
+
+        $("#hide_sql_editor_button").click(function() {
+            var sql_editor$ = $("#sql_editor_frame");
+            sql_editor$.hide();
+            $(this).hide()
+            $("#show_sql_editor_button").show()
+            return false;
+        });
+    } );
+</script>

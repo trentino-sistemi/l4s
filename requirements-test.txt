@@ -1,0 +1,9 @@
+# helper
+django-jenkins==0.15.0
+
+# code quality checks
+pep8==1.4.6
+pyflakes==0.8
+
+# functional tests
+mechanize

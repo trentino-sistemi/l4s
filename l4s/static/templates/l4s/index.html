@@ -1,0 +1,54 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "l4s/base.html" %}
+{% load i18n %}
+
+{% block l4s_container %}
+<div align="center">
+    <img href="/explorer" class="index_img" src="/static/img/home.png"/>
+</div>
+<div align="center" class="alert alert-danger">
+    <table style="width:100%">
+        <tr>
+            <td>
+                <a href="/explorer">
+                    <img align="left"
+                         src="/static/img/lod4stat_logo.png"
+                         height="80px"/>
+                </a>
+            </td>
+            <td align="center">
+                <h3 align="center">
+                    {% trans "Linked open data statistics" %}
+                </h3>
+                <h5>
+                    <font color="#5f2436">
+                        {% trans "Enhance the value of the statistical information in order to increase knowledge of Trentino" %}
+                    </font>
+                </h5>
+            </td>
+            <td><a class="btn btn-large btn-primary" href="/explorer">
+                {% trans "Continue" %}
+            </a></td>
+        </tr>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load account %}
+{% load url from future %}
+
+{% block head_title %}{% trans "Sign In" %}{% endblock %}
+
+{% block content %}
+    <div class="inset" style="width:500px;height:227px">
+        <p><b>{% trans "Sign In" %}</b></p>
+        <form class="login" method="POST" action="{% url 'account_login' %}">
+          {% csrf_token %}
+            {{ form.non_field_errors }}
+            <input id="id_login" class="login-input" name="login" placeholder="Email" type="text" />{{ form.login.errors }}<br>
+            <input id="id_password"  class="login-input" name="password" placeholder="Password" type="password" />{{ form.password.errors }}<br>
+            <div class="remember-forgot-section">
+                <input id="id_remember" name="remember" type="checkbox" />
+                <label for="id_remember">{% trans "Remember Me" %}</label>
+                <a class="forgot" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+            </div>
+          {% if redirect_field_value %}
+          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+          {% endif %}
+          <button class="btn" type="submit">{% trans "Sign In" %} &raquo;</button>
+        </form>
+        <div class="footnote">
+            {% trans "Don't have an account?" %} <a href="{% url 'account_signup' %}">{% trans "Sign Up"%}</a>
+        </div>
+    </div>
+{% endblock %}

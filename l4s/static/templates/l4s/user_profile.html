@@ -1,0 +1,71 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+
+{% block l4s_container %}
+<h3>
+    {% trans "User profile" %}
+</h3>
+<form role="form" class="form-horizontal">
+    <table class="table table-striped">
+        <tbody>
+        <tr>
+            <th>
+                <label>{% trans "Email address" %}:</label>
+            </th>
+            <td>{{ request.user.email }}</td>
+        </tr>
+        <tr>
+            <th>
+                <label>{% trans "Name" %}:</label>
+            </th>
+            <td>{{ request.user.first_name }}</td>
+        </tr>
+        <tr>
+            <th>
+                <label>{% trans "Surname" %}:</label>
+            </th>
+            <td>{{ request.user.last_name }}</td>
+        </tr>
+        <tr>
+            <th>
+                <label>{% trans "Phone Number" %}:</label>
+            </th>
+            <td>{{ request.user.phone_number }}</td>
+        </tr>
+        <tr>
+            <th>
+                <label>{% trans "User Type" %}:</label>
+            </th>
+            <td>{{ request.user.user_type }}</td>
+        </tr>
+        </tbody>
+    </table>
+</form>
+<p align="right">
+    <button class="btn btn-default"
+            type="submit"
+            onclick="location.href='user_profile/change/'">
+        {% trans "Modify" %}
+    </button>
+</p>
+{% endblock %}

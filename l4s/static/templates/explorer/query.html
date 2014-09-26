@@ -1,0 +1,455 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load url from future %}
+{% load i18n %}
+{% load dictionary_extras %}
+
+{% block sql_explorer_content %}
+<div class="row">
+    <div id="query_area" class="col-md-12">
+        <h2 style="padding-bottom: 20px">
+            {% if query %}
+                 {{ query.title }}
+            {% else %}
+                 {% trans "New query" %}
+            {% endif %}
+        </h2>
+        {% if message %}
+            <div class="alert alert-info">
+                {{ message }}
+            </div>
+        {% endif %}
+        <div>
+        <form role="form"
+                      class="form-horizontal"
+                      action="../{% firstof query.id 'new' %}/"
+                      method="post"
+                      id="editor">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    {% if form.title.errors %}
+                    {% for error in form.title.errors %}
+                    <div class="alert alert-danger">{{ error|escape }}</div>
+                    {% endfor %}
+                    {% endif %}
+                    <div data-position="left"
+                         class="form-group"
+                         data-intro="{% trans "Query name" %}">
+                        <label class="col-sm-2 control-label">
+                            {% trans "Name" %}
+                        </label>
+                        <div class="col-sm-10">
+                            <input class="form-control"
+                            {% if query.created_by and query.created_by != request.user.email or not can_change %}
+                                   readonly="true"
+                            {% endif %}
+                                   id="id_title"
+                                   maxlength="255"
+                                   name="title"
+                                   type="text"
+                                   value="{{ form.title.value|default_if_none:"" }}"/>
+                        </div>
+                    </div>
+                    <div data-position="left"
+                         data-intro="{% trans "Query description" %}"
+                         class="form-group">
+                        {{ form.description.errors }}
+                        <label class="col-sm-2 control-label">
+                            {% trans "Description" %}
+                        </label>
+                        <div  class="col-sm-10">
+                            <textarea class="form-control"
+                        {% if query.created_by and query.created_by != request.user.email or not can_change %}
+                                      readonly="true"
+                        {% endif %}
+                                      id="id_description"
+                                      name="description"
+                                      rows="2">{% if form.description.value %}{{form.description.value}}{% endif %}</textarea>
+                        </div>
+                    </div>
+                    <div data-position="left"
+                         class="form-group"
+                         data-intro="{% trans "Query owner" %}">
+                        {{ form.created_by.errors }}
+                        <label class="col-sm-2 control-label">
+                            {% trans "Owner" %}
+                        </label>
+                        <div class="col-sm-10">
+                            <input readonly
+                                   class="form-control"
+                                   id="id_created_by"
+                                   maxlength="255"
+                                   name="created_by"
+                                   type="text"
+                                   value="{% firstof form.created_by.value request.user %}" />
+                        </div>
+                    </div>
+                    {% if form.sql.errors %}{% for error in form.sql.errors %}
+                        <div class="alert alert-danger">
+                           SQL {{ error|escape }}
+                        </div>
+                    {% endfor %}{% endif %}
+                    <div class="panel panel-default"
+                         style="display: none;"
+                         id="sql_editor_frame"
+                         xmlns="http://www.w3.org/1999/html">
+                        <div class="panel-heading">
+                            <span class="panel-title">
+                                SQL
+                            </span>
+                        </div>
+                        <div class="panel-content">
+                            <textarea class="form-control"
+                            {% if query.created_by and  query.created_by != request.user.email or not can_change %}
+                                      readonly="true"
+                            {% endif %}
+                                      style="display: not none;"
+                                      id="id_sql"
+                                      name="sql"
+                                      rows="7">{% if form.sql.value %}{{form.sql.value}}{% endif %}</textarea>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                            {% include 'explorer/params.html' %}
+                    </div>
+                    {% if request.user.is_staff  %}
+                    <table>
+                        {% if can_change %}
+                        {% if not query.created_by or query.created_by == request.user.email %}
+                        <tr>
+                            <td>
+                                <label class="control-label col-sm-2">
+                                    {% trans "Is public" %}
+                                </label>
+                            </td>
+                            <td>
+                                <input type="checkbox"
+                                       name="is_public"
+                                {% if query.is_public %}
+                                checked
+                                {% endif %} />
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endif %}
+                        <tr>
+                            <td>
+                                <label class="control-label col-sm-2">
+                                    {% trans "Debug" %}
+                                </label>
+                            </td>
+                            <td>
+                                <input type="checkbox"
+                                       id="debug"
+                                {% if debug %}
+                                checked
+                                {% endif %} />
+                            </td>
+                        </tr>
+                    </table>
+                    {% endif %}
+                    <div class="form-group">
+                        <div style="text-align: center;">
+                            <button type="button"
+                                    class="btn btn-default"
+                                    id="show_sql_editor_button">
+                                {% trans "Show Sql Editor" %}
+                            </button>
+                            <button type="button"
+                                    class="btn btn-default"
+                                    style="display: none;"
+                                    id="hide_sql_editor_button">
+                                {% trans "Hide Sql Editor" %}
+                            </button>
+                            <input type="submit"
+                                   class="btn btn-default"
+                                   id="refresh_button"
+                                   value="{% trans "Run" %}"/>
+                            {% if can_change %}
+                            {% if not query.created_by or query.created_by == request.user.email %}
+                            <input type="submit"
+                                   class="btn btn-default"
+                                   id="refresh_button_save"
+                                   value="{% trans "Save" %}" />
+                            {% endif %}
+                            {% endif %}
+                            {% if query and dataframe %}
+                            <div class="btn-group">
+                                <button type="button"
+                                        class="btn btn-default dropdown-toggle"
+                                        data-toggle="dropdown">
+                                    {% trans "Export" %}
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="btn btn-default download_button" href="#">CSV</a></li>
+                                    <li><a class="btn btn-default download_excel_button" href="#">Excel 1997</a></li>
+                                    <li><a class="btn btn-default download_xlsx_button" href="#">Excel 2007</a></li>
+                                    <li><a class="btn btn-default download_rdf_button" href="#">Rdf</a></li>
+                                    <li><a class="btn btn-default download_turtle_button" href="#">Turtle</a></li>
+                                    <li><a class="btn btn-default download_json_stat_button" href="#">JSON-stat</a></li>
+                                    <li><a class="btn btn-default download_sdmx_button" href="#">Sdmx</a></li>
+                                </ul>
+                            </div>
+                            {%  endif %}
+                            {% if request.user.is_authenticated %}
+                            <input type="button" class="btn btn-default"
+                                   value="{% trans "Manual request" %}"
+                            onclick="location.href='/manual_request/?id={{query.id}}'">
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            {{ error|escape }}
+                        </div>
+                    {% elif warning %}
+                        <div class="alert alert-warning">
+                            {{ warning }}
+                        </div>
+                    {% endif %}
+                    {% if rows < 1 or not aggregate and aggregate|length = 0 and old_headers|length < 3 %}
+                    <br>
+                    {% else %}
+                    <div class="alert alert-success">
+                        <div class="form-group">
+                            <table align="center" style="width:80%">
+                                <tr>
+                                    {% if rows > 0 and old_headers|length > 2 %}
+                                    <td>
+                                            {% trans "You can build a" %} <a href="http://{{language_code}}.wikipedia.org/wiki/Tabella_pivot">{% trans "pivot table" %}</a> {% trans "on column" %}
+                                            <select multiple
+                                                    id="id_pivot_column"
+                                                    class="form-control"
+                                                    name="pivot_column">
+                                                {% for h in old_headers %}
+                                                {% if not forloop.counter0 in threshold_columns and not forloop.counter0 in constr_columns %}
+                                                {% if forloop.counter0 in pivot_column %}
+                                                <option selected="selected"
+                                                        value="{{ forloop.counter0 }}">
+                                                    {% else %}
+                                                <option value="{{ forloop.counter0 }}">
+                                                    {% endif %}
+                                                    {{ h }}
+                                                </option>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                    {% endif %}
+                                    <td width="10%"></td>
+                                    {% if aggregate and aggregate|length > 0 %}
+                                    <td>
+                                        {% trans "Aggregate for" %}
+                                        <select multiple
+                                                id="id_aggregate_column"
+                                                class="form-control"
+                                                name="aggregate_column">
+                                        {% if sel_aggregate|length > 0 %}
+                                            <option value="">
+                                                {% trans "Nothing" %}
+                                            </option>
+                                        {% else %}
+                                            <option selected="selected"
+                                                    value="">
+                                                {% trans "Nothing" %}
+                                            </option>
+                                        {% endif %}
+                                        {% for agg in aggregate %}
+                                            <optgroup label="{{ agg }}">
+                                            {% for ag in aggregate|lookup:agg %}
+                                                {% if ag in sel_aggregate %}
+                                                <option selected="selected"
+                                                        value="{{ ag }}">
+                                                    {{aggregate|lookup:agg|lookup:ag}}
+                                                </option>
+                                                {% else %}
+                                                <option value="{{ ag }}">
+                                                    {{aggregate|lookup:agg|lookup:ag}}
+                                                </option>
+                                                {% endif %}
+                                             {% endfor %}
+                                            </optgroup>
+                                         {% endfor %}
+                                        </select>
+                                    </td>
+                                    {% endif %}
+                                    <td width="10%">
+                                    </td>
+                                    <td>
+                                        <input type="submit"
+                                               class="btn btn-success"
+                                               id="apply_button"
+                                               value="{% trans "Apply" %}"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="alert alert-warning" id="progress">
+                        <table align="center">
+                            <tr>
+                                <td>
+                                    <img id="waiting"
+                                         src="/static/img/throbber.gif">
+                                </td>
+                                <td></td>
+                                <td>
+                                    <h4>
+                                        {% trans "Please wait, this may take a few minutes" %}
+                                    </h4>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+        </div>
+    </div>
+</div>
+
+{% if dataframe %}
+{% include 'explorer/preview_pane.html' %}
+{% endif %}
+{% endblock %}
+
+{% block sql_explorer_scripts %}
+    {% include 'explorer/preview_pane_scripts.html' %}
+    {% include 'explorer/sql_advanced_editor_scripts.html' %}
+    <script>
+        $('#progress').hide();
+        function get_pivot_column() {
+            element = document.getElementById('id_pivot_column');
+            var pivot_column = ""
+            if (element == null) {
+               return ""
+            }
+            for (var i = 0; i < element.length; i++) {
+                if (element.options[i].selected) {
+                    if (pivot_column) {
+                        pivot_column = pivot_column + ",";
+                    }
+                    pivot_column = pivot_column + element.options[i].value;
+                }
+            }
+            return pivot_column;
+        }
+        function get_aggregate_column() {
+            element = document.getElementById('id_aggregate_column');
+            var aggregate_column = ""
+            if (element == null) {
+               return ""
+            }
+            for (var i = 0; i < element.length; i++) {
+                if (element.options[i].selected) {
+                    if (aggregate_column) {
+                        aggregate_column = aggregate_column + ",";
+                    }
+                    aggregate_column = aggregate_column + element.options[i].value;
+                }
+            }
+            return aggregate_column;
+        }
+        function add_param(link, param, value) {
+             // if ? -> & else ?
+             if ( link.indexOf('?') > -1 ) {
+                link = link + '&';
+             }
+             else {
+                link = link + '?';
+             }
+             link = link + param + '=' + value;
+             return link
+        }
+        function get_params(caller, dl_link) {
+            var params = getparams(caller);
+            aggregate = get_aggregate_column();
+            pivot_column = get_pivot_column();
+            var debug = document.getElementById('debug');
+            if(params) {
+               dl_link = add_param(dl_link, 'params', JSON.stringify(params));
+            }
+            if (aggregate) {
+               dl_link = add_param(dl_link, 'aggregate', aggregate);
+            }
+            if (pivot_column) {
+               dl_link = add_param(dl_link, 'pivot_column', pivot_column);
+            }
+            if (debug!=null && debug.checked == 1) {
+               dl_link = add_param(dl_link, 'debug', 'true');
+            }
+            else {
+               dl_link = add_param(dl_link, 'debug', 'false');
+            }
+            return dl_link;
+        }
+        $(function() {
+            $("#apply_button").click(function() {
+                var progress$ = $("#progress");
+                progress$.show();
+                action = get_params(this, "");
+                $(this).closest("form").attr('action', action);
+            });
+            $("#refresh_button").click(function() {
+                var progress$ = $("#progress");
+                progress$.show();
+                action = get_params(this, "");
+                $(this).closest("form").attr('action', action);
+            });
+            $("#refresh_button_save").click(function() {
+                var progress$ = $("#progress");
+                progress$.show();
+                action = "?save=true"
+                action = get_params(this, action);
+                $(this).closest("form").attr('action', action);
+            });
+            $(".download_button").click(function(e) {
+                e.preventDefault();
+                window.location.href = 'download' + get_params(this, "");
+            });
+            $(".download_excel_button").click(function(e) {
+                e.preventDefault();
+                window.location.href = 'download_excel' + get_params(this, "");
+            });
+            $(".download_xlsx_button").click(function(e) {
+                e.preventDefault();
+                window.location.href = 'download_xlsx' + get_params(this, "");
+            });
+            $(".download_sdmx_button").click(function(e) {
+                e.preventDefault();
+                window.location.href = 'download_sdmx' + get_params(this, "");
+            });
+            $(".download_json_stat_button").click(function(e) {
+                e.preventDefault();
+                window.location.href = 'download_json_stat' + get_params(this, "");
+            });
+            $(".download_rdf_button").click(function(e) {
+                e.preventDefault();
+                window.location.href = 'download_rdf' + get_params(this, "");
+            });
+            $(".download_turtle_button").click(function(e) {
+                e.preventDefault();
+                window.location.href = 'download_turtle' + get_params(this, "");
+            });
+        });
+    </script>
+{% endblock %}

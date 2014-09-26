@@ -1,0 +1,87 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+
+{% block l4s_container %}
+<h3 style="padding-bottom: 20px">
+    {% trans "Manual request" %} '{{ title }}'
+</h3>
+<form id='frm' method="POST" action="." role="form" class="form-horizontal">
+    {% csrf_token %}
+    <table class="table table-striped">{{ form.as_table }}</table>
+    <p></p>
+
+    <p align="center">
+        <button class="btn btn-default"
+                type="submit">
+            {% trans "Submit" %}
+        </button>
+    </p>
+</form>
+<script>
+function updateTerritorialLevel(cmb) {
+   var txt = document.forms['frm']['id_other_territorial_level'];
+   txt.disabled = (cmb.value!='Altro')
+   if ((cmb.value=='Altro') || (cmb.value=='Sezione di censimento')) {
+      txt.value='';
+      text = '<textarea  id="id_specific_territorial_level" name="specific_territorial_level" rows="4"></textarea>'
+   }
+   else if (cmb.value=='Provincia') {
+      text = '<textarea disabled id="id_specific_territorial_level" name="specific_territorial_level" rows="4"></textarea>'
+   }
+   else {
+      text = '<select multiple id="id_specific_territorial_level" class="form-control" name="specific_territorial_level">'
+      if (cmb.value=='Comune') {
+         {% for item in districts %}
+         text += '<option value="{{ item }}">{{ item }}</option>'
+         {% endfor %}
+      }
+      else if (cmb.value=='Comunità di valle') {
+         {% for item in valley_communities %}
+         text += '<option value="{{ item }}">{{ item }}</option>'
+         {% endfor %}
+      }
+      else if (cmb.value=='Ambito turistico') {
+         {% for item in tourism_sectors %}
+         text += '<option value="{{ item }}">{{ item }}</option>'
+         {% endfor %}
+      }
+      else if (cmb.value=='Distretto sanitario') {
+         {% for item in health_districts %}
+         text += '<option value="{{ item }}">{{ item }}</option>'
+         {% endfor %}
+      }
+      text += '</select>'
+   }
+   $("#id_specific_territorial_level").replaceWith(text);
+}
+var terr = document.forms['frm']['id_territorial_level'];
+if (terr.value=="") {
+  var txt = document.forms['frm']['id_other_territorial_level'];
+  text = '<textarea style="width:100%" id="id_specific_territorial_level" name="specific_territorial_level" rows="4"></textarea>'
+  $("#id_specific_territorial_level").replaceWith(text);
+}
+else {
+  updateTerritorialLevel(terr);
+}
+</script>
+{% endblock %}

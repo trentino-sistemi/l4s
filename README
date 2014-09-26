@@ -1,0 +1,99 @@
+==================================================
+  ######  #######    #    ######  #     # #######
+  #     # #         # #   #     # ##   ## #
+  #     # #        #   #  #     # # # # # #
+  ######  #####   #     # #     # #  #  # #####
+  #   #   #       ####### #     # #     # #
+  #    #  #       #     # #     # #     # #
+  #     # ####### #     # ######  #     # #######
+==================================================
+
+
+--------------
+ Introduction
+--------------
+LOD4Stat (Linked Open Data for Statistics) is a platform to provide Statistical Data
+in respect of the Statistical Confidentiality with the LOD paradigm developed for 
+the PAT Servizio Statistica in collaboration with Informatica Trentina.
+
+---------
+ License
+---------
+
+This Program is distributed under the GNU Affero General Public License.
+See the file LICENSE for details.
+
+--------------
+ Requirements
+--------------
+
+- postgres 9.3
+
+In order to install python packages we suggest to install pip and run
+# pip install -r requirements.txt
+
+----------
+ Settings
+----------
+
+sudo su - postgres
+
+Your terminal prompt should now say "postgres@yourserver".
+Run this command to create your database:
+createuser -P django
+
+password: django
+
+Now create your database user with the following command:
+createdb djangodb
+
+Now activate the PostgreSQL command line interface like so:
+psql
+
+Grant this new user access to your new database with this command:
+
+GRANT ALL PRIVILEGES ON DATABASE djangodb TO django;
+
+Create a superuser for the django admin app:
+python manage.py createsuperuser --username=django --email=django@trentinosistemi.com
+
+username: django
+password: django
+
+and to populate the tables with command:
+python manage.py syncdb
+
+---------
+ Testing
+---------
+
+In order to test it run:
+# python manage.py runserver 0.0.0.0:8000
+
+The service will be available on address:
+http://127.0.0.1:8000
+
+-----------------
+ Production
+-----------------
+
+To deploy the service on a production environment you need
+to install Postgres, Nginx, and Gunicorn in a properly way.
+
+-------
+ Info
+-------
+
+  * To get info about the tool, please contact:
+
+      info@trentinosistemi.com
+
+  * To report bugs, please contact:
+
+       info@trentinosistemi.com
+
+
+Have fun!
+=====
+ EOF
+=====
