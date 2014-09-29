@@ -2022,17 +2022,20 @@ def build_summarize_filters(column_description,
         filt = filters[f]
         col_desc = get_column_desc(column_description, f)
         if len(filt) == len(values[f]):
+            vect = []
             if col_desc in index_names or col_desc in columns_names:
-                ret[col_desc] = all_s
+                vect.append(all_s)
+                ret[col_desc] = vect
             else:
-                ret[col_desc] = total_s
+                vect.append(total_s)
+                ret[col_desc] = vect
         elif len(filt) > 0:
             vect = []
             for v, val in enumerate(filt):
                 val_desc = "%s" % val[1]
                 val_desc = val_desc.strip()
                 vect.append(val_desc)
-            ret[col_desc] = ", ".join(vect)
+            ret[col_desc] = vect
     return ret
 
 
@@ -2061,7 +2064,7 @@ def build_agg_summarize_filters(target_col_desc,
             val_desc = "%s" % val[1]
             val_desc = val_desc.strip()
             vect.append(val_desc)
-    ret[target_col_desc] = ", ".join(vect)
+    ret[target_col_desc] = vect
     return ret
 
 
@@ -2176,7 +2179,7 @@ def build_query_desc(agg_col_desc, sel_tab):
         description += "%s" % unicode(_("Selected values"))
 
     for key in sel_tab:
-        value = sel_tab[key]
+        value = ", ".join(sel_tab[key])
         description += "\n%s: %s" % (key, value)
 
     return description

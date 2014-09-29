@@ -38,7 +38,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             <thead>
             <tr>
                 <th>{{ sel }}</th>
-                <th colspan="17" halign="left">{{ sel_tab|lookup:sel }}</th>
+                <th>
+                    {% if sel_tab|lookup:sel|length > 1 %}
+                    {{ sel_tab|lookup:sel|length }} {% trans "values" %}:
+                    {% endif %}
+                    {% for s in sel_tab|lookup:sel %}
+                    {{ s }}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                </th>
             </tr>
             </thead>
             {% endfor %}
