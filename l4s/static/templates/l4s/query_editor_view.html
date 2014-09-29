@@ -30,7 +30,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% for agg in agg_col %}
             <thead>
             <tr>
-                <th>{{ agg_col|lookup:agg|lookup:"title" }}</th>
+                <th colspan="2">{{ agg_col|lookup:agg|lookup:"title" }}</th>
             </tr>
             </thead>
             {% endfor %}
@@ -42,8 +42,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% if sel_tab|lookup:sel|length > 1 %}
                     {{ sel_tab|lookup:sel|length }} {% trans "values" %}:
                     {% endif %}
-                    {% for s in sel_tab|lookup:sel %}
-                    {{ s }}{% if not forloop.last %},{% endif %}
+                    {% for s in sel_tab|lookup:sel|slice:":9" %}
+                    {{ s }}{% if forloop.counter0 == 8 %}<text id="suspension_points">...</text>
+                    <a id="morebtn" class="navbar-right" data-toggle="collapse" data-target="#more" href="javascript:void(0)">{% trans "See more" %}</a>
+                    <div id="more" class="collapse">{% for s in sel_tab|lookup:sel|slice:"9:" %}{{s}}, {% endfor %}</div>
+                    {% else %}{% if not forloop.last %},{% endif %}{% endif %}
                     {% endfor %}
                 </th>
             </tr>
@@ -100,6 +103,18 @@ function OpenSavePopup() {
     h = 340;
     OpenPopupCenter(url, title, w, h);
 }
+$(document).ready(function() {
+    $("#morebtn").click(function() {
+        $(this).html(($(this).html() == "{% trans "See more" %}")? "{% trans "See less" %}" : "{% trans "See more" %}");
+        var el = document.getElementById("suspension_points");
+        if (el.innerHTML == "...") {
+            el.innerHTML = ",";
+        }
+        else {
+            el.innerHTML = "...";
+        }
+    });
+});
 </script>
 {% endif %}
 {% endblock %}

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-29 10:46+0200\n"
-"PO-Revision-Date: 2014-09-29 10:47+0100\n"
+"POT-Creation-Date: 2014-09-29 11:24+0200\n"
+"PO-Revision-Date: 2014-09-29 11:29+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -270,8 +270,8 @@ msgid "Run"
 msgstr "Esegui"
 
 #: l4s/static/templates/explorer/query.html:192
-#: l4s/static/templates/l4s/query_editor_view.html:62
-#: l4s/static/templates/l4s/query_editor_view.html:98
+#: l4s/static/templates/l4s/query_editor_view.html:66
+#: l4s/static/templates/l4s/query_editor_view.html:107
 msgid "Save"
 msgstr "Salva"
 
@@ -828,10 +828,19 @@ msgstr "Nome"
 msgid "values"
 msgstr "valori"
 
-#: l4s/static/templates/l4s/query_editor_view.html:60
-#: l4s/static/templates/l4s/query_editor_view.html:91
+#: l4s/static/templates/l4s/query_editor_view.html:47
+#: l4s/static/templates/l4s/query_editor_view.html:82
+msgid "See more"
+msgstr "Vedi più dettagli"
+
+#: l4s/static/templates/l4s/query_editor_view.html:64
+#: l4s/static/templates/l4s/query_editor_view.html:100
 msgid "Customize"
 msgstr "Personalizza"
+
+#: l4s/static/templates/l4s/query_editor_view.html:82
+msgid "See less"
+msgstr "Vedi meno dettagli"
 
 #: l4s/static/templates/l4s/source_table_list.html:28
 msgid " List of source database tables"
