@@ -134,7 +134,9 @@ class ManualRequest(models.Model):
         _('specific territorial level'),
         max_length=400,
         blank=True)
-    query = models.IntegerField(null=True)
+    url = models.CharField(_('url'),
+                           max_length=256,
+                           blank=False)
     dispatched = models.BooleanField(default=False)
 
 

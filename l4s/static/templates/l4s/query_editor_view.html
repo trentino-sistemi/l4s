@@ -63,6 +63,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <button class="btn btn-default" onclick="OpenCustomizePopup();">{% trans "Customize" %}</button>
 {% if request.user.is_authenticated %}
 <button class="btn btn-default" onclick="OpenSavePopup();">{% trans "Save" %}</button>
+<input type="button" class="btn btn-default" value="{% trans "Manual request" %}" onclick="location.href='/manual_request'">
 {% endif %}
 
 {% if dataframe %}

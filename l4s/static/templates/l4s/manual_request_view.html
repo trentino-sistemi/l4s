@@ -89,12 +89,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <td>{{ manual_request.specific_territorial_level }}</td>
     </tr>
     {% endif %}
-    {% if manual_request.query %}
     <tr>
         <td>{% trans "Query" %}</td>
-        <td><a href="/explorer/{{ manual_request.query }}/">{{ query.title }}</a></td>
+        <td><a href="{{ manual_request.url }}">{{ manual_request.subject }}</a></td>
     </tr>
-    {% endif %}
     </tbody>
 </table>
 {% if not manual_request.dispatched %}

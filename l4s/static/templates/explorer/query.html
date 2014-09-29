@@ -211,10 +211,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                 </ul>
                             </div>
                             {%  endif %}
-                            {% if request.user.is_authenticated %}
+                            {% if request.user.is_authenticated and manual_request %}
                             <input type="button" class="btn btn-default"
                                    value="{% trans "Manual request" %}"
-                            onclick="location.href='/manual_request/?id={{query.id}}'">
+                            onclick="location.href='/manual_request'">
                             {% endif %}
                         </div>
                     </div>

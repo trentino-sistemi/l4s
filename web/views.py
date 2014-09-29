@@ -105,6 +105,7 @@ def execute_query_viewmodel(request,
                             aggregation,
                             pivot,
                             debug,
+                            manual_request,
                             form=None,
                             message=None):
     """
@@ -117,6 +118,7 @@ def execute_query_viewmodel(request,
     :param debug:
     :param form:
     :param message:
+    :param manual_request:
     :return: The request response.
     """
     warn = None
@@ -202,6 +204,7 @@ def execute_query_viewmodel(request,
                            'constr_columns': st.constraint,
                            'decoder_columns': st.decoder,
                            'debug': debug,
+                           'manual_request': manual_request,
                            'language_code': translation.get_language()})
 
 
@@ -284,6 +287,7 @@ class CreateQueryView(ExplorerContextMixin, CreateView):
                                              aggregation_ids,
                                              pivot_cols,
                                              debug,
+                                             False,
                                              form=form,
                                              message=message)
                 return self.render_template('explorer/query.html', vm)
@@ -299,6 +303,7 @@ class CreateQueryView(ExplorerContextMixin, CreateView):
                                  'query': query,
                                  'form': form,
                                  'debug': debug,
+                                 'manual_request': False,
                                  'language_code': translation.get_language()})
             return self.render_template('explorer/query.html', vm)
 
@@ -339,6 +344,11 @@ class QueryView(ExplorerContextMixin, View):
         vm = query_viewmodel_get(request, query, form=form)
         vm['types'] = types
         vm['widgets'] = widgets
+        vm['manual_request'] = True
+
+        url = '/explorer/%d/' % query.pk
+        request.session['title'] = query.title
+        request.session['url'] = url
         return self.render_template('explorer/query.html', vm)
 
     def post(self, request, query_id):
@@ -402,6 +412,7 @@ class QueryView(ExplorerContextMixin, View):
                                              aggregation_ids,
                                              pivot_cols,
                                              debug,
+                                             True,
                                              form=form,
                                              message=message)
                 variable_dictionary, message = get_variable_dictionary(query)
@@ -423,10 +434,13 @@ class QueryView(ExplorerContextMixin, View):
                                  'query': query,
                                  'form': form,
                                  'debug': debug,
+                                 'manual_request': True,
                                  'language_code': translation.get_language()})
             return self.render_template('explorer/query.html', vm)
 
         url = '/explorer/%d/' % query.pk
+        request.session['title'] = query.title
+        request.session['url'] = url
         return redirect(url)
 
     @staticmethod
@@ -1282,6 +1296,10 @@ def query_editor_view(request):
     description = build_query_desc(agg_col, sel_tab)
     html = dataframe_to_html(df, pivot)
 
+    url = '/query_editor_view/?table=%s' % table_name
+    request.session['title'] = query.title
+    request.session['url'] = url
+
     request.session['title'] = title
     request.session['description'] = description
     request.session['sql'] = sql
@@ -1435,8 +1453,6 @@ def manual_request_view(request):
     manual_request_id = request.GET.get('id', '')
     item = ManualRequest.objects.get(id=manual_request_id)
     context['manual_request'] = item
-    query = Query.objects.get(id=item.query)
-    context['query'] = query
     form = ManualRequestDispatchForm(
         initial={'dispatcher': request.user, 'id': manual_request_id})
     return render_to_response("l4s/manual_request_view.html",
@@ -1479,16 +1495,15 @@ def manual_request(request):
                                       {'form': form},
                                       context_instance=context)
 
-    query_id = request.GET.get('id', '')
-    query = Query.objects.get(id=query_id)
-    subject = query.title
-    context['title'] = query.title
+    subject = request.session.get('title')
+    url = request.session.get('url')
+    context['title'] = subject
     context['districts'] = list_districts()
     context['valley_communities'] = list_valley_communities()
     context['tourism_sectors'] = list_tourism_sectors()
     context['health_districts'] = list_health_districts
     form = ManualRequestForm(initial={'inquirer': request.user,
-                                      'query': query_id,
+                                      'url': url,
                                       'subject': subject,
                                       'territorial_level': " "})
 

@@ -125,7 +125,7 @@ class ManualRequestForm(forms.ModelForm):
             'other_territorial_level': forms.TextInput(
                 attrs={'disabled': True, 'style': 'width: 100%'}),
             'specific_territorial_level': forms.SelectMultiple(),
-            'query': forms.HiddenInput(),
+            'url': forms.HiddenInput(),
             'dispatched': forms.HiddenInput(),
         }
 
