@@ -72,7 +72,10 @@ from web.utils import get_variable_dictionary, \
     get_all_field_values, \
     get_all_field_values_agg, \
     build_query_title, \
-    build_query_summary, build_query_desc
+    build_query_summary, \
+    build_query_desc, \
+    load_dataframe, \
+    store_dataframe
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -82,8 +85,7 @@ from web.topics import build_topics_dict, \
     build_topics_counter_dict
 from explorer.views import ExplorerContextMixin, \
     view_permission, \
-    reverse_lazy, \
-    require_GET
+    reverse_lazy
 from explorer.models import Query
 from explorer.utils import url_get_rows
 from web.actions import generate_report_action_csv, \
@@ -105,7 +107,7 @@ def execute_query_viewmodel(request,
                             aggregation,
                             pivot,
                             debug,
-                            manual_request,
+                            enable_manual_request,
                             form=None,
                             message=None):
     """
@@ -118,11 +120,12 @@ def execute_query_viewmodel(request,
     :param debug:
     :param form:
     :param message:
-    :param manual_request:
+    :param enable_manual_request:
     :return: The request response.
     """
     warn = None
     df = None
+    store = None
     html = ""
 
     rows = url_get_rows(request)
@@ -185,10 +188,13 @@ def execute_query_viewmodel(request,
             if warn_n is not None:
                 warn = warn_n
 
-        html = dataframe_to_html(df, pivot)
+        if df is not None:
+            store = store_dataframe(request, df)
+            html = dataframe_to_html(df, pivot)
 
     return RequestContext(request,
-                          {'warning': warn,
+                          {'store': store,
+                           'warning': warn,
                            'error': error,
                            'params': query.available_params(),
                            'query': query,
@@ -204,7 +210,7 @@ def execute_query_viewmodel(request,
                            'constr_columns': st.constraint,
                            'decoder_columns': st.decoder,
                            'debug': debug,
-                           'manual_request': manual_request,
+                           'manual_request': enable_manual_request,
                            'language_code': translation.get_language()})
 
 
@@ -426,6 +432,9 @@ class QueryView(ExplorerContextMixin, View):
                             "the data didn't validate.")
                 #@TODO Handle better exception message and remove print.
                 print e.message
+                import traceback
+                print traceback.format_exc()
+
 
         if message is not None:
             vm = RequestContext(request,
@@ -483,238 +492,104 @@ class QueryView(ExplorerContextMixin, View):
 
 
 @view_permission
-@require_GET
-def download_query(request, query_id):
+def query_download_csv(request):
     """
     Download query in CSV format.
 
     :param request: Django request.
-    :param query_id: Query id.
     :return: The request response.
     """
-    aggregation = request.REQUEST.get('aggregate', '')
-    aggregation_ids = []
-    for i in aggregation.split(','):
-        if i.isdigit():
-            aggregation_ids.append(int(i))
 
-    debug = False
-    if request.user.is_staff:
-        debug_s = request.GET.get('debug', '')
-        if debug_s and debug_s == 'true':
-            debug = True
-
-    pivot_column = request.GET.get('pivot_column', '')
-    pivot_cols = []
-    for i in pivot_column.split(','):
-        if i.isdigit():
-            pivot_cols.append(int(i))
-
-    query = get_object_or_404(Query, pk=query_id)
-    query.params = url_get_parameters(request)
-    fn = generate_report_action_csv(aggregation_ids, pivot_cols, debug)
-    return fn(query)
+    df = load_dataframe(request)
+    fn = generate_report_action_csv(df)
+    return fn(request.REQUEST.get('title', ''))
 
 
-def query_download_excel(request, query_id):
+def query_download_xls(request):
     """
     Download query in Excel 97 format.
 
     :param request: Django request.
-    :param query_id: Query id.
     :return: The request response.
     """
-    aggregation = request.REQUEST.get('aggregate', '')
-    aggregation_ids = []
-    for i in aggregation.split(','):
-        if i.isdigit():
-            aggregation_ids.append(int(i))
-
-    debug = False
-    if request.user.is_staff:
-        debug_s = request.GET.get('debug', '')
-        if debug_s and debug_s == 'true':
-            debug = True
-
-    pivot_column = request.GET.get('pivot_column', '')
-    pivot_cols = []
-    for i in pivot_column.split(','):
-        if i.isdigit():
-            pivot_cols.append(int(i))
-
-    query = get_object_or_404(Query, pk=query_id)
-    query.params = url_get_parameters(request)
-    fn = generate_report_action_xls(aggregation_ids, pivot_cols, debug)
-    return fn(query)
+    df = load_dataframe(request)
+    fn = generate_report_action_xls(df)
+    return fn(request.REQUEST.get('title', ''))
 
 
-def query_download_xlsx(request, query_id):
+def query_download_xlsx(request):
     """
     Download query in Excel xlsx 2007 format.
 
     :param request: Django request.
-    :param query_id: Query id.
     :return: The request response.
     """
-    aggregation = request.REQUEST.get('aggregate', '')
-    aggregation_ids = []
-    for i in aggregation.split(','):
-        if i.isdigit():
-            aggregation_ids.append(int(i))
-
-    debug = False
-    if request.user.is_staff:
-        debug_s = request.GET.get('debug', '')
-        if debug_s and debug_s == 'true':
-            debug = True
-
-    pivot_column = request.GET.get('pivot_column', '')
-    pivot_cols = []
-    for i in pivot_column.split(','):
-        if i.isdigit():
-            pivot_cols.append(int(i))
-
-    query = get_object_or_404(Query, pk=query_id)
-    query.params = url_get_parameters(request)
-    fn = generate_report_action_xlsx(aggregation_ids, pivot_cols, debug)
-    return fn(query)
+    df = load_dataframe(request)
+    fn = generate_report_action_xlsx(df)
+    return fn(request.REQUEST.get('title', ''))
 
 
-def query_download_json_stat(request, query_id):
+def query_download_json_stat(request):
     """
     Download query in Json stat format.
 
     :param request: Django request.
-    :param query_id: Query id.
     :return: The request response.
     """
-    aggregation = request.REQUEST.get('aggregate', '')
-    aggregation_ids = []
-    for i in aggregation.split(','):
-        if i.isdigit():
-            aggregation_ids.append(int(i))
+    df = load_dataframe(request)
+    title = request.REQUEST.get('title')
 
-    debug = False
-    if request.user.is_staff:
-        debug_s = request.GET.get('debug', '')
-        if debug_s and debug_s == 'true':
-            debug = True
-
-    pivot_column = request.GET.get('pivot_column', '')
-    pivot_cols = []
-    for i in pivot_column.split(','):
-        if i.isdigit():
-            pivot_cols.append(int(i))
-
-    query = get_object_or_404(Query, pk=query_id)
-    st = detect_special_columns(query.sql)
-
-    query.params = url_get_parameters(request)
-    fn = generate_report_action_json_stat(aggregation_ids,
-                                          st.threshold,
-                                          st.constraint,
-                                          pivot_cols,
-                                          debug)
-    return fn(query)
+    fn = generate_report_action_json_stat(df)
+    return fn(title)
 
 
-def query_download_sdmx(request, query_id):
+def query_download_sdmx(request):
     """
     Download query in Sdmx xlm message format.
 
     :param request: Django request.
-    :param query_id: Query id.
     :return: The request response.
     """
-    aggregation = request.REQUEST.get('aggregate', '')
-    aggregation_ids = []
-    for i in aggregation.split(','):
-        if i.isdigit():
-            aggregation_ids.append(int(i))
+    df = load_dataframe(request)
+    title = request.REQUEST.get('title')
+    fn = generate_report_action_sdmx(df)
+    sql = request.REQUEST.get('sql')
 
-    debug = False
-    if request.user.is_staff:
-        debug_s = request.GET.get('debug', '')
-        if debug_s and debug_s == 'true':
-            debug = True
-
-    pivot_column = request.GET.get('pivot_column', '')
-    pivot_cols = []
-    for i in pivot_column.split(','):
-        if i.isdigit():
-            pivot_cols.append(int(i))
-
-    query = get_object_or_404(Query, pk=query_id)
-    query.params = url_get_parameters(request)
-    fn = generate_report_action_sdmx(aggregation_ids, pivot_cols, debug)
-
-    return fn(query)
+    return fn(title, sql)
 
 
-def query_download_rdf(request, query_id):
+def query_download_rdf(request):
     """
     Download query in Rdf data cube format.
 
     :param request: Django request.
-    :param query_id: Query id.
     :return: The request response.
     """
-    aggregation = request.REQUEST.get('aggregate', '')
-    aggregation_ids = []
-    for i in aggregation.split(','):
-        if i.isdigit():
-            aggregation_ids.append(int(i))
+    df = load_dataframe(request)
+    title = request.REQUEST.get('title')
+    sql = request.REQUEST.get('sql')
+    description = request.REQUEST.get('description')
 
-    debug = False
-    if request.user.is_staff:
-        debug_s = request.GET.get('debug', '')
-        if debug_s and debug_s == 'true':
-            debug = True
+    fn = generate_report_action_rdf(df)
 
-    pivot_column = request.GET.get('pivot_column', '')
-    pivot_cols = []
-    for i in pivot_column.split(','):
-        if i.isdigit():
-            pivot_cols.append(int(i))
-
-    query = get_object_or_404(Query, pk=query_id)
-    query.params = url_get_parameters(request)
-    fn = generate_report_action_rdf(aggregation_ids, pivot_cols, debug)
-
-    return fn(query)
+    return fn(title, description, sql)
 
 
-def query_download_turtle(request, query_id):
+def query_download_turtle(request):
     """
     Download query in Rdf data cube format.
 
     :param request: Django request.
-    :param query_id: Query id.
     :return: The request response.
     """
-    aggregation = request.REQUEST.get('aggregate', '')
-    aggregation_ids = []
-    for i in aggregation.split(','):
-        if i.isdigit():
-            aggregation_ids.append(int(i))
+    df = load_dataframe(request)
+    title = request.REQUEST.get('title')
+    sql = request.REQUEST.get('sql')
+    description = request.REQUEST.get('description')
 
-    debug = False
-    if request.user.is_staff:
-        debug_s = request.GET.get('debug', '')
-        if debug_s and debug_s == 'true':
-            debug = True
+    fn = generate_report_action_turtle(df)
 
-    pivot_column = request.GET.get('pivot_column', '')
-    pivot_cols = []
-    for i in pivot_column.split(','):
-        if i.isdigit():
-            pivot_cols.append(int(i))
-
-    query = get_object_or_404(Query, pk=query_id)
-    query.params = url_get_parameters(request)
-    fn = generate_report_action_turtle(aggregation_ids, pivot_cols, debug)
-
-    return fn(query)
+    return fn(title, description, sql)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -1294,6 +1169,7 @@ def query_editor_view(request):
                                            df.index.names)
 
     description = build_query_desc(agg_col, sel_tab)
+    store = store_dataframe(request, df)
     html = dataframe_to_html(df, pivot)
 
     url = '/query_editor_view/?table=%s' % table_name
@@ -1309,6 +1185,10 @@ def query_editor_view(request):
     request.session['column_description'] = column_description
 
     context['dataframe'] = html
+    context['store'] = store
+    context['sql'] = sql
+    context['description'] = description
+    context['title'] = title
     context['columns'] = ",".join(cols)
     context['rows'] = ",".join(rows)
     context['sel_aggregate'] = aggregation
@@ -1316,6 +1196,8 @@ def query_editor_view(request):
     context['title'] = title
     context['sel_tab'] = sel_tab
     context['agg_col'] = agg_col
+
+
     return render_to_response("l4s/query_editor_view.html", context)
 
 

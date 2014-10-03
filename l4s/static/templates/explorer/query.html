@@ -201,13 +201,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="btn btn-default download_button" href="#">CSV</a></li>
-                                    <li><a class="btn btn-default download_excel_button" href="#">Excel 1997</a></li>
+                                    <li><a class="btn btn-default download_csv_button" href="#">CSV</a></li>
+                                    <li><a class="btn btn-default download_xls_button" href="#">Excel 1997</a></li>
                                     <li><a class="btn btn-default download_xlsx_button" href="#">Excel 2007</a></li>
                                     <li><a class="btn btn-default download_rdf_button" href="#">Rdf</a></li>
                                     <li><a class="btn btn-default download_turtle_button" href="#">Turtle</a></li>
-                                    <li><a class="btn btn-default download_json_stat_button" href="#">JSON-stat</a></li>
                                     <li><a class="btn btn-default download_sdmx_button" href="#">Sdmx</a></li>
+                                    <li><a class="btn btn-default download_json_stat_button" href="#">JSON-stat</a></li>
                                 </ul>
                             </div>
                             {%  endif %}
@@ -335,6 +335,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% block sql_explorer_scripts %}
     {% include 'explorer/preview_pane_scripts.html' %}
     {% include 'explorer/sql_advanced_editor_scripts.html' %}
+    <script type="text/javascript" src="/static/js/download.js"></script>
     <script>
         $('#progress').hide();
         function get_pivot_column() {
@@ -422,33 +423,52 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 action = get_params(this, action);
                 $(this).closest("form").attr('action', action);
             });
-            $(".download_button").click(function(e) {
+            $(".download_csv_button").click(function(e) {
                 e.preventDefault();
-                window.location.href = 'download' + get_params(this, "");
+                store = "{{ store }}";
+                title = "{{ query.title }}";
+                download('/download_csv', "store=" + store + "&title=" +  title , 'POST', "{% csrf_token %}");
             });
-            $(".download_excel_button").click(function(e) {
+            $(".download_xls_button").click(function(e) {
                 e.preventDefault();
-                window.location.href = 'download_excel' + get_params(this, "");
+                store = "{{ store }}";
+                title = "{{ query.title }}";
+                download('/download_xls', "store=" + store + "&title=" +  title , 'POST', "{% csrf_token %}");
             });
             $(".download_xlsx_button").click(function(e) {
                 e.preventDefault();
-                window.location.href = 'download_xlsx' + get_params(this, "");
+                store = "{{ store }}";
+                title = "{{ query.title }}";
+                download('/download_xlsx', "store=" + store + "&title=" +  title , 'POST', "{% csrf_token %}");
             });
             $(".download_sdmx_button").click(function(e) {
                 e.preventDefault();
-                window.location.href = 'download_sdmx' + get_params(this, "");
+                store = "{{ store }}";
+                title = "{{ query.title }}";
+                sql = "{{ query.sql|escapejs }}"
+                download('/download_sdmx', "store=" + store + "&title=" +  title + "&sql=" + sql, 'POST', "{% csrf_token %}");
             });
             $(".download_json_stat_button").click(function(e) {
                 e.preventDefault();
-                window.location.href = 'download_json_stat' + get_params(this, "");
+                store = "{{ store }}";
+                title = "{{ query.title }}";
+                download('/download_json_stat', "store=" + store + "&title=" +  title , 'POST', "{% csrf_token %}");
             });
             $(".download_rdf_button").click(function(e) {
                 e.preventDefault();
-                window.location.href = 'download_rdf' + get_params(this, "");
+                store = "{{ store }}";
+                title = "{{ query.title }}";
+                sql = "{{ query.sql|escapejs }}"
+                description = "{{ query.description|escapejs }}"
+                download('/download_rdf', "store=" + store + "&title=" +  title + "&sql=" + sql + "&description=" + description, 'POST', "{% csrf_token %}");
             });
             $(".download_turtle_button").click(function(e) {
                 e.preventDefault();
-                window.location.href = 'download_turtle' + get_params(this, "");
+                store = "{{ store }}";
+                title = "{{ query.title }}";
+                sql = "{{ query.sql|escapejs }}"
+                description = "{{ query.description|escapejs }}"
+                download('/download_turtle', "store=" + store + "&title=" +  title + "&sql=" + sql + "&description=" + description, 'POST', "{% csrf_token %}");
             });
         });
     </script>

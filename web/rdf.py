@@ -18,7 +18,9 @@
 import string
 from rdflib import Graph, URIRef, Literal, BNode, Namespace, term
 from rdflib.namespace import RDF, FOAF
-from utils import get_metadata_on_column, get_subject_table
+from utils import get_metadata_on_column, \
+    get_subject_table,\
+    get_data_from_data_frame
 
 
 myns = Namespace("http://ontology.trentinosistemi.com/ns/")
@@ -56,17 +58,17 @@ class Item(object):
         return self.t_object
 
 
-def build_column_dict(data_frame, query):
+def build_column_dict(data_frame, sql):
     """
     Build a dictionary with key column position and value the list of
     related items (predicate and objects).
 
     :param data_frame: The query header.
-    :param query: The query.
+    :param sql: The sql  query.
     :return:The column dictionary.
     """
     column_dict = dict()
-    for line in query.sql.splitlines():
+    for line in sql.splitlines():
         left_stripped_line = line.lstrip(' ')
         words = left_stripped_line.split(' ')
         declare = words[0]
@@ -124,12 +126,16 @@ def get_topics(source_tables):
     return topics
 
 
-def add_table_triples(g, query, source_tables, table_name, subject_t_ref):
+def add_table_triples(description,
+                      g,
+                      source_tables,
+                      table_name,
+                      subject_t_ref):
     """
     Add to the graph the list of triples representing the table.
 
+    :param description: Query description.
     :param g: Rdflib Graph.
-    :param query: Sql query.
     :param source_tables: Source tables.
     :param table_name: The table name.
     :param subject_t_ref: The subject reference.
@@ -137,7 +143,7 @@ def add_table_triples(g, query, source_tables, table_name, subject_t_ref):
     """
     title_value = table_name
     publisher_value_ref = term.URIRef(myns['sspat'])
-    table_description = query.description
+    table_description = description
 
     g.add((subject_t_ref, RDF.type, dataset_ref))
     g.add((subject_t_ref, title_ref, Literal(title_value)))
@@ -183,7 +189,7 @@ def add_slice_triples(g, subject_t_ref, data_frame, col_dict):
 
 
 def add_observations_triples(g, data, table_name, slice_t_ref,
-                             col_dict, debug):
+                             col_dict):
     """
     Add to the graph the list of triples representing the observations.
 
@@ -191,7 +197,6 @@ def add_observations_triples(g, data, table_name, slice_t_ref,
     :param data: The data set.
     :param table_name: The table name.
     :param slice_t_ref: The slice reference.
-    :param data_frame: The Pandas dataframe.
     :param col_dict: The column dictionary.
     :return: The Rdflib Graph enriched with the observations triples.
     """
@@ -207,21 +212,22 @@ def add_observations_triples(g, data, table_name, slice_t_ref,
                     if '#' in dest:
                         val = row[c + (len(row) - len(col_dict))]
                         value = "%s" % val
-                        if not value.startswith('*') or debug:
+                        value = value.strip()
+                        if not value.startswith('*'):
                             g.add((oss_ref, URIRef(dest), Literal(value)))
     return g
 
 
-def get_source_tables(query):
+def get_source_tables(sql):
     """
     Get the source tables.
     Source tables are the tables involved in the query.
 
-    :param query: The query
+    :param sql: The sql query.
     :return: the list of name of the source tables.
     """
     table_list = []
-    for line in query.sql.splitlines():
+    for line in sql.splitlines():
         left_stripped_line = line.lstrip(' ')
         words = left_stripped_line.split(' ')
         declare = words[0]
@@ -237,35 +243,35 @@ def get_source_tables(query):
     return table_list
 
 
-def rdf_report(query,
+def rdf_report(sql,
                title,
-               debug,
-               data=None,
+               description,
                data_frame=None,
                rdf_format=None):
     """
     Get the rdf report.
 
-    :param query: The query.
-    :param title: The query title-
-    :param data: The result data set.
-    :param data_frame: The Pandas dataframe.
+    :param sql: The query.
+    :param title: The query title.
+    :param description: Query description.
+    :param data_frame: The Pandas data frame.
     :param rdf_format: The desired rdf format.
     :return: The serialized Rdf.
     """
     g = Graph()
+    data = get_data_from_data_frame(data_frame)
     title = title.decode('utf-8')
     dataset = "dataset-%s" % title
     subject_t_ref = term.URIRef(myns[dataset])
-    source_tables = get_source_tables(query)
+    source_tables = get_source_tables(sql)
 
-    g = add_table_triples(g, query, source_tables, title, subject_t_ref)
-    col_dict = build_column_dict(data_frame, query)
+    g = add_table_triples(description, g, source_tables, title, subject_t_ref)
+    col_dict = build_column_dict(data_frame, sql)
     slice_t_ref = term.URIRef(myns['slice'])
 
     g = add_slice_triples(g, subject_t_ref,
                           data_frame, col_dict)
     g = add_observations_triples(g, data, title,
-                                 slice_t_ref, col_dict, debug)
+                                 slice_t_ref, col_dict)
     ser = g.serialize(format=rdf_format)
     return ser

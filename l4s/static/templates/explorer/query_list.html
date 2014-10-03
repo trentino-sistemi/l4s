@@ -292,8 +292,12 @@ $(document).ready(function(){
         var priv_elem = document.getElementById(order_by + "_private");
     }
     var s = '<i class="glyphicon glyphicon-chevron-down" style="font-size: 18px;"></i>';
-    pub_elem.innerHTML = s
-    priv_elem.innerHTML = s
+    if (pub_elem != null) {
+        pub_elem.innerHTML = s;
+    }
+    if (priv_elem != null) {
+        priv_elem.innerHTML = s;
+    }
 })
 </script>
 {% endblock %}

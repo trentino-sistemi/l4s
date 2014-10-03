@@ -85,6 +85,34 @@ urlpatterns = patterns('',
                        url(r'^ontology/delete/$',
                            'web.views.delete_ontology',
                            name='delete_ontology'),
+                       # Download query in csv format.
+                       url(r'^download_csv',
+                           'web.views.query_download_csv',
+                           name='query_download_csv'),
+                       # Download query in xlsx Excel 2007 format.
+                       url(r'^download_xlsx',
+                           'web.views.query_download_xlsx',
+                           name='query_download_xlsx'),
+                       # Download query in excel 97 format.
+                       url(r'^download_xls',
+                           'web.views.query_download_xls',
+                           name='query_download_xls'),
+                       # Download query in json-stat format.
+                       url(r'^download_json_stat',
+                           'web.views.query_download_json_stat',
+                           name='query_download_json_stat'),
+                       # Download query in sdmx format.
+                       url(r'^download_sdmx',
+                           'web.views.query_download_sdmx',
+                           name='query_download_sdmx'),
+                       # Download query in rdf format.
+                       url(r'^download_rdf',
+                           'web.views.query_download_rdf',
+                           name='query_download_rdf'),
+                       # Download query in turtle format.
+                       url(r'^download_turtle',
+                           'web.views.query_download_turtle',
+                           name='query_download_turtle'),
                        # Url to show table structure.
                        url(r'^table/$',
                            'web.views.table',
@@ -161,34 +189,6 @@ urlpatterns = patterns('',
                        url(r'^explorer/(?P<query_id>\d+)/$',
                            QueryView.as_view(),
                            name='query_detail'),
-                       # Download query in csv format.
-                       url(r'^explorer/(?P<query_id>\d+)/download$',
-                           'web.views.download_query',
-                           name='query_download'),
-                       # Download query in excel 97 format.
-                       url(r'^explorer/(?P<query_id>\d+)/download_excel$',
-                           'web.views.query_download_excel',
-                           name='query_download_excel'),
-                       # Download query in xlsx Excel 2007 format.
-                       url(r'^explorer/(?P<query_id>\d+)/download_xlsx$',
-                           'web.views.query_download_xlsx',
-                           name='query_download_excel'),
-                       # Download query in json-stat format.
-                       url(r'^explorer/(?P<query_id>\d+)/download_json_stat$',
-                           'web.views.query_download_json_stat',
-                           name='query_download_json_stat'),
-                       # Download query in sdmx format.
-                       url(r'^explorer/(?P<query_id>\d+)/download_sdmx$',
-                           'web.views.query_download_sdmx',
-                           name='query_download_sdmx'),
-                       # Download query in rdf format.
-                       url(r'^explorer/(?P<query_id>\d+)/download_rdf$',
-                           'web.views.query_download_rdf',
-                           name='query_download_rdf'),
-                       # Download query in turtle format.
-                       url(r'^explorer/(?P<query_id>\d+)/download_turtle$',
-                           'web.views.query_download_turtle',
-                           name='query_download_turtle'),
                        # Recent queries.
                        url(r'^explorer/recent_queries/$',
                            'web.views.recent_queries',

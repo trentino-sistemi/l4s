@@ -33,6 +33,9 @@ import re
 from l4s.settings import EXPLORER_DEFAULT_ROWS,\
     EXPLORER_DEFAULT_COLS,\
     DESCRIPTION_SUBJECT
+import tempfile
+import os
+import pandas as pd
 
 
 METADATA = 'web_metadata'
@@ -866,7 +869,8 @@ def get_data_from_data_frame(df):
     :param df: Pandas data frame.
     :return: List of tuples representing the data in table.
     """
-    return [x for x in df.to_records()]
+    index = is_dataframe_multi_index(df)
+    return [x for x in df.to_records(index=index)]
 
 
 def change_query(model_instance, pivot_cols, aggregation_ids):
@@ -895,25 +899,33 @@ def change_query(model_instance, pivot_cols, aggregation_ids):
     model_instance.sql = sql
 
 
-def unpivot(df, sql):
+def unpivot(df):
     """
     Take a pivot table and unpivot it preserving the column number.
     This is useful to have a plain table from a pivoted one.
 
-    :param df:
-    :param sql:
-    :return: df, data
+    :param df: Pandas Dataframe.
+    :return: Unpivoted Pandas data frame.
     """
+    cols = []
+    for c, col in enumerate(df.columns.names):
+        if col is not None:
+            cols.append(col)
+
+    for i, index in enumerate(df.index.names):
+        cols.append(index)
+
+    obs_value = df.columns.levels[0][0]
+    cols.append(obs_value)
+
     df = drop_total_column(df)
     df = drop_total_row(df)
     df = df.stack().reset_index()
     df = df.dropna()
-    st = detect_special_columns(sql)
-    columns = [st.cols[x]['column'] for x in st.cols.keys()]
-    df = df.reindex_axis(columns, axis=1)
-    data = get_data_from_data_frame(df)
 
-    return df, data
+    df = df.reindex_axis(cols, axis=1)
+
+    return df
 
 
 class Symboltable(object):
@@ -2040,24 +2052,20 @@ def build_summarize_filters(column_description,
 
 
 def build_agg_summarize_filters(target_col_desc,
-                                vals,
-                                filters,
-                                columns_names,
-                                index_names):
+                                all_vals,
+                                filters):
     """
     Build an hash table that summarize the aggregation filters.
 
     :param target_col_desc:
-    :param vals:
+    :param all_vals:
     :param filters:
-    :param columns_names:
-    :param index_names:
     :return:
     """
     ret = dict()
     vect = []
     all_s = unicode(_("all"))
-    if len(vals) == len(filters):
+    if len(all_vals) == len(filters):
         vect.append(all_s)
     else:
         for v, val in enumerate(filters):
@@ -2077,7 +2085,7 @@ def build_aggregation_title(src_col_desc, target_col_desc):
     :return:
     """
     group_by = unicode(_("group by"))
-    title = "%s %s " %(src_col_desc, group_by)
+    title = "%s %s " % (src_col_desc, group_by)
     title += "%s" % target_col_desc.lower()
     return title
 
@@ -2107,11 +2115,10 @@ def build_all_filter(column_description,
     ret = {}
     for a, a_id in enumerate(aggregation_ids):
         target_col_desc = agg_col_desc[a_id]['description']
+        i_id = int(a_id)
         summarize_agg_filters = build_agg_summarize_filters(target_col_desc,
-                                                            agg_values[int(a_id)],
-                                                            agg_filters[a_id],
-                                                            columns_names,
-                                                            index_names)
+                                                            agg_values[i_id],
+                                                            agg_filters[a_id])
         ret.update(summarize_agg_filters)
 
     summarize_filters = build_summarize_filters(column_description,
@@ -2211,6 +2218,65 @@ def build_query_title(df):
             title += " %s" % and_s
         title += " %s" % index.decode('utf-8').lower()
     return title
+
+
+def _generate_cart_id():
+    cart_id = ''
+    characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'
+    cart_id_length = 50
+    for y in range(cart_id_length):
+        cart_id += characters[random.randint(0, len(characters)-1)]
+    return cart_id
+
+
+def get_session_filename(request):
+    """
+    Get a temporary filename associated to the request.
+
+    :param request:
+    :return:
+    """
+    session_id = str(_generate_cart_id())
+    sys_temp = tempfile.gettempdir()
+    store_name = "%s.pkl" % session_id
+    store_name = os.path.join(sys_temp, store_name)
+    return store_name
+
+
+def load_dataframe(request):
+    """
+    Load the data frame from the file associated to the request.
+
+    :param request:
+    :return:
+    """
+    store_name = request.REQUEST.get('store', '')
+    df = pd.read_pickle(store_name)
+    return df
+
+
+def store_dataframe(request, df):
+    """
+    Store in a temporary file associated to the request the dataframe.
+
+    :param request:
+    :param df:
+    """
+    store_name = get_session_filename(request)
+    if os.path.exists(store_name):
+        os.remove(store_name)
+    df.to_pickle(store_name)
+    return store_name
+
+
+def is_dataframe_multi_index(df):
+    """
+    Check if the data frame is multi index.
+
+    :param df:
+    :return:
+    """
+    return type(df.columns) == pd.MultiIndex
 
 
 def dataframe_to_html(df, pivot):

@@ -20,7 +20,7 @@ import sdmx_message as sdmx
 import time
 from datetime import datetime
 from l4s.settings import SENDER, LANGUAGE_CODE, SENDER_NAME
-from web.utils import get_metadata_on_column
+from web.utils import get_metadata_on_column, get_data_from_data_frame
 
 
 class Item(object):
@@ -42,17 +42,17 @@ class Item(object):
         return self.t_object
 
 
-def build_column_dict(data_frame, query):
+def build_column_dict(data_frame, sql):
     """
     Build a dictionary with key column position and value the list of
     related items (predicate and objects).
 
     :param data_frame: The Pandas dataframe.
-    :param query: The query.
+    :param sql: The sql query.
     :return:The column dictionary.
     """
     column_dict = dict()
-    for line in query.sql.splitlines():
+    for line in sql.splitlines():
         left_stripped_line = line.lstrip(' ')
         words = left_stripped_line.split(' ')
         declare = words[0]
@@ -124,19 +124,15 @@ def get_concept(col_dict, c):
     return None
 
 
-def sdmx_report(query,
-                debug,
-                data=None,
-                data_frame=None):
+def sdmx_report(sql, data_frame=None):
     """
     Build the sdmx file.
 
-    :param query: Sql text query.
-    :param data: The data
+    :param sql: Sql text query.
     :param data_frame: The Pandas dataframe
     :return: Sdmx.
     """
-    col_dict = build_column_dict(data_frame, query)
+    col_dict = build_column_dict(data_frame, sql)
 
     out_stream = StringIO.StringIO()
     generic_data = sdmx.GenericDataType()
@@ -156,12 +152,13 @@ def sdmx_report(query,
     generic_data.set_Header(header)
     data_set = sdmx.DataSetType()
     data_set.set_keyFamilyURI(SENDER_NAME)
+    data = get_data_from_data_frame(data_frame)
     for r, row in enumerate(data):
         series = sdmx.SeriesType()
         series_key = sdmx.SeriesKeyType()
         obs = sdmx.ObsType()
         for c in col_dict:
-            if (len(row) > len(data_frame.columns)):
+            if len(row) > len(data_frame.columns):
                 v = row[c + (len(row) - len(data_frame.columns))]
             else:
                 v = row[c]
@@ -169,7 +166,7 @@ def sdmx_report(query,
             value = sdmx.ValueType()
             concept = get_concept(col_dict, c)
             if concept == 'obsValue':
-                if not val.startswith('*') or debug:
+                if not val.startswith('*'):
                     obs_value = sdmx.ObsValueType()
                     obs_value.set_value(val)
                     obs.set_ObsValue(obs_value)
