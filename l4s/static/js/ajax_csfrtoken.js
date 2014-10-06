@@ -45,7 +45,6 @@
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
                 var csrftoken = $.cookie('csrftoken');
-                alert(csrftoken);
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
         }
