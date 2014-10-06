@@ -37,27 +37,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 <body>
 
-<form id='frm' method="POST" action="." role="form" class="form-horizontal">
+<form id='frm' method="POST" action="/query_editor_save_done/" role="form" class="form-horizontal">
     {% csrf_token %}
+
     <table class="table table-striped" style="width=100%">
-        {{ form.title.errors }}
-        <tbody>
-        <tr>
-            <th>
-                <label>{% trans "Title" %}:</label>
-            </th>
-            <td><textarea class="form-control" id="id_title" name="title">{% if form.title.value %}{{form.title.value}}{% endif %}</textarea></td>
-        </tr>
-        {{ form.description.errors }}
-        <tr>
-            <th>
-                <label>{% trans "Description" %}:</label>
-            </th>
-            <td><textarea style="height:180" class="form-control" id="id_description" name="description">{% if form.description.value %}{{form.description.value}}{% endif %}</textarea></td>
-        </tr>
-        <textarea style="display: none;" id="id_sql" name="sql">{{ form.sql.value }}</textarea>
-        <input style="display: none;" id="id_created_by" name="created_by" type="text" value="{{ form.created_by.value }}" />
-        </tbody>
+        {{ form.as_table }}
     </table>
     <p></p>
 

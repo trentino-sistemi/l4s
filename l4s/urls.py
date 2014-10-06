@@ -29,6 +29,10 @@ urlpatterns = patterns('',
                        url(r'^query_editor_customize/$',
                            'web.views.query_editor_customize',
                            name='query_editor_customize'),
+                       #Url for query editor save done.
+                       url(r'^query_editor_save_done/$',
+                           'web.views.query_editor_save_done',
+                           name='query_editor_save_done'),
                        #Url for query editor save.
                        url(r'^query_editor_save/$',
                            'web.views.query_editor_save',

@@ -36,6 +36,7 @@ from l4s.settings import EXPLORER_DEFAULT_ROWS,\
 import tempfile
 import os
 import pandas as pd
+import uuid
 
 
 METADATA = 'web_metadata'
@@ -604,13 +605,16 @@ def build_query(table_name, columns, rows, aggregation_ids, filters, values):
     query += '%s' % comma_sep_fields
     query += '\nFROM %s' % table_name
     filtered = False
+
     for field in filters:
         filter_vals = filters[field]
+
         if len(values[field]) != len(filter_vals):
             selected_vals = []
+
             for val in filter_vals:
                 selected_vals.append(str(val[0]))
-            if len(filter_vals) > 0:
+            if filter_vals is not None and len(filter_vals) > 0:
                 if filtered:
                     query += '\nAND'
                 else:
@@ -2220,13 +2224,14 @@ def build_query_title(df):
     return title
 
 
-def _generate_cart_id():
-    cart_id = ''
-    characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'
-    cart_id_length = 50
-    for y in range(cart_id_length):
-        cart_id += characters[random.randint(0, len(characters)-1)]
-    return cart_id
+def generate_storage_id():
+    """
+    Get a new storage id.
+
+    :return:
+    """
+    storage_id = "%d" %uuid.uuid4()
+    return storage_id
 
 
 def get_session_filename(request):
@@ -2236,7 +2241,7 @@ def get_session_filename(request):
     :param request:
     :return:
     """
-    session_id = str(_generate_cart_id())
+    session_id = str(generate_storage_id())
     sys_temp = tempfile.gettempdir()
     store_name = "%s.pkl" % session_id
     store_name = os.path.join(sys_temp, store_name)

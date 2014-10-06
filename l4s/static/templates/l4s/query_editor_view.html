@@ -20,6 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {% extends "explorer/base.html" %}
 {% load i18n %}
+{% load jsonify %}
 {% load dictionary_extras %}
 
 {% block l4s_container %}
@@ -94,13 +95,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <form id="form" method="post">
     {% csrf_token %}
 </form>
+<script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
 <script type="text/javascript" src="/static/js/download.js"></script>
 <script>
+initToken();
 function OpenPopupCenter(pageURL, title, w, h) {
     var left = (screen.width - w) / 2;
     var top = (screen.height - h) / 4;  // for 25% - divide by 4  |  for 33% - divide by 3
     var targetWin = window.open(pageURL, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
-    targetWin.focus()
+    targetWin.focus();
+    return targetWin;
 }
 function OpenCustomizePopup() {
     url = '/query_editor_customize?table={{ table_name }}&rows={{ rows }}&columns={{ columns }}';
@@ -118,11 +123,34 @@ function OpenCustomizePopup() {
     OpenPopupCenter(url, title, w, h);
 }
 function OpenSavePopup() {
-    url = '/query_editor_save?table={{ table_name }}&rows={{ rows }}&columns={{ columns }}';
     title = '{% trans "Save" %}';
     w = 800;
     h = 340;
-    OpenPopupCenter(url, title, w, h);
+    filters = "{{ filters }}";
+    alert(filters);
+    url = '/query_editor_save/';
+    data = { 'title': '{{ title|escapejs }}',
+             'description':'{{ description|escapejs }}',
+             'sql':'{{ sql|escapejs }}',
+             'table': '{{ table_name|escapejs }}',
+             'columns': '{{ columns|escapejs }}',
+             'rows': '{{ rows }}',
+             'aggregations': '{{ sel_aggregate|escapejs }}',
+             'filters': '{{ filters|jsonify|escapejs }}',
+             'agg_filters': '{{ agg_filters|jsonify|escapejs }}'
+              };
+    $.ajax({
+		url: url,
+        type: "POST",
+        data: data,
+        success: function(response) {
+        x = OpenPopupCenter('', title, w, h);
+        x.document.write(response);
+	    },
+        error: function(xhr, status) {
+			alert(status);
+			}
+    });
 }
 $(document).ready(function() {
     $("#morebtn").click(function() {

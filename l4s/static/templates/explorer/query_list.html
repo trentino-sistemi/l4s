@@ -20,6 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {% extends "explorer/base.html" %}
 {% load i18n %}
+{% load jsonify %}
 
 {% block sql_explorer_content %}
 
@@ -104,14 +105,32 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% if object.is_public %}
             <tr>
                 <td>
+                    {% if object.query_editor %}
+                    <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
+                                                      "{{ object.columns|escapejs }}",
+                                                      "{{ object.rows|escapejs }}",
+                                                      "{{ object.aggregations|escapejs }}",
+                                                      "{{ object.filters | escapejs }}",
+                                                      "{{ object.agg_filters|escapejs }}" )'
+                    {% else %}
                     <a href="{{ object.id }}/"
+                    {% endif %}
                     {% if object.description and object.description.strip != "" %}
                        title="{{ object.description.strip }}"
                     {% endif %}>{{ object.id }}
                     </a>
                 </td>
                 <td>
+                    {% if object.query_editor %}
+                    <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
+                                                      "{{ object.columns|escapejs }}",
+                                                      "{{ object.rows|escapejs }}",
+                                                      "{{ object.aggregations|escapejs }}",
+                                                      "{{ object.filters | escapejs }}",
+                                                      "{{ object.agg_filters|escapejs }}" )'
+                    {% else %}
                     <a href="{{ object.id }}/"
+                    {% endif %}
                     {% if object.description and object.description.strip != "" %}
                        title="{{ object.description.strip }}"
                     {% endif %}>{{ object }}
@@ -203,14 +222,32 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% if object.created_by == request.user.email %}
             <tr>
                 <td>
+                    {% if object.query_editor %}
+                    <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
+                                                      "{{ object.columns|escapejs }}",
+                                                      "{{ object.rows|escapejs }}",
+                                                      "{{ object.aggregations|escapejs }}",
+                                                      "{{ object.filters | escapejs }}",
+                                                      "{{ object.agg_filters|escapejs }}" )'
+                    {% else %}
                     <a href="{{ object.id }}/"
+                    {% endif %}
                     {% if object.description and object.description.strip != "" %}
                        title="{{ object.description.strip }}"
                     {% endif %}>{{ object.id }}
                     </a>
                 </td>
                 <td>
+                    {% if object.query_editor %}
+                    <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
+                                                      "{{ object.columns|escapejs }}",
+                                                      "{{ object.rows|escapejs }}",
+                                                      "{{ object.aggregations|escapejs }}",
+                                                      "{{ object.filters | escapejs }}",
+                                                      "{{ object.agg_filters|escapejs }}" )'
+                    {% else %}
                     <a href="{{ object.id }}/"
+                    {% endif %}
                     {% if object.description and object.description.strip != "" %}
                        title="{{ object.description.strip }}"
                     {% endif %}>{{ object }}
@@ -264,8 +301,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         {% endif %}
     </div>
 </div>
+<script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
 <script>
 $(document).ready(function(){
+    initToken();
     //console.log($('a[data-toggle="tab"]:first').tab('show'))
     $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
         //save the latest tab; use cookies if you like 'em better:
@@ -299,6 +339,27 @@ $(document).ready(function(){
         priv_elem.innerHTML = s;
     }
 })
+function query_editor(table, columns, rows, aggregations, filters, agg_filters) {
+    url="/query_editor_view/"
+    data = { 'table': table,
+             'columns': columns,
+             'rows': rows,
+             'aggregate': aggregations,
+             'filters': filters,
+             'agg_filters': agg_filters
+              };
+    $.ajax({
+		url: url,
+        type: "POST",
+        data: data,
+        success: function(response) {
+            document.write(response);
+	    },
+        error: function(xhr, status) {
+			alert(status);
+			}
+    });
+}
 </script>
 {% endblock %}
 

@@ -34,6 +34,30 @@ from explorer.models import Query
 from django.core.validators import MaxLengthValidator
 
 
+class CreateQueryEditorForm(ModelForm):
+
+    class Meta:
+        model = Query
+        fields = ['title', 'sql', 'description', 'created_by', 'is_public',
+                  'query_editor', 'table', 'columns', 'rows', 'aggregations',
+                  'filters', 'agg_filters']
+
+        widgets = {
+            'title': forms.Textarea(attrs={'style': 'width: 100%', 'rows': 2}),
+            'sql': forms.HiddenInput(),
+            'description': forms.Textarea(
+                attrs={'style': 'width: 100%', 'rows': 7}),
+            'created_by': forms.HiddenInput(),
+            'is_public': forms.HiddenInput(),
+            'query_editor': forms.HiddenInput(),
+            'table': forms.HiddenInput(),
+            'columns': forms.HiddenInput(),
+            'rows': forms.HiddenInput(),
+            'aggregations': forms.HiddenInput(),
+            'filters': forms.HiddenInput(),
+            'agg_filters': forms.HiddenInput(),
+        }
+
 class CreateQueryForm(ModelForm):
 
     sql = Field()

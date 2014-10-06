@@ -131,7 +131,7 @@ EXPLORER_PERMISSION_VIEW = lambda u: True
 EXPLORER_PERMISSION_CHANGE = lambda u: u.is_staff
 EXPLORER_RECENT_QUERY_COUNT = 10
 EXPLORER_DEFAULT_ROWS = 20
-EXPLORER_DEFAULT_COLS = 20
+EXPLORER_DEFAULT_COLS = 10
 
 # Subject to discriminate column that contains descriptions.
 DESCRIPTION_SUBJECT = 'http://it.dbpedia.org/data/Descrizione'

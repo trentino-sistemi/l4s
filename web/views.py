@@ -42,7 +42,8 @@ from web.forms import QueryForm, \
     OntologyFileForm, \
     ManualRequestDispatchForm,\
     TestForm, \
-    CreateQueryForm
+    CreateQueryForm, \
+    CreateQueryEditorForm
 from web.utils import get_variable_dictionary, \
     get_params_dictionary, \
     get_types_dictionary, \
@@ -434,7 +435,6 @@ class QueryView(ExplorerContextMixin, View):
                 print e.message
                 import traceback
                 print traceback.format_exc()
-
 
         if message is not None:
             vm = RequestContext(request,
@@ -1078,6 +1078,7 @@ def query_editor_view(request):
     agg_filters_s = request.REQUEST.get('agg_filters')
 
     columns = request.REQUEST.get('columns', '')
+
     cols = []
     if columns != "":
         for i in columns.split(','):
@@ -1125,6 +1126,7 @@ def query_editor_view(request):
             agg_new[ag] = agg
             vals = get_all_field_values_agg(ag)
             agg_values[ag] = vals
+
     request.session['agg_values'] = agg_values
 
     if len(rows) + len(cols) == 0:
@@ -1191,14 +1193,27 @@ def query_editor_view(request):
     context['title'] = title
     context['columns'] = ",".join(cols)
     context['rows'] = ",".join(rows)
+    context['filters'] = filters
+    context['agg_filters'] = agg_filters
     context['sel_aggregate'] = aggregation
     context['debug'] = debug
-    context['title'] = title
     context['sel_tab'] = sel_tab
     context['agg_col'] = agg_col
 
-
     return render_to_response("l4s/query_editor_view.html", context)
+
+
+def query_editor_save_done(request):
+    context = RequestContext(request)
+    form = CreateQueryEditorForm(request.POST)
+    if form.is_valid():
+        form.save()
+        return HttpResponse('<script type="text/javascript">'
+                            'window.close();'
+                            'window.parent.location.href = "/";'
+                            '</script>')
+    context['form'] = form
+    return render_to_response("l4s/query_editor_save.html", context)
 
 
 def query_editor_save(request):
@@ -1208,26 +1223,31 @@ def query_editor_save(request):
     :param request:
     :return:
     """
+
     context = RequestContext(request)
-    if request.method == 'POST':
-        form = CreateQueryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponse('<script type="text/javascript">'
-                                'window.close();'
-                                'window.parent.location.href = "/";'
-                                '</script>')
-        else:
-            context['form'] = form
-            return render_to_response("l4s/query_editor_save.html", context)
 
-    sql = request.session.get('sql')
-    title = request.session.get('title')
-    description = request.session.get('description')
+    sql = request.REQUEST.get('sql', '')
+    title = request.REQUEST.get('title')
+    description = request.REQUEST.get('description')
+    table_name = request.REQUEST.get('table')
+    columns = request.REQUEST.get('columns')
+    rows = request.REQUEST.get('rows')
+    aggregations = request.REQUEST.get('aggregations')
+    filters = request.REQUEST.get('filters')
+    agg_filters = request.REQUEST.get('agg_filters')
 
-    form = CreateQueryForm(
-        initial={'sql': sql, 'title': title, 'description': description,
-                 'created_by': request.user.email})
+    form = CreateQueryEditorForm(
+        initial={'sql': sql,
+                 'title': title,
+                 'description': description,
+                 'created_by': request.user.email,
+                 'query_editor': True,
+                 'table': table_name,
+                 'columns': columns,
+                 'rows': rows,
+                 'aggregations': aggregations,
+                 'filters': filters,
+                 'agg_filters': agg_filters})
     context['form'] = form
     return render_to_response("l4s/query_editor_save.html", context)
 
