@@ -37,7 +37,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 <body>
 
-<form id='frm' method="POST" action="/query_editor_save_done/" role="form" class="form-horizontal">
+<form id='frm'
+      method="POST"
+      action="/query_editor_save_done/"
+      role="form"
+      class="form-horizontal"
+      accept-charset="utf-8">
     {% csrf_token %}
 
     <table class="table table-striped" style="width=100%">
