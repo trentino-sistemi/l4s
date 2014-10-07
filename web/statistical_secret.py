@@ -318,6 +318,8 @@ def row_primary_suppression(data, rows, min_dict_row, threshold, debug):
     :param threshold: The threshold.
     :return: The data set after the primary suppression on rows.
     """
+    if len(data[0]) <= 3:
+        return data
     for r, row in enumerate(data):
         if r == len(data) - 1:
             continue
@@ -346,6 +348,8 @@ def column_primary_suppression(data, rows, min_dict_column, threshold, debug):
     :param threshold: The threshold
     :return: The data set after the primary suppression on columns.
     """
+    if len(data) <= 3:
+        return data
     for c, column in enumerate(data[0], start=len(rows)):
         if c == len(data[0]):
             break
