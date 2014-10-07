@@ -30,39 +30,31 @@ from web.utils import unpivot, is_dataframe_multi_index
 import pandas as pd
 
 
-def generate_report_action_xlsx(df):
+def generate_report_action_csv(df):
     """
-    Generate Excel 2007 file from SQL query.
-
-    :param df: Pandas data frame.
-    :return: Response with Excel 2007 attachment.
+    Generate CSV file from SQL query.
+    :param df: Pandas data frame
     """
     def generate_report(title):
-        """Generate Excel 2007 file from query.
+        """
+        Generate Csv file from query.
 
-        :return: Response with Excel 2007 attachment.
+        :param title: The query title.
+        :return: Response with CSV attachment.
         """
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
-        extension = 'xlsx'
-        engine = "openpyxl"
-        encoding = 'utf-8'
+        extension = 'csv'
+        separator = ';'
         filename = '%s.%s' % (title, extension)
-        # Add content and return response
-        f = NamedTemporaryFile(suffix=extension)
-        ew = ExcelWriter(f.name, engine=engine, options={'encoding': encoding})
-        df.to_excel(ew)
-        ew.save()
+        content_type = 'text/csv'
+        out_stream = StringIO.StringIO()
+        df.to_csv(out_stream, sep=separator, index=False)
         # Setup response
-        data = f.read()
-
-        # Setup response
-        content_type = \
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        response = HttpResponse(data, content_type=content_type)
+        response = HttpResponse(out_stream.getvalue())
+        response["Content-Type"] = content_type
         response[
             'Content-Disposition'] = 'attachment; filename="%s"' % filename
-        # Add content and return response
         return response
 
     return generate_report
@@ -111,31 +103,77 @@ def generate_report_action_xls(df):
     return generate_report
 
 
-def generate_report_action_csv(df):
+def generate_report_action_xlsx(df):
     """
-    Generate CSV file from SQL query.
-    :param df: Pandas data frame
+    Generate Excel 2007 file from SQL query.
+
+    :param df: Pandas data frame.
+    :return: Response with Excel 2007 attachment.
     """
     def generate_report(title):
-        """
-        Generate Csv file from query.
+        """Generate Excel 2007 file from query.
 
-        :param title: The query title.
-        :return: Response with CSV attachment.
+        :return: Response with Excel 2007 attachment.
         """
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
-        extension = 'csv'
-        separator = ';'
+        extension = 'xlsx'
+        engine = "openpyxl"
+        encoding = 'utf-8'
         filename = '%s.%s' % (title, extension)
-        content_type = 'text/csv'
-        out_stream = StringIO.StringIO()
-        df.to_csv(out_stream, sep=separator, index=False)
+        # Add content and return response
+        f = NamedTemporaryFile(suffix=extension)
+        ew = ExcelWriter(f.name, engine=engine, options={'encoding': encoding})
+        df.to_excel(ew)
+        ew.save()
         # Setup response
-        response = HttpResponse(out_stream.getvalue())
-        response["Content-Type"] = content_type
+        data = f.read()
+
+        # Setup response
+        content_type = \
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        response = HttpResponse(data, content_type=content_type)
         response[
             'Content-Disposition'] = 'attachment; filename="%s"' % filename
+        # Add content and return response
+        return response
+
+    return generate_report
+
+
+def generate_report_action_sdmx(df):
+    """
+     Generate SDMX file from SQL query.
+
+    :param df: Pandas data frame.
+    :return: Response with SDMX attachment.
+    """
+
+    def generate_report(title, sql):
+        """
+        Generate Sdmx file from query.
+
+        :param title: The query title.
+        :param sql: The query sql.
+        :return: Response with Sdmx attachment.
+        """
+
+        multi_index = is_dataframe_multi_index(df)
+        if multi_index:
+            int_df = unpivot(df)
+        else:
+            int_df = df
+
+        title = title.strip().encode("UTF-8").replace(" ", '_')
+        extension = 'sdmx'
+        filename = '%s.%s' % (title, extension)
+        content_type = 'application/xml'
+        res = sdmx_report(sql, int_df)
+        # Setup response
+        response = HttpResponse(res)
+        response["content_type"] = content_type
+        response['Content-Disposition'] = \
+            'attachment; filename="{0}"'.format(filename)
         return response
 
     return generate_report
@@ -179,44 +217,6 @@ def generate_report_action_json_stat(df):
         # Setup response
         response.write(val)
 
-        return response
-
-    return generate_report
-
-
-def generate_report_action_sdmx(df):
-    """
-     Generate SDMX file from SQL query.
-
-    :param df: Pandas data frame.
-    :return: Response with SDMX attachment.
-    """
-
-    def generate_report(title, sql):
-        """
-        Generate Sdmx file from query.
-
-        :param title: The query title.
-        :param sql: The query sql.
-        :return: Response with Sdmx attachment.
-        """
-
-        multi_index = is_dataframe_multi_index(df)
-        if multi_index:
-            int_df = unpivot(df)
-        else:
-            int_df = df
-
-        title = title.strip().encode("UTF-8").replace(" ", '_')
-        extension = 'sdmx'
-        filename = '%s.%s' % (title, extension)
-        content_type = 'application/xml'
-        res = sdmx_report(sql, int_df)
-        # Setup response
-        response = HttpResponse(res)
-        response["content_type"] = content_type
-        response['Content-Disposition'] = \
-            'attachment; filename="{0}"'.format(filename)
         return response
 
     return generate_report
