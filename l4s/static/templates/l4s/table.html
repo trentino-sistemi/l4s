@@ -41,7 +41,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <td>
             <a href="/table/metadata/?table={{ table_name }};column={{field.name}}">{{field.name}}</a>
         </td>
-        {% if forloop.counter0 in column_description_dict %}
+        {% if forloop.counter0 in column_description %}
         <td>{{ column_description|lookup:forloop.counter0|lookup:"description" }}</td>
         {% else %}
         <td></td>
