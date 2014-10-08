@@ -93,11 +93,11 @@ def generate_report_action_xls(df):
         add_palette_colour("blue", 0x23)
         head_cfg = 'pattern: pattern solid, fore_colour custom_colour;'
         head_cfg += 'font: colour white, bold True;'
-        head_cfg += 'alignment: horizontal filled, vertical top, wrap true;'
+        head_cfg += 'alignment: horizontal left, vertical top, wrap true;'
         head_cell = easyxf(head_cfg)
 
         body_cfg = 'font: colour blue;'
-        body_cfg += 'alignment: horizontal filled, vertical top, wrap true;'
+        body_cfg += 'alignment: vertical top, wrap true;'
         body_cell = easyxf(body_cfg)
 
         new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
@@ -111,25 +111,49 @@ def generate_report_action_xls(df):
         if description is not None:
             description_label = unicode(_("Description"))
             s = StringIO.StringIO(description)
+            char_per_cell = 10
             for line in s:
                 line_num += 1
-                if len(line) > 10 * ncols:
-                    add = len(line) / (10 * ncols)
+                if len(line) > char_per_cell * ncols:
+                    add = (len(line) / (char_per_cell * ncols)) + 1
                     line_num += add
 
             new_sheet.write(1, 0, description_label, head_cell)
             new_sheet.write_merge(1, line_num, 0, 0, description_label,
                                   head_cell)
             new_sheet.write(1, 1, description, head_cell)
-            new_sheet.write_merge(1, line_num, 1, ncols, description, head_cell)
+            new_sheet.write_merge(1,
+                                  line_num,
+                                  1,
+                                  ncols,
+                                  description,
+                                  head_cell)
 
         k = 2 + line_num
-        
+        max_widths = dict()
+        for col in range(sheet.ncols):
+            max_widths[col] = 7
         #Copy rows from existing sheets
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
-                new_sheet.write(rows+k, index, value, body_cell)
+                value = value.strip()
+                if value.isdigit():
+                    value = int(value)
+                else:
+                    value = value.encode('utf-8')
+                if rows != 0:
+                    new_sheet.write(rows+k, index, value, body_cell)
+                elif index == 1:
+                    # Merge the title.
+                    new_sheet.write_merge(k, k, 1, ncols, value, body_cell)
+                column_len = len(str(value))
+                if rows >= 1 and column_len > max_widths[index]:
+                    max_widths[index] = column_len
+
+        # Adjust column width.
+        for col in range(sheet.ncols):
+            new_sheet.col(col).width = (max_widths[col] + 1) * 256
 
         new_workbook.save(file_name)
 
