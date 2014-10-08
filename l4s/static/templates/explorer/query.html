@@ -450,8 +450,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 e.preventDefault();
                 store = "{{ store }}";
                 title = "{{ query.title.strip }}";
+                description = "{{ query.description.strip }}";
+                params = "store=" + store + "&title=" +  title
+                if (description != "" ) {
+                   params = params + "&description=" + description;
+                }
                 download('/download_xlsx',
-                         "store=" + store + "&title=" +  title,
+                         params,
                          'POST',
                          "{% csrf_token %}");
             });

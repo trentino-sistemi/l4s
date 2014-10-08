@@ -529,7 +529,8 @@ def query_download_xlsx(request):
     df = load_dataframe(request)
     fn = generate_report_action_xlsx(df)
     title = request.REQUEST.get('title')
-    return fn(title)
+    description = request.REQUEST.get('description')
+    return fn(title, description)
 
 
 def query_download_json_stat(request):

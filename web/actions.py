@@ -22,7 +22,6 @@ Actions for l4s project.
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.staticfiles.templatetags.staticfiles import static
-import StringIO
 from rdf import rdf_report
 from sdmx import sdmx_report
 from tempfile import NamedTemporaryFile
@@ -31,9 +30,11 @@ from web.pyjstat import to_json_stat
 from web.utils import unpivot, is_dataframe_multi_index
 import pandas as pd
 from xlrd import open_workbook
-from xlwt import Workbook, easyxf, add_palette_colour, Alignment, XFStyle
-import StringIO
+from xlwt import Workbook as XWorkbook
+from xlwt import easyxf, add_palette_colour, Alignment, XFStyle
 from l4s import settings
+import StringIO
+
 
 def generate_report_action_csv(df):
     """
@@ -85,7 +86,7 @@ def generate_report_action_xls(df):
         sheet = workbook.sheet_by_index(0)
         n_cols = sheet.ncols - 1
         sheet_rows = sheet.nrows
-        new_workbook = Workbook(encoding="UTF-8")
+        new_workbook = XWorkbook(encoding="UTF-8")
         new_workbook.set_colour_RGB(0x21, 139, 31, 63)
         new_workbook.set_colour_RGB(0x22, 255, 255, 255)
         new_workbook.set_colour_RGB(0x23, 31, 85, 111)
@@ -173,8 +174,8 @@ def generate_report_action_xls(df):
     def generate_report(title, description):
         """Generate Excel  1997 file from query.
 
-        :param title:
-        :param description:
+        :param title: Query title.
+        :param description: Query description.
         :return: Response with Excel 1997 attachment.
         """
 
@@ -218,9 +219,22 @@ def generate_report_action_xlsx(df):
     :param df: Pandas data frame.
     :return: Response with Excel 2007 attachment.
     """
-    def generate_report(title):
+
+    def add_header_and_footer(file_name, title, description):
+        """
+        Add header and footer to excel file.
+
+        :param file_name: Excel file name.
+        :param title: Query tile.
+        :param description: Query description.
+        """
+        return ""
+
+    def generate_report(title, description):
         """Generate Excel 2007 file from query.
 
+        :param title: Query title.
+        :param description: Query description.
         :return: Response with Excel 2007 attachment.
         """
         extension = 'xlsx'
@@ -235,6 +249,7 @@ def generate_report_action_xlsx(df):
 
         # Setup response
         data = f.read()
+        add_header_and_footer(f.name, title, description)
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
         filename = '%s.%s' % (title, extension)

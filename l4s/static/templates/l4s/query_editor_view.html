@@ -208,9 +208,14 @@ $(document).ready(function() {
             $(".download_xlsx_button").click(function(e) {
                 e.preventDefault();
                 store = "{{ store }}";
-                title = "{{ query.title.strip }}";
+                title = "{{ title.strip }}";
+                description = "{{ description.strip|escapejs }}";
+                params = "store=" + store + "&title=" +  title
+                if (description != "" ) {
+                   params = params + "&description=" + description;
+                }
                 download('/download_xlsx',
-                         "store=" + store + "&title=" +  title,
+                         params,
                          'POST', "{% csrf_token %}");
             });
             $(".download_sdmx_button").click(function(e) {
