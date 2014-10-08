@@ -30,7 +30,6 @@ from pandas import ExcelWriter
 from web.pyjstat import to_json_stat
 from web.utils import unpivot, is_dataframe_multi_index
 import pandas as pd
-from xlutils.copy import copy
 from xlrd import open_workbook
 from xlwt import Workbook, easyxf, add_palette_colour, Alignment, XFStyle
 import StringIO
