@@ -186,49 +186,70 @@ $(document).ready(function() {
             $(".download_csv_button").click(function(e) {
                 e.preventDefault();
                 store = "{{ store }}";
-                title = "{{ title }}";
-                download('/download_csv', "store=" + store + "&title=" +  title , 'POST', "{% csrf_token %}");
+                title = "{{ query.title.strip }}";
+                download('/download_csv',
+                         "store=" + store + "&title=" +  title,
+                         'POST',
+                         "{% csrf_token %}");
             });
             $(".download_xls_button").click(function(e) {
                 e.preventDefault();
                 store = "{{ store }}";
-                title = "{{ title }}";
-                download('/download_xls', "store=" + store + "&title=" +  title , 'POST', "{% csrf_token %}");
+                title = "{{ title.strip }}";
+                description = "{{ description.strip|escapejs }}";
+                params = "store=" + store + "&title=" +  title
+                if (description != "" ) {
+                   params = params + "&description=" + description;
+                }
+                download('/download_xls',
+                         params,
+                         'POST', "{% csrf_token %}");
             });
             $(".download_xlsx_button").click(function(e) {
                 e.preventDefault();
                 store = "{{ store }}";
-                title = "{{ title }}";
-                download('/download_xlsx', "store=" + store + "&title=" +  title , 'POST', "{% csrf_token %}");
+                title = "{{ query.title.strip }}";
+                download('/download_xlsx',
+                         "store=" + store + "&title=" +  title,
+                         'POST', "{% csrf_token %}");
             });
             $(".download_sdmx_button").click(function(e) {
                 e.preventDefault();
                 store = "{{ store }}";
-                title = "{{ title }}";
+                title = "{{ query.title.strip }}";
                 sql = "{{ sql|escapejs }}"
-                download('/download_sdmx', "store=" + store + "&title=" +  title + "&sql=" + sql, 'POST', "{% csrf_token %}");
+                download('/download_sdmx',
+                         "store=" + store + "&title=" +  title + "&sql=" + sql,
+                         'POST', "{% csrf_token %}");
             });
             $(".download_json_stat_button").click(function(e) {
                 e.preventDefault();
                 store = "{{ store }}";
-                title = "{{ title }}";
-                download('/download_json_stat', "store=" + store + "&title=" +  title , 'POST', "{% csrf_token %}");
+                title = "{{ query.title.strip }}";
+                download('/download_json_stat',
+                         "store=" + store + "&title=" +  title,
+                         'POST', "{% csrf_token %}");
             });
             $(".download_rdf_button").click(function(e) {
                 e.preventDefault();
                 store = "{{ store }}";
-                title = "{{ title }}";
-                sql = "{{ sql|escapejs }}"
+                title = "{{ query.title.strip }}";
+                sql = "{{ sql.strip|escapejs }}"
                 description = "{{ description|escapejs }}"
-                download('/download_rdf', "store=" + store + "&title=" +  title + "&sql=" + sql + "&description=" + description, 'POST', "{% csrf_token %}");
+                download('/download_rdf',
+                         "store=" + store + "&title=" +  title + "&sql=" + sql + "&description=" + description,
+                         'POST', "{% csrf_token %}");
             });
             $(".download_turtle_button").click(function(e) {
                 e.preventDefault();
                 store = "{{ store }}";
-                title = "{{ title }}";
-                sql = "{{ sql|escapejs }}"
-                description = "{{ description|escapejs }}"
-                download('/download_turtle', "store=" + store + "&title=" +  title + "&sql=" + sql + "&description=" + description, 'POST', "{% csrf_token %}");
+                title = "{{ query.title.strip }}";
+                sql = "{{ sql.strip|escapejs }}"
+                description = "{{ description.strip|escapejs }}"
+                download('/download_turtle',
+                         "store=" + store + "&title=" +  title + "&sql=" + sql + "&description=" + description,
+                         'POST',
+                         "{% csrf_token %}");
             });
         });
 </script>

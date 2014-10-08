@@ -499,10 +499,10 @@ def query_download_csv(request):
     :param request: Django request.
     :return: The request response.
     """
-
     df = load_dataframe(request)
     fn = generate_report_action_csv(df)
-    return fn(request.REQUEST.get('title', ''))
+    title = request.REQUEST.get('title')
+    return fn(title)
 
 
 def query_download_xls(request):
@@ -514,7 +514,9 @@ def query_download_xls(request):
     """
     df = load_dataframe(request)
     fn = generate_report_action_xls(df)
-    return fn(request.REQUEST.get('title', ''))
+    title = request.REQUEST.get('title')
+    description = request.REQUEST.get('description')
+    return fn(title, description)
 
 
 def query_download_xlsx(request):
@@ -526,7 +528,8 @@ def query_download_xlsx(request):
     """
     df = load_dataframe(request)
     fn = generate_report_action_xlsx(df)
-    return fn(request.REQUEST.get('title', ''))
+    title = request.REQUEST.get('title')
+    return fn(title)
 
 
 def query_download_json_stat(request):

@@ -30,7 +30,9 @@ from web.utils import unpivot, is_dataframe_multi_index
 import pandas as pd
 from xlutils.copy import copy
 from xlrd import open_workbook
-from xlwt import Workbook, easyxf, add_palette_colour
+from xlwt import Workbook, easyxf, add_palette_colour, Alignment, XFStyle
+from django.utils.translation import ugettext_lazy as _
+import StringIO
 
 
 def generate_report_action_csv(df):
@@ -71,7 +73,7 @@ def generate_report_action_xls(df):
     :return: Response with Excel 1997 attachment.
     """
 
-    def add_header(file_name, title):
+    def add_header(file_name, title, description):
         """
         Add header to excel file.
 
@@ -80,19 +82,42 @@ def generate_report_action_xls(df):
         """
         workbook = open_workbook(file_name)
         sheet = workbook.sheet_by_index(0)
+        ncols = sheet.ncols - 1
         sheet_rows = sheet.nrows
         new_workbook = Workbook(encoding="UTF-8")
         new_workbook.set_colour_RGB(0x21, 185, 40, 81)
         new_workbook.set_colour_RGB(0x22, 255, 255, 255)
         add_palette_colour("custom_colour", 0x21)
         add_palette_colour("white", 0x22)
-        cat_cell = easyxf('pattern: pattern solid, fore_colour custom_colour;'
-                          'font: colour white, bold True;')
-        new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
-        new_sheet.write(0, 0, title, cat_cell)
-        new_sheet.write_merge(0, 0, 0, 12, title, cat_cell)
+        cfg = 'pattern: pattern solid, fore_colour custom_colour;'
+        cfg += 'font: colour white, bold True;'
+        cfg += 'alignment: horizontal filled, vertical top, wrap true;'
+        cat_cell = easyxf(cfg)
 
-        k = 2
+        new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
+
+        title_label = unicode(_("Title"))
+        new_sheet.write(0, 0, title_label, cat_cell)
+        new_sheet.write(0, 1, title, cat_cell)
+        new_sheet.write_merge(0, 0, 1, ncols, title, cat_cell)
+
+        line_num = 1
+        if description is not None:
+            description_label = unicode(_("Description"))
+            s = StringIO.StringIO(description)
+            for line in s:
+                line_num += 1
+                if len(line) > 10 * ncols:
+                    add = len(line) / (10 * ncols)
+                    line_num += add
+
+            new_sheet.write(1, 0, description_label, cat_cell)
+            new_sheet.write_merge(1, line_num, 0, 0, description_label,
+                                  cat_cell)
+            new_sheet.write(1, 1, description, cat_cell)
+            new_sheet.write_merge(1, line_num, 1, ncols, description, cat_cell)
+
+        k = 2 + line_num
         #Copy rows from existing sheets
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
@@ -101,9 +126,11 @@ def generate_report_action_xls(df):
 
         new_workbook.save(file_name)
 
-    def generate_report(title):
+    def generate_report(title, description):
         """Generate Excel  1997 file from query.
 
+        :param title:
+        :param description:
         :return: Response with Excel 1997 attachment.
         """
 
@@ -124,7 +151,7 @@ def generate_report_action_xls(df):
         lim_df.to_excel(ew)
         ew.save()
 
-        add_header(f.name, title)
+        add_header(f.name, title, description)
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
         filename = '%s.%s' % (title, extension)
