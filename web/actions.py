@@ -28,6 +28,9 @@ from pandas import ExcelWriter
 from web.pyjstat import to_json_stat
 from web.utils import unpivot, is_dataframe_multi_index
 import pandas as pd
+from xlutils.copy import copy
+from xlrd import open_workbook
+from xlwt import Workbook, easyxf, add_palette_colour
 
 
 def generate_report_action_csv(df):
@@ -67,6 +70,37 @@ def generate_report_action_xls(df):
     :param df: Pandas data frame.
     :return: Response with Excel 1997 attachment.
     """
+
+    def add_header(file_name, title):
+        """
+        Add header to excel file.
+
+        :param file_name:
+        :param title:
+        """
+        workbook = open_workbook(file_name)
+        sheet = workbook.sheet_by_index(0)
+        sheet_rows = sheet.nrows
+        new_workbook = Workbook(encoding="UTF-8")
+        new_workbook.set_colour_RGB(0x21, 185, 40, 81)
+        new_workbook.set_colour_RGB(0x22, 255, 255, 255)
+        add_palette_colour("custom_colour", 0x21)
+        add_palette_colour("white", 0x22)
+        cat_cell = easyxf('pattern: pattern solid, fore_colour custom_colour;'
+                          'font: colour white, bold True;')
+        new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
+        new_sheet.write(0, 0, title, cat_cell)
+        new_sheet.write_merge(0, 0, 0, 12, title, cat_cell)
+
+        k = 2
+        #Copy rows from existing sheets
+        for rows in range(0, sheet_rows):
+            data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
+            for index, value in enumerate(data):
+                new_sheet.write(rows+k, index, value)
+
+        new_workbook.save(file_name)
+
     def generate_report(title):
         """Generate Excel  1997 file from query.
 
@@ -84,13 +118,16 @@ def generate_report_action_xls(df):
         engine = 'xlwt'
         encoding = 'utf-8'
         content_type = 'application/vnd.ms-excel'
-        title = title.strip().encode("UTF-8").replace(" ", '_')
-        filename = '%s.%s' % (title, extension)
         # Add content and return response
         f = NamedTemporaryFile(suffix=extension)
         ew = ExcelWriter(f.name, engine=engine, encoding=encoding)
         lim_df.to_excel(ew)
         ew.save()
+
+        add_header(f.name, title)
+
+        title = title.strip().encode("UTF-8").replace(" ", '_')
+        filename = '%s.%s' % (title, extension)
         # Setup response
         data = f.read()
         response = HttpResponse(data)
@@ -115,20 +152,21 @@ def generate_report_action_xlsx(df):
 
         :return: Response with Excel 2007 attachment.
         """
-
-        title = title.strip().encode("UTF-8").replace(" ", '_')
         extension = 'xlsx'
         engine = "openpyxl"
         encoding = 'utf-8'
-        filename = '%s.%s' % (title, extension)
+
         # Add content and return response
         f = NamedTemporaryFile(suffix=extension)
         ew = ExcelWriter(f.name, engine=engine, options={'encoding': encoding})
         df.to_excel(ew)
         ew.save()
+
         # Setup response
         data = f.read()
 
+        title = title.strip().encode("UTF-8").replace(" ", '_')
+        filename = '%s.%s' % (title, extension)
         # Setup response
         content_type = \
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
