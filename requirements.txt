@@ -15,8 +15,10 @@ django-jsonify
 xlwt
 
 # Excel 2007 xlsx export.
-#XlsxWriter
 openpyxl==1.8.6
+
+# Library to open excel.
+xlrd==0.9.3
 
 # In order to connect to the source M$ Sql server with odbc
 pyodbc
