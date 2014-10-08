@@ -87,19 +87,25 @@ def generate_report_action_xls(df):
         new_workbook = Workbook(encoding="UTF-8")
         new_workbook.set_colour_RGB(0x21, 185, 40, 81)
         new_workbook.set_colour_RGB(0x22, 255, 255, 255)
+        new_workbook.set_colour_RGB(0x23, 31, 85, 111)
         add_palette_colour("custom_colour", 0x21)
         add_palette_colour("white", 0x22)
-        cfg = 'pattern: pattern solid, fore_colour custom_colour;'
-        cfg += 'font: colour white, bold True;'
-        cfg += 'alignment: horizontal filled, vertical top, wrap true;'
-        cat_cell = easyxf(cfg)
+        add_palette_colour("blue", 0x23)
+        head_cfg = 'pattern: pattern solid, fore_colour custom_colour;'
+        head_cfg += 'font: colour white, bold True;'
+        head_cfg += 'alignment: horizontal filled, vertical top, wrap true;'
+        head_cell = easyxf(head_cfg)
+
+        body_cfg = 'font: colour blue;'
+        body_cfg += 'alignment: horizontal filled, vertical top, wrap true;'
+        body_cell = easyxf(body_cfg)
 
         new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
 
         title_label = unicode(_("Title"))
-        new_sheet.write(0, 0, title_label, cat_cell)
-        new_sheet.write(0, 1, title, cat_cell)
-        new_sheet.write_merge(0, 0, 1, ncols, title, cat_cell)
+        new_sheet.write(0, 0, title_label, head_cell)
+        new_sheet.write(0, 1, title, head_cell)
+        new_sheet.write_merge(0, 0, 1, ncols, title, head_cell)
 
         line_num = 1
         if description is not None:
@@ -111,18 +117,19 @@ def generate_report_action_xls(df):
                     add = len(line) / (10 * ncols)
                     line_num += add
 
-            new_sheet.write(1, 0, description_label, cat_cell)
+            new_sheet.write(1, 0, description_label, head_cell)
             new_sheet.write_merge(1, line_num, 0, 0, description_label,
-                                  cat_cell)
-            new_sheet.write(1, 1, description, cat_cell)
-            new_sheet.write_merge(1, line_num, 1, ncols, description, cat_cell)
+                                  head_cell)
+            new_sheet.write(1, 1, description, head_cell)
+            new_sheet.write_merge(1, line_num, 1, ncols, description, head_cell)
 
         k = 2 + line_num
+        
         #Copy rows from existing sheets
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
-                new_sheet.write(rows+k, index, value)
+                new_sheet.write(rows+k, index, value, body_cell)
 
         new_workbook.save(file_name)
 
