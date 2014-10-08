@@ -20,6 +20,8 @@ Actions for l4s project.
 """
 
 from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.staticfiles.templatetags.staticfiles import static
 import StringIO
 from rdf import rdf_report
 from sdmx import sdmx_report
@@ -31,9 +33,8 @@ import pandas as pd
 from xlutils.copy import copy
 from xlrd import open_workbook
 from xlwt import Workbook, easyxf, add_palette_colour, Alignment, XFStyle
-from django.utils.translation import ugettext_lazy as _
 import StringIO
-
+from l4s import settings
 
 def generate_report_action_csv(df):
     """
@@ -73,19 +74,20 @@ def generate_report_action_xls(df):
     :return: Response with Excel 1997 attachment.
     """
 
-    def add_header(file_name, title, description):
+    def add_header_and_footer(file_name, title, description):
         """
-        Add header to excel file.
+        Add header and footer to excel file.
 
-        :param file_name:
-        :param title:
+        :param file_name: Excel file name.
+        :param title: Query tile.
+        :param description: Query description.
         """
         workbook = open_workbook(file_name)
         sheet = workbook.sheet_by_index(0)
-        ncols = sheet.ncols - 1
+        n_cols = sheet.ncols - 1
         sheet_rows = sheet.nrows
         new_workbook = Workbook(encoding="UTF-8")
-        new_workbook.set_colour_RGB(0x21, 185, 40, 81)
+        new_workbook.set_colour_RGB(0x21, 139, 31, 63)
         new_workbook.set_colour_RGB(0x22, 255, 255, 255)
         new_workbook.set_colour_RGB(0x23, 31, 85, 111)
         add_palette_colour("custom_colour", 0x21)
@@ -105,7 +107,7 @@ def generate_report_action_xls(df):
         title_label = unicode(_("Title"))
         new_sheet.write(0, 0, title_label, head_cell)
         new_sheet.write(0, 1, title, head_cell)
-        new_sheet.write_merge(0, 0, 1, ncols, title, head_cell)
+        new_sheet.write_merge(0, 0, 1, n_cols, title, head_cell)
 
         line_num = 1
         if description is not None:
@@ -114,8 +116,8 @@ def generate_report_action_xls(df):
             char_per_cell = 10
             for line in s:
                 line_num += 1
-                if len(line) > char_per_cell * ncols:
-                    add = (len(line) / (char_per_cell * ncols)) + 1
+                if len(line) > char_per_cell * n_cols:
+                    add = (len(line) / (char_per_cell * n_cols)) + 1
                     line_num += add
 
             new_sheet.write(1, 0, description_label, head_cell)
@@ -125,7 +127,7 @@ def generate_report_action_xls(df):
             new_sheet.write_merge(1,
                                   line_num,
                                   1,
-                                  ncols,
+                                  n_cols,
                                   description,
                                   head_cell)
 
@@ -144,9 +146,9 @@ def generate_report_action_xls(df):
                     value = value.encode('utf-8')
                 if rows != 0:
                     new_sheet.write(rows+k, index, value, body_cell)
-                elif index == 1:
+                elif value != "":
                     # Merge the title.
-                    new_sheet.write_merge(k, k, 1, ncols, value, body_cell)
+                    new_sheet.write_merge(k, k, 1, n_cols, value, body_cell)
                 column_len = len(str(value))
                 if rows >= 1 and column_len > max_widths[index]:
                     max_widths[index] = column_len
@@ -155,6 +157,18 @@ def generate_report_action_xls(df):
         for col in range(sheet.ncols):
             new_sheet.col(col).width = (max_widths[col] + 1) * 256
 
+        k = k + sheet_rows + 1
+        footer = "Il Servizio Statistica dell Provincia autonoma di Trento "
+        footer += "autorizza la riproduzione totale o parziale dei presenti"
+        footer += " dati a fini non commerciali e "
+        footer += "con la citazione della fonte"
+        if settings.DEBUG:
+            bitmap = 'l4s/static/img/testata_Statistica.bmp'
+        else:
+            bitmap = static('/img/testata_Statistica.bmp')
+        new_sheet.write(k, 0, footer, head_cell)
+        new_sheet.write_merge(k, k+6, 0, n_cols, footer, head_cell)
+        new_sheet.insert_bitmap(bitmap, k + 1, 0)
         new_workbook.save(file_name)
 
     def generate_report(title, description):
@@ -182,7 +196,7 @@ def generate_report_action_xls(df):
         lim_df.to_excel(ew)
         ew.save()
 
-        add_header(f.name, title, description)
+        add_header_and_footer(f.name, title, description)
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
         filename = '%s.%s' % (title, extension)
