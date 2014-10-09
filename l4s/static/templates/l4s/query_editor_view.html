@@ -102,13 +102,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 initToken();
 function OpenPopupCenter(pageURL, title, w, h) {
     var left = (screen.width - w) / 2;
-    var top = (screen.height - h) / 4;  // for 25% - divide by 4  |  for 33% - divide by 3
-    var targetWin = window.open(pageURL, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+    // for 25% - divide by 4  |  for 33% - divide by 3
+    var top = (screen.height - h) / 4;
+    var opt = 'toolbar=no, location=no, directories=no, status=no, ' +
+              'menubar=no, scrollbars=no, resizable=no, copyhistory=no, ' +
+              ' width=' + w + ', height=' + h + ', top=' + top + ', left=' +
+              left
+    var targetWin = window.open(pageURL, title, opt);
     targetWin.focus();
     return targetWin;
 }
 function OpenCustomizePopup() {
-    url = '/query_editor_customize?table={{ table_name }}&rows={{ rows }}&columns={{ columns }}';
+    url = '/query_editor_customize?table={{ table_name }}'
+    url += '&rows={{ rows }}&columns={{ columns }}';
     agg = '{{ sel_aggregate }}';
     if (agg != "") {
          url = url + '&aggregate=' + agg
@@ -163,100 +169,105 @@ $(document).ready(function() {
         }
     });
 });
-        $(function() {
-            $("#apply_button").click(function() {
-                var progress$ = $("#progress");
-                progress$.show();
-                action = get_params(this, "");
-                $(this).closest("form").attr('action', action);
-            });
-            $("#refresh_button").click(function() {
-                var progress$ = $("#progress");
-                progress$.show();
-                action = get_params(this, "");
-                $(this).closest("form").attr('action', action);
-            });
-            $("#refresh_button_save").click(function() {
-                var progress$ = $("#progress");
-                progress$.show();
-                action = "?save=true"
-                action = get_params(this, action);
-                $(this).closest("form").attr('action', action);
-            });
-            $(".download_csv_button").click(function(e) {
-                e.preventDefault();
-                store = "{{ store }}";
-                title = "{{ query.title.strip }}";
-                download('/download_csv',
-                         "store=" + store + "&title=" +  title,
-                         'POST',
-                         "{% csrf_token %}");
-            });
-            $(".download_xls_button").click(function(e) {
-                e.preventDefault();
-                store = "{{ store }}";
-                title = "{{ title.strip }}";
-                description = "{{ description.strip|escapejs }}";
-                params = "store=" + store + "&title=" +  title
-                if (description != "" ) {
-                   params = params + "&description=" + description;
-                }
-                download('/download_xls',
-                         params,
-                         'POST', "{% csrf_token %}");
-            });
-            $(".download_xlsx_button").click(function(e) {
-                e.preventDefault();
-                store = "{{ store }}";
-                title = "{{ title.strip }}";
-                description = "{{ description.strip|escapejs }}";
-                params = "store=" + store + "&title=" +  title
-                if (description != "" ) {
-                   params = params + "&description=" + description;
-                }
-                download('/download_xlsx',
-                         params,
-                         'POST', "{% csrf_token %}");
-            });
-            $(".download_sdmx_button").click(function(e) {
-                e.preventDefault();
-                store = "{{ store }}";
-                title = "{{ query.title.strip }}";
-                sql = "{{ sql|escapejs }}"
-                download('/download_sdmx',
-                         "store=" + store + "&title=" +  title + "&sql=" + sql,
-                         'POST', "{% csrf_token %}");
-            });
-            $(".download_json_stat_button").click(function(e) {
-                e.preventDefault();
-                store = "{{ store }}";
-                title = "{{ query.title.strip }}";
-                download('/download_json_stat',
-                         "store=" + store + "&title=" +  title,
-                         'POST', "{% csrf_token %}");
-            });
-            $(".download_rdf_button").click(function(e) {
-                e.preventDefault();
-                store = "{{ store }}";
-                title = "{{ query.title.strip }}";
-                sql = "{{ sql.strip|escapejs }}"
-                description = "{{ description|escapejs }}"
-                download('/download_rdf',
-                         "store=" + store + "&title=" +  title + "&sql=" + sql + "&description=" + description,
-                         'POST', "{% csrf_token %}");
-            });
-            $(".download_turtle_button").click(function(e) {
-                e.preventDefault();
-                store = "{{ store }}";
-                title = "{{ query.title.strip }}";
-                sql = "{{ sql.strip|escapejs }}"
-                description = "{{ description.strip|escapejs }}"
-                download('/download_turtle',
-                         "store=" + store + "&title=" +  title + "&sql=" + sql + "&description=" + description,
-                         'POST',
-                         "{% csrf_token %}");
-            });
-        });
+$("#apply_button").click(function() {
+    var progress$ = $("#progress");
+    progress$.show();
+    action = get_params(this, "");
+    $(this).closest("form").attr('action', action);
+});
+$("#refresh_button").click(function() {
+    var progress$ = $("#progress");
+    progress$.show();
+    action = get_params(this, "");
+    $(this).closest("form").attr('action', action);
+});
+$("#refresh_button_save").click(function() {
+    var progress$ = $("#progress");
+    progress$.show();
+    action = "?save=true"
+    action = get_params(this, action);
+    $(this).closest("form").attr('action', action);
+});
+$(".download_csv_button").click(function(e) {
+    e.preventDefault();
+    store = "{{ store }}";
+    title = "{{ title.strip }}";
+    params = "store=" + store + "&title=" +  title
+    download('/download_csv',
+             params,
+             'POST',
+             "{% csrf_token %}");
+});
+$(".download_xls_button").click(function(e) {
+    e.preventDefault();
+    store = "{{ store }}";
+    title = "{{ title.strip }}";
+    description = "{{ description.strip|escapejs }}";
+    params = "store=" + store + "&title=" +  title
+    if (description != "" ) {
+        params = params + "&description=" + description;
+    }
+    download('/download_xls',
+             params,
+             'POST', "{% csrf_token %}");
+});
+$(".download_xlsx_button").click(function(e) {
+    e.preventDefault();
+    store = "{{ store }}";
+    title = "{{ title.strip }}";
+    description = "{{ description.strip|escapejs }}";
+    params = "store=" + store + "&title=" +  title
+    if (description != "" ) {
+        params = params + "&description=" + description;
+    }
+    download('/download_xlsx',
+             params,
+             'POST', "{% csrf_token %}");
+});
+$(".download_sdmx_button").click(function(e) {
+    e.preventDefault();
+    store = "{{ store }}";
+    title = "{{ title.strip }}";
+    sql = "{{ sql|escapejs }}"
+    params = "store=" + store + "&title=" +  title + "&sql=" + sql
+    download('/download_sdmx',
+             params,
+             'POST', "{% csrf_token %}");
+});
+$(".download_json_stat_button").click(function(e) {
+    e.preventDefault();
+    store = "{{ store }}";
+    title = "{{ title.strip }}";
+    params = "store=" + store + "&title=" +  title
+    download('/download_json_stat',
+             params,
+             'POST', "{% csrf_token %}");
+});
+$(".download_rdf_button").click(function(e) {
+   e.preventDefault();
+   store = "{{ store }}";
+   title = "{{ title.strip }}";
+   sql = "{{ sql.strip|escapejs }}"
+   description = "{{ description|escapejs }}"
+   params = "store=" + store + "&title=" +  title + "&sql=" + sql +
+           "&description=" + description
+   download('/download_rdf',
+            params,
+            'POST', "{% csrf_token %}");
+});
+$(".download_turtle_button").click(function(e) {
+   e.preventDefault();
+   store = "{{ store }}";
+   title = "{{ title.strip }}";
+   sql = "{{ sql.strip|escapejs }}"
+   description = "{{ description.strip|escapejs }}"
+   params = "store=" + store + "&title=" +  title + "&sql=" + sql +
+            "&description=" + description
+   download('/download_turtle',
+            params,
+            'POST',
+            "{% csrf_token %}");
+});
 </script>
 {% endif %}
 {% endblock %}
