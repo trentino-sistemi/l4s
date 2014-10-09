@@ -164,10 +164,13 @@ def generate_report_action_xls(df):
 
         k = k + sheet_rows + 1
         if settings.DEBUG:
-            bitmap = 'l4s/static/img/testata_Statistica.bmp'
+            stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
+            cc_bitmap = 'l4s/static/img/creative_commons.bmp'
         else:
-            bitmap = static('/img/testata_Statistica.bmp')
-        new_sheet.insert_bitmap(bitmap, k, 0)
+            stat_bitmap = static('/img/testata_Statistica.bmp')
+            cc_bitmap = 'l4s/static/img/creative_commons.bmp'
+        new_sheet.insert_bitmap(stat_bitmap, k, 0)
+        new_sheet.insert_bitmap(cc_bitmap, k + 4, 2)
         new_workbook.save(file_name)
 
     def generate_report(title, description):
@@ -333,13 +336,19 @@ def generate_report_action_xlsx(df):
 
         k = k + sheet_rows + 1
         if settings.DEBUG:
-            bitmap = 'l4s/static/img/testata_Statistica.bmp'
+            stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
+            cc_bitmap = 'l4s/static/img/creative_commons.bmp'
         else:
-            bitmap = static('/img/testata_Statistica.bmp')
+            stat_bitmap = static('/img/testata_Statistica.bmp')
+            cc_bitmap = 'l4s/static/img/creative_commons.bmp'
 
-        img = Image(bitmap)
-        img.anchor(new_sheet.cell(row=k, column=0))
-        new_sheet.add_image(img)
+        stat_img = Image(stat_bitmap)
+        stat_img.anchor(new_sheet.cell(row=k, column=0))
+        new_sheet.add_image(stat_img)
+
+        cc_img = Image(cc_bitmap)
+        cc_img.anchor(new_sheet.cell(row=k+3, column=19))
+        new_sheet.add_image(cc_img)
 
         new_workbook.save(file_name)
 
