@@ -157,17 +157,15 @@ function OpenSavePopup() {
 			}
     });
 }
-$(document).ready(function() {
-    $("#morebtn").click(function() {
-        $(this).html(($(this).html() == "{% trans "See more" %}")? "{% trans "See less" %}" : "{% trans "See more" %}");
-        var el = document.getElementById("suspension_points");
-        if (el.innerHTML == "...") {
-            el.innerHTML = ",";
-        }
-        else {
-            el.innerHTML = "...";
-        }
-    });
+$("#morebtn").click(function() {
+    $(this).html(($(this).html() == "{% trans "See more" %}")? "{% trans "See less" %}" : "{% trans "See more" %}");
+    var el = document.getElementById("suspension_points");
+    if (el.innerHTML == "...") {
+        el.innerHTML = ",";
+    }
+    else {
+        el.innerHTML = "...";
+    }
 });
 $("#apply_button").click(function() {
     var progress$ = $("#progress");

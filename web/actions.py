@@ -90,6 +90,7 @@ def generate_report_action_xls(df):
         workbook = open_workbook(file_name)
         sheet = workbook.sheet_by_index(0)
         n_cols = sheet.ncols - 1
+        header_len = 12
         sheet_rows = sheet.nrows
         new_workbook = XWorkbook(encoding="UTF-8")
         new_workbook.set_colour_RGB(0x21, 139, 31, 63)
@@ -112,7 +113,7 @@ def generate_report_action_xls(df):
         title_label = unicode(_("Title"))
         new_sheet.write(0, 0, title_label, head_cell)
         new_sheet.write(0, 1, title, head_cell)
-        new_sheet.write_merge(0, 0, 1, n_cols, title, head_cell)
+        new_sheet.write_merge(0, 0, 1, header_len, title, head_cell)
 
         line_num = 1
         if description is not None:
@@ -121,8 +122,8 @@ def generate_report_action_xls(df):
             char_per_cell = 10
             for line in s:
                 line_num += 1
-                if len(line) > char_per_cell * n_cols:
-                    add = (len(line) / (char_per_cell * n_cols)) + 1
+                if len(line) > char_per_cell * header_len:
+                    add = (len(line) / (char_per_cell * header_len)) + 1
                     line_num += add
 
             new_sheet.write(1, 0, description_label, head_cell)
@@ -132,7 +133,7 @@ def generate_report_action_xls(df):
             new_sheet.write_merge(1,
                                   line_num,
                                   1,
-                                  n_cols,
+                                  header_len,
                                   description,
                                   head_cell)
 
@@ -165,12 +166,9 @@ def generate_report_action_xls(df):
         k = k + sheet_rows + 1
         if settings.DEBUG:
             stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
-            cc_bitmap = 'l4s/static/img/creative_commons.bmp'
         else:
             stat_bitmap = static('/img/testata_Statistica.bmp')
-            cc_bitmap = 'l4s/static/img/creative_commons.bmp'
         new_sheet.insert_bitmap(stat_bitmap, k, 0)
-        new_sheet.insert_bitmap(cc_bitmap, k + 4, 2)
         new_workbook.save(file_name)
 
     def generate_report(title, description):
@@ -235,7 +233,7 @@ def generate_report_action_xlsx(df):
         n_cols = len(sheet.columns)
         sheet_rows = len(sheet.rows)
         new_workbook = OWorkbook(encoding="UTF-8")
-
+        header_len = 12
         new_sheet = new_workbook.active
 
         title_label = unicode(_("Title"))
@@ -260,7 +258,7 @@ def generate_report_action_xlsx(df):
         cell.style.font.bold = True
 
         new_sheet.merge_cells(start_row=0, start_column=1,
-                              end_row=0, end_column=n_cols-1)
+                              end_row=0, end_column=header_len)
 
         if description is not None:
             description_label = unicode(_("Description"))
@@ -268,8 +266,8 @@ def generate_report_action_xlsx(df):
             char_per_cell = 10
             for line in s:
                 line_num += 1
-                if len(line) > char_per_cell * n_cols:
-                    add = (len(line) / (char_per_cell * n_cols)) + 1
+                if len(line) > char_per_cell * header_len:
+                    add = (len(line) / (char_per_cell * header_len)) + 1
                     line_num += add
 
             cell = new_sheet.cell(row=1, column=0)
@@ -296,7 +294,7 @@ def generate_report_action_xlsx(df):
             new_sheet.merge_cells(start_row=1,
                                   start_column=1,
                                   end_row=line_num,
-                                  end_column=n_cols-1)
+                                  end_column=header_len)
 
         k = 2 + line_num
         max_widths = dict()
@@ -337,18 +335,12 @@ def generate_report_action_xlsx(df):
         k = k + sheet_rows + 1
         if settings.DEBUG:
             stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
-            cc_bitmap = 'l4s/static/img/creative_commons.bmp'
         else:
             stat_bitmap = static('/img/testata_Statistica.bmp')
-            cc_bitmap = 'l4s/static/img/creative_commons.bmp'
 
         stat_img = Image(stat_bitmap)
         stat_img.anchor(new_sheet.cell(row=k, column=0))
         new_sheet.add_image(stat_img)
-
-        cc_img = Image(cc_bitmap)
-        cc_img.anchor(new_sheet.cell(row=k+3, column=19))
-        new_sheet.add_image(cc_img)
 
         new_workbook.save(file_name)
 
