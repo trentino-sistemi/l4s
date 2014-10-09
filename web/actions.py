@@ -32,6 +32,11 @@ import pandas as pd
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
 from xlwt import easyxf, add_palette_colour, Alignment, XFStyle
+from openpyxl import Workbook as OWorkbook
+from openpyxl import load_workbook
+from openpyxl.drawing import Image
+from openpyxl.style import Color, Fill
+from openpyxl.cell import get_column_letter
 from l4s import settings
 import StringIO
 
@@ -154,21 +159,15 @@ def generate_report_action_xls(df):
                     max_widths[index] = column_len
 
         # Adjust column width.
-        for col in range(sheet.ncols):
+        for col in max_widths:
             new_sheet.col(col).width = (max_widths[col] + 1) * 256
 
         k = k + sheet_rows + 1
-        footer = "Il Servizio Statistica dell Provincia autonoma di Trento "
-        footer += "autorizza la riproduzione totale o parziale dei presenti"
-        footer += " dati a fini non commerciali e "
-        footer += "con la citazione della fonte"
         if settings.DEBUG:
             bitmap = 'l4s/static/img/testata_Statistica.bmp'
         else:
             bitmap = static('/img/testata_Statistica.bmp')
-        new_sheet.write(k, 0, footer, head_cell)
-        new_sheet.write_merge(k, k+6, 0, n_cols, footer, head_cell)
-        new_sheet.insert_bitmap(bitmap, k + 1, 0)
+        new_sheet.insert_bitmap(bitmap, k, 0)
         new_workbook.save(file_name)
 
     def generate_report(title, description):
@@ -228,7 +227,121 @@ def generate_report_action_xlsx(df):
         :param title: Query tile.
         :param description: Query description.
         """
-        return ""
+        workbook = load_workbook(filename=file_name)
+        sheet = workbook.active
+        n_cols = len(sheet.columns)
+        sheet_rows = len(sheet.rows)
+        new_workbook = OWorkbook(encoding="UTF-8")
+
+        new_sheet = new_workbook.active
+
+        title_label = unicode(_("Title"))
+        line_num = 1
+        header_fill_type = Fill.FILL_SOLID
+        header_color = "8B1F3F"
+        header_font_color = Color.WHITE
+        body_font_color = "1F556F"
+
+        cell = new_sheet.cell(row=0, column=0)
+        cell.value = title_label
+        cell.style.fill.fill_type = header_fill_type
+        cell.style.fill.start_color.index = header_color
+        cell.style.font.color.index = header_font_color
+        cell.style.font.bold = True
+
+        cell = new_sheet.cell(row=0, column=1)
+        cell.value = title
+        cell.style.fill.fill_type = header_fill_type
+        cell.style.fill.start_color.index = header_color
+        cell.style.font.color.index = header_font_color
+        cell.style.font.bold = True
+
+        new_sheet.merge_cells(start_row=0, start_column=1,
+                              end_row=0, end_column=n_cols-1)
+
+        if description is not None:
+            description_label = unicode(_("Description"))
+            s = StringIO.StringIO(description)
+            char_per_cell = 10
+            for line in s:
+                line_num += 1
+                if len(line) > char_per_cell * n_cols:
+                    add = (len(line) / (char_per_cell * n_cols)) + 1
+                    line_num += add
+
+            cell = new_sheet.cell(row=1, column=0)
+            cell.style.fill.fill_type = header_fill_type
+            cell.style.fill.start_color.index = header_color
+            cell.style.font.color.index = header_font_color
+            cell.style.alignment.wrap_text = True
+            cell.style.font.bold = True
+
+            cell.value = description_label
+            new_sheet.merge_cells(start_row=1,
+                                  start_column=0,
+                                  end_row=line_num,
+                                  end_column=0)
+
+            cell = new_sheet.cell(row=1, column=1)
+            cell.style.fill.fill_type = header_fill_type
+            cell.style.fill.start_color.index = header_color
+            cell.style.font.color.index = header_font_color
+            cell.style.font.bold = True
+            cell.style.alignment.wrap_text = True
+            cell.value = description
+
+            new_sheet.merge_cells(start_row=1,
+                                  start_column=1,
+                                  end_row=line_num,
+                                  end_column=n_cols-1)
+
+        k = 2 + line_num
+        max_widths = dict()
+        for col in range(n_cols):
+            max_widths[col] = 7
+
+        #Copy rows from existing sheets
+        for rows in range(0, sheet_rows):
+            for col in range(n_cols):
+                data = sheet.cell(row=rows, column=col)
+                value = data.value
+                if value is None:
+                    continue
+                if not isinstance(value, int):
+                    value = value.strip()
+                    value = value.encode('utf-8')
+                if rows != 0:
+                    cell = new_sheet.cell(row=rows+k, column=col)
+                    cell.value = value
+                elif value != "":
+                    # Merge the title.
+                    cell = new_sheet.cell(row=k, column=1)
+                    cell.value = value
+                    new_sheet.merge_cells(range_string=None,
+                                          start_row=k,
+                                          start_column=1,
+                                          end_row=k,
+                                          end_column=n_cols-1)
+                cell.style.font.color.index = body_font_color
+                column_len = len(str(value))
+                if rows >= 1 and column_len > max_widths[col]:
+                        max_widths[col] = column_len
+
+        for i in max_widths:
+            column_letter = get_column_letter(i+1)
+            new_sheet.column_dimensions[column_letter].width = max_widths[i]
+
+        k = k + sheet_rows + 1
+        if settings.DEBUG:
+            bitmap = 'l4s/static/img/testata_Statistica.bmp'
+        else:
+            bitmap = static('/img/testata_Statistica.bmp')
+
+        img = Image(bitmap)
+        img.anchor(new_sheet.cell(row=k, column=0))
+        new_sheet.add_image(img)
+
+        new_workbook.save(file_name)
 
     def generate_report(title, description):
         """Generate Excel 2007 file from query.
@@ -247,9 +360,10 @@ def generate_report_action_xlsx(df):
         df.to_excel(ew)
         ew.save()
 
+        add_header_and_footer(f.name, title, description)
+
         # Setup response
         data = f.read()
-        add_header_and_footer(f.name, title, description)
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
         filename = '%s.%s' % (title, extension)
