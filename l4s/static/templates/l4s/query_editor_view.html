@@ -151,6 +151,7 @@ function OpenSavePopup() {
         success: function(response) {
         x = OpenPopupCenter('', title, w, h);
         x.document.write(response);
+        x.document.close();
 	    },
         error: function(xhr, status) {
 			alert(status);

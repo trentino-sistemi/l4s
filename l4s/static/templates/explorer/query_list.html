@@ -354,6 +354,7 @@ function query_editor(table, columns, rows, aggregations, filters, agg_filters) 
         data: data,
         success: function(response) {
             document.write(response);
+            document.close();
 	    },
         error: function(xhr, status) {
 			alert(status);
