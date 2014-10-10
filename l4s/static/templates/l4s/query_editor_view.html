@@ -82,14 +82,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             </div>
 {% if request.user.is_authenticated %}
 <button class="btn btn-default" onclick="OpenSavePopup();">{% trans "Save" %}</button>
-{% endif %}
-{% if request.user.is_authenticated %}
 <form style="display:none" name="manual_request" id="manual_request" action="/manual_request/" method="post">
 {% csrf_token %}
 <input type="hidden" id="title" name="title" value="{{ title }}"/>
 <input type="hidden" id="url" name="url" value="{{ url }}"/>
 </form>
 <button class="btn btn-default" value="{% trans "Manual request" %}" onclick="document.manual_request.submit()">{% trans "Manual request" %}</button>
+{% else %}
+<button class="btn btn-default" onclick='alert("{% trans "Log in to use this feature" %}");'>{% trans "Save" %}</button>
+<button class="btn btn-default" value="{% trans "Manual request" %}" onclick='alert("{% trans "Log in to use this feature" %}");'>{% trans "Manual request" %}</button>
 {% endif %}
 </div>
 {% if dataframe %}
