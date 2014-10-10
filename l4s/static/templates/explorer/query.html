@@ -40,11 +40,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         {% endif %}
         <div>
 
-<form style="display:none" name="manual_request" id="manual_request" action="/manual_request/" method="post">
-{% csrf_token %}
-<input type="hidden" id="title" name="title" value="{{ title }}"/>
-<input type="hidden" id="url" name="url" value="{{ url }}"/>
-</form>
         <form role="form"
                       class="form-horizontal"
                       action="../{% firstof query.id 'new' %}/"
@@ -229,7 +224,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             {% if request.user.is_authenticated %}
                             <input type="button"
                                    class="btn btn-default"
-                                   onclick="javascript:manual_request_func()"
+                                   onclick="javascript:OpenManualrequestPopup()"
                                    value="{% trans "Manual request" %}"/>
                             {% else %}
                             <button class="btn btn-default" value="{% trans "Manual request" %}" onclick='alert("{% trans "Log in to use this feature" %}");'>{% trans "Manual request" %}</button>
@@ -354,8 +349,23 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% block sql_explorer_scripts %}
     {% include 'explorer/preview_pane_scripts.html' %}
     {% include 'explorer/sql_advanced_editor_scripts.html' %}
-    <script type="text/javascript" src="/static/js/download.js"></script>
+<script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
+<script type="text/javascript" src="/static/js/download.js"></script>
     <script>
+        initToken();
+        function OpenPopupCenter(pageURL, title, w, h) {
+    var left = (screen.width - w) / 2;
+    // for 25% - divide by 4  |  for 33% - divide by 3
+    var top = (screen.height - h) / 4;
+    var opt = 'toolbar=no, location=no, directories=no, status=no, ' +
+              'menubar=no, scrollbars=no, resizable=no, copyhistory=no, ' +
+              ' width=' + w + ', height=' + h + ', top=' + top + ', left=' +
+              left
+    var targetWin = window.open(pageURL, title, opt);
+    targetWin.focus();
+    return targetWin;
+}
         $('#progress').hide();
         function get_pivot_column() {
             element = document.getElementById('id_pivot_column');
@@ -422,10 +432,28 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             }
             return dl_link;
         }
-        function manual_request_func() {
-            var man = document.getElementById('manual_request');
-            man.submit();
-        }
+function OpenManualrequestPopup() {
+    title = '{% trans "Manual request" %}';
+    w = 1000;
+    h = 700;
+    url = '/manual_request/';
+    data = { 'title': '{{ title|escapejs }}',
+             'url':'{{ url|escapejs }}'
+    };
+    $.ajax({
+		url: url,
+        type: "POST",
+        data: data,
+        success: function(response) {
+        x = OpenPopupCenter('', title, w, h);
+        x.document.write(response);
+        x.document.close();
+	    },
+        error: function(xhr, status) {
+			alert(status);
+			}
+    });
+}
         $(function() {
             $("#apply_button").click(function() {
                 var progress$ = $("#progress");

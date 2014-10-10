@@ -354,7 +354,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                    name="btn_close"
                    id="btn_close"
                    onclick="submit_popup('{{ values|jsonify|escapejs }}', '{{ agg_values|jsonify|escapejs }}', '{{ table_name }}', '{% trans " The table must have at least one field in row" %}', '{% trans "The table must have at least one field in column" %}');"
-                   value="{% trans " Apply" %}"/>
+                   value="{% trans "Submit" %}"/>
+            <button class="btn btn-default" onclick="window.close()">
+                {% trans "Cancel" %}
+            </button>
         </td>
 </table>
 </body>

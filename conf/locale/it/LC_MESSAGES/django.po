@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-10 16:05+0200\n"
-"PO-Revision-Date: 2014-10-10 16:52+0100\n"
+"POT-Creation-Date: 2014-10-10 17:21+0200\n"
+"PO-Revision-Date: 2014-10-10 17:22+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -258,31 +258,41 @@ msgstr "Pubblica"
 msgid "Debug"
 msgstr "Analizza"
 
-#: l4s/static/templates/explorer/query.html:181
+#: l4s/static/templates/explorer/query.html:182
 msgid "Show Sql Editor"
 msgstr "Mostra editor Sql"
 
-#: l4s/static/templates/explorer/query.html:187
+#: l4s/static/templates/explorer/query.html:188
 msgid "Hide Sql Editor"
 msgstr "Nascondi editor Sql"
 
-#: l4s/static/templates/explorer/query.html:192
+#: l4s/static/templates/explorer/query.html:194
 msgid "Run"
 msgstr "Esegui"
 
-#: l4s/static/templates/explorer/query.html:198
+#: l4s/static/templates/explorer/query.html:200
+#: l4s/static/templates/l4s/query_editor_view.html:70
+msgid "Export"
+msgstr "Esporta"
+
+#: l4s/static/templates/explorer/query.html:219
+#: l4s/static/templates/explorer/query.html:223
+#: l4s/static/templates/explorer/query.html:225
 #: l4s/static/templates/l4s/query_editor_view.html:84
 #: l4s/static/templates/l4s/query_editor_view.html:92
 #: l4s/static/templates/l4s/query_editor_view.html:161
 msgid "Save"
 msgstr "Salva"
 
-#: l4s/static/templates/explorer/query.html:206
-#: l4s/static/templates/l4s/query_editor_view.html:70
-msgid "Export"
-msgstr "Esporta"
-
 #: l4s/static/templates/explorer/query.html:225
+#: l4s/static/templates/explorer/query.html:235
+#: l4s/static/templates/l4s/query_editor_view.html:92
+#: l4s/static/templates/l4s/query_editor_view.html:93
+msgid "Log in to use this feature"
+msgstr "Accedi per poter usare questa funzione"
+
+#: l4s/static/templates/explorer/query.html:233
+#: l4s/static/templates/explorer/query.html:235
 #: l4s/static/templates/l4s/manual_request.html:26
 #: l4s/static/templates/l4s/manual_request_view.html:29
 #: l4s/static/templates/l4s/manual_request_view.html:30
@@ -291,32 +301,32 @@ msgstr "Esporta"
 msgid "Manual request"
 msgstr "Richiesta manuale"
 
-#: l4s/static/templates/explorer/query.html:247
+#: l4s/static/templates/explorer/query.html:258
 msgid "You can build a"
 msgstr "Puoi costruire una"
 
-#: l4s/static/templates/explorer/query.html:247
+#: l4s/static/templates/explorer/query.html:258
 msgid "pivot table"
 msgstr "tabella pivot"
 
-#: l4s/static/templates/explorer/query.html:247
+#: l4s/static/templates/explorer/query.html:258
 msgid "on column"
 msgstr "con in colonna"
 
-#: l4s/static/templates/explorer/query.html:270
+#: l4s/static/templates/explorer/query.html:281
 msgid "Aggregate for"
 msgstr "Aggrega per"
 
-#: l4s/static/templates/explorer/query.html:277
-#: l4s/static/templates/explorer/query.html:282
+#: l4s/static/templates/explorer/query.html:288
+#: l4s/static/templates/explorer/query.html:293
 msgid "Nothing"
 msgstr "Nulla"
 
-#: l4s/static/templates/explorer/query.html:310
+#: l4s/static/templates/explorer/query.html:321
 msgid "Apply"
 msgstr "Applica"
 
-#: l4s/static/templates/explorer/query.html:327
+#: l4s/static/templates/explorer/query.html:338
 msgid "Please wait, this may take a few minutes"
 msgstr "Attendere prego, questa operazione potrebbe richiedere alcuni minuti"
 
@@ -825,6 +835,10 @@ msgstr "La tabella deve avere almeno un campo in colonna"
 msgid " Apply"
 msgstr "Applica"
 
+#: l4s/static/templates/l4s/query_editor_save.html:58
+msgid "Cancel"
+msgstr "Annulla"
+
 #: l4s/static/templates/l4s/query_editor_view.html:44
 msgid "values"
 msgstr "valori"
@@ -838,11 +852,6 @@ msgstr "Vedi più dettagli"
 #: l4s/static/templates/l4s/query_editor_view.html:124
 msgid "Customize"
 msgstr "Personalizza"
-
-#: l4s/static/templates/l4s/query_editor_view.html:92
-#: l4s/static/templates/l4s/query_editor_view.html:93
-msgid "Log in to use this feature"
-msgstr "Accedi per poter usare questa funzione"
 
 #: l4s/static/templates/l4s/query_editor_view.html:191
 msgid "See less"
