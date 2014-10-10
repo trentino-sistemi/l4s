@@ -354,8 +354,8 @@ class QueryView(ExplorerContextMixin, View):
         vm['manual_request'] = True
 
         url = '/explorer/%d/' % query.pk
-        request.session['title'] = query.title
-        request.session['url'] = url
+        vm['title'] = query.title
+        vm['url'] = url
         return self.render_template('explorer/query.html', vm)
 
     def post(self, request, query_id):
@@ -398,6 +398,7 @@ class QueryView(ExplorerContextMixin, View):
             )
 
         query = get_object_or_404(Query, pk=query_id)
+        url = '/explorer/%d/' % query.pk
 
         form = CreateQueryForm(data=request.POST or None, instance=query)
         if to_be_saved and QueryView.user_has_privilege(request.user,
@@ -427,6 +428,8 @@ class QueryView(ExplorerContextMixin, View):
                 widgets = get_widgets_dictionary(variable_dictionary)
                 vm['types'] = types
                 vm['widgets'] = widgets
+                vm['title'] = query.title
+                vm['url'] = url
                 return self.render_template('explorer/query.html', vm)
             except ValueError, e:
                 message = _("The Query could not be executed because "
@@ -445,11 +448,11 @@ class QueryView(ExplorerContextMixin, View):
                                  'debug': debug,
                                  'manual_request': True,
                                  'language_code': translation.get_language()})
+            vm['title'] = query.title
+            vm['url'] = url
             return self.render_template('explorer/query.html', vm)
 
-        url = '/explorer/%d/' % query.pk
-        request.session['title'] = query.title
-        request.session['url'] = url
+
         return redirect(url)
 
     @staticmethod
@@ -1193,6 +1196,7 @@ def query_editor_view(request):
     context['sql'] = sql
     context['description'] = description
     context['title'] = title
+    context['url'] = url
     context['columns'] = ",".join(cols)
     context['rows'] = ",".join(rows)
     context['filters'] = filters
@@ -1377,6 +1381,27 @@ def manual_request_accepted(request):
     return render_to_response("l4s/manual_request_accepted.html", context)
 
 
+def manual_request_save(request):
+    """
+    Save manual request.
+
+    :param request:
+    :return:
+    """
+    context = RequestContext(request)
+    form = ManualRequestForm(request.POST)
+    if form.is_valid():
+        instance = form.save()
+        url = '/manual_request_accepted/?id=' + str(instance.pk)
+        email_new_manual_request(instance)
+        email_manual_request_notification(instance, request.user.email)
+        return redirect(url)
+
+    return render_to_response('l4s/manual_request.html',
+                              {'form': form},
+                              context_instance=context)
+
+
 @login_required
 def manual_request(request):
     """
@@ -1386,21 +1411,9 @@ def manual_request(request):
     :return: The Django request response.
     """
     context = RequestContext(request)
-    if request.method == 'POST':
-        form = ManualRequestForm(request.POST)
-        if form.is_valid():
-            instance = form.save()
-            url = '/manual_request_accepted/?id=' + str(instance.pk)
-            email_new_manual_request(instance)
-            email_manual_request_notification(instance, request.user.email)
-            return redirect(url)
-        else:
-            return render_to_response('l4s/manual_request.html',
-                                      {'form': form},
-                                      context_instance=context)
 
-    subject = request.session.get('title')
-    url = request.session.get('url')
+    subject = request.REQUEST.get('title')
+    url = request.REQUEST.get('url')
     context['title'] = subject
     context['districts'] = list_districts()
     context['valley_communities'] = list_valley_communities()

@@ -60,7 +60,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {{ error|escape }}
 </div>
 {% else %}
-
+ <div class="btn-group">
 <button class="btn btn-default" onclick="OpenCustomizePopup();">{% trans "Customize" %}</button>
                                 <div class="btn-group">
                                 <button type="button"
@@ -83,8 +83,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <button class="btn btn-default" onclick="OpenSavePopup();">{% trans "Save" %}</button>
 {% endif %}
 {% if request.user.is_authenticated %}
-<input type="button" class="btn btn-default" value="{% trans "Manual request" %}" onclick="location.href='/manual_request'">
+<form style="display:none" name="manual_request" id="manual_request" action="/manual_request/" method="post">
+{% csrf_token %}
+<input type="hidden" id="title" name="title" value="{{ title }}"/>
+<input type="hidden" id="url" name="url" value="{{ url }}"/>
+</form>
+<button class="btn btn-default" value="{% trans "Manual request" %}" onclick="document.manual_request.submit()">{% trans "Manual request" %}</button>
 {% endif %}
+</div>
 {% if dataframe %}
 <div style="overflow: auto; max-heigth: 100%;" id="overflow_wrapper">
     <center>

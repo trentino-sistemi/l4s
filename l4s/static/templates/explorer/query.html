@@ -39,6 +39,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </div>
         {% endif %}
         <div>
+
+<form style="display:none" name="manual_request" id="manual_request" action="/manual_request/" method="post">
+{% csrf_token %}
+<input type="hidden" id="title" name="title" value="{{ title }}"/>
+<input type="hidden" id="url" name="url" value="{{ url }}"/>
+</form>
         <form role="form"
                       class="form-horizontal"
                       action="../{% firstof query.id 'new' %}/"
@@ -212,9 +218,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             </div>
                             {%  endif %}
                             {% if request.user.is_authenticated and manual_request %}
-                            <input type="button" class="btn btn-default"
-                                   value="{% trans "Manual request" %}"
-                            onclick="location.href='/manual_request'">
+                            <input type="button"
+                                   class="btn btn-default"
+                                   onclick="javascript:manual_request_func()"
+                                   id="manual_request"
+                                   value="{% trans "Manual request" %}"/>
                             {% endif %}
                         </div>
                     </div>
@@ -402,6 +410,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                dl_link = add_param(dl_link, 'debug', 'false');
             }
             return dl_link;
+        }
+        function manual_request_func() {
+            var man = document.getElementById('manual_request');
+            man.submit();
         }
         $(function() {
             $("#apply_button").click(function() {

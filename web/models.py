@@ -111,11 +111,11 @@ class ManualRequest(models.Model):
     dispatcher = models.CharField(max_length=30, blank=True)
     request_date = models.DateTimeField(auto_now_add=True)
     dispatch_date = models.DateTimeField(blank=True, null=True)
-    dispatch_note = models.CharField(max_length=400,
+    dispatch_note = models.CharField(max_length=512,
                                      blank=True,
                                      null=True)
-    subject = models.CharField(_('subject'), max_length=60, blank=False)
-    goal = models.CharField(_('goal'), max_length=30, blank=False)
+    subject = models.CharField(_('subject'), max_length=256, blank=False)
+    goal = models.CharField(_('goal'), max_length=256, blank=False)
     topic = models.CharField(_('topic'), max_length=100, blank=False)
     requested_data = models.CharField(_('requested data'),
                                       max_length=400,

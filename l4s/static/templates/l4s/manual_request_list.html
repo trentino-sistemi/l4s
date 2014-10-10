@@ -37,7 +37,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <tr>
         <td><a href="/manual_request_view/?id={{ object.id }}">{{ object.id }}</a></td>
         <td>{{ object.inquirer }}</td>
-        <td>{{ object.subject }}</td>
+        <td><a href="/manual_request_view/?id={{ object.id }}">{{ object.subject }}</a></td>
     </tr>
     {% endfor %}
     </tbody>

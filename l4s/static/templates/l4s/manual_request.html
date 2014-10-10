@@ -23,9 +23,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {% block l4s_container %}
 <h3 style="padding-bottom: 20px">
-    {% trans "Manual request" %} '{{ title }}'
+    {% trans "Manual request" %} '{{ title.strip }}'
 </h3>
-<form id='frm' method="POST" action="." role="form" class="form-horizontal">
+<form id='frm' method="POST" action="/manual_request_save/" role="form" class="form-horizontal">
     {% csrf_token %}
     <table class="table table-striped">{{ form.as_table }}</table>
     <p></p>

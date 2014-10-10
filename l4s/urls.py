@@ -129,14 +129,10 @@ urlpatterns = patterns('',
                        url(r'^manual_request_history/$',
                            'web.views.manual_request_history',
                            name='manual_request_history'),
-                       # Url to empty table.
-                       url(r'^empty_table/$',
-                           'web.views.empty_table',
-                           name='empty_table'),
-                       # Url to generate test tables.
-                       url(r'^test_table/$',
-                           'web.views.test_table',
-                           name='test_table'),
+                       # Url to save the manual request specified..
+                       url(r'^manual_request_save/$',
+                           'web.views.manual_request_save',
+                           name='manual_request_save'),
                        # Url to view the manual request specified with id.
                        url(r'^manual_request_view/$',
                            'web.views.manual_request_view',
@@ -150,6 +146,14 @@ urlpatterns = patterns('',
                        url(r'^manual_request_accepted/$',
                            'web.views.manual_request_accepted',
                            name='manual_request_accepted'),
+                       # Url to empty table.
+                       url(r'^empty_table/$',
+                           'web.views.empty_table',
+                           name='empty_table'),
+                       # Url to generate test tables.
+                       url(r'^test_table/$',
+                           'web.views.test_table',
+                           name='test_table'),
                        # Url for initial page.
                        url(r'^$',
                            'web.views.index',
