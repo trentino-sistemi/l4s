@@ -23,6 +23,7 @@
   This contains all the javascript used by the query editor customization popup.
 */
 
+
 function get_aggregation_color() {
         return "#A1284C";
 }
@@ -212,31 +213,39 @@ function submit_popup (values, agg_values, table_name, no_rows, no_columns) {
         return;
     }
     
-    var form = window.opener.document.getElementById("form");
-    addHiddenInput(form, 'filters', filter_value);
-    addHiddenInput(form, 'table', table_name);
-    addHiddenInput(form, 'rows', rows);
-    addHiddenInput(form, 'columns', cols);
-    
     sel_aggregations = get_aggregations();
-    if (sel_aggregations != "") {
-        addHiddenInput(form, 'aggregate', sel_aggregations);
-     }
-     
-     agg_selection = create_agg_selection(agg_values);
-     agg_selection_value = JSON.stringify(agg_selection);
-     addHiddenInput(form, 'agg_filters', agg_selection_value);
-         
-     var debug = document.getElementById('debug');  
+    agg_selection = create_agg_selection(agg_values);
+    agg_selection_value = JSON.stringify(agg_selection);
+    debug_value = "false";
+    var debug = document.getElementById('debug');  
       if (debug!=null && debug.checked == 1) {
-        addHiddenInput(form, 'debug', 'true');
+        debug_value = "true";
      }
     
-    form.submit();
-    
-    //window.opener.location = '/query_editor_view' + params;
-    
-    window.close();
+    url="/query_editor_view/"
+    data = { 'table': table_name,
+             'columns': cols,
+             'rows': rows,
+             'aggregate': sel_aggregations,
+             'filters': filter_value,
+             'agg_filters': agg_selection_value,
+             'debug': debug_value,
+              };
+    $.ajax({
+		url: url,
+        type: "POST",
+        data: data,
+        success: function(response) {
+			window.close();
+            window.opener.document.write(response);
+            window.opener.location.reload();
+            window.opener.document.close();
+            
+	    },
+        error: function(xhr, status) {
+			alert(status);
+		}
+    });
 }
 
 $(function () {

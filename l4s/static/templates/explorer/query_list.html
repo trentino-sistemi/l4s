@@ -346,7 +346,8 @@ function query_editor(table, columns, rows, aggregations, filters, agg_filters) 
              'rows': rows,
              'aggregate': aggregations,
              'filters': filters,
-             'agg_filters': agg_filters
+             'agg_filters': agg_filters,
+             'debug': "False",
               };
     $.ajax({
 		url: url,

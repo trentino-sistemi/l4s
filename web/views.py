@@ -1179,10 +1179,8 @@ def query_editor_view(request):
     html = dataframe_to_html(df, pivot)
 
     url = '/query_editor_view/?table=%s' % table_name
-    request.session['title'] = query.title
     request.session['url'] = url
-
-    request.session['title'] = title
+    request.session['title'] = query.title
     request.session['description'] = description
     request.session['sql'] = sql
     request.session['filters'] = filters
