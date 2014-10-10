@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-10-10 16:05+0200\n"
-"PO-Revision-Date: 2014-10-10 16:10+0100\n"
+"PO-Revision-Date: 2014-10-10 16:52+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -480,7 +480,7 @@ msgstr "Interrogazione"
 
 #: l4s/static/templates/l4s/base.html:78
 msgid "Query Editor"
-msgstr "Editor dellle interrogazioni"
+msgstr "Editor delle interrogazioni"
 
 #: l4s/static/templates/l4s/base.html:83
 msgid "List Query"
