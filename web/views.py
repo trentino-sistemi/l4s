@@ -1007,6 +1007,7 @@ def query_editor_customize(request):
     :param request:
     :return:
     """
+
     context = RequestContext(request)
     debug = False
     if request.user.is_staff:
@@ -1014,14 +1015,14 @@ def query_editor_customize(request):
         if debug_s and debug_s == 'true':
             debug = True
 
-    table_name = request.GET.get('table', '')
-    columns = request.GET.get('columns', '')
+    table_name = request.REQUEST.get('table', '')
+    columns = request.REQUEST.get('columns', '')
     cols = []
     if columns != "":
         for i in columns.split(','):
             cols.append(i)
 
-    rows_s = request.GET.get('rows', '')
+    rows_s = request.REQUEST.get('rows', '')
     rows = []
     if rows_s != "":
         for i in rows_s.split(','):
@@ -1035,7 +1036,7 @@ def query_editor_customize(request):
             sel_aggregation_ids.append(i)
 
     table_schema = get_table_schema(table_name)
-    column_description = request.session.get('column_description')
+    column_description = request.REQUEST.get('column_description')
 
     fields = [field.name for field in table_schema]
     obs_values = get_obs_value_columns(table_name, table_schema)
@@ -1046,24 +1047,22 @@ def query_editor_customize(request):
     context['columns'] = cols
     context['rows'] = rows
 
-    values = request.session.get('values')
-    agg_values = request.session.get('agg_values')
-    aggregations = request.session.get('aggregations')
+    values = request.REQUEST.get('values')
+    agg_values = request.REQUEST.get('agg_values')
+    aggregations = request.REQUEST.get('aggregations')
 
-    filters = request.session.get('filters')
-    request.session['filters'] = filters
+    filters = request.REQUEST.get('filters')
 
-    agg_filters = request.session.get('agg_filters')
-    request.session['agg_filters'] = agg_filters
+    agg_filters = request.REQUEST.get('agg_filters')
 
-    context['aggregations'] = aggregations
+    context['aggregations'] = json.loads(aggregations)
     context['sel_aggregation'] = sel_aggregation_ids
-    context['column_description'] = column_description
+    context['column_description'] =  json.loads(column_description)
     context['debug'] = debug
-    context['values'] = values
-    context['agg_values'] = agg_values
-    context['filters'] = filters
-    context['agg_filters'] = agg_filters
+    context['values'] = json.loads(values)
+    context['agg_values'] = json.loads(agg_values)
+    context['filters'] = json.loads(filters)
+    context['agg_filters'] = json.loads(agg_filters)
 
     return render_to_response("l4s/query_editor_customize.html", context)
 
@@ -1120,11 +1119,8 @@ def query_editor_view(request):
             vals = get_all_field_values(table_name, column_name)
             values[column_name] = vals
 
-    request.session['values'] = values
-
     table_schema = get_table_schema(table_name)
     aggregations = get_all_aggregations(table_name, table_schema)
-    request.session['aggregations'] = aggregations
 
     agg_values = dict()
     for agg in aggregations:
@@ -1133,8 +1129,6 @@ def query_editor_view(request):
             agg_new[ag] = agg
             vals = get_all_field_values_agg(ag)
             agg_values[ag] = vals
-
-    request.session['agg_values'] = agg_values
 
     if len(rows) + len(cols) == 0:
         cols, rows = choose_default_axis(table_name)
@@ -1182,16 +1176,14 @@ def query_editor_view(request):
     html = dataframe_to_html(df, pivot)
 
     url = '/query_editor_view/?table=%s' % table_name
-    request.session['url'] = url
-    request.session['title'] = query.title
-    request.session['description'] = description
-    request.session['sql'] = sql
-    request.session['filters'] = filters
-    request.session['agg_filters'] = agg_filters
-    request.session['aggregation_ids'] = aggregation_ids
-    request.session['column_description'] = column_description
 
     context['dataframe'] = html
+    context['values'] = values
+    context['aggregations'] = aggregations
+    context['agg_values'] = agg_values
+    context['aggregation_ids'] = aggregation_ids
+    context['column_description'] = column_description
+
     context['store'] = store
     context['sql'] = sql
     context['description'] = description

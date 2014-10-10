@@ -236,11 +236,9 @@ function submit_popup (values, agg_values, table_name, no_rows, no_columns) {
         type: "POST",
         data: data,
         success: function(response) {
-			window.close();
             window.opener.document.write(response);
-            window.opener.location.reload();
             window.opener.document.close();
-            
+            window.close();
 	    },
         error: function(xhr, status) {
 			alert(status);

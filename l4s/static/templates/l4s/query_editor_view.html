@@ -62,6 +62,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% else %}
  <div class="btn-group">
 <button class="btn btn-default" onclick="OpenCustomizePopup();">{% trans "Customize" %}</button>
+
                                 <div class="btn-group">
                                 <button type="button"
                                         class="btn btn-default dropdown-toggle"
@@ -98,6 +99,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </center>
 </div>
 {% endif %}
+{% endif %}
 <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
 <script type="text/javascript" src="/static/js/download.js"></script>
@@ -116,20 +118,43 @@ function OpenPopupCenter(pageURL, title, w, h) {
     return targetWin;
 }
 function OpenCustomizePopup() {
-    url = '/query_editor_customize?table={{ table_name }}'
-    url += '&rows={{ rows }}&columns={{ columns }}';
-    agg = '{{ sel_aggregate }}';
-    if (agg != "") {
-         url = url + '&aggregate=' + agg
-    }
-    debug = '{{ debug }}';
-    if (debug=='True') {
-         url = url + '&debug=true'
-    }
-    title = '{% trans "Customize" %}';
     w = 900;
     h = 600;
-    OpenPopupCenter(url, title, w, h);
+    title = '{% trans "Customize" %}';
+
+    debug_value = "false"
+    debug = '{{ debug }}';
+    if (debug=='True') {
+       debug_value = "true"
+    }
+    url = '/query_editor_customize/';
+    data = { 'table': '{{ table_name|escapejs }}',
+             'columns': '{{ columns|escapejs }}',
+             'rows': '{{ rows|escapejs }}',
+             'aggregations': '{{ aggregations|jsonify|escapejs }}',
+             'filters': '{{ filters|jsonify|escapejs }}',
+             'agg_filters': '{{ agg_filters|jsonify|escapejs }}',
+             'aggregate': '{{ sel_aggregate|escapejs }}',
+             'column_description': '{{ column_description|jsonify|escapejs }}',
+             'values': '{{ values |jsonify|escapejs }}',
+             'agg_values': '{{ agg_values |jsonify|escapejs }}',
+             'debug': debug_value,
+              };
+    $.ajax({
+		url: url,
+        type: "POST",
+        data: data,
+        success: function(response) {
+        x = OpenPopupCenter('', title, w, h);
+        x.document.write(response);
+        x.document.close();
+	    },
+        error: function(xhr, status) {
+            alert(xhr.responseText);
+			alert(status);
+			}
+    });
+
 }
 function OpenSavePopup() {
     title = '{% trans "Save" %}';
@@ -271,6 +296,5 @@ $(".download_turtle_button").click(function(e) {
             "{% csrf_token %}");
 });
 </script>
-{% endif %}
 {% endblock %}
 
