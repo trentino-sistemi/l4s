@@ -452,7 +452,6 @@ class QueryView(ExplorerContextMixin, View):
             vm['url'] = url
             return self.render_template('explorer/query.html', vm)
 
-
         return redirect(url)
 
     @staticmethod
@@ -1037,7 +1036,6 @@ def query_editor_customize(request):
 
     table_schema = get_table_schema(table_name)
     column_description = request.REQUEST.get('column_description')
-
     fields = [field.name for field in table_schema]
     obs_values = get_obs_value_columns(table_name, table_schema)
 
@@ -1057,7 +1055,7 @@ def query_editor_customize(request):
 
     context['aggregations'] = json.loads(aggregations)
     context['sel_aggregation'] = sel_aggregation_ids
-    context['column_description'] =  json.loads(column_description)
+    context['column_description'] = json.loads(column_description)
     context['debug'] = debug
     context['values'] = json.loads(values)
     context['agg_values'] = json.loads(agg_values)

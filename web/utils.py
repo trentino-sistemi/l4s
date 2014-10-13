@@ -296,38 +296,6 @@ def first_secret_column(table_name,
     return -1, None
 
 
-def first_threshold_column(table_name, table_description):
-    """
-    Found first threshold column.
-
-    :param table_name:
-    :param table_description:
-    :return: index_column, column_name
-    """
-    for f, field in enumerate(table_description):
-        column_name = field.name
-        threshold = get_threshold(table_name, column_name)
-        if threshold is not None:
-            return f, column_name
-    return -1, None
-
-
-def first_constraint_column(table_name, table_description):
-    """
-    Found first constraint column.
-
-    :param table_name:
-    :param table_description:
-    :return: index_column, column_name
-    """
-    for f, field in enumerate(table_description):
-        column_name = field.name
-        constraint = get_constraint(table_name, column_name)
-        if constraint is not None:
-            return f, column_name
-    return -1, None
-
-
 def list_obs_value_column_from_dict(col_dict):
     """
     Found all observable value from dictionary
@@ -363,37 +331,22 @@ def get_obs_value_columns(table_name, table_description):
     return ret
 
 
-def first_obs_value_column(table_name, table_description):
+def all_obs_value_column(table_name, table_description):
     """
-    Found first observable value.
+    Found all observable value.
 
     :param table_name:
     :param table_description:
     :return: index_column, column_name
     """
+    ret = dict()
+
     for f, field in enumerate(table_description):
         column_name = field.name
         if is_obs_value(table_name, column_name):
-            return f, column_name
-    return -1, None
+            ret[f] = column_name
 
-
-def first_numerosity_column(table_name, table_description):
-    """
-    Return the first numerosity.
-
-    :param table_name:
-    :param table_description:
-    :return:
-    """
-    index, column_name = first_threshold_column(table_name, table_description)
-    if column_name is None:
-        index, column_name = first_constraint_column(table_name,
-                                                     table_description)
-    if column_name is None:
-        index, column_name = first_obs_value_column(table_name,
-                                                    table_description)
-    return index, column_name
+    return ret
 
 
 def get_all_field_values_agg(ag):
@@ -456,43 +409,44 @@ def choose_default_axis(table_name):
     :param table_name: The table name.
     :return: cols and rows chosen.
     """
-    table_description = get_table_schema(table_name)
+    table_schema = get_table_schema(table_name)
     selected_index = []
     cols = []
     rows = []
 
-    index, column_name = first_numerosity_column(table_name, table_description)
-    if column_name is None:
+    obs_values = all_obs_value_column(table_name, table_schema)
+    if len(obs_values) < 1:
         return -1, -1
 
-    selected_index.append(index)
+    for index in obs_values:
+        selected_index.append(index)
 
     index, column_name = first_ref_period_column(table_name,
-                                                 table_description,
+                                                 table_schema,
                                                  selected_index)
     if column_name is None:
         index, column_name = min_distinct_values_column(table_name,
-                                                        table_description,
+                                                        table_schema,
                                                         selected_index)
     if column_name is None:
-        index, column_name = first_column(table_description,
+        index, column_name = first_column(table_schema,
                                           selected_index)
 
     cols.append(column_name)
 
     index, column_name = first_secret_column(table_name,
-                                             table_description,
+                                             table_schema,
                                              selected_index)
     if column_name is None:
         index, column_name = first_ref_area_column(table_name,
-                                                   table_description,
+                                                   table_schema,
                                                    selected_index)
     if column_name is None:
         index, column_name = max_distinct_values_column(table_name,
-                                                        table_description,
+                                                        table_schema,
                                                         selected_index)
     if column_name is None:
-        index, column_name = first_column(table_description,
+        index, column_name = first_column(table_schema,
                                           selected_index)
 
     rows.append(column_name)
@@ -545,8 +499,8 @@ def build_foreign_keys(table_name):
 
 def build_query(table_name, columns, rows, aggregation_ids, filters, values):
     """
-    Build a query on table that select first obsValue and then the
-    cols and rows desired.
+    Build a query on table that select obsValues and then the desired
+    cols and rows.
     REGARDS: The query is flat this return the query and the column list to
              used in pivot
     :param table_name: The table name.
@@ -563,22 +517,21 @@ def build_query(table_name, columns, rows, aggregation_ids, filters, values):
     obs_fields = []
     table_schema = get_table_schema(table_name)
 
-    selected_index = []
-
     for agg in aggregation_ids:
         annotation += "%s %s\n" % (AGGREGATION_TOKEN, agg)
 
-    index, numerosity_col = first_numerosity_column(table_name, table_schema)
-    if numerosity_col is None:
+    obs_values = all_obs_value_column(table_name, table_schema)
+    if len(obs_values) < 1:
         return None
 
     position = 0
-    sum_s = "SUM(%s) %s" % (numerosity_col, numerosity_col)
-    obs_fields.append(sum_s)
-    annotation += "%s " % JOIN_TOKEN
-    annotation += "%s.%s %d\n" % (table_name, numerosity_col, position)
-    selected_index.append(index)
-    position += 1
+    for index in obs_values:
+        numerosity_col = obs_values[index]
+        sum_s = "SUM(%s) %s" % (numerosity_col, numerosity_col)
+        obs_fields.append(sum_s)
+        annotation += "%s " % JOIN_TOKEN
+        annotation += "%s.%s %d\n" % (table_name, numerosity_col, position)
+        position += 1
 
     col_positions = []
     for col in columns:
@@ -586,13 +539,11 @@ def build_query(table_name, columns, rows, aggregation_ids, filters, values):
         annotation += "%s.%s %d\n" % (table_name, col, position)
         annotation += "%s %d\n" % (PIVOT_TOKEN, position)
         col_positions.append(position)
-        selected_index.append(index)
         fields.append(col)
         position += 1
 
     for row in rows:
         annotation += "%s %s.%s %d\n" % (JOIN_TOKEN, table_name, row, position)
-        selected_index.append(index)
         fields.append(row)
         position += 1
 

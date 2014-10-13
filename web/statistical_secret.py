@@ -584,8 +584,9 @@ def build_constraint_dict(constraint_cols):
 
 def apply_constraint_pivot(data,
                            headers,
-                           column,
-                           row, col_dict,
+                           columns,
+                           rows,
+                           col_dict,
                            constraint_cols,
                            debug):
     """
@@ -609,27 +610,38 @@ def apply_constraint_pivot(data,
         for field in dest_table_description:
             dest_columns.append(field.name)
 
-        columns = []
+        to_be_selected_columns = []
         for col in col_dict:
             col_name = col_dict[col]['column']
             if col_name in dest_columns:
-                columns.append(col_name)
+                to_be_selected_columns.append(col_name)
 
-        query = build_constraint_query(table, columns, enum_column, col_dict)
+        query = build_constraint_query(table,
+                                       to_be_selected_columns,
+                                       enum_column,
+                                       col_dict)
+
         dest_data = execute_query_on_main_db(query)
         values = headers[constraint]
+        new_header = []
+        for column in columns:
+            new_header.append(column)
+        for row in rows:
+            new_header.append(row)
+        new_header.append(values)
+
         dest_data, nheaders, err = pivot(dest_data,
-                                         headers,
-                                         column,
-                                         row,
+                                         new_header,
+                                         columns,
+                                         rows,
                                          values)
+
         if err:
             return None
-
-        for c, column in enumerate(data[0], start=1):
+        for c, columns in enumerate(data[0], start=1):
             if c == len(data[0]) - 1:
                 break
-            for r, row in enumerate(data):
+            for r, rows in enumerate(data):
                 if r == len(data) - 1:
                     continue
                 val = data[r][c]
@@ -841,18 +853,13 @@ def apply_stat_secret(headers,
         for pivot_col in pivot_columns:
             pivot_cols.append(headers[pivot_col])
 
-        if len(threshold_columns_dict.keys()) > 0:
-            for v in threshold_columns_dict.keys():
-                pivot_values.append(headers[v])
-        elif len(constraint_cols) > 0:
-            for v in constraint_cols.keys():
-                pivot_values.append(headers[v])
-        else:
-            for v in list_obs_value_column_from_dict(col_dict):
-                pivot_values.append(headers[v])
-            if len(pivot_values) == 0:
-                err = _("Can not pivot the table; missing numerosity!")
-                return data, headers, None, warn, err
+        obs_values = list_obs_value_column_from_dict(col_dict)
+        for v in obs_values:
+            pivot_values.append(headers[v])
+
+        if len(pivot_values) == 0:
+            err = _("Can not pivot the table; missing numerosity!")
+            return data, headers, None, warn, err
 
         rows = []
         for k in col_dict:
@@ -877,7 +884,7 @@ def apply_stat_secret(headers,
         data = apply_constraint_pivot(data,
                                       headers,
                                       pivot_cols,
-                                      rows[0],
+                                      rows,
                                       col_dict,
                                       constraint_cols,
                                       debug)
