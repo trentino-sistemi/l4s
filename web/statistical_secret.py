@@ -156,8 +156,8 @@ def pivot(data, headers, columns, rows, value):
         lambda a: str(a).replace(".0", "", 1).replace("nan", "0"))
 
     all_s = unicode(_("All")).encode('ascii')
-    pivot_df.rename(columns=lambda x: x.replace('.0', ''), inplace=True)
-    pivot_df.rename(index=lambda x: x.replace('.0', ''), inplace=True)
+    pivot_df.rename(columns=lambda x: str(x).replace('.0', ''), inplace=True)
+    pivot_df.rename(index=lambda x: str(x).replace('.0', ''), inplace=True)
     pivot_df.rename(columns={'All': all_s}, inplace=True)
     pivot_df.rename(index={'All': all_s}, inplace=True)
     data = get_data_from_data_frame(pivot_df)
@@ -561,23 +561,68 @@ def protect_secret(data, threshold_columns_dict, debug):
     return data, warning
 
 
+def item_constraint(constraint):
+    """
+    Take a constraint string and return a lazy structure
+    representing the item.
+
+    :param constraint:
+    :return:
+    """
+    lesser_than = "<"
+    lesser_than_equals = "<="
+    greater_than = ">"
+    greater_than_equals_token = ">="
+    equals_than_token = "="
+    words = constraint.split('.')
+    table_name = words[0]
+    if lesser_than in words[1]:
+        words = words[1].split(lesser_than)
+        operator = lesser_than
+    elif greater_than in words[1]:
+        words = words[1].split(greater_than)
+        operator = greater_than
+    elif equals_than_token in words[1]:
+        words = words[1].split(equals_than_token)
+        operator = equals_than_token
+    elif lesser_than_equals in words[1]:
+        words = words[1].split(lesser_than_equals)
+        operator = lesser_than_equals
+    elif greater_than_equals_token in words[1]:
+        words = words[1].split(greater_than_equals_token)
+        operator = greater_than_equals_token
+    else:
+        return None
+    column_name = words[0]
+    value = words[1]
+    item = dict()
+    item['table'] = table_name
+    item['column'] = column_name
+    item['operator'] = operator
+    item['value'] = value
+    return item
+
+
 def build_constraint_dict(constraint_cols):
     """
     Build a dictionary with constraint.
     :param constraint_cols: Columns containing some constraints.
     """
     constraint_dict = dict()
+    and_s = "AND"
+
     for c in constraint_cols:
+        res = []
         value = constraint_cols[c]
-        words = value.split('.')
-        table_name = words[0]
-        words = words[1].split('<')
-        column_name = words[0]
-        threshold = words[1]
-        constraint_dict[c] = dict()
-        constraint_dict[c]['table'] = table_name
-        constraint_dict[c]['column'] = column_name
-        constraint_dict[c]['threshold'] = threshold
+        if and_s in value:
+            constraints = value.split(and_s)
+            for constraint in constraints:
+                item = item_constraint(constraint)
+                res.append(item)
+        else:
+            item = item_constraint(value)
+            res.append(item)
+        constraint_dict[c] = res
 
     return constraint_dict
 
@@ -600,10 +645,9 @@ def apply_constraint_pivot(data,
     constraint_dict = build_constraint_dict(constraint_cols)
 
     for constraint in constraint_dict:
-        constraint_value = constraint_dict[constraint]
-        threshold = int(constraint_value['threshold'])
-        table = constraint_value['table']
-        enum_column = constraint_value['column']
+        constraint_values = constraint_dict[constraint]
+        table = constraint_values[0]['table']
+        enum_column = constraint_values[0]['column']
         dest_table_description = get_table_schema(table)
         dest_columns = []
         for field in dest_table_description:
@@ -619,13 +663,16 @@ def apply_constraint_pivot(data,
                                                    to_be_selected_columns,
                                                    enum_column,
                                                    col_dict,
-                                                   threshold)
+                                                   constraint_values)
         st = detect_special_columns(query)
         query = build_description_query(query, st.cols, False)
         dest_data = execute_query_on_main_db(query)
-
         for row in dest_data:
-            p_col = row[pivot_cols[0]].encode('utf-8')
+            v = row[pivot_cols[0]]
+            if not isinstance(v, int):
+                p_col = v.encode('utf-8')
+            else:
+                p_col = v
             if p_col in data_frame.columns.levels[1]:
                 index = data_frame.columns.levels[1].get_loc(p_col)
                 index += len(data_frame.index.names)
@@ -683,10 +730,9 @@ def apply_constraint_plain(data,
     constraint_dict = build_constraint_dict(constraint_cols)
 
     for constraint in constraint_dict:
-        constraint_value = constraint_dict[constraint]
-        threshold = int(constraint_value['threshold'])
-        table = constraint_value['table']
-        enum_column = constraint_value['column']
+        constraint_values = constraint_dict[constraint]
+        table = constraint_values[0]['table']
+        enum_column = constraint_values[0]['column']
         dest_table_description = get_table_schema(table)
         dest_columns = []
         for field in dest_table_description:
@@ -702,7 +748,7 @@ def apply_constraint_plain(data,
                                                    to_be_selected_columns,
                                                    enum_column,
                                                    col_dict,
-                                                   threshold)
+                                                   constraint_values)
         st = detect_special_columns(query)
         query = build_description_query(query, st.cols, False)
 

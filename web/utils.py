@@ -481,6 +481,96 @@ def build_foreign_keys(table_name):
     return ret
 
 
+def build_more_obs_query(table_name,
+                         columns,
+                         rows,
+                         aggregation_ids,
+                         filters,
+                         values):
+    """
+    Build a query on table that select obsValues and then the desired
+    cols and rows.
+    REGARDS: The query is flat this return the query and the column list to
+             used in pivot. This is used for table with more than one
+             observable value only.
+    :param table_name: The table name.
+    :param columns: Columns involved in the query
+    :param rows: Rows involved in the query
+    :param aggregation_ids: Ids of aggregations
+    :param filters: filters to be applied
+    :param values: values of contents
+    :return: Query, column list to be used in pivot.
+    """
+
+    query = ""
+    type_s = "tipo"
+    table_schema = get_table_schema(table_name)
+
+    annotation = "%s\n" % DESCRIPTION_TOKEN
+    for agg in aggregation_ids:
+        annotation += "%s %s\n" % (AGGREGATION_TOKEN, agg)
+
+    fields = []
+
+    position = 0
+    col_positions = []
+
+    for col in columns:
+        annotation += "%s " % JOIN_TOKEN
+        annotation += "%s.%s %d\n" % (table_name, col, position)
+        annotation += "%s %d\n" % (PIVOT_TOKEN, position)
+        col_positions.append(position)
+        fields.append(col)
+        position += 1
+
+    for row in rows:
+        annotation += "%s %s.%s %d\n" % (JOIN_TOKEN, table_name, row, position)
+        fields.append(row)
+        position += 1
+
+    obs_values = all_obs_value_column(table_name, table_schema)
+    for i, index in enumerate(obs_values):
+        numerosity_col = obs_values[index]
+        if i == 0:
+            annotation += "%s " % JOIN_TOKEN
+            annotation += "%s.%s %d\n" % (table_name, numerosity_col, position)
+            position += 1
+
+    annotation += "%s %s.%s %d\n" % (JOIN_TOKEN, table_name, type_s, position)
+
+    for i, index in enumerate(obs_values):
+        if i != 0:
+            query += "\nunion all\n"
+        numerosity_col = obs_values[index]
+        comma_sep_fields = ", ".join(fields)
+        query += "\n"
+        query += 'SELECT '
+        query += '%s, ' % comma_sep_fields
+        query += "SUM(%s) %s, " % (numerosity_col, numerosity_col)
+        query += "'%s' as %s " % (numerosity_col, type_s)
+        query += '\nFROM %s' % table_name
+        filtered = False
+        for field in filters:
+            filter_vals = filters[field]
+            if len(values[field]) != len(filter_vals):
+                selected_vals = []
+                for val in filter_vals:
+                    selected_vals.append(str(val[0]))
+                if filter_vals is not None and len(filter_vals) > 0:
+                    if filtered:
+                        query += '\nAND'
+                    else:
+                        query += '\nWHERE'
+                    query += " %s IN (" % field
+                    comma_sep_vals = ", ".join(selected_vals)
+                    query += "%s )" % comma_sep_vals
+                    filtered = True
+        query += "\nGROUP BY %s" % comma_sep_fields
+
+    query = "%s\n%s\n" % (annotation, query)
+    return query, col_positions
+
+
 def build_query(table_name, columns, rows, aggregation_ids, filters, values):
     """
     Build a query on table that select obsValues and then the desired
@@ -692,7 +782,7 @@ def build_description_query(query, fields, order):
     return desc_query
 
 
-def build_constraint_query(table, columns, enum_column, col_dict, threshold):
+def build_constraint_query(table, columns, enum_column, col_dict, constraints):
     """
     Build ad hoc query on related table.
 
@@ -725,9 +815,15 @@ def build_constraint_query(table, columns, enum_column, col_dict, threshold):
             query += "and %s in (SELECT DISTINCT %s from %s ) " % (
                 k, k, src_table)
     query += "GROUP BY %s \n" % fields
-    query += "HAVING  SUM(%s)<%s " % (enum_column, threshold)
-    query += "AND SUM(%s)>0 \n" % enum_column
-    query += "ORDER BY %s" % fields
+    query += "HAVING "
+    for c, constraint in enumerate(constraints):
+        if c != 0:
+            query += " AND "
+        operator = constraint["operator"]
+        value = constraint["value"]
+        query += "SUM(%s)%s%s" % (enum_column, operator, value)
+    query += "\nORDER BY %s" % fields
+
     return query, header
 
 

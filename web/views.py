@@ -77,7 +77,8 @@ from web.utils import get_variable_dictionary, \
     build_query_summary, \
     build_query_desc, \
     load_dataframe, \
-    store_dataframe
+    store_dataframe, \
+    build_more_obs_query
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1144,8 +1145,13 @@ def query_editor_view(request):
         filters = json.loads(filters_s)
         agg_filters = json.loads(agg_filters_s)
 
-    sql, pivot = build_query(table_name, cols, rows, aggregation_ids,
-                             filters, values)
+    print "Ecccccccccccc " + str(obs_values)
+    if len(obs_values) < 2:
+        sql, pivot = build_query(table_name, cols, rows, aggregation_ids,
+                                 filters, values)
+    else:
+        sql, pivot = build_more_obs_query(table_name, cols, rows,
+                                          aggregation_ids, filters, values)
 
     column_description = build_description_column_dict(table_name,
                                                        table_schema)
