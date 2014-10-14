@@ -66,7 +66,8 @@ from web.utils import get_variable_dictionary, \
     dataframe_to_html, \
     choose_default_axis, \
     filter_coder_table, \
-    build_query, get_obs_value_columns,\
+    build_query, \
+    all_obs_value_column, \
     change_query, \
     get_all_aggregations, \
     build_description_query, \
@@ -1037,7 +1038,7 @@ def query_editor_customize(request):
     table_schema = get_table_schema(table_name)
     column_description = request.REQUEST.get('column_description')
     fields = [field.name for field in table_schema]
-    obs_values = get_obs_value_columns(table_name, table_schema)
+    obs_values = all_obs_value_column(table_name, table_schema).values()
 
     context['fields'] = fields
     context['obs_values'] = obs_values
@@ -1108,10 +1109,10 @@ def query_editor_view(request):
             aggregation_ids.append(i)
 
     values = dict()
-    table_description = get_table_schema(table_name)
+    table_schema = get_table_schema(table_name)
 
-    obs_values = get_obs_value_columns(table_name, table_description)
-    for f, field in enumerate(table_description):
+    obs_values = all_obs_value_column(table_name, table_schema).values()
+    for f, field in enumerate(table_schema):
         column_name = field.name
         if not column_name in obs_values:
             vals = get_all_field_values(table_name, column_name)

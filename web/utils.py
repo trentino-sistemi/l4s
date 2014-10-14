@@ -315,22 +315,6 @@ def list_obs_value_column_from_dict(col_dict):
     return obs_list
 
 
-def get_obs_value_columns(table_name, table_description):
-    """
-    Get list of the observable values.
-
-    :param table_name:
-    :param table_description:
-    :return: list of column names
-    """
-    ret = []
-    for field in table_description:
-        column_name = field.name
-        if is_obs_value(table_name, column_name):
-            ret.append(column_name)
-    return ret
-
-
 def all_obs_value_column(table_name, table_description):
     """
     Found all observable value.
@@ -634,10 +618,15 @@ def build_description_query(query, fields, order):
     desc_query = "SELECT "
     fk_hash = dict()
     for f in fields:
+        if f == -1:
+            continue
+        table = fields[f]['table']
+        field = fields[f]['column']
         if f != 0:
             desc_query += ", "
-        field = fields[f]['column']
-        table = fields[f]['table']
+        if field is None:
+            desc_query += "%s" % table
+            continue
         if not table in fk_hash:
             foreign_keys = build_foreign_keys(table)
             fk_hash[table] = foreign_keys
@@ -657,6 +646,7 @@ def build_description_query(query, fields, order):
                 desc_query += "\n%s.%s " % (dest_table, desc_column)
                 desc_query += "AS \"%s\"" % alias
                 continue
+
         alias = get_column_description(table, field)
         if alias is None:
             alias = field
@@ -666,10 +656,14 @@ def build_description_query(query, fields, order):
 
     desc_query += "\nFROM\n"
     desc_query += "(\n%s\n) AS %s" % (inner_sql, main_table)
+
     for f in fields:
         field = fields[f]['column']
+        if field is None:
+            continue
         table = fields[f]['table']
         foreign_keys = fk_hash[table]
+
         if field in foreign_keys:
             fk = foreign_keys[field]
             dest_table = fk[0]
@@ -684,6 +678,8 @@ def build_description_query(query, fields, order):
     if order:
         for f in fields:
             field = fields[f]['column']
+            if field is None:
+                continue
             table = fields[f]['table']
             foreign_keys = fk_hash[table]
             if field in foreign_keys:
@@ -696,7 +692,7 @@ def build_description_query(query, fields, order):
     return desc_query
 
 
-def build_constraint_query(table, columns, enum_column, col_dict):
+def build_constraint_query(table, columns, enum_column, col_dict, threshold):
     """
     Build ad hoc query on related table.
 
@@ -705,20 +701,34 @@ def build_constraint_query(table, columns, enum_column, col_dict):
     :param enum_column: Column with a value to be count.
     :return: The new query applying constraints.
     """
+    header = []
+    query = ""
+    c = 0
+    for c, column in enumerate(columns):
+        query += "%s %s.%s %d\n" % (JOIN_TOKEN, table, column, c)
+    query += "%s %s.%s %d\n\n" % (JOIN_TOKEN, table, enum_column, c+1)
+
     fields = ','.join([k for k in columns])
-    query = "SELECT %s, SUM(%s) %s\n" % (fields, enum_column, enum_column)
+    query += "SELECT %s, " % fields
+    for col in columns:
+        header.append(col)
+    #for enum_column in enum_columns:
+    query += "SUM(%s) %s\n" % (enum_column, enum_column)
+    header.append(enum_column)
     query += "FROM %s\n" % table
     for i, k in enumerate(columns):
         src_table = col_dict[i]['table']
         if i == 0:
-            query += "WHERE %s in (SELECT DISTINCT %s from %s ) " % (
-                k, k, src_table)
+            query += "WHERE "
+            query += "%s in (SELECT DISTINCT %s from %s ) " % (k, k, src_table)
         else:
             query += "and %s in (SELECT DISTINCT %s from %s ) " % (
                 k, k, src_table)
-    query += "GROUP BY %s " % fields
+    query += "GROUP BY %s \n" % fields
+    query += "HAVING  SUM(%s)<%s " % (enum_column, threshold)
+    query += "AND SUM(%s)>0 \n" % enum_column
     query += "ORDER BY %s" % fields
-    return query
+    return query, header
 
 
 def add_secret_column(secret_cols, index, table_name, column_name):
@@ -917,20 +927,26 @@ def detect_special_columns(sql):
         first_word = words[0]
         if first_word == JOIN_TOKEN:
             table_and_column = words[1]
-            tpc = table_and_column.split('.')
-            table_name = tpc[0]
-            column_name = tpc[1]
-            if len(words) == 2:
-                add_secret_ref(st.secret_ref, table_name, column_name)
-            else:
-                index = int(words[2])
-                add_secret_column(st.secret, index, table_name, column_name)
-                add_constraint_column(st.constraint, index, table_name,
+            index = int(words[2])
+            table_name = table_and_column
+            column_name = None
+            if "." in table_and_column:
+                tpc = table_and_column.split('.')
+                table_name = tpc[0]
+                column_name = tpc[1]
+                if len(words) == 2:
+                    add_secret_ref(st.secret_ref, table_name, column_name)
+                else:
+                    add_secret_column(st.secret,
+                                      index,
+                                      table_name,
                                       column_name)
-                add_decoder_column(st.decoder, index, table_name)
-                add_threshold_column(st.threshold, index, table_name,
-                                     column_name)
-                add_column(st.cols, index, table_name, column_name)
+                    add_constraint_column(st.constraint, index, table_name,
+                                          column_name)
+                    add_decoder_column(st.decoder, index, table_name)
+                    add_threshold_column(st.threshold, index, table_name,
+                                         column_name)
+            add_column(st.cols, index, table_name, column_name)
         elif first_word == PIVOT_TOKEN:
             position = int(words[1])
             st.pivot.append(position)
@@ -2181,7 +2197,7 @@ def generate_storage_id():
 
     :return:
     """
-    storage_id = "%d" %uuid.uuid4()
+    storage_id = "%d" % uuid.uuid4()
     return storage_id
 
 

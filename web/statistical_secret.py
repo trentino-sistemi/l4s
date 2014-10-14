@@ -156,8 +156,8 @@ def pivot(data, headers, columns, rows, value):
         lambda a: str(a).replace(".0", "", 1).replace("nan", "0"))
 
     all_s = unicode(_("All")).encode('ascii')
-    pivot_df.rename(columns=lambda x: str(x).replace('.0', ''), inplace=True)
-    pivot_df.rename(index=lambda x: str(x).replace('.0', ''), inplace=True)
+    pivot_df.rename(columns=lambda x: x.replace('.0', ''), inplace=True)
+    pivot_df.rename(index=lambda x: x.replace('.0', ''), inplace=True)
     pivot_df.rename(columns={'All': all_s}, inplace=True)
     pivot_df.rename(index={'All': all_s}, inplace=True)
     data = get_data_from_data_frame(pivot_df)
@@ -583,9 +583,8 @@ def build_constraint_dict(constraint_cols):
 
 
 def apply_constraint_pivot(data,
-                           headers,
-                           columns,
-                           rows,
+                           data_frame,
+                           pivot_cols,
                            col_dict,
                            constraint_cols,
                            debug):
@@ -616,43 +615,31 @@ def apply_constraint_pivot(data,
             if col_name in dest_columns:
                 to_be_selected_columns.append(col_name)
 
-        query = build_constraint_query(table,
-                                       to_be_selected_columns,
-                                       enum_column,
-                                       col_dict)
-
+        query, new_header = build_constraint_query(table,
+                                                   to_be_selected_columns,
+                                                   enum_column,
+                                                   col_dict,
+                                                   threshold)
+        st = detect_special_columns(query)
+        query = build_description_query(query, st.cols, False)
         dest_data = execute_query_on_main_db(query)
-        values = headers[constraint]
-        new_header = []
-        for column in columns:
-            new_header.append(column)
-        for row in rows:
-            new_header.append(row)
-        new_header.append(values)
 
-        dest_data, nheaders, err = pivot(dest_data,
-                                         new_header,
-                                         columns,
-                                         rows,
-                                         values)
-
-        if err:
-            return None
-        for c, columns in enumerate(data[0], start=1):
-            if c == len(data[0]) - 1:
-                break
-            for r, rows in enumerate(data):
-                if r == len(data) - 1:
-                    continue
-                val = data[r][c]
-                if r in dest_data:
-                    dest_row = dest_data[r]
-                    constraint_val = float(dest_row[r][c])
-                    if 0.0 < constraint_val < threshold:
-                        data[r][c] = ASTERISK
-                        if debug:
-                            data[r][c] += "(%s, %s" % (val, enum_column)
-                            data[r][c] += "=%s)" % constraint_val
+        for row in dest_data:
+            p_col = row[pivot_cols[0]].encode('utf-8')
+            if p_col in data_frame.columns.levels[1]:
+                index = data_frame.columns.levels[1].get_loc(p_col)
+                index += len(data_frame.index.names)
+            else:
+                continue
+            p_col = row[1-pivot_cols[0]].encode('utf-8')
+            constraint_val = row[2]
+            for src_row in data:
+                if src_row[0] == p_col:
+                    val = src_row[index]
+                    src_row[index] = ASTERISK
+                    if debug:
+                        src_row[index] += "(%s, %s" % (val, enum_column)
+                        src_row[index] += "=%s)" % constraint_val
 
     return data
 
@@ -692,6 +679,7 @@ def apply_constraint_plain(data,
     :param debug: If active show debug info on asterisked cells.
     :return: The plain table applying constraints.
     """
+
     constraint_dict = build_constraint_dict(constraint_cols)
 
     for constraint in constraint_dict:
@@ -704,13 +692,20 @@ def apply_constraint_plain(data,
         for field in dest_table_description:
             dest_columns.append(field.name)
 
-        columns = []
+        to_be_selected_columns = []
         for col in col_dict:
             col_name = col_dict[col]['column']
             if col_name in dest_columns:
-                columns.append(col_name)
+                to_be_selected_columns.append(col_name)
 
-        query = build_constraint_query(table, columns, enum_column, col_dict)
+        query, new_header = build_constraint_query(table,
+                                                   to_be_selected_columns,
+                                                   enum_column,
+                                                   col_dict,
+                                                   threshold)
+        st = detect_special_columns(query)
+        query = build_description_query(query, st.cols, False)
+
         dest_data = execute_query_on_main_db(query)
 
         for c, column in enumerate(data[0], start=1):
@@ -854,6 +849,7 @@ def apply_stat_secret(headers,
             pivot_cols.append(headers[pivot_col])
 
         obs_values = list_obs_value_column_from_dict(col_dict)
+
         for v in obs_values:
             pivot_values.append(headers[v])
 
@@ -882,9 +878,8 @@ def apply_stat_secret(headers,
             return rows, headers, None, warn, err
 
         data = apply_constraint_pivot(data,
-                                      headers,
-                                      pivot_cols,
-                                      rows,
+                                      data_frame,
+                                      pivot_columns,
                                       col_dict,
                                       constraint_cols,
                                       debug)
