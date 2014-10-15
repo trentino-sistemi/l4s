@@ -1145,7 +1145,6 @@ def query_editor_view(request):
         filters = json.loads(filters_s)
         agg_filters = json.loads(agg_filters_s)
 
-    print "Ecccccccccccc " + str(obs_values)
     if len(obs_values) < 2:
         sql, pivot = build_query(table_name, cols, rows, aggregation_ids,
                                  filters, values)
