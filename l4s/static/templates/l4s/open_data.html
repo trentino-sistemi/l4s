@@ -1,0 +1,139 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+
+{% block l4s_container %}
+<h3>{% trans "Open data" %}
+</h3>
+<table class="table table-striped">
+    {% for object in object_list %}
+    <tr>
+        <td>{{ object.title }}</td>
+        <td align="right">
+            <div class="btn-group">
+                <button type="button"
+                        class="btn btn-default dropdown-toggle"
+                        data-toggle="dropdown">
+                    {% trans "Export" %}
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="btn btn-default download_csv_button"
+                           onclick='javascript:download_csv_button("{{object.id}}",
+                                                                   "{{ object.title.strip }}")'
+                           href="#">CSV</a></li>
+                    <li><a class="btn btn-default download_xls_button"
+                           onclick='javascript:download_xls_button("{{object.id}}",
+                                                                   "{{ object.title.strip }}",
+                                                                   "{{ object.description.strip|escapejs }}")'
+                           href="#">Excel 1997</a></li>
+                    <li><a class="btn btn-default download_xlsx_button"
+                           onclick='javascript:download_xlsx_button("{{object.id}}",
+                                                                   "{{ object.title.strip }}",
+                                                                   "{{ object.description.strip|escapejs }}")'
+                           href="#">Excel 2007</a></li>
+                    <li><a class="btn btn-default download_rdf_button"
+                           onclick='javascript:download_rdf_button("{{object.id}}",
+                                                                    "{{ object.title.strip }}",
+                                                                    "{{ object.description.strip|escapejs }}",
+                                                                    "{{ query.sql.strip|escapejs }}")'
+                           href="#">Rdf</a></li>
+                    <li><a class="btn btn-default download_turtle_button"
+                           onclick='javascript:download_turtle_button("{{object.id}}",
+                                                                      "{{ object.title.strip }}",
+                                                                      "{{ query.sql.strip|escapejs }}")'
+                           href="#">Turtle</a></li>
+                    <li><a class="btn btn-default download_sdmx_button"
+                           onclick='javascript:download_sdmx_button("{{object.id}}",
+                                                                    "{{ object.title.strip }}",
+                                                                    "{{ query.sql.strip|escapejs }}")'
+                           href="#">Sdmx</a></li>
+                    <li><a class="btn btn-default download_json_stat_button"
+                           onclick='javascript:download_json_stat_button("{{object.id}}",
+                                                                         "{{ object.title.strip }}")'
+                           href="#">JSON-stat</a></li>
+                </ul>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<script type="text/javascript" src="/static/js/download.js"></script>
+<script>
+function download_csv_button(id, title) {
+    params = "id=" + id + "&title=" +  title
+    download('/download_csv',
+             params,
+             'POST',
+             "{% csrf_token %}");
+}
+function download_xls_button(id, title, description) {
+    params = "id=" + id + "&title=" +  title
+    if (description != "" ) {
+        params = params + "&description=" + description;
+    }
+    download('/download_xls',
+             params,
+             'POST', "{% csrf_token %}");
+}
+function download_xlsx_button(id, title, description) {
+    params = "id=" + id + "&title=" +  title
+    if (description != "" ) {
+        params = params + "&description=" + description;
+    }
+    download('/download_xlsx',
+             params,
+             'POST', "{% csrf_token %}");
+}
+function download_sdmx_button(id, title, sql) {
+    params = "id=" + id + "&title=" +  title + "&sql=" + sql
+    download('/download_sdmx',
+             params,
+             'POST', "{% csrf_token %}");
+}
+function download_json_stat_button(id, title) {
+    params = "id=" + id + "&title=" +  title
+    download('/download_json_stat',
+             params,
+             'POST', "{% csrf_token %}");
+}
+function download_rdf_button(id, title, description, sql) {
+    params = "id=" + id + "&title=" +  title + "&sql=" + sql
+    if (description != "" ) {
+        params = params + "&description=" + description;
+    }
+    download('/download_rdf',
+             params,
+             'POST', "{% csrf_token %}");
+}
+function download_turtle_button(id, title, description, sql) {
+    params = "id=" + id + "&title=" +  title + "&sql=" + sql
+    if (description != "" ) {
+        params = params + "&description=" + description;
+    }
+    download('/download_turtle',
+             params,
+             'POST', "{% csrf_token %}");
+}
+</script>
+{% endblock %}

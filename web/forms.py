@@ -58,13 +58,15 @@ class CreateQueryEditorForm(ModelForm):
             'agg_filters': forms.HiddenInput(),
         }
 
+
 class CreateQueryForm(ModelForm):
 
     sql = Field()
 
     class Meta:
         model = Query
-        fields = ['title', 'sql', 'description', 'created_by', 'is_public']
+        fields = ['title', 'sql', 'description', 'created_by', 'is_public',
+                  'open_data']
 
 
 class QueryForm(CreateQueryForm):

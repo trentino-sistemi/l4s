@@ -133,32 +133,37 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             {% include 'explorer/params.html' %}
                     </div>
                     {% if request.user.is_staff  %}
-                    <table>
+                    <table class="table">
+                        <tr>
                         {% if can_change %}
                         {% if not query.created_by or query.created_by == request.user.email %}
-                        <tr>
                             <td>
-                                <label class="control-label col-sm-2">
+                                <label class="control-label ">
                                     {% trans "Is public" %}
                                 </label>
-                            </td>
-                            <td>
                                 <input type="checkbox"
                                        name="is_public"
                                 {% if query.is_public %}
                                 checked
                                 {% endif %} />
                             </td>
-                        </tr>
-                        {% endif %}
-                        {% endif %}
-                        <tr>
                             <td>
-                                <label class="control-label col-sm-2">
+                                <label class="control-label">
+                                    {% trans "Open data" %}
+                                </label>
+                                <input type="checkbox"
+                                       id="open_data"
+                                       name="open_data"
+                                {% if query.open_data %}
+                                checked
+                                {% endif %} />
+                            </td>
+                        {% endif %}
+                        {% endif %}
+                            <td>
+                                <label class="control-label">
                                     {% trans "Debug" %}
                                 </label>
-                            </td>
-                            <td>
                                 <input type="checkbox"
                                        id="debug"
                                 {% if debug %}

@@ -25,6 +25,10 @@ urlpatterns = patterns('',
                        # Url for admin interface.
                        url(r'^admin/',
                            include(admin.site.urls)),
+                       # Open data queries.
+                       url(r'^open_data/',
+                           'web.views.open_data',
+                           name='open_data'),
                        #Url for query editor customize.
                        url(r'^query_editor_customize/$',
                            'web.views.query_editor_customize',

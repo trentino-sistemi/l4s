@@ -140,28 +140,31 @@ def generate_report_action_xls(df):
         k = 2 + line_num
         max_widths = dict()
         for col in range(sheet.ncols):
-            max_widths[col] = 7
+            max_widths[col] = 100
         #Copy rows from existing sheets
+
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
-                value = value.strip()
-                if value.isdigit():
-                    value = int(value)
-                else:
-                    value = value.encode('utf-8')
+                if isinstance(value, str):
+                    column_len = len(value)
+                    value = value.strip()
+                    if value.isdigit():
+                        value = int(value)
+                    else:
+                        value = value.encode('utf-8')
                 if rows != 0:
                     new_sheet.write(rows+k, index, value, body_cell)
                 elif value != "":
                     # Merge the title.
                     new_sheet.write_merge(k, k, 1, n_cols, value, body_cell)
-                column_len = len(str(value))
                 if rows >= 1 and column_len > max_widths[index]:
                     max_widths[index] = column_len
 
         # Adjust column width.
         for col in max_widths:
             new_sheet.col(col).width = (max_widths[col] + 1) * 256
+            new_sheet.col(col)
 
         k = k + sheet_rows + 1
         if settings.DEBUG:

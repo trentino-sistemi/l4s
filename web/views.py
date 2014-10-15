@@ -103,6 +103,7 @@ from django.contrib.auth.decorators import login_required, \
     user_passes_test
 from django.utils import translation
 import json
+import pandas as pd
 
 
 def execute_query_viewmodel(request,
@@ -893,6 +894,18 @@ def table(request):
     context['request'] = request
     context['column_description'] = column_description
     return render_to_response("l4s/table.html", context)
+
+
+def open_data(request):
+    """
+    List of open data to be downloaded plain.
+
+    :param request:
+    """
+    context = RequestContext(request)
+    objects = Query.objects.filter(open_data='true')
+    context['object_list'] = objects
+    return render_to_response("l4s/open_data.html", context)
 
 
 def query_list(request):

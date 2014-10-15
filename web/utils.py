@@ -25,6 +25,7 @@ from l4s.settings import DEFAULT_FROM_EMAIL, \
     EXPLORER_CONNECTION_NAME
 from web.models import Metadata
 from explorer.utils import url_get_params
+from explorer.models import Query
 from django.core.mail import send_mail
 from web.models import User
 from django.contrib.sites.models import Site
@@ -2319,6 +2320,12 @@ def load_dataframe(request):
     :return:
     """
     store_name = request.REQUEST.get('store', '')
+    if store_name is "":
+        query_id = request.REQUEST.get('id')
+        query = Query.objects.get(id=query_id)
+        if query.open_data:
+            head, data, duration, err = query.headers_and_data()
+            return pd.DataFrame(data, columns=head)
     df = pd.read_pickle(store_name)
     return df
 
