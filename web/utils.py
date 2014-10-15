@@ -1024,7 +1024,6 @@ def detect_special_columns(sql):
         first_word = words[0]
         if first_word == JOIN_TOKEN:
             table_and_column = words[1]
-            index = int(words[2])
             table_name = table_and_column
             column_name = None
             if "." in table_and_column:
@@ -1034,6 +1033,7 @@ def detect_special_columns(sql):
                 if len(words) == 2:
                     add_secret_ref(st.secret_ref, table_name, column_name)
                 else:
+                    index = int(words[2])
                     add_secret_column(st.secret,
                                       index,
                                       table_name,
@@ -1043,7 +1043,10 @@ def detect_special_columns(sql):
                     add_decoder_column(st.decoder, index, table_name)
                     add_threshold_column(st.threshold, index, table_name,
                                          column_name)
-            add_column(st.cols, index, table_name, column_name)
+                    add_column(st.cols, index, table_name, column_name)
+            else:
+                index = int(words[1])
+                add_column(st.cols, index, table_name, column_name)
         elif first_word == PIVOT_TOKEN:
             position = int(words[1])
             st.pivot.append(position)

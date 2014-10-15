@@ -224,12 +224,12 @@ function submit_popup (values, agg_values, table_name, no_rows, no_columns) {
     
     url="/query_editor_view/"
     data = { 'table': table_name,
-             'columns': cols,
-             'rows': rows,
-             'aggregate': sel_aggregations,
-             'filters': filter_value,
-             'agg_filters': agg_selection_value,
-             'debug': debug_value,
+                      'columns': cols,
+                      'rows': rows,
+                      'aggregate': sel_aggregations,
+                      'filters': filter_value,
+                      'agg_filters': agg_selection_value,
+                      'debug': debug_value,
               };
     $.ajax({
 		url: url,
@@ -241,7 +241,7 @@ function submit_popup (values, agg_values, table_name, no_rows, no_columns) {
             window.close();
 	    },
         error: function(xhr, status) {
-			alert(status);
+			alert(xhr.responseText);
 		}
     });
 }
