@@ -652,7 +652,6 @@ def build_query(table_name, columns, rows, aggregation_ids, filters, values):
 
     if len(obs_fields) > 0:
         query += "\nGROUP BY %s" % comma_sep_fields
-        query += "\nORDER BY %s" % comma_sep_fields
 
     query = "%s\n%s\n" % (annotation, query)
     return query, col_positions
@@ -1163,15 +1162,17 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold):
     query += "\nON (%s.%s=" % (new_table, orig_column)
     query += "%s.%s" % (ref_table, orig_column)
 
-    agg = agg_filters[str(metadata.pk)]
-    ag_vals = []
-    for n, ag in enumerate(agg):
-        val = "%s" % ag[0]
-        ag_vals.append(val)
-    if len(ag_vals) > 0:
-        comma_sep_ag_vals = ", ".join(ag_vals)
-        query += " AND %s.%s " % (ref_table, ref_column)
-        query += "IN (%s)" % comma_sep_ag_vals
+    pk = str(metadata.pk)
+    if pk in agg_filters:
+        ag_vals = []
+        agg = agg_filters[pk]
+        for n, ag in enumerate(agg):
+            val = "%s" % ag[0]
+            ag_vals.append(val)
+        if len(ag_vals) > 0:
+            comma_sep_ag_vals = ", ".join(ag_vals)
+            query += " AND %s.%s " % (ref_table, ref_column)
+            query += "IN (%s)" % comma_sep_ag_vals
 
     query += ")"
     query += "\nGROUP BY %s" % params
