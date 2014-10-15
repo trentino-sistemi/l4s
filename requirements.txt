@@ -30,5 +30,8 @@ django-admin-bootstrapped
 # Used for rdf export.
 rdflib
 
-# Used for pivot.
+# Used for pivot and export in various formats.
 pandas
+
+# To export images in excel 2007.
+Pillow==2.6.0
