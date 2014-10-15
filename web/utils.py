@@ -61,7 +61,7 @@ PIVOT_TOKEN = '--PIVOT'
 DECLARE_TOKEN = '--DECLARE'
 SET_TOKEN = '--SET'
 WIDGET_TOKEN = '--WIDGET'
-TOKENS = [JOIN_TOKEN, AGGREGATION_TOKEN, PIVOT_TOKEN]
+TOKENS = [DESCRIPTION_TOKEN, JOIN_TOKEN, AGGREGATION_TOKEN, PIVOT_TOKEN]
 
 
 def filter_table_by_name_or_desc(search, tables, table_description_dict):
@@ -1124,7 +1124,13 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold):
     orig_column = None
     params = ""
     new_table = metadata.table_name + "_" + ref_table
-    header = "%s " % JOIN_TOKEN
+    old_header, inner_sql = extract_header(sql)
+
+    header = ""
+    if DESCRIPTION_TOKEN in old_header:
+        header += DESCRIPTION_TOKEN + "\n"
+
+    header += "%s " % JOIN_TOKEN
     header += "%s.%s\n" % (metadata.table_name, metadata.column_name)
     for c in cols:
         table = cols[c]['table']
@@ -1155,8 +1161,6 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold):
         header += "%s " % JOIN_TOKEN
         header += "%s.%s " % (table, column)
         header += str(c) + "\n"
-
-    old_header, inner_sql = extract_header(sql)
 
     query += "\nFROM (%s) %s JOIN %s" % (inner_sql, new_table, ref_table)
     query += "\nON (%s.%s=" % (new_table, orig_column)
