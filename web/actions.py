@@ -38,6 +38,7 @@ from openpyxl.drawing import Image
 from openpyxl.style import Color, Fill
 from openpyxl.cell import get_column_letter
 from l4s import settings
+import arial10
 import StringIO
 
 
@@ -89,7 +90,6 @@ def generate_report_action_xls(df):
         """
         workbook = open_workbook(file_name)
         sheet = workbook.sheet_by_index(0)
-        n_cols = sheet.ncols - 1
         header_len = 12
         sheet_rows = sheet.nrows
         new_workbook = XWorkbook(encoding="UTF-8")
@@ -139,31 +139,27 @@ def generate_report_action_xls(df):
 
         k = 2 + line_num
         max_widths = dict()
+        default_width = 10
         for col in range(sheet.ncols):
-            max_widths[col] = 100
+            max_widths[col] = default_width
         #Copy rows from existing sheets
 
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
+                column_len = int(arial10.fitwidth(value, False))
                 if isinstance(value, str):
-                    column_len = len(value)
                     value = value.strip()
-                    if value.isdigit():
-                        value = int(value)
-                    else:
-                        value = value.encode('utf-8')
-                if rows != 0:
-                    new_sheet.write(rows+k, index, value, body_cell)
-                elif value != "":
-                    # Merge the title.
-                    new_sheet.write_merge(k, k, 1, n_cols, value, body_cell)
-                if rows >= 1 and column_len > max_widths[index]:
+                    value = value.encode('utf-8')
+                elif value.isdigit():
+                    value = int(value)
+                new_sheet.write(rows+k, index, value, body_cell)
+                if column_len > max_widths[index]:
                     max_widths[index] = column_len
 
         # Adjust column width.
         for col in max_widths:
-            new_sheet.col(col).width = (max_widths[col] + 1) * 256
+            new_sheet.col(col).width = (max_widths[col] + 1)
             new_sheet.col(col)
 
         k = k + sheet_rows + 1
@@ -314,20 +310,10 @@ def generate_report_action_xlsx(df):
                 if not isinstance(value, int):
                     value = value.strip()
                     value = value.encode('utf-8')
-                if rows != 0:
-                    cell = new_sheet.cell(row=rows+k, column=col)
-                    cell.value = value
-                elif value != "":
-                    # Merge the title.
-                    cell = new_sheet.cell(row=k, column=1)
-                    cell.value = value
-                    new_sheet.merge_cells(range_string=None,
-                                          start_row=k,
-                                          start_column=1,
-                                          end_row=k,
-                                          end_column=n_cols-1)
+                cell = new_sheet.cell(row=rows+k, column=col)
+                cell.value = value
                 cell.style.font.color.index = body_font_color
-                column_len = len(str(value))
+                column_len = int(arial10.fitwidth(str(value), False))/256
                 if rows >= 1 and column_len > max_widths[col]:
                         max_widths[col] = column_len
 

@@ -29,7 +29,9 @@ from web.utils import get_table_schema, \
     list_obs_value_column_from_dict, \
     get_data_from_data_frame, \
     drop_total_column, \
-    drop_total_row, build_description_query
+    drop_total_row, \
+    build_description_query, \
+    is_dataframe_multi_index
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
@@ -667,26 +669,29 @@ def apply_constraint_pivot(data,
         st = detect_special_columns(query)
         query = build_description_query(query, st.cols, False)
         dest_data = execute_query_on_main_db(query)
+
         for row in dest_data:
-            v = row[pivot_cols[0]]
-            if not isinstance(v, int):
-                p_col = v.encode('utf-8')
-            else:
-                p_col = v
-            if p_col in data_frame.columns.levels[1]:
-                index = data_frame.columns.levels[1].get_loc(p_col)
-                index += len(data_frame.index.names)
+            v = row[0]
+            p_col = str(v).encode('utf-8')
+
+            if p_col in data_frame.columns:
+                column_index = data_frame.columns.get_loc(p_col)
             else:
                 continue
-            p_col = row[1-pivot_cols[0]].encode('utf-8')
-            constraint_val = row[2]
-            for src_row in data:
-                if src_row[0] == p_col:
-                    val = src_row[index]
-                    src_row[index] = ASTERISK
-                    if debug:
-                        src_row[index] += "(%s, %s" % (val, enum_column)
-                        src_row[index] += "=%s)" % constraint_val
+            p_col = row[1].encode('utf-8')
+            sliced_index = data_frame.index.get_loc(p_col)
+            start_index = sliced_index.start
+            end_index = sliced_index.stop
+            row_index = start_index
+            while row_index != end_index:
+                constraint_val = row[2]
+                src_row = data[row_index]
+                val = src_row[column_index]
+                src_row[column_index] = ASTERISK
+                row_index += 1
+                if debug:
+                    src_row[column_index] += "(%s, %s" % (val, enum_column)
+                    src_row[column_index] += "=%s)" % constraint_val
 
     return data
 
@@ -708,7 +713,10 @@ def data_frame_from_tuples(data_frame, data, rows):
             continue
         index = data_frame.index[r]
         for c, o in enumerate(data_frame.columns):
-            value = data[r][c+len(rows)]
+            if is_dataframe_multi_index(data_frame):
+                value = data[r][c+len(rows)]
+            else:
+                value = data[r][c]
             ret.set_value(index, data_frame.columns[c], value)
     return ret
 
@@ -762,11 +770,10 @@ def apply_constraint_plain(data,
                     continue
                 val = data[r][c]
                 constraint_val = float(dest_data[r][c])
-                if 0.0 < constraint_val < threshold:
-                    data[r][c] = ASTERISK
-                    if debug:
-                        data[r][c] += "(" + str(val) + "," + str(enum_column)
-                        data[r][c] += "=" + str(constraint_val) + ")"
+                data[r][c] = ASTERISK
+                if debug:
+                    data[r][c] += "(" + str(val) + "," + str(enum_column)
+                    data[r][c] += "=" + str(constraint_val) + ")"
 
     return data
 
@@ -919,6 +926,10 @@ def apply_stat_secret(headers,
                                       pivot_cols,
                                       rows,
                                       pivot_values)
+
+        if len(obs_values) > 1:
+            data_frame = data_frame.stack(0)
+            data = get_data_from_data_frame(data_frame)
 
         if err:
             return rows, headers, None, warn, err
