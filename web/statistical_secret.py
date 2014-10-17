@@ -646,7 +646,8 @@ def apply_constraint_pivot(data,
     """
     constraint_dict = build_constraint_dict(constraint_cols)
 
-    for constraint in constraint_dict:
+    print str(constraint_dict)
+    for con, constraint in enumerate(constraint_dict):
         constraint_values = constraint_dict[constraint]
         table = constraint_values[0]['table']
         enum_column = constraint_values[0]['column']
@@ -668,6 +669,7 @@ def apply_constraint_pivot(data,
                                                    constraint_values)
         st = detect_special_columns(query)
         query = build_description_query(query, st.cols, False)
+
         dest_data = execute_query_on_main_db(query)
 
         for row in dest_data:
@@ -680,18 +682,15 @@ def apply_constraint_pivot(data,
                 continue
             p_col = row[1].encode('utf-8')
             sliced_index = data_frame.index.get_loc(p_col)
-            start_index = sliced_index.start
-            end_index = sliced_index.stop
-            row_index = start_index
-            while row_index != end_index:
-                constraint_val = row[2]
-                src_row = data[row_index]
-                val = src_row[column_index]
-                src_row[column_index] = ASTERISK
-                row_index += 1
-                if debug:
-                    src_row[column_index] += "(%s, %s" % (val, enum_column)
-                    src_row[column_index] += "=%s)" % constraint_val
+            row_index = sliced_index.start + con
+            constraint_val = row[2]
+            src_row = data[row_index]
+            val = src_row[column_index]
+            src_row[column_index] = ASTERISK
+            row_index += 1
+            if debug:
+                src_row[column_index] += "(%s, %s" % (val, enum_column)
+                src_row[column_index] += "=%s)" % constraint_val
 
     return data
 
