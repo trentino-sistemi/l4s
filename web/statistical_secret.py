@@ -167,17 +167,17 @@ def pivot(data, headers, columns, rows, value):
     return data, pivot_df, None
 
 
-def get_threshold_from_dict(threshold_columns_dict):
+def get_threshold_from_dict(threshold_columns_dict, col):
     """
     Get threshold from dictionary.
 
     :param threshold_columns_dict: Threshold dictionary.
+    :param col: Column number.
     :return: The threshold.
     """
     threshold = 3.0
-    for column in threshold_columns_dict:
-        threshold = threshold_columns_dict[column]
-        break
+    if col in threshold_columns_dict:
+        return threshold_columns_dict[col]
 
     return threshold
 
@@ -194,11 +194,11 @@ def protect_pivoted_secret(data,
     :param threshold_columns_dict: Threshold dictionary.
     :return: The pivot table preserving statistical secret.
     """
-    threshold = get_threshold_from_dict(threshold_columns_dict)
     for r, row in enumerate(data, start=len(columns)):
         if r == len(data):
             break
         for c, column in enumerate(row):
+            threshold = get_threshold_from_dict(threshold_columns_dict, c)
             val = row[c]
             if str(val).startswith(ASTERISK):
                 continue
@@ -255,69 +255,28 @@ def find_column_with_min_value_exclude_zero(data, rows, row):
     return min_index
 
 
-def build_min_row_dict(data, rows, columns):
-    """
-    Build a  dictionary containing the min value for rows.
-
-    :param data: List of tuples containing query result set.
-    :return: The min row dictionary.
-    """
-    min_dict_row = dict()
-    for c, column in enumerate(data[0]):
-        if c < len(rows) or c == len(data[0]) - 1:
-            continue
-        index = find_row_with_min_value(data, len(columns), len(data) - 2, c)
-        if index is not None:
-            min_dict_row[c] = data[index][c]
-    return min_dict_row
-
-
-def build_min_column_dict(data, rows):
-    """
-    Build a  dictionary containing the min value for columns.
-
-    :param data: List of tuples containing query result set.
-    :return: The min column dictionary.
-    """
-    min_dict_column = dict()
-    for r, row in enumerate(data):
-        if r == len(data) - 1:
-            continue
-        index = find_column_with_min_value(data, rows, row)
-        min_dict_column[r] = row[index]
-
-    return min_dict_column
-
-
-def is_to_be_asterisked(val, min_val, threshold, marginality):
+def is_to_be_asterisked(val, threshold):
     """
     Is the value to be asterisked with the primary suppression?
 
     :param val:
-    :param min_val:
     :param threshold:
-    :param marginality:
     :return:
     """
     to_be_asterisked = False
-    if marginality == 0.0:
-        return to_be_asterisked
-    percentage = float((marginality - 1) * 3)
-    if float(val) == marginality:
-        to_be_asterisked = True
     if 0.0 < float(val) < threshold:
-        if min_val <= percentage or min_val == marginality:
-            to_be_asterisked = True
+        to_be_asterisked = True
     return to_be_asterisked
 
 
-def row_primary_suppression(data, rows, min_dict_row, threshold, debug):
+def row_primary_suppression(data, rows, threshold_columns_dict, debug):
     """
     Preform primary suppression for row.
 
     :param data: List of tuples containing query result set.
-    :param min_dict_row: The min dictionary row.
-    :param threshold: The threshold.
+    :param threshold_columns_dict: The threshold.
+    :param rows:
+    :param debug:
     :return: The data set after the primary suppression on rows.
     """
     if len(data[0]) <= 3:
@@ -326,14 +285,13 @@ def row_primary_suppression(data, rows, min_dict_row, threshold, debug):
         if r == len(data) - 1:
             continue
         for c, column in enumerate(row):
+            threshold = get_threshold_from_dict(threshold_columns_dict, c)
             if c < len(rows) or c == len(row) - 1:
                 continue
-            marginality = float(data[r][len(row) - 1])
-            min_val = float(min_dict_row[c])
             val = row[c]
             if str(val).startswith(ASTERISK):
                 continue
-            if is_to_be_asterisked(val, min_val, threshold, marginality):
+            if is_to_be_asterisked(val, threshold):
                 row[c] = ASTERISK
                 if debug:
                     row[c] += 'R(' + val + ")"
@@ -341,29 +299,30 @@ def row_primary_suppression(data, rows, min_dict_row, threshold, debug):
     return data
 
 
-def column_primary_suppression(data, rows, min_dict_column, threshold, debug):
+def column_primary_suppression(data, rows, threshold_columns_dict, debug):
     """
     Preform primary suppression for columns.
 
+    :rtype : list of tuples.
     :param data: List of tuples containing query result set.
-    :param min_dict_column: The min dictionary column.
-    :param threshold: The threshold
+    :param rows:
+    :param threshold_columns_dict: The threshold dictionary.
+    :param debug:
     :return: The data set after the primary suppression on columns.
     """
     if len(data) <= 3:
         return data
     for c, column in enumerate(data[0], start=len(rows)):
+        threshold = get_threshold_from_dict(threshold_columns_dict, c)
         if c == len(data[0]):
             break
         for r, row in enumerate(data):
             if r == len(data) - 1:
                 continue
-            marginality = float(data[len(data)-1][c])
-            min_val = float(min_dict_column[r])
             val = row[c]
             if str(val).startswith(ASTERISK):
                 continue
-            if is_to_be_asterisked(val, min_val, threshold, marginality):
+            if is_to_be_asterisked(val, threshold):
                 row[c] = ASTERISK
                 if debug:
                     row[c] += 'C(' + str(val) + ")"
@@ -418,17 +377,19 @@ def row_secondary_suppression(data, rows, debug):
     return data, asterisked
 
 
-def column_secondary_suppression(data, rows, columns, debug):
+def column_secondary_suppression(data, rows, columns, obs_values, debug):
     """
     Perform secondary suppression for columns.
     The function asterisk at least 2 value
     if is asterisked a 0 then is asterisked an other one.
 
+    :rtype :  List of tuples.
+    :param data: List of tuples containing query result set.
     :param rows: Rows where not apply the suppression.
     :param columns: Columns where not apply the suppression.
+    :param obs_values: Observation values.
     :param debug: If active show debug info on asterisked cells.
-    :param data: List of tuples containing query result set.
-    :return: The data set after the secondary suppressions on columns.
+    :return: The data set after the secondary suppression on columns.
     """
     asterisked = 0
     if len(data) <= 3:
@@ -480,16 +441,15 @@ def protect_pivoted_secret_with_marginality(data,
     Protect pivoted secret with marginality.
 
     :param data: List of tuples containing query result set.
+    :param rows:
+    :param columns:
     :param threshold_columns_dict: Threshold column dictionary.
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table preserving statistical secret with marginality.
     """
-    threshold = get_threshold_from_dict(threshold_columns_dict)
-    min_dict_row = build_min_row_dict(data, rows, columns)
-    min_dict_column = build_min_column_dict(data, rows)
-    data = row_primary_suppression(data, rows, min_dict_row, threshold, debug)
+    data = row_primary_suppression(data, rows, threshold_columns_dict, debug)
 
-    data = column_primary_suppression(data, rows, min_dict_column, threshold,
+    data = column_primary_suppression(data, rows, threshold_columns_dict,
                                       debug)
 
     return data
@@ -502,10 +462,16 @@ def protect_pivoted_table(data,
                           sec_ref,
                           threshold_columns_dict,
                           constraint_cols,
+                          obs_values,
                           debug):
     """
     Protect pivoted table by statistical secret.
 
+    :param rows:
+    :param columns: Columns.
+    :param threshold_columns_dict: Threshold columns.
+    :param constraint_cols: Column with constraints,
+    :param obs_values:  Observable values.
     :param data: List of tuples containing query result set.
     :param secret_column_dict: Dictionary of secret column.
     :param secret_column_dict: Dictionary of secret noy on column.
@@ -533,7 +499,10 @@ def protect_pivoted_table(data,
     tot_asterisked = 1
     while tot_asterisked > 0:
         data, asterisked_r = row_secondary_suppression(data, rows, debug)
-        data, asterisked_c = column_secondary_suppression(data, rows, columns,
+        data, asterisked_c = column_secondary_suppression(data,
+                                                          rows,
+                                                          columns,
+                                                          obs_values,
                                                           debug)
         tot_asterisked = asterisked_c + asterisked_r
 
@@ -687,7 +656,6 @@ def apply_constraint_pivot(data,
             src_row = data[row_index]
             val = src_row[column_index]
             src_row[column_index] = ASTERISK
-            row_index += 1
             if debug:
                 src_row[column_index] += "(%s, %s" % (val, enum_column)
                 src_row[column_index] += "=%s)" % constraint_val
@@ -788,11 +756,8 @@ def protect_plain_table(data,
     :param debug: If active show debug info on asterisked cells.
     :return: The plain table preserving the statistical secret.
     """
-
-    min_dict_column = build_min_column_dict(data, [])
     threshold = get_threshold_from_dict(threshold_columns_dict)
-    data = column_primary_suppression(data, [0], min_dict_column, threshold,
-                                      debug)
+    data = column_primary_suppression(data, [0], threshold, debug)
 
     data, asterisked_c = column_secondary_suppression(data,
                                                       [0],
@@ -947,6 +912,7 @@ def apply_stat_secret(headers,
                                      sec_ref,
                                      threshold_columns_dict,
                                      constraint_cols,
+                                     obs_values,
                                      debug)
 
         if (data_frame.shape[1]) == 2:
