@@ -840,8 +840,7 @@ def get_data_from_data_frame(df):
     :param df: Pandas data frame.
     :return: List of tuples representing the data in table.
     """
-    index = is_dataframe_multi_index(df)
-    return [x for x in df.to_records(index=index)]
+    return [x for x in df.to_records(index=False)]
 
 
 def change_query(model_instance, pivot_cols, aggregation_ids):
@@ -2289,8 +2288,8 @@ def stringify(v):
     :param v:
     :return:
     """
-    if isinstance(v, (int , float, long)):
-        return str(v)
+    if isinstance(v, (int, float, long)):
+        return "%s" %v
     return v.encode('utf-8')
 
 

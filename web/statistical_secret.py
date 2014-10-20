@@ -646,36 +646,71 @@ def apply_constraint_pivot(data,
             data_frame.sortlevel(inplace=True)
 
         for row in dest_data:
-            p_col = stringify(row[0])
-            column_index = data_frame.columns.get_loc(p_col)
+            start_col = 0
             key = []
-            for c, ro in enumerate(rows, start=1):
-                p_col = stringify(row[c])
-                key.append(p_col)
+            for c, co in enumerate(pivot_cols):
+                c_name = col_dict[co]['column']
+                if c_name in new_header:
+                    p_col = stringify(row[c])
+                    key.append(p_col)
+                    start_col += 1
+
             try:
-                sliced_index = data_frame.index.get_loc(tuple(key))
-            except:
+                if len(key) == 1:
+                    column_index = data_frame.columns.get_loc(key[0])
+                else:
+                    column_index = data_frame.columns.get_loc(tuple(key))
+            except KeyError:
                 continue
 
-            row_index = sliced_index.start + con
-            constraint_val = row[len(row)-1]
-            src_row = data[row_index]
-            val = src_row[column_index]
-            src_row[column_index] = ASTERISK
-            if debug:
-                src_row[column_index] += "(%s, %s" % (val, enum_column)
-                src_row[column_index] += "=%s)" % constraint_val
+            key = []
+            for c, ro in enumerate(to_be_selected_columns[start_col:],
+                                   start=start_col):
+                p_col = stringify(row[c])
+                key.append(p_col)
+
+            try:
+                row_index = data_frame.index.get_loc(tuple(key))
+            except KeyError:
+                continue
+
+            start_row = row_index.start
+            stop_row = row_index.stop
+            sel_row = start_row
+            while sel_row != stop_row:
+                if sel_row % len(constraint_dict) == con:
+                    constraint_val = row[len(row)-1]
+                    src_row = data[sel_row]
+                    if isinstance(column_index, slice):
+                        start_col = column_index.start
+                        stop_col = column_index.stop
+                        sel_col = start_col
+                        while sel_col != stop_col:
+                            val = src_row[sel_col]
+                            src_row[sel_col] = ASTERISK
+                            if debug:
+                                src_row[sel_col] += "(%s, %s" % (val,
+                                                                 enum_column)
+                                src_row[sel_col] += "=%s)" % constraint_val
+                            sel_col += 1
+                    else:
+                        val = src_row[column_index]
+                        src_row[column_index] = ASTERISK
+                        if debug:
+                            src_row[column_index] += "(%s, %s" % (val,
+                                                                  enum_column)
+                            src_row[column_index] += "=%s)" % constraint_val
+                sel_row += 1
 
     return data
 
 
-def data_frame_from_tuples(data_frame, data, rows):
+def data_frame_from_tuples(data_frame, data):
     """
     Create a new Pandas data_frame with data.
 
     :param data_frame: Pandas data frame to be clone.
     :param data: List of tuples containing query result set.
-    :param rows: Initial rows.
     :return: A Pandas data frame with the data_frame schema and data.
     """
     ret = pd.DataFrame.from_records([],
@@ -686,10 +721,7 @@ def data_frame_from_tuples(data_frame, data, rows):
             continue
         index = data_frame.index[r]
         for c, o in enumerate(data_frame.columns):
-            if is_dataframe_multi_index(data_frame):
-                value = data[r][c+len(rows)]
-            else:
-                value = data[r][c]
+            value = data[r][c]
             ret.set_value(index, data_frame.columns[c], value)
     return ret
 
@@ -928,7 +960,7 @@ def apply_stat_secret(headers,
         if len(data_frame.index) == 2:
             data_frame = drop_total_row(data_frame)
 
-        data_frame = data_frame_from_tuples(data_frame, data, rows)
+        data_frame = data_frame_from_tuples(data_frame, data)
 
         return data, headers, data_frame, warn, err
 
@@ -941,8 +973,6 @@ def apply_stat_secret(headers,
         data_frame = pd.DataFrame(data, columns=headers)
     else:
         data_frame = pd.DataFrame(columns=headers)
-
-    data_frame = data_frame.reset_index()
 
     return data, headers, data_frame, warn, err
 
