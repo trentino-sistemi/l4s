@@ -2178,7 +2178,7 @@ def build_query_desc(agg_col_desc, sel_tab):
     return description
 
 
-def build_query_title(df):
+def build_query_title(df, obs_values, rows):
     """
     Build a title for the dataframe taking the columns and indices.
 
@@ -2188,10 +2188,10 @@ def build_query_title(df):
     for_s = unicode(_("for"))
     and_s = unicode(_("and"))
     title = ""
-    if is_dataframe_multi_index(df):
+    if len(obs_values) == 1:
         title += df.columns.levels[0][0]
     else:
-        for i, index in enumerate(df.index.levels[1]):
+        for i, index in enumerate(df.index.levels[len(rows)]):
             if i != 0:
                 title += ", %s" % index.decode('utf-8').lower()
             else:
@@ -2279,6 +2279,19 @@ def is_dataframe_multi_index(df):
     :return:
     """
     return type(df.columns) == pd.MultiIndex
+
+
+def stringify(v):
+    """
+    Encode the string in Utf-8. If it is not a string return the simple type
+    as is.
+
+    :param v:
+    :return:
+    """
+    if isinstance(v, (int , float)):
+        return str(v)
+    return v.encode('utf-8')
 
 
 def dataframe_to_html(df, pivot):

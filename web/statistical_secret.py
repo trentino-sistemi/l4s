@@ -31,7 +31,8 @@ from web.utils import get_table_schema, \
     drop_total_column, \
     drop_total_row, \
     build_description_query, \
-    is_dataframe_multi_index
+    is_dataframe_multi_index, \
+    stringify
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
@@ -601,6 +602,7 @@ def build_constraint_dict(constraint_cols):
 def apply_constraint_pivot(data,
                            data_frame,
                            pivot_cols,
+                           rows,
                            col_dict,
                            constraint_cols,
                            debug):
@@ -615,7 +617,6 @@ def apply_constraint_pivot(data,
     """
     constraint_dict = build_constraint_dict(constraint_cols)
 
-    print str(constraint_dict)
     for con, constraint in enumerate(constraint_dict):
         constraint_values = constraint_dict[constraint]
         table = constraint_values[0]['table']
@@ -641,18 +642,23 @@ def apply_constraint_pivot(data,
 
         dest_data = execute_query_on_main_db(query)
 
-        for row in dest_data:
-            v = row[0]
-            p_col = str(v).encode('utf-8')
+        if len(rows) > 1:
+            data_frame.sortlevel(inplace=True)
 
-            if p_col in data_frame.columns:
-                column_index = data_frame.columns.get_loc(p_col)
-            else:
+        for row in dest_data:
+            p_col = stringify(row[0])
+            column_index = data_frame.columns.get_loc(p_col)
+            key = []
+            for c, ro in enumerate(rows, start=1):
+                p_col = stringify(row[c])
+                key.append(p_col)
+            try:
+                sliced_index = data_frame.index.get_loc(tuple(key))
+            except:
                 continue
-            p_col = row[1].encode('utf-8')
-            sliced_index = data_frame.index.get_loc(p_col)
+
             row_index = sliced_index.start + con
-            constraint_val = row[2]
+            constraint_val = row[len(row)-1]
             src_row = data[row_index]
             val = src_row[column_index]
             src_row[column_index] = ASTERISK
@@ -901,6 +907,7 @@ def apply_stat_secret(headers,
         data = apply_constraint_pivot(data,
                                       data_frame,
                                       pivot_columns,
+                                      rows,
                                       col_dict,
                                       constraint_cols,
                                       debug)
