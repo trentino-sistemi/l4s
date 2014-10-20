@@ -38,6 +38,7 @@ import tempfile
 import os
 import pandas as pd
 import uuid
+from collections import OrderedDict
 
 
 METADATA = 'web_metadata'
@@ -306,7 +307,7 @@ def list_obs_value_column_from_dict(col_dict):
     :return: all observable values indices.
     """
     obs_list = []
-    for v in col_dict.keys():
+    for v in col_dict:
         column_name = col_dict[v]['column']
         table_name = col_dict[v]['table']
 
@@ -324,7 +325,7 @@ def all_obs_value_column(table_name, table_description):
     :param table_description:
     :return: index_column, column_name
     """
-    ret = dict()
+    ret = OrderedDict()
 
     for f, field in enumerate(table_description):
         column_name = field.name
@@ -506,6 +507,7 @@ def build_query(table_name, columns, rows, aggregation_ids, filters, values):
         annotation += "%s %s\n" % (AGGREGATION_TOKEN, agg)
 
     obs_values = all_obs_value_column(table_name, table_schema)
+
     if len(obs_values) < 1:
         return None
 
