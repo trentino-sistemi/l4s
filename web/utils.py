@@ -2289,7 +2289,7 @@ def stringify(v):
     :param v:
     :return:
     """
-    if isinstance(v, (int , float)):
+    if isinstance(v, (int , float, long)):
         return str(v)
     return v.encode('utf-8')
 
