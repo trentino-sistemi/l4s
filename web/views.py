@@ -1028,6 +1028,13 @@ def query_editor_customize(request):
         if debug_s and debug_s == 'true':
             debug = True
 
+    selected_obs_values_s = request.REQUEST.get('selected_obs_values', '')
+
+    selected_obs_values = []
+    if selected_obs_values_s != "":
+        for i in selected_obs_values_s.split(','):
+            selected_obs_values.append(i)
+
     table_name = request.REQUEST.get('table', '')
     columns = request.REQUEST.get('columns', '')
     cols = []
@@ -1055,6 +1062,7 @@ def query_editor_customize(request):
 
     context['fields'] = fields
     context['obs_values'] = obs_values
+    context['selected_obs_values'] = selected_obs_values
     context['table_name'] = table_name
     context['columns'] = cols
     context['rows'] = rows
@@ -1092,9 +1100,13 @@ def query_editor_view(request):
     table_description_dict = build_description_table_dict([table_name])
     context['table_description'] = table_description_dict[table_name]
 
+    selected_obs_values_s = request.REQUEST.get('selected_obs_values', '')
+    selected_obs_values = []
+    if selected_obs_values_s != "":
+        selected_obs_values = json.loads(selected_obs_values_s)
+
     filters_s = request.REQUEST.get('filters')
     agg_filters_s = request.REQUEST.get('agg_filters')
-
     columns = request.REQUEST.get('columns', '')
 
     cols = []
@@ -1125,6 +1137,10 @@ def query_editor_view(request):
     table_schema = get_table_schema(table_name)
 
     obs_values = all_obs_value_column(table_name, table_schema).values()
+    if len(selected_obs_values) == 0:
+        # Take all.
+        selected_obs_values = obs_values
+
     for f, field in enumerate(table_schema):
         column_name = field.name
         if not column_name in obs_values:
@@ -1157,7 +1173,11 @@ def query_editor_view(request):
         filters = json.loads(filters_s)
         agg_filters = json.loads(agg_filters_s)
 
-    sql, pivot = build_query(table_name, cols, rows, aggregation_ids,
+    sql, pivot = build_query(table_name,
+                             cols,
+                             rows,
+                             selected_obs_values,
+                             aggregation_ids,
                              filters, values)
 
     column_description = build_description_column_dict(table_name,
@@ -1172,7 +1192,7 @@ def query_editor_view(request):
                                            debug,
                                            True)
 
-    title = build_query_title(df, obs_values, rows)
+    title = build_query_title(df, selected_obs_values, rows)
 
     agg_col, sel_tab = build_query_summary(column_description,
                                            values,
@@ -1191,6 +1211,8 @@ def query_editor_view(request):
 
     context['dataframe'] = html
     context['values'] = values
+    context['obs_values'] = obs_values
+    context['selected_obs_values'] = ",".join(selected_obs_values)
     context['aggregations'] = aggregations
     context['agg_values'] = agg_values
     context['aggregation_ids'] = aggregation_ids

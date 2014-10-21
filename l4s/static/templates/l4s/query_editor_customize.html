@@ -298,18 +298,24 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 <th>{% trans "Data" %}</th>
                 <tr>
                     <td style="width:150px;height:100%" valign="top"
-                        class="pvtAxisContainer pvtRows ui-sortable drag_ul"
+                        class="pvtAxisContainer"
                         id="valueFields">
                         <!-- The data values -->
                         {% for field in fields %}
                         {% if field in obs_values %}
-                        <li class="dropdown">
-                            <span class="pvtAttr btn btn-default dropdown-toggle"
-                                  data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
+                        <li>
+                           <input type="checkbox"
+                                   id="obs_{{ field }}"
+                                   {% if field in selected_obs_values %}
+                                   checked="checked"
+                                   {% endif %}/>
+                            <span class="pvtAttr btn btn-default dropdown-toggle">
+                                {{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
                                 <span style="display:None">{{ field }}</span>
                             </span>
-                            {% endif %}
-                            {% endfor %}
+                         </li>
+                        {% endif %}
+                        {% endfor %}
                     </td>
                 </tr>
             </table>
@@ -317,6 +323,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
     </tr>
 </table>
+
 <script>select_filters('{{ filters|jsonify|escapejs }}');</script>
 {% for field in fields %}
     {% for agg in aggregations %}
@@ -342,7 +349,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             <input type="checkbox"
                    id="debug"
             {% if debug %}
-            checked
+            checked="checked"
             {% endif %} />
         </td>
         {% endif %}
@@ -351,7 +358,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                    class="btn btn-default"
                    name="btn_close"
                    id="btn_close"
-                   onclick="submit_popup('{{ values|jsonify|escapejs }}', '{{ agg_values|jsonify|escapejs }}', '{{ table_name }}', '{% trans " The table must have at least one field in row" %}', '{% trans "The table must have at least one field in column" %}');"
+                   onclick="submit_popup('{{ obs_values|jsonify|escapejs }}', '{{ values|jsonify|escapejs }}', '{{ agg_values|jsonify|escapejs }}', '{{ table_name }}', '{% trans " The table must have at least one field in row" %}', '{% trans "The table must have at least one field in column" %}');"
                    value="{% trans "Submit" %}"/>
             <button class="btn btn-default" onclick="window.close()">
                 {% trans "Cancel" %}

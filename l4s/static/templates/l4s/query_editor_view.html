@@ -127,6 +127,7 @@ function OpenCustomizePopup() {
     data = { 'table': '{{ table_name|escapejs }}',
              'columns': '{{ columns|escapejs }}',
              'rows': '{{ rows|escapejs }}',
+             'selected_obs_values': '{{ selected_obs_values|escapejs }}',
              'aggregations': '{{ aggregations|jsonify|escapejs }}',
              'filters': '{{ filters|jsonify|escapejs }}',
              'agg_filters': '{{ agg_filters|jsonify|escapejs }}',

@@ -158,6 +158,21 @@ function create_agg_selection(agg_values) {
    return selection_obj;
 }
 
+function create_obs_selection(obs_values) {
+    obs_obj =  eval('(' + obs_values + ')');
+    sel_obj = [];
+    for (var i = 0; i < obs_obj.length; i++) {
+       obs_value = obs_obj[i];
+       id= "obs_" + obs_value;
+       el = document.getElementById(id);
+       if (el.checked) {
+           sel_obj.push(obs_value);
+           alert(id);
+       }
+    }
+    return sel_obj;
+}
+
 function select_filters(filters){
     var filter_hash = eval('(' + filters + ')');
     for (var key in filter_hash) {
@@ -198,7 +213,7 @@ function addHiddenInput(form, id, value) {
 }
 
 
-function submit_popup (values, agg_values, table_name, no_rows, no_columns) {
+function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns) {
     selection = create_selection(values);
     filter_value = JSON.stringify(selection);
         
@@ -213,6 +228,9 @@ function submit_popup (values, agg_values, table_name, no_rows, no_columns) {
         return;
     }
     
+    selected_obs = create_obs_selection(obs_values) ;
+    selected_obs_values = JSON.stringify(selected_obs);
+    
     sel_aggregations = get_aggregations();
     agg_selection = create_agg_selection(agg_values);
     agg_selection_value = JSON.stringify(agg_selection);
@@ -226,6 +244,7 @@ function submit_popup (values, agg_values, table_name, no_rows, no_columns) {
     data = { 'table': table_name,
                       'columns': cols,
                       'rows': rows,
+                      'selected_obs_values':  selected_obs_values,
                       'aggregate': sel_aggregations,
                       'filters': filter_value,
                       'agg_filters': agg_selection_value,

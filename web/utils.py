@@ -483,7 +483,13 @@ def build_foreign_keys(table_name):
     return ret
 
 
-def build_query(table_name, columns, rows, aggregation_ids, filters, values):
+def build_query(table_name,
+                columns,
+                rows,
+                obs_values,
+                aggregation_ids,
+                filters,
+                values):
     """
     Build a query on table that select obsValues and then the desired
     cols and rows.
@@ -492,6 +498,7 @@ def build_query(table_name, columns, rows, aggregation_ids, filters, values):
     :param table_name: The table name.
     :param columns: Columns involved in the query
     :param rows: Rows involved in the query
+    :param obs_values: Obs values.
     :param aggregation_ids: Ids of aggregations
     :param filters: filters to be applied
     :param values: values of contents
@@ -501,23 +508,16 @@ def build_query(table_name, columns, rows, aggregation_ids, filters, values):
     annotation = "%s\n" % DESCRIPTION_TOKEN
     fields = []
     obs_fields = []
-    table_schema = get_table_schema(table_name)
 
     for agg in aggregation_ids:
         annotation += "%s %s\n" % (AGGREGATION_TOKEN, agg)
 
-    obs_values = all_obs_value_column(table_name, table_schema)
-
-    if len(obs_values) < 1:
-        return None
-
     position = 0
-    for index in obs_values:
-        numerosity_col = obs_values[index]
-        sum_s = "SUM(%s) %s" % (numerosity_col, numerosity_col)
+    for obs_value in obs_values:
+        sum_s = "SUM(%s) %s" % (obs_value, obs_value)
         obs_fields.append(sum_s)
         annotation += "%s " % JOIN_TOKEN
-        annotation += "%s.%s %d\n" % (table_name, numerosity_col, position)
+        annotation += "%s.%s %d\n" % (table_name, obs_value, position)
         position += 1
 
     col_positions = []
@@ -2291,7 +2291,7 @@ def stringify(v):
     :return:
     """
     if isinstance(v, (int, float, long)):
-        return "%s" %v
+        return "%s" % v
     return v.encode('utf-8')
 
 
