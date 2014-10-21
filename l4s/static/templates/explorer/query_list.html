@@ -20,7 +20,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {% extends "explorer/base.html" %}
 {% load i18n %}
-{% load jsonify %}
 
 {% block sql_explorer_content %}
 
@@ -109,6 +108,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
                                                       "{{ object.columns|escapejs }}",
                                                       "{{ object.rows|escapejs }}",
+                                                      "{{ object.obs_values|escapejs }}",
                                                       "{{ object.aggregations|escapejs }}",
                                                       "{{ object.filters | escapejs }}",
                                                       "{{ object.agg_filters|escapejs }}" )'
@@ -125,6 +125,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
                                                       "{{ object.columns|escapejs }}",
                                                       "{{ object.rows|escapejs }}",
+                                                      "{{ object.obs_values|escapejs }}",
                                                       "{{ object.aggregations|escapejs }}",
                                                       "{{ object.filters | escapejs }}",
                                                       "{{ object.agg_filters|escapejs }}" )'
@@ -226,6 +227,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
                                                       "{{ object.columns|escapejs }}",
                                                       "{{ object.rows|escapejs }}",
+                                                      "{{ object.obs_values|escapejs }}",
                                                       "{{ object.aggregations|escapejs }}",
                                                       "{{ object.filters | escapejs }}",
                                                       "{{ object.agg_filters|escapejs }}" )'
@@ -242,6 +244,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
                                                       "{{ object.columns|escapejs }}",
                                                       "{{ object.rows|escapejs }}",
+                                                      "{{ object.obs_values|escapejs }}",
                                                       "{{ object.aggregations|escapejs }}",
                                                       "{{ object.filters | escapejs }}",
                                                       "{{ object.agg_filters|escapejs }}" )'
@@ -339,11 +342,18 @@ $(document).ready(function(){
         priv_elem.innerHTML = s;
     }
 })
-function query_editor(table, columns, rows, aggregations, filters, agg_filters) {
+function query_editor(table,
+                      columns,
+                      rows,
+                      obs_values,
+                      aggregations,
+                      filters,
+                      agg_filters) {
     url="/query_editor_view/"
     data = { 'table': table,
              'columns': columns,
              'rows': rows,
+             'selected_obs_values': obs_values,
              'aggregate': aggregations,
              'filters': filters,
              'agg_filters': agg_filters,
@@ -358,7 +368,7 @@ function query_editor(table, columns, rows, aggregations, filters, agg_filters) 
             document.close();
 	    },
         error: function(xhr, status) {
-			alert(status);
+			alert(xhr.responseText);
 		}
     });
 }

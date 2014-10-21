@@ -1103,7 +1103,8 @@ def query_editor_view(request):
     selected_obs_values_s = request.REQUEST.get('selected_obs_values', '')
     selected_obs_values = []
     if selected_obs_values_s != "":
-        selected_obs_values = json.loads(selected_obs_values_s)
+        for i in selected_obs_values_s.split(','):
+            selected_obs_values.append(i)
 
     filters_s = request.REQUEST.get('filters')
     agg_filters_s = request.REQUEST.get('agg_filters')
@@ -1264,6 +1265,7 @@ def query_editor_save(request):
     table_name = request.REQUEST.get('table')
     columns = request.REQUEST.get('columns')
     rows = request.REQUEST.get('rows')
+    obs_values = request.REQUEST.get('obs_values')
     aggregations = request.REQUEST.get('aggregations')
     filters = request.REQUEST.get('filters')
     agg_filters = request.REQUEST.get('agg_filters')
@@ -1277,6 +1279,7 @@ def query_editor_save(request):
                  'table': table_name,
                  'columns': columns,
                  'rows': rows,
+                 'obs_values': obs_values,
                  'aggregations': aggregations,
                  'filters': filters,
                  'agg_filters': agg_filters})

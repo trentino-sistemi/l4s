@@ -39,8 +39,8 @@ class CreateQueryEditorForm(ModelForm):
     class Meta:
         model = Query
         fields = ['title', 'sql', 'description', 'created_by', 'is_public',
-                  'query_editor', 'table', 'columns', 'rows', 'aggregations',
-                  'filters', 'agg_filters']
+                  'query_editor', 'table', 'columns', 'rows', 'obs_values',
+                  'aggregations', 'filters', 'agg_filters']
 
         widgets = {
             'title': forms.Textarea(attrs={'style': 'width: 100%', 'rows': 2}),
@@ -53,6 +53,7 @@ class CreateQueryEditorForm(ModelForm):
             'table': forms.HiddenInput(),
             'columns': forms.HiddenInput(),
             'rows': forms.HiddenInput(),
+            'obs_values': forms.HiddenInput(),
             'aggregations': forms.HiddenInput(),
             'filters': forms.HiddenInput(),
             'agg_filters': forms.HiddenInput(),

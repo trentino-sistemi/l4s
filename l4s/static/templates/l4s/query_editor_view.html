@@ -187,6 +187,7 @@ function OpenSavePopup() {
              'table': '{{ table_name|escapejs }}',
              'columns': '{{ columns|escapejs }}',
              'rows': '{{ rows }}',
+             'obs_values': '{{ selected_obs_values|escapejs }}',
              'aggregations': '{{ sel_aggregate|escapejs }}',
              'filters': '{{ filters|jsonify|escapejs }}',
              'agg_filters': '{{ agg_filters|jsonify|escapejs }}'

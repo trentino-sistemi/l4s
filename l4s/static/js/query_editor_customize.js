@@ -232,7 +232,7 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
          alert(no_values);
         return;
     }
-    selected_obs_values = JSON.stringify(selected_obs);
+    selected_obs_values = selected_obs .join(",")
     
     sel_aggregations = get_aggregations();
     agg_selection = create_agg_selection(agg_values);
