@@ -167,7 +167,6 @@ function create_obs_selection(obs_values) {
        el = document.getElementById(id);
        if (el.checked) {
            sel_obj.push(obs_value);
-           alert(id);
        }
     }
     return sel_obj;
@@ -213,7 +212,7 @@ function addHiddenInput(form, id, value) {
 }
 
 
-function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns) {
+function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns, no_values) {
     selection = create_selection(values);
     filter_value = JSON.stringify(selection);
         
@@ -229,6 +228,10 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
     }
     
     selected_obs = create_obs_selection(obs_values) ;
+    if (selected_obs.length==0) {
+         alert(no_values);
+        return;
+    }
     selected_obs_values = JSON.stringify(selected_obs);
     
     sel_aggregations = get_aggregations();

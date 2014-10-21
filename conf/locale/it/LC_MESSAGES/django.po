@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-21 11:06+0200\n"
-"PO-Revision-Date: 2014-10-21 11:06+0100\n"
+"POT-Creation-Date: 2014-10-21 14:53+0200\n"
+"PO-Revision-Date: 2014-10-21 14:53+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -260,7 +260,7 @@ msgid "Open data"
 msgstr "Dati aperti"
 
 #: l4s/static/templates/explorer/query.html:165
-#: l4s/static/templates/l4s/query_editor_customize.html:338
+#: l4s/static/templates/l4s/query_editor_customize.html:345
 msgid "Debug"
 msgstr "Analizza"
 
@@ -287,7 +287,7 @@ msgstr "Esporta"
 #: l4s/static/templates/explorer/query.html:225
 #: l4s/static/templates/l4s/query_editor_view.html:84
 #: l4s/static/templates/l4s/query_editor_view.html:87
-#: l4s/static/templates/l4s/query_editor_view.html:178
+#: l4s/static/templates/l4s/query_editor_view.html:179
 msgid "Save"
 msgstr "Salva"
 
@@ -306,7 +306,7 @@ msgstr "Accedi per poter usare questa funzione"
 #: l4s/static/templates/l4s/manual_request_view.html:30
 #: l4s/static/templates/l4s/query_editor_view.html:85
 #: l4s/static/templates/l4s/query_editor_view.html:88
-#: l4s/static/templates/l4s/query_editor_view.html:156
+#: l4s/static/templates/l4s/query_editor_view.html:157
 msgid "Manual request"
 msgstr "Richiesta manuale"
 
@@ -614,14 +614,14 @@ msgstr "Note legali"
 #: l4s/static/templates/l4s/manual_request.html:51
 #: l4s/static/templates/l4s/metadata_add.html:35
 #: l4s/static/templates/l4s/metadata_edit.html:36
-#: l4s/static/templates/l4s/query_editor_customize.html:355
+#: l4s/static/templates/l4s/query_editor_customize.html:368
 #: l4s/static/templates/l4s/query_editor_save.html:55
 #: l4s/static/templates/l4s/user_profile_change.html:32
 msgid "Submit"
 msgstr "Conferma"
 
 #: l4s/static/templates/l4s/manual_request.html:54
-#: l4s/static/templates/l4s/query_editor_customize.html:357
+#: l4s/static/templates/l4s/query_editor_customize.html:370
 #: l4s/static/templates/l4s/query_editor_save.html:58
 msgid "Cancel"
 msgstr "Annulla"
@@ -839,20 +839,24 @@ msgstr "Riga"
 msgid "Data"
 msgstr "Valori"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:354
-msgid " The table must have at least one field in row"
+#: l4s/static/templates/l4s/query_editor_customize.html:365
+msgid "The table must have at least one field in row"
 msgstr "La tabella deve avere almeno un campo in riga"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:354
+#: l4s/static/templates/l4s/query_editor_customize.html:366
 msgid "The table must have at least one field in column"
 msgstr "La tabella deve avere almeno un campo in colonna"
+
+#: l4s/static/templates/l4s/query_editor_customize.html:367
+msgid "The table must have at least one field in value"
+msgstr "La tabella deve avere almeno un campo come valore"
 
 #: l4s/static/templates/l4s/query_editor_view.html:44
 msgid "values"
 msgstr "valori"
 
 #: l4s/static/templates/l4s/query_editor_view.html:48
-#: l4s/static/templates/l4s/query_editor_view.html:208
+#: l4s/static/templates/l4s/query_editor_view.html:209
 msgid "See more"
 msgstr "Vedi più dettagli"
 
@@ -861,7 +865,7 @@ msgstr "Vedi più dettagli"
 msgid "Customize"
 msgstr "Personalizza"
 
-#: l4s/static/templates/l4s/query_editor_view.html:208
+#: l4s/static/templates/l4s/query_editor_view.html:209
 msgid "See less"
 msgstr "Vedi meno dettagli"
 
@@ -1241,11 +1245,11 @@ msgstr "L'interrogazione non può essere salvata perchè incorretta."
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
 
-#: web/views.py:1148
+#: web/views.py:1164
 msgid "Please add the metadata 'obsValue'"
 msgstr "Per favore aggiungi il metadato 'obsValue'"
 
-#: web/views.py:1149
+#: web/views.py:1165
 msgid "on one of the columns of the table"
 msgstr "su una delle colonne della tabella"
 

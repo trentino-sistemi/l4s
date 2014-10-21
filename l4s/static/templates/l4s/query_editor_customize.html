@@ -358,7 +358,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                    class="btn btn-default"
                    name="btn_close"
                    id="btn_close"
-                   onclick="submit_popup('{{ obs_values|jsonify|escapejs }}', '{{ values|jsonify|escapejs }}', '{{ agg_values|jsonify|escapejs }}', '{{ table_name }}', '{% trans " The table must have at least one field in row" %}', '{% trans "The table must have at least one field in column" %}');"
+                   onclick="submit_popup('{{ obs_values|jsonify|escapejs }}',
+                            '{{ values|jsonify|escapejs }}',
+                            '{{ agg_values|jsonify|escapejs }}',
+                            '{{ table_name }}',
+                            '{% trans "The table must have at least one field in row" %}',
+                            '{% trans "The table must have at least one field in column" %}',
+                            '{% trans "The table must have at least one field in value" %}');"
                    value="{% trans "Submit" %}"/>
             <button class="btn btn-default" onclick="window.close()">
                 {% trans "Cancel" %}
