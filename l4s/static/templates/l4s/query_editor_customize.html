@@ -4,7 +4,7 @@ This file is part of Lod4stat.
 Copyright (c) 2014 Provincia autonoma di Trento
 
 
-This program is free software: you can redistribute it and/or modify
+This program is free software: you can aquaistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
 published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
@@ -53,23 +53,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 </head>
 
 <body style="cursor: auto;">
-<h3>{% trans "Drag items on rows and columns" %}</h3>
-<table>
-<tr>
-<td>
-<div id="legend" style="BACKGROUND-COLOR: #A1284C; BORDER: #1F556F thin solid; HEIGHT: 20px; WIDTH: 20px"></div>
-</td>
-<td>
-{% trans "The field with this colour can be grouped" %}
-</td>
-</tr>
-</table>
 <table border="1" class="table">
     <tr>
-        <th>{% trans "Undisplayed" %}</th>
+        <th>{% trans "Undisplayed" %}; {% trans "drag items on rows and columns" %}</th>
     </tr>
     <tr>
-        <td class="pvtAxisContainer pvtUnused pvtHorizList ui-sortable drag_ul"
+        <td style="background-color:aqua" class="pvtAxisContainer pvtUnused pvtHorizList ui-sortable drag_ul"
             id="unselectedFields">
             {% for field in fields %}
             {% if not field in obs_values %}
@@ -144,17 +133,26 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </td>
     </tr>
 </table>
-
+<table>
+<tr>
+<td>
+<div id="legend" style="BACKGROUND-COLOR: #A1284C; BORDER: #1F556F thin solid; HEIGHT: 20px; WIDTH: 20px"></div>
+</td>
+<td>
+{% trans "The field with this colour can be grouped" %}
+</td>
+</tr>
+</table>
 <br>
 
 <table border="1" class="table">
     <tr>
         <td></td>
-        <th>{% trans "Column" %}</th>
+        <th style="background-color:aqua">{% trans "Column" %}</th>
     </tr>
     <tr>
-        <th>{% trans "Row" %}</th>
-        <td class="pvtAxisContainer pvtHorizList pvtCols ui-sortable drag_ul"
+        <th style="background-color:aqua">{% trans "Row" %}</th>
+        <td style="background-color:aqua" class="pvtAxisContainer pvtHorizList pvtCols ui-sortable drag_ul"
             id="columnFields">
             {% for field in fields %}
             {% if field in columns %}
@@ -225,7 +223,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </td>
     </tr>
     <tr style="height:200px">
-        <td style="width:80px" valign="top"
+        <td style="width:80;background-color:aqua"" valign="top"
             class="pvtAxisContainer pvtRows ui-sortable drag_ul"
             id="rowFields">
             {% for field in fields %}
@@ -296,7 +294,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% endfor %}
         </td>
         <td>
-            <table style="width:100%;height:200px" border="1" class="table">
+            <table style="width:100%;height:200;background-color:aquamarine" border="1" class="table">
                 <th>{% trans "Data" %}</th>
                 <tr>
                     <td style="width:150px;height:100%" valign="top"
