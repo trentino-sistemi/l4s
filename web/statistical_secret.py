@@ -31,7 +31,6 @@ from web.utils import get_table_schema, \
     drop_total_column, \
     drop_total_row, \
     build_description_query, \
-    is_dataframe_multi_index, \
     stringify
 
 PRESERVE_STAT_SECRET_MSG = _(
@@ -329,7 +328,6 @@ def column_primary_plain_suppression(data,
                 if debug:
                     row[c] += 'C(' + str(val) + ")"
     return data
-
 
 
 def column_primary_pivoted_suppression(data,
@@ -677,7 +675,11 @@ def apply_constraint_pivot(data,
                                                    col_dict,
                                                    constraint_values)
         st = detect_special_columns(query)
-        query = build_description_query(query, st.cols, False)
+        query = build_description_query(query,
+                                        st.cols,
+                                        pivot_cols,
+                                        False,
+                                        False)
 
         dest_data = execute_query_on_main_db(query)
 
@@ -802,7 +804,7 @@ def apply_constraint_plain(data,
                                                    col_dict,
                                                    constraint_values)
         st = detect_special_columns(query)
-        query = build_description_query(query, st.cols, False)
+        query = build_description_query(query, st.cols, [], False, False)
 
         dest_data = execute_query_on_main_db(query)
 
@@ -828,13 +830,15 @@ def protect_plain_table(data,
     """
     Protect plain table by statistical secret.
 
+    :type debug: bool
     :param data: List of tuples containing query result set.
     :param threshold_columns_dict: The threshold dictionary.
     :param debug: If active show debug info on asterisked cells.
     :return: The plain table preserving the statistical secret.
     """
-    threshold = get_threshold_from_dict(threshold_columns_dict)
-    data = column_primary_plain_suppression(data, [0], debug)
+    data = column_primary_plain_suppression(data,
+                                            threshold_columns_dict,
+                                            debug)
 
     data, asterisked_c = column_secondary_suppression(data,
                                                       [0],
@@ -1021,7 +1025,8 @@ def headers_and_data(query,
                      agg_filters,
                      pivot_cols,
                      debug,
-                     include_descriptions):
+                     include_descriptions,
+                     include_code):
     """
     Execute query, get headers, data, duration, error
     and filter result set to preserve the statistical secret.
@@ -1032,6 +1037,7 @@ def headers_and_data(query,
     :param debug: If active show debug info on asterisked cells.
     :return: df, data, duration, warn, err.
     :param include_descriptions: Force to include description.
+    :param include_descriptions: Force to include code.
     """
     warn = None
     df = None
@@ -1047,7 +1053,13 @@ def headers_and_data(query,
         st = detect_special_columns(query.sql)
 
     if include_descriptions or st.include_descriptions:
-        query.sql = build_description_query(query.sql, st.cols, False)
+        query.sql = build_description_query(query.sql,
+                                            st.cols,
+                                            pivot_cols,
+                                            False,
+                                            include_code)
+        st = detect_special_columns(query.sql)
+        pivot_cols = st.pivot
 
     old_head, data, duration, err = query.headers_and_data()
     if err is None:

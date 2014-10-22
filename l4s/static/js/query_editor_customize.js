@@ -243,8 +243,15 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
         debug_value = "true";
      }
     
+    include_code_value = "false"
+    var include_code = document.getElementById('include_code');  
+      if (include_code!=null && include_code.checked == 1) {
+        include_code_value = "true";
+     }
+    
     url="/query_editor_view/"
     data = { 'table': table_name,
+                      'include_code': include_code_value,
                       'columns': cols,
                       'rows': rows,
                       'selected_obs_values':  selected_obs_values,

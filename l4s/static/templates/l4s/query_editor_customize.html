@@ -338,21 +338,31 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% endfor %}
 <script>select_agg_filters('{{ agg_filters|jsonify|escapejs }}');</script>
 <table align="center">
-    {% if request.user.is_staff %}
     <tr>
-        <td>
-            <label class="control-label col-sm-2">
-                {% trans "Debug" %}
-            </label>
-        </td>
+        {% if request.user.is_staff %}
         <td>
             <input type="checkbox"
                    id="debug"
             {% if debug %}
             checked="checked"
             {% endif %} />
+            <label class="control-label">
+                {% trans "Debug" %}
+            </label>
         </td>
         {% endif %}
+        <td>
+            <input type="checkbox"
+                   id="include_code"
+            {% if include_code %}
+            checked="checked"
+            {% endif %} />
+            <label class="control-label">
+                {% trans "Include code" %}
+            </label>
+        </td>
+    </tr>
+    <tr>
         <td>
             <input type="submit"
                    class="btn btn-default"
@@ -370,6 +380,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% trans "Cancel" %}
             </button>
         </td>
+    </tr>
 </table>
 </body>
 </html>

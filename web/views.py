@@ -156,7 +156,7 @@ def execute_query_viewmodel(request,
         st = detect_special_columns(query.sql)
 
     if st.include_descriptions:
-        query.sql = build_description_query(query.sql, st.cols, False)
+        query.sql = build_description_query(query.sql, st.cols, [], False, False)
 
     old_head, data, duration, error = query.headers_and_data()
     if error is None:
@@ -1028,6 +1028,11 @@ def query_editor_customize(request):
         if debug_s and debug_s == 'true':
             debug = True
 
+    include_code = False
+    include_code_s = request.REQUEST.get('include_code', '')
+    if include_code_s and include_code_s == 'true':
+        include_code = True
+
     selected_obs_values_s = request.REQUEST.get('selected_obs_values', '')
 
     selected_obs_values = []
@@ -1066,6 +1071,7 @@ def query_editor_customize(request):
     context['table_name'] = table_name
     context['columns'] = cols
     context['rows'] = rows
+    context['include_code'] = include_code
 
     values = request.REQUEST.get('values')
     agg_values = request.REQUEST.get('agg_values')
@@ -1126,6 +1132,11 @@ def query_editor_view(request):
         debug_s = request.REQUEST.get('debug', '')
         if debug_s and debug_s == 'true':
             debug = True
+
+    include_code = False
+    include_code_s = request.REQUEST.get('include_code', '')
+    if include_code_s and include_code_s == 'true':
+        include_code = True
 
     aggregation = request.REQUEST.get('aggregate', '')
 
@@ -1191,7 +1202,8 @@ def query_editor_view(request):
                                            agg_filters,
                                            pivot,
                                            debug,
-                                           True)
+                                           True,
+                                           include_code)
 
     title = build_query_title(df, selected_obs_values, rows)
 
@@ -1232,6 +1244,7 @@ def query_editor_view(request):
     context['debug'] = debug
     context['sel_tab'] = sel_tab
     context['agg_col'] = agg_col
+    context['include_code'] = include_code
 
     return render_to_response("l4s/query_editor_view.html", context)
 
@@ -1269,6 +1282,7 @@ def query_editor_save(request):
     aggregations = request.REQUEST.get('aggregations')
     filters = request.REQUEST.get('filters')
     agg_filters = request.REQUEST.get('agg_filters')
+    include_code = request.REQUEST.get('include_code')
 
     form = CreateQueryEditorForm(
         initial={'sql': sql,
@@ -1282,6 +1296,7 @@ def query_editor_save(request):
                  'obs_values': obs_values,
                  'aggregations': aggregations,
                  'filters': filters,
+                 'include_code': include_code,
                  'agg_filters': agg_filters})
     context['form'] = form
     return render_to_response("l4s/query_editor_save.html", context)

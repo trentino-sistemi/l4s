@@ -123,6 +123,11 @@ function OpenCustomizePopup() {
     if (debug=='True') {
        debug_value = "true"
     }
+    include_code_value = "false"
+    include_code = '{{ include_code }}';
+    if (include_code=='True') {
+       include_code_value = "true"
+    }
     url = '/query_editor_customize/';
     data = { 'table': '{{ table_name|escapejs }}',
              'columns': '{{ columns|escapejs }}',
@@ -135,6 +140,7 @@ function OpenCustomizePopup() {
              'column_description': '{{ column_description|jsonify|escapejs }}',
              'values': '{{ values |jsonify|escapejs }}',
              'agg_values': '{{ agg_values |jsonify|escapejs }}',
+             'include_code': include_code_value,
              'debug': debug_value,
               };
     $.ajax({
@@ -180,6 +186,12 @@ function OpenSavePopup() {
     w = 800;
     h = 340;
     filters = "{{ filters }}";
+    include_code_value = "false"
+    include_code = '{{ include_code }}';
+    if (include_code=='True') {
+       include_code_value = "true"
+    }
+
     url = '/query_editor_save/';
     data = { 'title': '{{ title|escapejs }}',
              'description':'{{ description|escapejs }}',
@@ -190,7 +202,8 @@ function OpenSavePopup() {
              'obs_values': '{{ selected_obs_values|escapejs }}',
              'aggregations': '{{ sel_aggregate|escapejs }}',
              'filters': '{{ filters|jsonify|escapejs }}',
-             'agg_filters': '{{ agg_filters|jsonify|escapejs }}'
+             'agg_filters': '{{ agg_filters|jsonify|escapejs }}',
+             'include_code': include_code_value
               };
     $.ajax({
 		url: url,

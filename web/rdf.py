@@ -20,7 +20,7 @@ from rdflib import Graph, URIRef, Literal, BNode, Namespace, term
 from rdflib.namespace import RDF, FOAF
 from utils import get_metadata_on_column, \
     get_subject_table,\
-    get_data_from_data_frame
+    get_data_from_data_frame, stringify
 
 
 myns = Namespace("http://ontology.trentinosistemi.com/ns/")
@@ -171,7 +171,7 @@ def add_slice_triples(g, subject_t_ref, data_frame, col_dict):
     :return:The Rdflib Graph enriched with slices triples.
     """
     for c, column in enumerate(data_frame.columns):
-        column = "%s" % column
+        column = stringify(column)
         g.add((subject_t_ref, component_ref, Literal(column)))
         if c not in col_dict:
             continue

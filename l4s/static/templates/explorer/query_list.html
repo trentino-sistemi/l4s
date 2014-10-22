@@ -109,6 +109,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                       "{{ object.columns|escapejs }}",
                                                       "{{ object.rows|escapejs }}",
                                                       "{{ object.obs_values|escapejs }}",
+                                                      "{{ object.include_code }}",
                                                       "{{ object.aggregations|escapejs }}",
                                                       "{{ object.filters | escapejs }}",
                                                       "{{ object.agg_filters|escapejs }}" )'
@@ -126,6 +127,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                       "{{ object.columns|escapejs }}",
                                                       "{{ object.rows|escapejs }}",
                                                       "{{ object.obs_values|escapejs }}",
+                                                      "{{ object.include_code }}",
                                                       "{{ object.aggregations|escapejs }}",
                                                       "{{ object.filters | escapejs }}",
                                                       "{{ object.agg_filters|escapejs }}" )'
@@ -228,6 +230,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                       "{{ object.columns|escapejs }}",
                                                       "{{ object.rows|escapejs }}",
                                                       "{{ object.obs_values|escapejs }}",
+                                                      "{{ object.include_code }}",
                                                       "{{ object.aggregations|escapejs }}",
                                                       "{{ object.filters | escapejs }}",
                                                       "{{ object.agg_filters|escapejs }}" )'
@@ -245,6 +248,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                       "{{ object.columns|escapejs }}",
                                                       "{{ object.rows|escapejs }}",
                                                       "{{ object.obs_values|escapejs }}",
+                                                      "{{ object.include_code }}",
                                                       "{{ object.aggregations|escapejs }}",
                                                       "{{ object.filters | escapejs }}",
                                                       "{{ object.agg_filters|escapejs }}" )'
@@ -346,9 +350,15 @@ function query_editor(table,
                       columns,
                       rows,
                       obs_values,
+                      include_code,
                       aggregations,
                       filters,
                       agg_filters) {
+    include_code_value = "false"
+    if (include_code=='True') {
+       include_code_value = "true"
+    }
+
     url="/query_editor_view/"
     data = { 'table': table,
              'columns': columns,
@@ -358,6 +368,7 @@ function query_editor(table,
              'filters': filters,
              'agg_filters': agg_filters,
              'debug': "False",
+             'include_code': include_code_value,
               };
     $.ajax({
 		url: url,
