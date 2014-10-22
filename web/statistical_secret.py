@@ -353,7 +353,7 @@ def column_primary_pivoted_suppression(data,
             if c == len(data[0]):
                 break
             for r, row in enumerate(data):
-                if r == len(data) - len(obs_values) or r % len(
+                if r > len(data) - len(obs_values) or r % len(
                         obs_values) != obs:
                     continue
                 val = row[c]
