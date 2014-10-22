@@ -337,8 +337,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% endfor %}
 {% endfor %}
 <script>select_agg_filters('{{ agg_filters|jsonify|escapejs }}');</script>
-<table align="center">
-    <tr>
+<table style="width:100%">
+    <tr align="center">
         {% if request.user.is_staff %}
         <td>
             <input type="checkbox"
@@ -362,8 +362,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </label>
         </td>
     </tr>
-    <tr>
-        <td>
+    <tr style="width:100%">
+        <td colspan=2 align="center">
             <input type="submit"
                    class="btn btn-default"
                    name="btn_close"
