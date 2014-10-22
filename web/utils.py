@@ -729,6 +729,9 @@ def build_constraint_query(table, columns, enum_column, col_dict, constraints):
     :param enum_column: Column with a value to be count.
     :return: The new query applying constraints.
     """
+    if len(columns) == 0:
+        return None, None
+
     header = []
     query = ""
     c = 0
