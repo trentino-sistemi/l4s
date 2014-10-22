@@ -1067,6 +1067,10 @@ def headers_and_data(query,
         pivot_cols = st.pivot
 
     old_head, data, duration, err = query.headers_and_data()
+
+    if len(data) == 0:
+        return df, data, warn, err
+
     if err is None:
         if len(old_head) < 3 and len(st.secret) + len(st.constr) + len(
                 st.sec_ref) == 1 and len(st.thresh) == 1:
