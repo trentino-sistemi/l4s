@@ -2208,12 +2208,12 @@ def build_query_desc(agg_col_desc, sel_tab):
     return description
 
 
-def build_query_title(df, obs_values, rows):
+def build_query_title(df, obs_values):
     """
     Build a title for the dataframe taking the columns and indices.
 
     :param df:
-    :return: title
+    :return: obs_values
     """
     for_s = unicode(_("for"))
     and_s = unicode(_("and"))
@@ -2221,7 +2221,7 @@ def build_query_title(df, obs_values, rows):
     if len(obs_values) == 1:
         title += df.columns.levels[0][0]
     else:
-        for i, index in enumerate(df.index.levels[len(rows)]):
+        for i, index in enumerate(df.index.levels[len(df.index.levels)-1]):
             if i != 0:
                 title += ", %s" % index.decode('utf-8').lower()
             else:

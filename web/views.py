@@ -1205,7 +1205,7 @@ def query_editor_view(request):
                                            True,
                                            include_code)
 
-    title = build_query_title(df, selected_obs_values, rows)
+    title = build_query_title(df, selected_obs_values)
 
     agg_col, sel_tab = build_query_summary(column_description,
                                            values,
