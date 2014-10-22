@@ -1972,8 +1972,9 @@ def drop_total_row(data_frame):
     :param data_frame:
     :return:
     """
-    index = len(data_frame.index)-1
-    data_frame = data_frame.drop(data_frame.index[index])
+    index = get_dataframe_first_index(data_frame)
+    i = len(index)-1
+    data_frame = data_frame.drop(index[i])
     return data_frame
 
 
@@ -2301,14 +2302,37 @@ def store_dataframe(request, df):
     return store_name
 
 
-def is_dataframe_multi_index(df):
+def get_dataframe_first_index(data_frame):
     """
-    Check if the data frame is multi index.
+    Get the first data frame index.
+
+    :param data_frame:
+    :return:
+    """
+    if has_dataframe_multi_index_index(data_frame):
+        return data_frame.index.levels[0]
+
+    return data_frame.index
+
+
+def has_dataframe_multi_index_columns(df):
+    """
+    Check if the data frame has multi index columns.
 
     :param df:
     :return:
     """
     return type(df.columns) == pd.MultiIndex
+
+
+def has_dataframe_multi_index_index(df):
+    """
+    Check if the data frame has multi index index.
+
+    :param df:
+    :return:
+    """
+    return type(df.index) == pd.MultiIndex
 
 
 def stringify(v):

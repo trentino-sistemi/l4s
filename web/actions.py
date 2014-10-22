@@ -27,7 +27,7 @@ from sdmx import sdmx_report
 from tempfile import NamedTemporaryFile
 from pandas import ExcelWriter
 from web.pyjstat import to_json_stat
-from web.utils import unpivot, is_dataframe_multi_index
+from web.utils import unpivot, has_dataframe_multi_index_columns
 import pandas as pd
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
@@ -386,7 +386,7 @@ def generate_report_action_sdmx(df):
         :return: Response with Sdmx attachment.
         """
 
-        multi_index = is_dataframe_multi_index(df)
+        multi_index = has_dataframe_multi_index_columns(df)
         if multi_index:
             int_df = unpivot(df)
         else:
@@ -420,7 +420,7 @@ def generate_report_action_json_stat(df):
 
         :return: Response with JSON-stat attachment.
         """
-        multi_index = is_dataframe_multi_index(df)
+        multi_index = has_dataframe_multi_index_columns(df)
         if multi_index:
             int_df = unpivot(df)
             value = df.columns.levels[0][0]
@@ -466,7 +466,7 @@ def generate_report_action_rdf(df):
         :param sql: Query sql.
         :return: Response with RDF attachment.
         """
-        multi_index = is_dataframe_multi_index(df)
+        multi_index = has_dataframe_multi_index_columns(df)
         if multi_index:
             int_df = unpivot(df)
         else:
@@ -508,7 +508,7 @@ def generate_report_action_turtle(df):
         :return: Response with Turtle attachment.
         """
 
-        multi_index = is_dataframe_multi_index(df)
+        multi_index = has_dataframe_multi_index_columns(df)
         if multi_index:
             int_df = unpivot(df)
         else:

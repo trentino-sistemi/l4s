@@ -31,7 +31,8 @@ from web.utils import get_table_schema, \
     drop_total_column, \
     drop_total_row, \
     build_description_query, \
-    stringify
+    stringify, \
+    get_dataframe_first_index
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
@@ -999,13 +1000,15 @@ def apply_stat_secret(headers,
                                      obs_values,
                                      debug)
 
+        data_frame = data_frame_from_tuples(data_frame, data)
+
         if (data_frame.shape[1]) == 2:
             data_frame = drop_total_column(data_frame)
 
-        if len(data_frame.index) == 2:
+        index = get_dataframe_first_index(data_frame)
+        if len(index) == 2:
             data_frame = drop_total_row(data_frame)
 
-        data_frame = data_frame_from_tuples(data_frame, data)
 
         return data, headers, data_frame, warn, err
 
