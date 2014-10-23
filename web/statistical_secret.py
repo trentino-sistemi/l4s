@@ -351,7 +351,7 @@ def column_primary_pivoted_suppression(data,
         threshold = get_threshold_from_dict(threshold_columns_dict, obs)
 
         for c, column in enumerate(data[0], start=0):
-            if c == len(data[0]):
+            if c == len(data[0]) -1:
                 break
             for r, row in enumerate(data):
                 if r > len(data) - len(obs_values) or r % len(
