@@ -1,4 +1,4 @@
-'''
+"""
 Character width dictionary and convenience functions for column sizing
 with xlwt when Arial 10 is the standard font.  Widths were determined
 experimentally using Excel 2000 on Windows XP.  I have no idea how well
@@ -7,7 +7,7 @@ video settings will affect the results.  I do know for sure that this
 module won't be applicable to other fonts in general.
 
 //John Yeung  2009-09-02
-'''
+"""
 
 charwidths = {
     '0': 262.637,
@@ -135,7 +135,7 @@ charwidths = {
 
 
 def colwidth(n):
-    '''Translate human-readable units to BIFF column width units'''
+    """Translate human-readable units to BIFF column width units"""
     if n <= 0:
         return 0
     if n <= 1:
@@ -144,7 +144,9 @@ def colwidth(n):
 
 
 def fitwidth(data, bold=False):
-    '''Try to autofit Arial 10'''
+    """Try to autofit Arial 10"""
+    if isinstance(data, float):
+        data = str(data)
     maxunits = 0
     for ndata in data.split("\n"):
         units = 220
@@ -161,7 +163,7 @@ def fitwidth(data, bold=False):
 
 
 def fitheight(data, bold=False):
-    '''Try to autofit Arial 10'''
+    """Try to autofit Arial 10"""
     rowlen = len(data.split("\n"))
     if rowlen > 1:
         units = 230 * rowlen

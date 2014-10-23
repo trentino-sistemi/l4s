@@ -238,12 +238,14 @@ def is_to_be_asterisked(val, threshold):
     return to_be_asterisked
 
 
-def row_primary_suppression(data, rows, secret_column, threshold_columns_dict, debug):
+def row_primary_suppression(data,
+                            secret_column,
+                            threshold_columns_dict,
+                            debug):
     """
     Preform primary suppression for row.
 
     :param data: List of tuples containing query result set.
-    :param rows:
     :param secret_column: Columns with secrets.
     :param threshold_columns_dict: The threshold.
     :param debug:
@@ -258,8 +260,8 @@ def row_primary_suppression(data, rows, secret_column, threshold_columns_dict, d
             if not c in secret_column:
                 continue
             threshold = get_threshold_from_dict(threshold_columns_dict, c)
-            if c < len(rows) or c == len(row) - 1:
-                continue
+            if c == len(row):
+                break
             val = row[c]
             if str(val).startswith(ASTERISK):
                 continue
@@ -328,7 +330,7 @@ def column_primary_pivoted_suppression(data,
         for c, column in enumerate(data[0], start=0):
             if not c in secret_column:
                 continue
-            if c == len(data[0]) -1:
+            if c == len(data[0]) - 1:
                 break
             for r, row in enumerate(data):
                 if r > len(data) - len(obs_values) or r % len(
@@ -344,14 +346,13 @@ def column_primary_pivoted_suppression(data,
     return data
 
 
-def row_secondary_suppression(data, rows, debug):
+def row_secondary_suppression(data, debug):
     """
     Perform secondary suppression for rows.
     The function asterisk at least 2 value
     if is asterisked a 0 then is asterisked an other one.
 
     :param data: List of tuples containing query result set.
-    :param rows:
     :param debug: Debug flag.
     :return: The data set after the secondary suppression on rows.
     """
@@ -364,7 +365,7 @@ def row_secondary_suppression(data, rows, debug):
         if r == len(data) - 1:
             continue
         for c, column in enumerate(row):
-            if c == len(row) -1:
+            if c == len(row) - 1:
                 break
             val = str(row[c])
             if val.startswith(ASTERISK):
@@ -393,7 +394,7 @@ def row_secondary_suppression(data, rows, debug):
     return data, asterisked
 
 
-def column_secondary_suppression(data, rows, columns, obs_values, debug):
+def column_secondary_suppression(data, debug):
     """
     Perform secondary suppression for columns.
     The function asterisk at least 2 value
@@ -401,9 +402,6 @@ def column_secondary_suppression(data, rows, columns, obs_values, debug):
 
     :rtype :  List of tuples.
     :param data: List of tuples containing query result set.
-    :param rows: Rows where not apply the suppression.
-    :param columns: Columns where not apply the suppression.
-    :param obs_values: Observation values.
     :param debug: If active show debug info on asterisked cells.
     :return: The data set after the secondary suppression on columns.
     """
@@ -411,12 +409,12 @@ def column_secondary_suppression(data, rows, columns, obs_values, debug):
     if len(data) <= 3:
         return data, asterisked
 
-    for c, column in enumerate(data[0], start=len(rows)):
+    for c, column in enumerate(data[0]):
         asterisk = 0
         if c == len(data[0]):
             break
 
-        for r, row in enumerate(data, start=len(columns)):
+        for r, row in enumerate(data):
             val = str(row[c])
             if val.startswith("*"):
                 asterisk += 1
@@ -449,7 +447,6 @@ def column_secondary_suppression(data, rows, columns, obs_values, debug):
 
 
 def protect_pivoted_secret(data,
-                           rows,
                            obs_values,
                            secret_column,
                            threshold_columns_dict,
@@ -458,14 +455,16 @@ def protect_pivoted_secret(data,
     Protect pivoted secret with marginality.
 
     :param data: List of tuples containing query result set.
-    :param rows:
     :param obs_values:
     :param secret_column: column with secret.
     :param threshold_columns_dict: Threshold column dictionary.
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table preserving statistical secret with marginality.
     """
-    data = row_primary_suppression(data, rows, secret_column, threshold_columns_dict, debug)
+    data = row_primary_suppression(data,
+                                   secret_column,
+                                   threshold_columns_dict,
+                                   debug)
 
     data = column_primary_pivoted_suppression(data, obs_values, secret_column,
                                               threshold_columns_dict, debug)
@@ -474,8 +473,6 @@ def protect_pivoted_secret(data,
 
 
 def protect_pivoted_table(data,
-                          rows,
-                          columns,
                           secret_column_dict,
                           sec_ref,
                           threshold_columns_dict,
@@ -485,14 +482,12 @@ def protect_pivoted_table(data,
     """
     Protect pivoted table by statistical secret.
 
-    :param rows:
-    :param columns: Columns.
-    :param threshold_columns_dict: Threshold columns.
-    :param constraint_cols: Column with constraints,
-    :param obs_values:  Observable values.
     :param data: List of tuples containing query result set.
     :param secret_column_dict: Dictionary of secret column.
     :param sec_ref: Constraint on external table.
+    :param threshold_columns_dict: Threshold columns.
+    :param constraint_cols: Column with constraints,
+    :param obs_values:  Observable values.
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table preserving the statistical secret.
     """
@@ -501,21 +496,15 @@ def protect_pivoted_table(data,
         return data
     else:
         data = protect_pivoted_secret(data,
-                                      rows,
                                       obs_values,
                                       secret_column_dict,
                                       threshold_columns_dict,
                                       debug)
 
-
     tot_asterisked = 1
     while tot_asterisked > 0:
-        data, asterisked_r = row_secondary_suppression(data, rows, debug)
-        data, asterisked_c = column_secondary_suppression(data,
-                                                          rows,
-                                                          columns,
-                                                          obs_values,
-                                                          debug)
+        data, asterisked_r = row_secondary_suppression(data, debug)
+        data, asterisked_c = column_secondary_suppression(data, debug)
         tot_asterisked = asterisked_c + asterisked_r
 
     return data
@@ -819,8 +808,6 @@ def protect_plain_table(data,
                                             debug)
 
     data, asterisked_c = column_secondary_suppression(data,
-                                                      [0],
-                                                      [],
                                                       debug)
 
     return data
@@ -966,8 +953,6 @@ def apply_stat_secret(headers,
                                       debug)
 
         data = protect_pivoted_table(data,
-                                     rows,
-                                     pivot_cols,
                                      secret_column_dict,
                                      sec_ref,
                                      threshold_columns_dict,

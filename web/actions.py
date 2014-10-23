@@ -148,11 +148,11 @@ def generate_report_action_xls(df):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
                 column_len = int(arial10.fitwidth(value, False))
-                if isinstance(value, str):
-                    value = value.strip()
-                    value = value.encode('utf-8')
-                elif value.isdigit():
-                    value = int(value)
+                if isinstance(value, unicode):
+                    if value.isdigit():
+                        value = int(value)
+                    else:
+                        value = value.strip()
                 new_sheet.write(rows+k, index, value, body_cell)
                 if column_len > max_widths[index]:
                     max_widths[index] = column_len
