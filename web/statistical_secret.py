@@ -526,6 +526,7 @@ def protect_pivoted_table(data,
                                                        obs_values,
                                                        threshold_columns_dict,
                                                        debug)
+
     else:
         data = protect_pivoted_secret(data,
                                       threshold_columns_dict,
@@ -1009,7 +1010,6 @@ def apply_stat_secret(headers,
         if len(index) == 2:
             data_frame = drop_total_row(data_frame)
 
-
         return data, headers, data_frame, warn, err
 
     # If plain and secret does not return it.
@@ -1064,7 +1064,6 @@ def headers_and_data(query,
                                             False,
                                             include_code)
         st = detect_special_columns(query.sql)
-        pivot_cols = st.pivot
 
     old_head, data, duration, err = query.headers_and_data()
 
@@ -1087,7 +1086,7 @@ def headers_and_data(query,
             data, old_head, df, warn, err = apply_stat_secret(old_head,
                                                               data,
                                                               st.cols,
-                                                              pivot_cols,
+                                                              st.pivot,
                                                               st.secret,
                                                               st.secret_ref,
                                                               st.threshold,

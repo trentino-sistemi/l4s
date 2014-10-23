@@ -653,16 +653,17 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                     desc_query += "\n%s.%s " % (main_table, field)
                     desc_query += "AS \"%s %s\"," % (unicode(_("Code")), alias)
                     new_header += "%s %s.%s %d\n" % (JOIN_TOKEN,
-                                                     table,
-                                                     field,
-                                                     counter)
+                                                 dest_table,
+                                                 desc_column,
+                                                 counter)
+
                     if f in pivot_cols:
                         new_header += "%s %d\n" % (PIVOT_TOKEN, counter)
                     counter += 1
 
                 new_header += "%s %s.%s %d\n" % (JOIN_TOKEN,
-                                                 dest_table,
-                                                 desc_column,
+                                                 table,
+                                                 field,
                                                  counter)
                 if f in pivot_cols:
                     new_header += "%s %d\n" % (PIVOT_TOKEN, counter)
