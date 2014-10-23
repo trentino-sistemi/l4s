@@ -181,36 +181,6 @@ def get_threshold_from_dict(threshold_columns_dict, col):
     return threshold
 
 
-def protect_pivoted_secret(data,
-                           threshold_columns_dict,
-                           rows,
-                           columns,
-                           debug):
-    """
-    Protect statistical secret for pivot table.
-
-    :param data: List of tuples containing query result set.
-    :param threshold_columns_dict: Threshold dictionary.
-    :return: The pivot table preserving statistical secret.
-    """
-    for r, row in enumerate(data, start=len(columns)):
-        if r == len(data):
-            break
-        for c, column in enumerate(row):
-            threshold = get_threshold_from_dict(threshold_columns_dict, c)
-            val = row[c]
-            if str(val).startswith(ASTERISK):
-                continue
-            if c < len(rows) or c == len(data[0]) - 1:
-                continue
-
-            if 0.0 < float(val) < threshold:
-                row[c] = ASTERISK
-                if debug:
-                    row[c] += '(' + val + ")"
-    return data
-
-
 def find_column_with_min_value(data, row):
     """
     Return the index of the column with minimum value.
@@ -268,13 +238,14 @@ def is_to_be_asterisked(val, threshold):
     return to_be_asterisked
 
 
-def row_primary_suppression(data, rows, threshold_columns_dict, debug):
+def row_primary_suppression(data, rows, secret_column, threshold_columns_dict, debug):
     """
     Preform primary suppression for row.
 
     :param data: List of tuples containing query result set.
-    :param threshold_columns_dict: The threshold.
     :param rows:
+    :param secret_column: Columns with secrets.
+    :param threshold_columns_dict: The threshold.
     :param debug:
     :return: The data set after the primary suppression on rows.
     """
@@ -284,6 +255,8 @@ def row_primary_suppression(data, rows, threshold_columns_dict, debug):
         if r == len(data) - 1:
             continue
         for c, column in enumerate(row):
+            if not c in secret_column:
+                continue
             threshold = get_threshold_from_dict(threshold_columns_dict, c)
             if c < len(rows) or c == len(row) - 1:
                 continue
@@ -331,6 +304,7 @@ def column_primary_plain_suppression(data,
 
 def column_primary_pivoted_suppression(data,
                                        obs_values,
+                                       secret_column,
                                        threshold_columns_dict,
                                        debug):
     """
@@ -340,6 +314,7 @@ def column_primary_pivoted_suppression(data,
     :rtype : list of tuples.
     :param data: List of tuples containing query result set.
     :param obs_values: Observation values.
+    :param secret_column: Secret column list.
     :param threshold_columns_dict: The threshold dictionary.
     :param debug: Debug flag.
     :return: The data set after the primary suppression on columns.
@@ -351,6 +326,8 @@ def column_primary_pivoted_suppression(data,
         threshold = get_threshold_from_dict(threshold_columns_dict, obs)
 
         for c, column in enumerate(data[0], start=0):
+            if not c in secret_column:
+                continue
             if c == len(data[0]) -1:
                 break
             for r, row in enumerate(data):
@@ -387,11 +364,11 @@ def row_secondary_suppression(data, rows, debug):
         if r == len(data) - 1:
             continue
         for c, column in enumerate(row):
+            if c == len(row) -1:
+                break
             val = str(row[c])
             if val.startswith(ASTERISK):
                 asterisk += 1
-            if c < len(rows) or c == len(row) - 1:
-                continue
             if asterisk > 1:
                 break
         if asterisk == 1:
@@ -471,24 +448,26 @@ def column_secondary_suppression(data, rows, columns, obs_values, debug):
     return data, asterisked
 
 
-def protect_pivoted_secret_with_marginality(data,
-                                            rows,
-                                            obs_values,
-                                            threshold_columns_dict,
-                                            debug):
+def protect_pivoted_secret(data,
+                           rows,
+                           obs_values,
+                           secret_column,
+                           threshold_columns_dict,
+                           debug):
     """
     Protect pivoted secret with marginality.
 
     :param data: List of tuples containing query result set.
     :param rows:
     :param obs_values:
+    :param secret_column: column with secret.
     :param threshold_columns_dict: Threshold column dictionary.
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table preserving statistical secret with marginality.
     """
-    data = row_primary_suppression(data, rows, threshold_columns_dict, debug)
+    data = row_primary_suppression(data, rows, secret_column, threshold_columns_dict, debug)
 
-    data = column_primary_pivoted_suppression(data, obs_values,
+    data = column_primary_pivoted_suppression(data, obs_values, secret_column,
                                               threshold_columns_dict, debug)
 
     return data
@@ -520,19 +499,14 @@ def protect_pivoted_table(data,
 
     if len(secret_column_dict) + len(sec_ref) + len(constraint_cols) == 0:
         return data
-    elif len(secret_column_dict) + len(sec_ref) > 0:
-        data = protect_pivoted_secret_with_marginality(data,
-                                                       rows,
-                                                       obs_values,
-                                                       threshold_columns_dict,
-                                                       debug)
-
     else:
         data = protect_pivoted_secret(data,
-                                      threshold_columns_dict,
                                       rows,
-                                      columns,
+                                      obs_values,
+                                      secret_column_dict,
+                                      threshold_columns_dict,
                                       debug)
+
 
     tot_asterisked = 1
     while tot_asterisked > 0:
