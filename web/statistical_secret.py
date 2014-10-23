@@ -639,7 +639,7 @@ def apply_constraint_pivot(data,
                                                    constraint_values)
 
         if query is None:
-            continue
+            return data
 
         st = detect_special_columns(query)
         query = build_description_query(query,
@@ -659,7 +659,7 @@ def apply_constraint_pivot(data,
             for c, co in enumerate(pivot_cols):
                 c_name = col_dict[co]['column']
                 if c_name in new_header:
-                    p_col = stringify(row[c])
+                    p_col = row[c]
                     key.append(p_col)
                     start_col += 1
 
@@ -674,12 +674,11 @@ def apply_constraint_pivot(data,
             key = []
             for c, ro in enumerate(to_be_selected_columns[start_col:],
                                    start=start_col):
-                p_col = stringify(row[c])
+                p_col = row[c]
                 key.append(p_col)
-
             try:
                 row_index = data_frame.index.get_loc(tuple(key))
-            except KeyError:
+            except:
                 continue
 
             start_row = row_index.start
