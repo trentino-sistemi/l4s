@@ -2232,7 +2232,7 @@ def build_query_title(df, obs_values):
     title += " %s" % for_s
 
     for c, col in enumerate(df.columns.names):
-        if c > 1:
+        if c != 0:
             title += ","
         if col is not None:
             title += " %s" % col.decode('utf-8').lower()
