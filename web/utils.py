@@ -343,10 +343,15 @@ def get_all_field_values_agg(ag):
     :return:
     """
     metadata = Metadata.objects.get(id=ag)
-    ref_table, ref_column = located_in_area(metadata.table_name,
-                                            metadata.column_name,
-                                            metadata.value)
-    vals = get_all_field_values(ref_table, ref_column)
+    metadata_value = metadata.value
+    if metadata.key == LOCATED_IN_AREA:
+        ref_table, ref_column = located_in_area(metadata.table_name,
+                                                metadata.column_name,
+                                                metadata.value)
+        vals = get_all_field_values(ref_table, ref_column)
+    else:
+        #@TODO Some magic code to have the values.
+        vals = None
     return vals
 
 
