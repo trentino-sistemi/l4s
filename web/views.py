@@ -191,6 +191,7 @@ def execute_query_viewmodel(request,
                                                               st.secret_ref,
                                                               st.threshold,
                                                               st.constraint,
+                                                              dict(),
                                                               debug)
             if warn_n is not None:
                 warn = warn_n
@@ -1194,7 +1195,8 @@ def query_editor_view(request):
                              rows,
                              selected_obs_values,
                              aggregation_ids,
-                             filters, values)
+                             filters,
+                             values)
 
     column_description = build_description_column_dict(table_name,
                                                        table_schema)
@@ -1202,6 +1204,7 @@ def query_editor_view(request):
     query = Query(title=table_name, sql=sql)
 
     df, data, warn, err = headers_and_data(query,
+                                           filters,
                                            aggregation_ids,
                                            agg_filters,
                                            pivot,

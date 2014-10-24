@@ -605,13 +605,18 @@ def apply_constraint_pivot(data,
                            rows,
                            col_dict,
                            constraint_cols,
+                           filters,
                            debug):
     """
     Apply a constraint limit to the result set.
 
     :param data: List of tuples containing query result set.
+    :param data_frame: pandas data frame.
+    :param pivot_cols:
+    :param rows:
     :param col_dict: Columns dictionary.
     :param constraint_cols: Constraints dictionary.
+    :param filters:
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table applying constraints.
     """
@@ -619,24 +624,10 @@ def apply_constraint_pivot(data,
 
     for con, constraint in enumerate(constraint_dict):
         constraint_values = constraint_dict[constraint]
-        table = constraint_values[0]['table']
         enum_column = constraint_values[0]['column']
-        dest_table_description = get_table_schema(table)
-        dest_columns = []
-        for field in dest_table_description:
-            dest_columns.append(field.name)
-
-        to_be_selected_columns = []
-        for col in col_dict:
-            col_name = col_dict[col]['column']
-            if col_name in dest_columns:
-                to_be_selected_columns.append(col_name)
-
-        query, new_header = build_constraint_query(table,
-                                                   to_be_selected_columns,
-                                                   enum_column,
+        query, new_header = build_constraint_query(constraint_values,
                                                    col_dict,
-                                                   constraint_values)
+                                                   filters)
 
         if query is None:
             return data
@@ -669,11 +660,14 @@ def apply_constraint_pivot(data,
                 else:
                     column_index = data_frame.columns.get_loc(tuple(key))
             except KeyError:
+
                 continue
 
             key = []
-            for c, ro in enumerate(to_be_selected_columns[start_col:],
+            for c, ro in enumerate(new_header[start_col:],
                                    start=start_col):
+                if c == len(new_header) - 1:
+                    continue
                 p_col = row[c]
                 key.append(p_col)
             try:
@@ -751,24 +745,11 @@ def apply_constraint_plain(data,
 
     for constraint in constraint_dict:
         constraint_values = constraint_dict[constraint]
-        table = constraint_values[0]['table']
         enum_column = constraint_values[0]['column']
-        dest_table_description = get_table_schema(table)
-        dest_columns = []
-        for field in dest_table_description:
-            dest_columns.append(field.name)
-
-        to_be_selected_columns = []
-        for col in col_dict:
-            col_name = col_dict[col]['column']
-            if col_name in dest_columns:
-                to_be_selected_columns.append(col_name)
-
-        query, new_header = build_constraint_query(table,
-                                                   to_be_selected_columns,
-                                                   enum_column,
+        query, new_header = build_constraint_query(constraint_values,
                                                    col_dict,
-                                                   constraint_values)
+                                                   dict())
+
         st = detect_special_columns(query)
         query = build_description_query(query, st.cols, [], False, False)
 
@@ -889,15 +870,21 @@ def apply_stat_secret(headers,
                       sec_ref,
                       threshold_columns_dict,
                       constraint_cols,
+                      filters,
                       debug):
     """
     Take in input the full data set and the column descriptions
     and return the data set statistical secret free.
 
-    :param data: List of tuples containing query result set.
     :param headers: Result set header.
+    :param data: List of tuples containing query result set.
+    :param col_dict:
+    :param pivot_columns:
     :param secret_column_dict: Secret column dictionary.
+    :param sec_ref:
     :param threshold_columns_dict: Threshold dictionary.
+    :param constraint_cols:
+    :param filters: Filter used in query.
     :param debug: If active show debug info on asterisked cells.
     :return: data, headers, data_frame, warn, err.
     """
@@ -949,6 +936,7 @@ def apply_stat_secret(headers,
                                       rows,
                                       col_dict,
                                       constraint_cols,
+                                      filters,
                                       debug)
 
         data = protect_pivoted_table(data,
@@ -984,6 +972,7 @@ def apply_stat_secret(headers,
 
 
 def headers_and_data(query,
+                     filters,
                      aggregation,
                      agg_filters,
                      pivot_cols,
@@ -995,6 +984,9 @@ def headers_and_data(query,
     and filter result set to preserve the statistical secret.
 
     :param query: Explorer query.
+    :param filters: Filters used in the query.
+    :param agg_filters: Filters used in aggregation.
+    :param include_code: Include code.
     :param aggregation: If active perform an aggregation to an higher level.
     :param pivot_cols: Columns on pivot table.
     :param debug: If active show debug info on asterisked cells.
@@ -1049,5 +1041,6 @@ def headers_and_data(query,
                                                               st.secret_ref,
                                                               st.threshold,
                                                               st.constraint,
+                                                              filters,
                                                               debug)
     return df, data, warn, err

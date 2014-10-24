@@ -653,9 +653,9 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                     desc_query += "\n%s.%s " % (main_table, field)
                     desc_query += "AS \"%s %s\"," % (unicode(_("Code")), alias)
                     new_header += "%s %s.%s %d\n" % (JOIN_TOKEN,
-                                                 dest_table,
-                                                 desc_column,
-                                                 counter)
+                                                     dest_table,
+                                                     desc_column,
+                                                     counter)
 
                     if f in pivot_cols:
                         new_header += "%s %d\n" % (PIVOT_TOKEN, counter)
@@ -721,15 +721,31 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
     return desc_query
 
 
-def build_constraint_query(table, columns, enum_column, col_dict, constraints):
+def build_constraint_query(constraints,
+                           col_dict,
+                           filters):
     """
     Build ad hoc query on related table.
 
-    :param table: Table name.
-    :param columns: Columns involved in query.
-    :param enum_column: Column with a value to be count.
+    :param constraints:
+    :param col_dict:
+    :param filters:
     :return: The new query applying constraints.
     """
+
+    table = constraints[0]['table']
+    enum_column = constraints[0]['column']
+    dest_table_description = get_table_schema(table)
+    dest_columns = []
+    for field in dest_table_description:
+        dest_columns.append(field.name)
+
+    columns = []
+    for col in col_dict:
+        col_name = col_dict[col]['column']
+        if col_name in dest_columns:
+            columns.append(col_name)
+
     if len(columns) == 0:
         return None, None
 
@@ -737,25 +753,36 @@ def build_constraint_query(table, columns, enum_column, col_dict, constraints):
     query = ""
     c = 0
     for c, column in enumerate(columns):
-        query += "%s %s.%s %d\n" % (JOIN_TOKEN, table, column, c)
-    query += "%s %s.%s %d\n\n" % (JOIN_TOKEN, table, enum_column, c+1)
+        query += "%s %s.%s %d \n" % (JOIN_TOKEN, table, column, c)
+    query += "%s %s.%s %d \n\n" % (JOIN_TOKEN, table, enum_column, c+1)
 
     fields = ','.join([k for k in columns])
     query += "SELECT %s, " % fields
     for col in columns:
         header.append(col)
     #for enum_column in enum_columns:
-    query += "SUM(%s) %s\n" % (enum_column, enum_column)
+    query += "SUM(%s) %s \n" % (enum_column, enum_column)
     header.append(enum_column)
-    query += "FROM %s\n" % table
+    query += "FROM %s \n" % table
+    counter = 0
     for i, k in enumerate(columns):
         src_table = col_dict[i]['table']
-        if i == 0:
+        if counter == 0:
             query += "WHERE "
-            query += "%s in (SELECT DISTINCT %s from %s ) " % (k, k, src_table)
         else:
-            query += "and %s in (SELECT DISTINCT %s from %s ) " % (
-                k, k, src_table)
+            query += "AND "
+        counter += 1
+        query += "%s in (SELECT DISTINCT %s from %s ) \n" % (k, k, src_table)
+    for f in filters:
+        if not f in columns and f in dest_columns:
+            if counter == 0:
+                query += "WHERE "
+            else:
+                query += "AND "
+            counter += 1
+            filter_value = filters[f]
+            values = ','.join(["%s" % k[0] for k in filter_value])
+            query += " %s in (%s)\n" % (f, values)
     query += "GROUP BY %s \n" % fields
     query += "HAVING "
     for c, constraint in enumerate(constraints):
