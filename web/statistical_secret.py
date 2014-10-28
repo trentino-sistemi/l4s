@@ -31,8 +31,9 @@ from web.utils import get_table_schema, \
     drop_total_column, \
     drop_total_row, \
     build_description_query, \
-    stringify, \
-    get_dataframe_first_index
+    get_dataframe_first_index,\
+    get_table_metadata_value, \
+    build_secondary_query
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
@@ -862,6 +863,89 @@ def apply_stat_secret_plain(headers,
     return data, headers, df
 
 
+def special_secondary_suppression(data,
+                                  data_frame,
+                                  pivot_columns,
+                                  rows,
+                                  col_dict,
+                                  obs_values,
+                                  secondary,
+                                  filters,
+                                  debug):
+    column_tuple_list = []
+    df = data_frame.replace("\*.*","*",regex=True)
+    res = df[df == ASTERISK].count()[0:len(df.columns)-1]
+    for r, re in enumerate(res):
+        if re == len(obs_values):
+            column_tuple = res.index[r]
+            column_tuple_list.append(column_tuple)
+
+    if len(column_tuple_list) == 0:
+        return data
+
+    query, new_header = build_secondary_query(secondary,
+                                              col_dict,
+                                              filters)
+
+    if query is None:
+        return data
+
+    st = detect_special_columns(query)
+    query = build_description_query(query,
+                                st.cols,
+                                pivot_columns,
+                                False,
+                                False)
+    query += "\n ORDER BY %s" %new_header[len(new_header)-1]
+
+    dest_data = execute_query_on_main_db(query)
+
+    if len(rows) > 1:
+        data_frame.sortlevel(inplace=True)
+
+    start_col = 0
+    for c, co in enumerate(pivot_columns):
+        c_name = col_dict[co]['column']
+        if c_name in new_header:
+            start_col += 1
+
+    for column_tuple in column_tuple_list:
+        for row in dest_data:
+            found = True
+            key = []
+            for c, dest_co in enumerate(row):
+                if c < start_col:
+                    if isinstance(column_tuple, tuple):
+                        if row[c] != column_tuple[c]:
+                            found = False
+                            break
+                    elif row[c] != column_tuple:
+                        found = False
+                        break
+                elif c != len(new_header)-1:
+                    key.append(row[c])
+            if found:
+                column_index = data_frame.columns.get_loc(column_tuple)
+                row_index = data_frame.index.get_loc(tuple(key))
+                start_row = row_index.start
+                stop_row = row_index.stop
+                sel_row = start_row
+                asterisked = False
+                while sel_row != stop_row:
+                    src_row = data[sel_row]
+                    cell = str(src_row[column_index])
+                    if not cell.startswith(ASTERISK):
+                        src_row[column_index] = ASTERISK
+                        if debug:
+                            src_row[column_index] += ASTERISK + 'C(' + cell + ")"
+                        asterisked = True
+                    sel_row += 1
+                if asterisked:
+                    break
+
+    return data
+
+
 def apply_stat_secret(headers,
                       data,
                       col_dict,
@@ -938,14 +1022,27 @@ def apply_stat_secret(headers,
                                       constraint_cols,
                                       filters,
                                       debug)
+        sec = get_table_metadata_value(col_dict[0]['table'], 'secondary')
+        if sec != None:
+            data_frame = data_frame_from_tuples(data_frame, data)
+            data = special_secondary_suppression(data,
+                                                 data_frame,
+                                                 pivot_columns,
+                                                 rows,
+                                                 col_dict,
+                                                 obs_values,
+                                                 sec[0][0],
+                                                 filters,
+                                                 debug)
 
-        data = protect_pivoted_table(data,
-                                     secret_column_dict,
-                                     sec_ref,
-                                     threshold_columns_dict,
-                                     constraint_cols,
-                                     obs_values,
-                                     debug)
+        else:
+            data = protect_pivoted_table(data,
+                                         secret_column_dict,
+                                         sec_ref,
+                                         threshold_columns_dict,
+                                         constraint_cols,
+                                         obs_values,
+                                         debug)
 
         data_frame = data_frame_from_tuples(data_frame, data)
 

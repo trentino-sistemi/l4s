@@ -343,7 +343,6 @@ def get_all_field_values_agg(ag):
     :return:
     """
     metadata = Metadata.objects.get(id=ag)
-    metadata_value = metadata.value
     if metadata.key == LOCATED_IN_AREA:
         ref_table, ref_column = located_in_area(metadata.table_name,
                                                 metadata.column_name,
@@ -351,7 +350,7 @@ def get_all_field_values_agg(ag):
         vals = get_all_field_values(ref_table, ref_column)
     else:
         #@TODO Some magic code to have the values.
-        vals = None
+        vals = get_all_field_values(metadata.table_name, metadata.column_name)
     return vals
 
 
@@ -721,7 +720,9 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 dest_table = fk[0]
                 if is_decoder_table(dest_table):
                     desc_column = find_desc_column(dest_table)
-                    desc_query += "ORDER BY %s.%s" % (dest_table, desc_column)
+                    if order:
+                        desc_query += "ORDER BY %s." % dest_table
+                        desc_query += "%s" % desc_column
 
     return desc_query
 
@@ -797,6 +798,80 @@ def build_constraint_query(constraints,
         value = constraint["value"]
         query += "SUM(%s)%s%s" % (enum_column, operator, value)
     query += "\nORDER BY %s" % fields
+
+    return query, header
+
+
+def build_secondary_query(secondary,
+                          col_dict,
+                          filters):
+    """
+    Build ad hoc query on related table.
+
+    :param secondary:
+    :param col_dict:
+    :param filters:
+    :return: The new query applying constraints.
+    """
+    first_clause = secondary.split()[0]
+    first_word = secondary.split('>')[0]
+    tpc = first_word.split('.')
+    table = tpc[0]
+    enum_column = tpc[1]
+
+    dest_table_description = get_table_schema(table)
+    dest_columns = []
+    for field in dest_table_description:
+        dest_columns.append(field.name)
+
+    columns = []
+    for col in col_dict:
+        col_name = col_dict[col]['column']
+        if col_name in dest_columns:
+            columns.append(col_name)
+
+    if len(columns) == 0:
+        return None, None
+
+    header = []
+    query = ""
+    c = 0
+    for c, column in enumerate(columns):
+        query += "%s %s.%s %d \n" % (JOIN_TOKEN, table, column, c)
+    query += "%s %s.%s %d \n\n" % (JOIN_TOKEN, table, enum_column, c+1)
+
+    fields = ','.join([k for k in columns])
+    query += "SELECT %s, " % fields
+    for col in columns:
+        header.append(col)
+    #for enum_column in enum_columns:
+    query += "SUM(%s) %s \n" % (enum_column, enum_column)
+    header.append(enum_column)
+    query += "FROM %s \n" % table
+    counter = 0
+    for i, k in enumerate(columns):
+        src_table = col_dict[i]['table']
+        if counter == 0:
+            query += "WHERE "
+        else:
+            query += "AND "
+        counter += 1
+        query += "%s in (SELECT DISTINCT %s from %s ) \n" % (k, k, src_table)
+    for f in filters:
+        if f in dest_columns:
+            if counter == 0:
+                query += "WHERE "
+            else:
+                query += "AND "
+            counter += 1
+            filter_value = filters[f]
+            values = ','.join(["%s" % k[0] for k in filter_value])
+            query += " %s in (%s)\n" % (f, values)
+    query += "AND %s\n" % first_clause
+    query += "GROUP BY %s \n" % fields
+
+    query += "\nORDER BY %s \n" % enum_column
+    query += "\nDESC "
 
     return query, header
 
@@ -1228,6 +1303,21 @@ def execute_query_on_django_db(query):
     cursor = connection.cursor()
     cursor.execute(query)
     rows = cursor.fetchall()
+    return rows
+
+
+def get_table_metadata_value(table_name, key):
+    """
+    Get the value of metadata by key.
+
+    :param table_name: Table name.
+    :param key: Key name.
+    :return: The rows result set.
+    """
+    query = "SELECT value from %s " % METADATA
+    query += "WHERE table_name='%s' " % table_name
+    query += "and key='%s' " % key
+    rows = execute_query_on_django_db(query)
     return rows
 
 
