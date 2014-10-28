@@ -863,15 +863,30 @@ def apply_stat_secret_plain(headers,
     return data, headers, df
 
 
-def special_secondary_suppression(data,
-                                  data_frame,
-                                  pivot_columns,
-                                  rows,
-                                  col_dict,
-                                  obs_values,
-                                  secondary,
-                                  filters,
-                                  debug):
+def secondary_column_suppression_constraint(data,
+                                            data_frame,
+                                            pivot_columns,
+                                            rows,
+                                            col_dict,
+                                            obs_values,
+                                            secondary,
+                                            filters,
+                                            debug):
+    """
+    Performs secondary suppression on columns following the secondary metadata
+    rule on table.
+
+    :param data:
+    :param data_frame:
+    :param pivot_columns:
+    :param rows:
+    :param col_dict:
+    :param obs_values:
+    :param secondary:
+    :param filters:
+    :param debug:
+    :return:
+    """
     column_tuple_list = []
     df = data_frame.replace("\*.*","*",regex=True)
     res = df[df == ASTERISK].count()[0:len(df.columns)-1]
@@ -1025,7 +1040,7 @@ def apply_stat_secret(headers,
         sec = get_table_metadata_value(col_dict[0]['table'], 'secondary')
         if sec != None:
             data_frame = data_frame_from_tuples(data_frame, data)
-            data = special_secondary_suppression(data,
+            data = secondary_column_suppression_constraint(data,
                                                  data_frame,
                                                  pivot_columns,
                                                  rows,
