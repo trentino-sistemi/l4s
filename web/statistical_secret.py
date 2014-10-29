@@ -886,12 +886,13 @@ def secondary_row_suppression_constraint(data,
     :param debug:
     :return:
     """
+    asterisk_global_count = 0
     query, new_header = build_secondary_query(secondary,
                                               col_dict,
                                               filters)
 
     if query is None or not has_dataframe_multi_index_columns(data_frame):
-        return data
+        return data, asterisk_global_count
 
     st = detect_special_columns(query)
     query = build_description_query(query,
@@ -973,21 +974,22 @@ def secondary_row_suppression_constraint(data,
                                     src_row[sel_column] += ASTERISK
                                     src_row[sel_column] += 'R(' + cell + ")"
                                 asterisk_count += 1
+                                asterisk_global_count += asterisk_count
                                 break
                             sel_column += 1
 
-    return data
+    return data, asterisk_global_count
 
 
-def secondary_column_suppression_constraint(data,
-                                            data_frame,
-                                            pivot_columns,
-                                            rows,
-                                            col_dict,
-                                            obs_values,
-                                            secondary,
-                                            filters,
-                                            debug):
+def secondary_col_suppression_constraint(data,
+                                         data_frame,
+                                         pivot_columns,
+                                         rows,
+                                         col_dict,
+                                         obs_values,
+                                         secondary,
+                                         filters,
+                                         debug):
     """
     Performs secondary suppression on columns following the secondary metadata
     rule on table.
@@ -1003,6 +1005,7 @@ def secondary_column_suppression_constraint(data,
     :param debug:
     :return:
     """
+    asterisk_global_count = 0
     column_tuple_list = []
     df = data_frame.replace("\*.*", "*", regex=True)
     res = df[df == ASTERISK].count()[0:len(df.columns)-1]
@@ -1012,14 +1015,14 @@ def secondary_column_suppression_constraint(data,
             column_tuple_list.append(column_tuple)
 
     if len(column_tuple_list) == 0:
-        return data
+        return data, asterisk_global_count
 
     query, new_header = build_secondary_query(secondary,
                                               col_dict,
                                               filters)
 
     if query is None:
-        return data
+        return data, asterisk_global_count
 
     st = detect_special_columns(query)
     query = build_description_query(query,
@@ -1071,17 +1074,18 @@ def secondary_column_suppression_constraint(data,
                             src_row[column_index] += ASTERISK
                             src_row[column_index] += 'C(' + cell + ")"
                         asterisked = True
+                        asterisk_global_count += 1
                     sel_row += 1
                 if asterisked:
                     break
 
-    return data
+    return data, asterisk_global_count
 
 
 def apply_stat_secret(headers,
                       data,
                       col_dict,
-                      pivot_columns,
+                      pivot_cols,
                       secret_column_dict,
                       sec_ref,
                       threshold_columns_dict,
@@ -1095,7 +1099,7 @@ def apply_stat_secret(headers,
     :param headers: Result set header.
     :param data: List of tuples containing query result set.
     :param col_dict:
-    :param pivot_columns:
+    :param pivot_cols:
     :param secret_column_dict: Secret column dictionary.
     :param sec_ref:
     :param threshold_columns_dict: Threshold dictionary.
@@ -1107,15 +1111,15 @@ def apply_stat_secret(headers,
     warn = None
     err = None
 
-    if pivot_columns is not None and len(pivot_columns) > 0:
+    if pivot_cols is not None and len(pivot_cols) > 0:
         pivot_cols = []
         pivot_values = []
-        for pivot_col in pivot_columns:
+        for pivot_col in pivot_cols:
             pivot_cols.append(headers[pivot_col])
 
-        obs_values = list_obs_value_column_from_dict(col_dict)
+        obs_vals = list_obs_value_column_from_dict(col_dict)
 
-        for v in obs_values:
+        for v in obs_vals:
             pivot_values.append(headers[v])
 
         if len(pivot_values) == 0:
@@ -1139,7 +1143,7 @@ def apply_stat_secret(headers,
                                       rows,
                                       pivot_values)
 
-        if len(obs_values) > 1:
+        if len(obs_vals) > 1:
             data_frame = data_frame.stack(0)
             data = get_data_from_data_frame(data_frame)
 
@@ -1148,7 +1152,7 @@ def apply_stat_secret(headers,
 
         data = apply_constraint_pivot(data,
                                       data_frame,
-                                      pivot_columns,
+                                      pivot_cols,
                                       rows,
                                       col_dict,
                                       constraint_cols,
@@ -1156,26 +1160,29 @@ def apply_stat_secret(headers,
                                       debug)
         sec = get_table_metadata_value(col_dict[0]['table'], 'secondary')
         if not sec is None:
-            data_frame = data_frame_from_tuples(data_frame, data)
-            data = secondary_row_suppression_constraint(data,
-                                                        data_frame,
-                                                        pivot_columns,
-                                                        rows,
-                                                        col_dict,
-                                                        sec[0][0],
-                                                        filters,
-                                                        debug)
+            tot_asterisked = 1
+            while tot_asterisked > 0:
+                data_frame = data_frame_from_tuples(data_frame, data)
+                data, ast_r = secondary_row_suppression_constraint(data,
+                                                                   data_frame,
+                                                                   pivot_cols,
+                                                                   rows,
+                                                                   col_dict,
+                                                                   sec[0][0],
+                                                                   filters,
+                                                                   debug)
+                data_frame = data_frame_from_tuples(data_frame, data)
 
-            data_frame = data_frame_from_tuples(data_frame, data)
-            data = secondary_column_suppression_constraint(data,
-                                                           data_frame,
-                                                           pivot_columns,
-                                                           rows,
-                                                           col_dict,
-                                                           obs_values,
-                                                           sec[0][0],
-                                                           filters,
-                                                           debug)
+                data, ast_c = secondary_col_suppression_constraint(data,
+                                                                   data_frame,
+                                                                   pivot_cols,
+                                                                   rows,
+                                                                   col_dict,
+                                                                   obs_vals,
+                                                                   sec[0][0],
+                                                                   filters,
+                                                                   debug)
+                tot_asterisked = ast_c + ast_r
 
         else:
             data = protect_pivoted_table(data,
@@ -1183,7 +1190,7 @@ def apply_stat_secret(headers,
                                          sec_ref,
                                          threshold_columns_dict,
                                          constraint_cols,
-                                         obs_values,
+                                         obs_vals,
                                          debug)
 
         data_frame = data_frame_from_tuples(data_frame, data)
