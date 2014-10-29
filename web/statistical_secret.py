@@ -1187,7 +1187,7 @@ def apply_stat_secret(headers,
                                       filters,
                                       debug)
         sec = get_table_metadata_value(col_dict[0]['table'], 'secondary')
-        if not sec is None:
+        if not sec is None and len(sec) > 0:
             tot_asterisked = 1
             while tot_asterisked > 0:
                 data_frame = data_frame_from_tuples(data_frame, data)
