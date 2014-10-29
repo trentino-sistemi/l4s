@@ -1079,13 +1079,41 @@ def secondary_col_suppression_constraint(data,
                 if asterisked:
                     break
 
+    data_frame = data_frame_from_tuples(data_frame, data)
+
+    df = data_frame.replace("\*.*", "*", regex=True)
+    res = df[df == ASTERISK].count()[0:len(df.columns)-1]
+    column_tuple_list = []
+    for r, re in enumerate(res):
+        if re == len(obs_values):
+            column_tuple = res.index[r]
+            column_tuple_list.append(column_tuple)
+
+    for column_tuple in column_tuple_list:
+        column_index = data_frame.columns.get_loc(column_tuple)
+        for r, row in enumerate(data):
+
+            cell = str(row[column_index])
+            if not cell.startswith(ASTERISK):
+                row[column_index] = ASTERISK
+                data[r+1][column_index] = ASTERISK
+                if debug:
+                    row[column_index] += ASTERISK
+                    row[column_index] += 'C(' + cell + ")"
+                    asterisk_global_count += 1
+                    data[r+1][column_index] += ASTERISK
+                    data[r+1][column_index] += 'C(' + cell + ")"
+                    asterisk_global_count += 1
+                break
+
+
     return data, asterisk_global_count
 
 
 def apply_stat_secret(headers,
                       data,
                       col_dict,
-                      pivot_cols,
+                      pivot_dict,
                       secret_column_dict,
                       sec_ref,
                       threshold_columns_dict,
@@ -1099,7 +1127,7 @@ def apply_stat_secret(headers,
     :param headers: Result set header.
     :param data: List of tuples containing query result set.
     :param col_dict:
-    :param pivot_cols:
+    :param pivot_dict:
     :param secret_column_dict: Secret column dictionary.
     :param sec_ref:
     :param threshold_columns_dict: Threshold dictionary.
@@ -1111,10 +1139,10 @@ def apply_stat_secret(headers,
     warn = None
     err = None
 
-    if pivot_cols is not None and len(pivot_cols) > 0:
-        pivot_cols = []
+    if pivot_dict is not None and len(pivot_dict) > 0:
         pivot_values = []
-        for pivot_col in pivot_cols:
+        pivot_cols = []
+        for pivot_col in pivot_dict:
             pivot_cols.append(headers[pivot_col])
 
         obs_vals = list_obs_value_column_from_dict(col_dict)
@@ -1152,7 +1180,7 @@ def apply_stat_secret(headers,
 
         data = apply_constraint_pivot(data,
                                       data_frame,
-                                      pivot_cols,
+                                      pivot_dict,
                                       rows,
                                       col_dict,
                                       constraint_cols,
@@ -1165,7 +1193,7 @@ def apply_stat_secret(headers,
                 data_frame = data_frame_from_tuples(data_frame, data)
                 data, ast_r = secondary_row_suppression_constraint(data,
                                                                    data_frame,
-                                                                   pivot_cols,
+                                                                   pivot_dict,
                                                                    rows,
                                                                    col_dict,
                                                                    sec[0][0],
@@ -1175,7 +1203,7 @@ def apply_stat_secret(headers,
 
                 data, ast_c = secondary_col_suppression_constraint(data,
                                                                    data_frame,
-                                                                   pivot_cols,
+                                                                   pivot_dict,
                                                                    rows,
                                                                    col_dict,
                                                                    obs_vals,

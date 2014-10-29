@@ -813,8 +813,8 @@ def build_secondary_query(secondary,
     :param filters:
     :return: The new query applying constraints.
     """
-    first_clause = secondary.split()[0]
-    first_word = secondary.split('>')[0]
+    second_clause = secondary.split()[2]
+    first_word = second_clause.split('>')[0]
     tpc = first_word.split('.')
     table = tpc[0]
     enum_column = tpc[1]
@@ -867,7 +867,7 @@ def build_secondary_query(secondary,
             filter_value = filters[f]
             values = ','.join(["%s" % k[0] for k in filter_value])
             query += " %s in (%s)\n" % (f, values)
-    query += "AND %s\n" % first_clause
+    query += "AND %s\n" % second_clause
     query += "GROUP BY %s \n" % fields
 
     query += "\nORDER BY %s \n" % enum_column
