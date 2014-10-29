@@ -899,7 +899,10 @@ def secondary_row_suppression_constraint(data,
         levels_contents = []
         for l, levels in enumerate(data_frame.columns.levels):
             if l < len(data_frame.columns.levels) - 1:
-                levels_contents.append(data_frame.columns.levels[l].tolist()[0:len(data_frame.columns.levels[l])-1])
+                levels_list = data_frame.columns.levels[l].tolist()
+                start = 0
+                end = len(data_frame.columns.levels[l])-1
+                levels_contents.append(levels_list[start:end])
         col_tuples = list(itertools.product(*levels_contents))
     else:
         col_tuples = []
@@ -910,10 +913,13 @@ def secondary_row_suppression_constraint(data,
         levels_contents = []
         for l, levels in enumerate(data_frame.index.levels):
             if l < len(data_frame.index.levels):
+                levels_list = data_frame.index.levels[l].tolist()
                 if l == 0:
-                    levels_contents.append(data_frame.index.levels[l].tolist()[0:len(data_frame.index.levels[l])-1])
+                    start = 0
+                    end = len(data_frame.index.levels[l])-1
+                    levels_contents.append(levels_list[start:end])
                 else:
-                    levels_contents.append(data_frame.index.levels[l].tolist())
+                    levels_contents.append(levels_list)
         index_tuples = list(itertools.product(*levels_contents))
     else:
         index_tuples = []
@@ -952,9 +958,8 @@ def secondary_row_suppression_constraint(data,
 
                         if len(cell_col_list) == 0:
                             continue
-                        import ipdb
-                        ipdb.set_trace()
-                        column_index = data_frame.columns.get_loc(tuple(cell_col_list))
+                        col_tuple = tuple(cell_col_list)
+                        column_index = data_frame.columns.get_loc(col_tuple)
                         start_column = column_index.start
                         stop_column = column_index.stop
                         sel_column = start_column
@@ -964,7 +969,8 @@ def secondary_row_suppression_constraint(data,
                             if not cell.startswith(ASTERISK):
                                 src_row[sel_column] = ASTERISK
                                 if debug:
-                                    src_row[sel_column] += ASTERISK + 'C(' + cell + ")"
+                                    src_row[sel_column] += ASTERISK
+                                    src_row[sel_column] += 'C(' + cell + ")"
                                 asterisked = True
                             sel_column += 1
                             if asterisked:
