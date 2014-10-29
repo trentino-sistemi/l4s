@@ -33,7 +33,10 @@ from web.utils import get_table_schema, \
     build_description_query, \
     get_dataframe_first_index,\
     get_table_metadata_value, \
-    build_secondary_query
+    build_secondary_query, \
+    has_dataframe_multi_index_columns, \
+    has_dataframe_multi_index_index
+import itertools
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
@@ -660,8 +663,7 @@ def apply_constraint_pivot(data,
                     column_index = data_frame.columns.get_loc(key[0])
                 else:
                     column_index = data_frame.columns.get_loc(tuple(key))
-            except KeyError:
-
+            except:
                 continue
 
             key = []
@@ -863,6 +865,114 @@ def apply_stat_secret_plain(headers,
     return data, headers, df
 
 
+def secondary_row_suppression_constraint(data,
+                                            data_frame,
+                                            pivot_columns,
+                                            rows,
+                                            col_dict,
+                                            obs_values,
+                                            secondary,
+                                            filters,
+                                            debug):
+    query, new_header = build_secondary_query(secondary,
+                                              col_dict,
+                                              filters)
+
+    if query is None:
+        return data
+
+    st = detect_special_columns(query)
+    query = build_description_query(query,
+                                st.cols,
+                                pivot_columns,
+                                False,
+                                False)
+    query += "\n ORDER BY %s" %new_header[len(new_header)-1]
+
+    dest_data = execute_query_on_main_db(query)
+
+    if len(rows) > 1:
+        data_frame.sortlevel(inplace=True)
+
+    if has_dataframe_multi_index_columns(data_frame):
+
+        levels_contents = []
+        for l, levels in enumerate(data_frame.columns.levels):
+            if l < len(data_frame.columns.levels) - 1:
+                levels_contents.append(data_frame.columns.levels[l].tolist()[0:len(data_frame.columns.levels[l])-1])
+        col_tuples = list(itertools.product(*levels_contents))
+    else:
+        col_tuples = []
+        for c, col in enumerate(data_frame.columns):
+            col_tuples.append(col)
+
+    if has_dataframe_multi_index_index(data_frame):
+        levels_contents = []
+        for l, levels in enumerate(data_frame.index.levels):
+            if l < len(data_frame.index.levels):
+                if l == 0:
+                    levels_contents.append(data_frame.index.levels[l].tolist()[0:len(data_frame.index.levels[l])-1])
+                else:
+                    levels_contents.append(data_frame.index.levels[l].tolist())
+        index_tuples = list(itertools.product(*levels_contents))
+    else:
+        index_tuples = []
+        for c, col in enumerate(data_frame.index):
+            index_tuples.append(col)
+
+    for rt, row_tup in enumerate(index_tuples):
+            row_index = data_frame.index.get_loc(index_tuples[rt])
+            src_row = data[row_index]
+            for ct, col_tup in enumerate(col_tuples):
+                column_index = data_frame.columns.get_loc(col_tuples[ct])
+                start_col = column_index.start
+                stop_col = column_index.stop
+                sel_col = start_col
+                asterisk_count = 0
+                while sel_col != stop_col:
+                    if str(src_row[sel_col]).startswith(ASTERISK):
+                        asterisk_count += 1
+                    sel_col += 1
+                if asterisk_count == 1:
+                    #Need to asterisk an other one
+                    for d_r, dest_row in enumerate(dest_data):
+                        col_count = 1
+                        cell_col_list = []
+                        if has_dataframe_multi_index_columns(data_frame):
+                            for i, index in enumerate(col_tuples[ct]):
+                                if dest_data[d_r][i] != col_tuples[ct][i]:
+                                    continue
+                                cell_col_list.append(dest_data[d_r][i])
+                                col_count += 1
+                        else:
+                            if dest_data[d_r][0] != column_index:
+                                continue
+                            else:
+                                cell_col_list.append(dest_data[d_r][0])
+
+                        if len(cell_col_list) == 0:
+                            continue
+                        import ipdb
+                        ipdb.set_trace()
+                        column_index = data_frame.columns.get_loc(tuple(cell_col_list))
+                        start_column = column_index.start
+                        stop_column = column_index.stop
+                        sel_column = start_column
+                        asterisked = False
+                        while sel_column != stop_column:
+                            cell = str(src_row[sel_column])
+                            if not cell.startswith(ASTERISK):
+                                src_row[sel_column] = ASTERISK
+                                if debug:
+                                    src_row[sel_column] += ASTERISK + 'C(' + cell + ")"
+                                asterisked = True
+                            sel_column += 1
+                            if asterisked:
+                                break
+
+    return data
+
+
 def secondary_column_suppression_constraint(data,
                                             data_frame,
                                             pivot_columns,
@@ -1041,14 +1151,23 @@ def apply_stat_secret(headers,
         if sec != None:
             data_frame = data_frame_from_tuples(data_frame, data)
             data = secondary_column_suppression_constraint(data,
-                                                 data_frame,
-                                                 pivot_columns,
-                                                 rows,
-                                                 col_dict,
-                                                 obs_values,
-                                                 sec[0][0],
-                                                 filters,
-                                                 debug)
+                                                           data_frame,
+                                                           pivot_columns,
+                                                           rows,
+                                                           col_dict,
+                                                           obs_values,
+                                                           sec[0][0],
+                                                           filters,
+                                                           debug)
+            data = secondary_row_suppression_constraint(data,
+                                                        data_frame,
+                                                        pivot_columns,
+                                                        rows,
+                                                        col_dict,
+                                                        obs_values,
+                                                        sec[0][0],
+                                                        filters,
+                                                        debug)
 
         else:
             data = protect_pivoted_table(data,
