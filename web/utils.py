@@ -2095,7 +2095,7 @@ def drop_total_row(data_frame):
     :param data_frame:
     :return:
     """
-    index = get_dataframe_first_index(data_frame)
+    index = get_data_frame_first_index(data_frame)
     i = len(index)-1
     data_frame = data_frame.drop(index[i])
     return data_frame
@@ -2334,9 +2334,9 @@ def build_query_desc(agg_col_desc, sel_tab):
 
 def build_query_title(df, obs_values):
     """
-    Build a title for the dataframe taking the columns and indices.
+    Build a title for the data frame taking the columns and indices.
 
-    :param df:
+    :param df: Data frame.
     :return: obs_values
     """
     for_s = unicode(_("for"))
@@ -2393,12 +2393,12 @@ def get_session_filename(request):
     return store_name
 
 
-def load_dataframe(request):
+def load_data_frame(request):
     """
     Load the data frame from the file associated to the request.
 
-    :param request:
-    :return:
+    :param request: Http request.
+    :return: Data frame.
     """
     store_name = request.REQUEST.get('store', '')
     if store_name is "":
@@ -2411,12 +2411,12 @@ def load_dataframe(request):
     return df
 
 
-def store_dataframe(request, df):
+def store_data_frame(request, df):
     """
     Store in a temporary file associated to the request the dataframe.
 
-    :param request:
-    :param df:
+    :param request: Http request.
+    :param df: Data frame.
     """
     store_name = get_session_filename(request)
     if os.path.exists(store_name):
@@ -2425,35 +2425,36 @@ def store_dataframe(request, df):
     return store_name
 
 
-def get_dataframe_first_index(data_frame):
+def get_data_frame_first_index(data_frame):
     """
-    Get the first data frame index.
+    Get the first data frame index; if it is multi-index is returned index at
+    level zero else is returned the unique index.
 
-    :param data_frame:
-    :return:
+    :param data_frame: Data frame.
+    :return: The index.
     """
-    if has_dataframe_multi_index_index(data_frame):
+    if has_data_frame_multi_level_index(data_frame):
         return data_frame.index.levels[0]
 
     return data_frame.index
 
 
-def has_dataframe_multi_index_columns(df):
+def has_data_frame_multi_level_columns(df):
     """
-    Check if the data frame has multi index columns.
+    Check if the data frame has multi level columns.
 
-    :param df:
-    :return:
+    :param df: Data frame.
+    :return: Boolean.
     """
     return type(df.columns) == pd.MultiIndex
 
 
-def has_dataframe_multi_index_index(df):
+def has_data_frame_multi_level_index(df):
     """
-    Check if the data frame has multi index index.
+    Check if the data frame has multi level index.
 
-    :param df:
-    :return:
+    :param df: Data frame.
+    :return: Boolean.
     """
     return type(df.index) == pd.MultiIndex
 
@@ -2463,21 +2464,21 @@ def stringify(v):
     Encode the string in Utf-8. If it is not a string return the simple type
     as is.
 
-    :param v:
-    :return:
+    :param v: Param to be converted.
+    :return: encoding string in utf-8 or numeric type
     """
     if isinstance(v, (int, float, long)):
         return "%s" % v
     return v.encode('utf-8')
 
 
-def dataframe_to_html(df, pivot):
+def data_frame_to_html(df, pivot):
     """
     Convert data frame in html language ready to be shown.
 
-    :param df:
-    :param pivot:
-    :return: html
+    :param df: Data frame.
+    :param pivot: Columns in pivot.
+    :return: Html code to be rendered in a html page.
     """
     html = ""
     index_v = False

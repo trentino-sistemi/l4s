@@ -30,11 +30,11 @@ from web.utils import execute_query_on_main_db, \
     drop_total_column, \
     drop_total_row, \
     build_description_query, \
-    get_dataframe_first_index,\
+    get_data_frame_first_index,\
     get_table_metadata_value, \
     build_secondary_query, \
-    has_dataframe_multi_index_columns, \
-    has_dataframe_multi_index_index
+    has_data_frame_multi_level_columns, \
+    has_data_frame_multi_level_index
 import itertools
 
 PRESERVE_STAT_SECRET_MSG = _(
@@ -692,16 +692,16 @@ def apply_constraint_pivot(data,
                             val = src_row[sel_col]
                             src_row[sel_col] = ASTERISK
                             if debug:
-                                src_row[sel_col] += "(%s, %s" % (val,
-                                                                 enum_column)
+                                src_row[sel_col] += "(%s, " % val
+                                src_row[sel_col] += "%s" % enum_column
                                 src_row[sel_col] += "=%s)" % constraint_val
                             sel_col += 1
                     else:
                         val = src_row[column_index]
                         src_row[column_index] = ASTERISK
                         if debug:
-                            src_row[column_index] += "(%s, %s" % (val,
-                                                                  enum_column)
+                            src_row[column_index] += "(%s, " % val
+                            src_row[column_index] += "%s" % enum_column
                             src_row[column_index] += "=%s)" % constraint_val
                 sel_row += 1
 
@@ -890,7 +890,7 @@ def secondary_row_suppression_constraint(data,
                                               col_dict,
                                               filters)
 
-    if query is None or not has_dataframe_multi_index_columns(data_frame):
+    if query is None or not has_data_frame_multi_level_columns(data_frame):
         return data, asterisk_global_count
 
     st = detect_special_columns(query)
@@ -915,7 +915,7 @@ def secondary_row_suppression_constraint(data,
             levels_contents.append(levels_list[start:end])
     col_tuples = list(itertools.product(*levels_contents))
 
-    if has_dataframe_multi_index_index(data_frame):
+    if has_data_frame_multi_level_index(data_frame):
         levels_contents = []
         for l, levels in enumerate(data_frame.index.levels):
             if l < len(data_frame.index.levels):
@@ -946,8 +946,8 @@ def secondary_row_suppression_constraint(data,
                         asterisk_count += 1
                     sel_col += 1
                 if asterisk_count == 1:
-                    #Need to asterisk an other one
-                    for d_r, dest_row in enumerate(dest_data):
+                    #Need to asterisk an other one.
+                    for d_r, target_row in enumerate(dest_data):
                         if asterisk_count >= 2:
                             break
                         col_count = 1
@@ -1094,8 +1094,8 @@ def secondary_col_suppression_constraint(data,
         for r, row in enumerate(data):
             cell = str(row[column_index])
             if not cell.startswith(ASTERISK):
-                if min_index is None or \
-                                row[column_index] < data[min_index][column_index]:
+                min_value = data[min_index][column_index]
+                if min_index is None or row[column_index] < min_value:
                     min_index = r
 
         for o, obs_value in enumerate(obs_values):
@@ -1225,7 +1225,7 @@ def apply_stat_secret(headers,
         if (data_frame.shape[1]) == 2:
             data_frame = drop_total_column(data_frame)
 
-        index = get_dataframe_first_index(data_frame)
+        index = get_data_frame_first_index(data_frame)
         if len(index) == 2:
             data_frame = drop_total_row(data_frame)
 

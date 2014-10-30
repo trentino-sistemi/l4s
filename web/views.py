@@ -63,7 +63,7 @@ from web.utils import get_variable_dictionary, \
     build_aggregation_query, \
     get_aggregations, \
     filter_table_by_name_or_desc, \
-    dataframe_to_html, \
+    data_frame_to_html, \
     choose_default_axis, \
     filter_coder_table, \
     build_query, \
@@ -76,8 +76,8 @@ from web.utils import get_variable_dictionary, \
     build_query_title, \
     build_query_summary, \
     build_query_desc, \
-    load_dataframe, \
-    store_dataframe
+    load_data_frame, \
+    store_data_frame
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -197,8 +197,8 @@ def execute_query_viewmodel(request,
                 warn = warn_n
 
         if df is not None:
-            store = store_dataframe(request, df)
-            html = dataframe_to_html(df, pivot)
+            store = store_data_frame(request, df)
+            html = data_frame_to_html(df, pivot)
 
     return RequestContext(request,
                           {'store': store,
@@ -508,7 +508,7 @@ def query_download_csv(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_dataframe(request)
+    df = load_data_frame(request)
     fn = generate_report_action_csv(df)
     title = request.REQUEST.get('title')
     return fn(title)
@@ -521,7 +521,7 @@ def query_download_xls(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_dataframe(request)
+    df = load_data_frame(request)
     fn = generate_report_action_xls(df)
     title = request.REQUEST.get('title')
     description = request.REQUEST.get('description')
@@ -535,7 +535,7 @@ def query_download_xlsx(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_dataframe(request)
+    df = load_data_frame(request)
     fn = generate_report_action_xlsx(df)
     title = request.REQUEST.get('title')
     description = request.REQUEST.get('description')
@@ -549,7 +549,7 @@ def query_download_json_stat(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_dataframe(request)
+    df = load_data_frame(request)
     title = request.REQUEST.get('title')
 
     fn = generate_report_action_json_stat(df)
@@ -563,7 +563,7 @@ def query_download_sdmx(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_dataframe(request)
+    df = load_data_frame(request)
     title = request.REQUEST.get('title')
     fn = generate_report_action_sdmx(df)
     sql = request.REQUEST.get('sql')
@@ -578,7 +578,7 @@ def query_download_rdf(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_dataframe(request)
+    df = load_data_frame(request)
     title = request.REQUEST.get('title')
     sql = request.REQUEST.get('sql')
     description = request.REQUEST.get('description')
@@ -595,7 +595,7 @@ def query_download_turtle(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_dataframe(request)
+    df = load_data_frame(request)
     title = request.REQUEST.get('title')
     sql = request.REQUEST.get('sql')
     description = request.REQUEST.get('description')
@@ -1224,8 +1224,8 @@ def query_editor_view(request):
                                            df.index.names)
 
     description = build_query_desc(agg_col, sel_tab)
-    store = store_dataframe(request, df)
-    html = dataframe_to_html(df, pivot)
+    store = store_data_frame(request, df)
+    html = data_frame_to_html(df, pivot)
 
     url = '/query_editor_view/?table=%s' % table_name
 
