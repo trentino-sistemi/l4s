@@ -21,8 +21,7 @@ Routines to preserve statistical secret.
 from django.utils.translation import ugettext_lazy as _
 import pandas as pd
 import numpy as np
-from web.utils import get_table_schema, \
-    execute_query_on_main_db, \
+from web.utils import execute_query_on_main_db, \
     build_constraint_query, \
     build_aggregation_query, \
     detect_special_columns, \
@@ -1091,21 +1090,21 @@ def secondary_col_suppression_constraint(data,
 
     for column_tuple in column_tuple_list:
         column_index = data_frame.columns.get_loc(column_tuple)
+        min_index = None
         for r, row in enumerate(data):
-
             cell = str(row[column_index])
             if not cell.startswith(ASTERISK):
-                row[column_index] = ASTERISK
-                data[r+1][column_index] = ASTERISK
-                if debug:
-                    row[column_index] += ASTERISK
-                    row[column_index] += 'C(' + cell + ")"
-                    asterisk_global_count += 1
-                    data[r+1][column_index] += ASTERISK
-                    data[r+1][column_index] += 'C(' + cell + ")"
-                    asterisk_global_count += 1
-                break
+                if min_index is None or \
+                                row[column_index] < data[min_index][column_index]:
+                    min_index = r
 
+        for o, obs_value in enumerate(obs_values):
+            cell = data[min_index + o][column_index]
+            data[min_index + o][column_index] = ASTERISK
+            if debug:
+                data[min_index + o][column_index] += ASTERISK
+                data[min_index + o][column_index] += 'C(' + cell + ")"
+                asterisk_global_count += 1
 
     return data, asterisk_global_count
 
