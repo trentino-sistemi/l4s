@@ -34,7 +34,8 @@ from web.utils import execute_query_on_main_db, \
     get_table_metadata_value, \
     build_secondary_query, \
     has_data_frame_multi_level_columns, \
-    has_data_frame_multi_level_index
+    has_data_frame_multi_level_index, \
+    remove_code_from_data_frame
 import itertools
 
 PRESERVE_STAT_SECRET_MSG = _(
@@ -1285,7 +1286,7 @@ def headers_and_data(query,
                                             st.cols,
                                             pivot_cols,
                                             False,
-                                            include_code)
+                                            True)
         st = detect_special_columns(query.sql)
 
     old_head, data, duration, err = query.headers_and_data()
@@ -1316,4 +1317,7 @@ def headers_and_data(query,
                                                               st.constraint,
                                                               filters,
                                                               debug)
+    if not include_code:
+        df = remove_code_from_data_frame(df)
+
     return df, data, warn, err

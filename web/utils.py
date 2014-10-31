@@ -63,6 +63,7 @@ DECLARE_TOKEN = '--DECLARE'
 SET_TOKEN = '--SET'
 WIDGET_TOKEN = '--WIDGET'
 TOKENS = [DESCRIPTION_TOKEN, JOIN_TOKEN, AGGREGATION_TOKEN, PIVOT_TOKEN]
+CODE = unicode(_("Code"))
 
 
 def filter_table_by_name_or_desc(search, tables, table_description_dict):
@@ -609,6 +610,25 @@ def find_desc_column(table_name):
     return rows[0][0]
 
 
+def remove_code_from_data_frame(df):
+    """
+    Remove code from data frame.
+
+    :param df:
+    """
+    for d, c in enumerate(df.columns.names):
+        if c.startswith(CODE):
+            df.columns = df.columns.droplevel(d)
+
+    for d, c in enumerate(df.index.names):
+        if c is None:
+            continue
+        if c.startswith(CODE):
+            df.index = df.index.droplevel(d)
+
+    return df
+
+
 def build_description_query(query, fields, pivot_cols, order, include_code):
     """
     Take a query with the table fields structure and return a query enriched
@@ -655,7 +675,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 alias = alias.strip()
                 if include_code:
                     desc_query += "\n%s.%s " % (main_table, field)
-                    desc_query += "AS \"%s %s\"," % (unicode(_("Code")), alias)
+                    desc_query += "AS \"%s %s\"," % (CODE, alias)
                     new_header += "%s %s.%s %d\n" % (JOIN_TOKEN,
                                                      dest_table,
                                                      desc_column,
@@ -2437,6 +2457,20 @@ def get_data_frame_first_index(data_frame):
         return data_frame.index.levels[0]
 
     return data_frame.index
+
+
+def get_data_frame_first_column(data_frame):
+    """
+    Get the first data frame index; if it is multi-index is returned index at
+    level zero else is returned the unique index.
+
+    :param data_frame: Data frame.
+    :return: The index.
+    """
+    if has_data_frame_multi_level_columns(data_frame):
+        return data_frame.columns.levels[0]
+
+    return data_frame.columns
 
 
 def has_data_frame_multi_level_columns(df):
