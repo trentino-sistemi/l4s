@@ -35,7 +35,8 @@ from web.utils import execute_query_on_main_db, \
     build_secondary_query, \
     has_data_frame_multi_level_columns, \
     has_data_frame_multi_level_index, \
-    remove_code_from_data_frame
+    remove_code_from_data_frame, \
+    contains_ref_period
 import itertools
 
 PRESERVE_STAT_SECRET_MSG = _(
@@ -1319,5 +1320,11 @@ def headers_and_data(query,
                                                               debug)
     if not include_code:
         df = remove_code_from_data_frame(df)
+
+    if contains_ref_period(st.pivot, st.cols, axis=0):
+        df = drop_total_column(df)
+
+    if contains_ref_period(st.pivot, st.cols, axis=1):
+        df = drop_total_row(df)
 
     return df, data, warn, err

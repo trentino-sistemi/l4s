@@ -243,6 +243,32 @@ def first_ref_period_column(table_name,
     return -1, None
 
 
+def contains_ref_period(pivot, cols, axis=None):
+    """
+    Get the pivot list and the columns structure and the axis to be checked.
+    It returns if the table defined contains ref period values.
+
+    :param pivot:
+    :param cols:
+    :param axis:
+    :return:
+    """
+    if axis == 0:
+        for c, col in enumerate(pivot):
+            table_name = cols[c]["table"]
+            column_name = cols[c]["column"]
+            if is_ref_period(table_name, column_name):
+                return True
+    if axis == 1:
+        for c, col in enumerate(cols):
+            if not c in pivot:
+                table_name = cols[c]["table"]
+                column_name = cols[c]["column"]
+                if is_ref_period(table_name, column_name):
+                    return True
+    return False
+
+
 def first_column(table_description, exclude):
     """
     Found first column neglecting exclude indices.
