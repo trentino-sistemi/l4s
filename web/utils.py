@@ -243,6 +243,23 @@ def first_ref_period_column(table_name,
     return -1, None
 
 
+def list_ref_period(table_name,
+                    table_description):
+    """
+    Get list of ref_period columns in table.
+
+    :param table_name:
+    :param table_description:
+    :return:
+    """
+    columns = []
+    for f, field in enumerate(table_description):
+        column_name = field.name
+        if is_ref_period(table_name, column_name):
+            columns.append(column_name)
+    return columns
+
+
 def contains_ref_period(pivot, cols, axis=None):
     """
     Get the pivot list and the columns structure and the axis to be checked.

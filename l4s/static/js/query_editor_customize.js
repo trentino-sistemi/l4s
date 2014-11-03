@@ -120,7 +120,7 @@ function checkByParent(aId, aChecked) {
     }
 }
 
-function create_selection(values) {
+function create_selection(values, too_many) {
     var selection_obj = new Object();
     var value_hash = eval('(' + values + ')');
     for (var key in value_hash) {
@@ -129,11 +129,25 @@ function create_selection(values) {
         field_value = value_hash[key];  
         sel_name = "input_" + key;
         var coll = document.getElementsByName(sel_name);
+        sp = document.getElementById(key);
+                         cl = sp.parentNode.parentNode.getAttribute("id");
+        sel_ref_period_count = 0;
         if (coll != null) {
              for (var x=0; x<coll.length; x++) {
                 if (coll[x].checked) {
+                    ref_period = coll[x].getAttribute("ref_period");
+                    if (ref_period  != null  && ref_period == "true"){
+                       if (cl == "unselectedFields" ) {
+                           sel_ref_period_count += 1;
+                       }
+                    }
+                    if (sel_ref_period_count > 1) {
+                         name = sp.getAttribute("name");
+                        alert(name + "; " + too_many);
+                        return null;
+                    }
                     field_obj.push(field_value[x]);
-                }
+                }        
              }
         }   
     }    
@@ -212,8 +226,12 @@ function addHiddenInput(form, id, value) {
 }
 
 
-function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns, no_values) {
-    selection = create_selection(values);
+function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns, no_values, too_many) {
+    selection = create_selection(values, too_many);
+    if (selection == null) {
+        return
+    }
+    
     filter_value = JSON.stringify(selection);
         
     rows = get_lis('rowFields');

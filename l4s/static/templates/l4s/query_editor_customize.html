@@ -66,6 +66,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% if not field in rows %}
             <li class="dropdown">
                 <span id="{{ field }}"
+                      name = "{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
                       class="pvtAttr btn btn-default dropdown-toggle"
                       data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
                       <span style="display:None">{{ field }}</span>
@@ -120,6 +121,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
                                name="input_{{ field }}"
+                               {% if field in ref_periods %}
+                               ref_period="true"
+                               {% endif %}
                                id="{{ field }}_input_{{val.0}}"
                                value="{{val.0}}">{{val.1}}<br>
                     {% endfor %}
@@ -158,6 +162,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% if field in columns %}
             <li class="dropdown">
                 <span id="{{ field }}"
+                      name = "{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
                       class="pvtAttr btn btn-default dropdown-toggle"
                       data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
                       <span style="display:None">{{ field }}</span>
@@ -230,6 +235,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% if field in rows %}
             <li class="dropdown">
                 <span id="{{ field }}"
+                      name = "{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
                       class="pvtAttr btn btn-default dropdown-toggle"
                       data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
                     <span style="display:None">{{ field }}</span>
@@ -374,7 +380,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             '{{ table_name }}',
                             '{% trans "The table must have at least one field in row" %}',
                             '{% trans "The table must have at least one field in column" %}',
-                            '{% trans "The table must have at least one field in value" %}');"
+                            '{% trans "The table must have at least one field in value" %}',
+                            '{% trans "you can select only one unless you drag it in line or column" %}');"
                    value="{% trans "Submit" %}"/>
             <button class="btn btn-default" onclick="window.close()">
                 {% trans "Cancel" %}

@@ -77,7 +77,8 @@ from web.utils import get_variable_dictionary, \
     build_query_summary, \
     build_query_desc, \
     load_data_frame, \
-    store_data_frame
+    store_data_frame, \
+    list_ref_period
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1052,6 +1053,12 @@ def query_editor_customize(request):
         for i in columns.split(','):
             cols.append(i)
 
+    ref_periods = request.REQUEST.get('ref_periods', '')
+    periods = []
+    if ref_periods != "":
+        for i in ref_periods.split(','):
+            periods.append(i)
+
     rows_s = request.REQUEST.get('rows', '')
     rows = []
     if rows_s != "":
@@ -1094,6 +1101,7 @@ def query_editor_customize(request):
     context['agg_values'] = json.loads(agg_values)
     context['filters'] = json.loads(filters)
     context['agg_filters'] = json.loads(agg_filters)
+    context['ref_periods'] = periods
 
     return render_to_response("l4s/query_editor_customize.html", context)
 
@@ -1166,6 +1174,8 @@ def query_editor_view(request):
 
     table_schema = get_table_schema(table_name)
     aggregations = get_all_aggregations(table_name, table_schema)
+
+    ref_periods = list_ref_period(table_name, table_schema)
 
     agg_values = dict()
     for agg in aggregations:
@@ -1252,6 +1262,7 @@ def query_editor_view(request):
     context['sel_tab'] = sel_tab
     context['agg_col'] = agg_col
     context['include_code'] = include_code
+    context['ref_periods'] = ",".join(ref_periods)
 
     return render_to_response("l4s/query_editor_view.html", context)
 
