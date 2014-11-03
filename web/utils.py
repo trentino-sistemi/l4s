@@ -301,7 +301,7 @@ def is_visible_field(table_name, column_name):
 
 
 def all_hidden_fields(table_name,
-                       table_description):
+                      table_description):
     """
     Get dict of hidden fields in table.
 
@@ -696,7 +696,7 @@ def remove_code_from_data_frame(df):
     :param df:
     """
     for d, c in enumerate(df.columns.names):
-        if c.startswith(CODE):
+        if c is not None and c.startswith(CODE):
             df.columns = df.columns.droplevel(d)
 
     for d, c in enumerate(df.index.names):

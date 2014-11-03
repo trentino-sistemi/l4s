@@ -86,7 +86,9 @@ from web.statistical_secret import apply_stat_secret, \
     headers_and_data
 from web.topics import build_topics_dict, \
     filter_tables_by_topic, \
-    build_topics_counter_dict
+    build_topics_counter_dict, \
+    get_topic_description, \
+    get_topic_id
 from explorer.views import ExplorerContextMixin, \
     view_permission, \
     reverse_lazy
@@ -104,7 +106,6 @@ from django.contrib.auth.decorators import login_required, \
     user_passes_test
 from django.utils import translation
 import json
-import pandas as pd
 
 
 def execute_query_viewmodel(request,
@@ -1117,6 +1118,8 @@ def query_editor_view(request):
     :return:
     """
     table_name = request.REQUEST.get('table', '')
+    topic = get_topic_description(table_name)
+    topic_id = get_topic_id(table_name)
     context = RequestContext(request)
     context['table_name'] = table_name
     table_description_dict = build_description_table_dict([table_name])
@@ -1252,6 +1255,8 @@ def query_editor_view(request):
     context['agg_values'] = agg_values
     context['aggregation_ids'] = aggregation_ids
     context['column_description'] = column_description
+    context['topic'] = topic
+    context['topic_id'] = topic_id
 
     context['hidden_fields'] = hidden_fields
 
@@ -1362,6 +1367,7 @@ def query_editor(request):
     context['topic'] = topic_id
     context['search'] = search
     context['table_description'] = table_description
+    context['selected_topic'] = topic_id
 
     return render_to_response("l4s/query_editor.html", context)
 
