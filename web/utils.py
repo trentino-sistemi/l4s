@@ -271,13 +271,13 @@ def contains_ref_period(pivot, cols, axis=None):
     :return:
     """
     if axis == 0:
-        for c, col in enumerate(pivot):
+        for c in pivot:
             table_name = cols[c]["table"]
             column_name = cols[c]["column"]
             if is_ref_period(table_name, column_name):
                 return True
     if axis == 1:
-        for c, col in enumerate(cols):
+        for c in cols:
             if not c in pivot:
                 table_name = cols[c]["table"]
                 column_name = cols[c]["column"]
