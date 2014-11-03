@@ -78,7 +78,8 @@ from web.utils import get_variable_dictionary, \
     build_query_desc, \
     load_data_frame, \
     store_data_frame, \
-    list_ref_period
+    list_ref_period, \
+    all_hidden_fields
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1088,6 +1089,7 @@ def query_editor_customize(request):
     values = request.REQUEST.get('values')
     agg_values = request.REQUEST.get('agg_values')
     aggregations = request.REQUEST.get('aggregations')
+    hidden_fields = request.REQUEST.get('hidden_fields')
 
     filters = request.REQUEST.get('filters')
 
@@ -1101,6 +1103,7 @@ def query_editor_customize(request):
     context['agg_values'] = json.loads(agg_values)
     context['filters'] = json.loads(filters)
     context['agg_filters'] = json.loads(agg_filters)
+    context['hidden_fields'] = json.loads(hidden_fields)
     context['ref_periods'] = periods
 
     return render_to_response("l4s/query_editor_customize.html", context)
@@ -1161,6 +1164,8 @@ def query_editor_view(request):
     values = dict()
     table_schema = get_table_schema(table_name)
 
+    hidden_fields = all_hidden_fields(table_name, table_schema)
+
     obs_values = all_obs_value_column(table_name, table_schema).values()
     if len(selected_obs_values) == 0:
         # Take all.
@@ -1186,7 +1191,7 @@ def query_editor_view(request):
             agg_values[ag] = vals
 
     if len(rows) + len(cols) == 0:
-        cols, rows = choose_default_axis(table_name)
+        cols, rows = choose_default_axis(table_name, hidden_fields)
         if cols == -1:
             add = unicode(_("Please add the metadata 'obsValue'"))
             choose = unicode(_("on one of the columns of the table"))
@@ -1247,6 +1252,8 @@ def query_editor_view(request):
     context['agg_values'] = agg_values
     context['aggregation_ids'] = aggregation_ids
     context['column_description'] = column_description
+
+    context['hidden_fields'] = hidden_fields
 
     context['store'] = store
     context['sql'] = sql

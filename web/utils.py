@@ -286,6 +286,37 @@ def contains_ref_period(pivot, cols, axis=None):
     return False
 
 
+def is_visible_field(table_name, column_name):
+    """
+    Return if the column table is visible.
+
+    :param table_name:
+    :param column_name:
+    :return:
+    """
+    value = get_key_column_value(table_name, column_name, "visible")
+    if not value is None and value == "false":
+        return False
+    return True
+
+
+def all_hidden_fields(table_name,
+                       table_description):
+    """
+    Get dict of hidden fields in table.
+
+    :param table_name:
+    :param table_description:
+    :return:
+    """
+    ret = dict()
+    for f, field in enumerate(table_description):
+        column_name = field.name
+        if not is_visible_field(table_name, column_name):
+            ret[f] = column_name
+    return ret
+
+
 def first_column(table_description, exclude):
     """
     Found first column neglecting exclude indices.
@@ -435,7 +466,7 @@ def get_all_field_values(table_name, column_name):
     return ret
 
 
-def choose_default_axis(table_name):
+def choose_default_axis(table_name, hidden_fields):
     """
     Choose default axis to be selected in a table if the user don't specify
     parameters.
@@ -444,44 +475,49 @@ def choose_default_axis(table_name):
     :return: cols and rows chosen.
     """
     table_schema = get_table_schema(table_name)
-    selected_index = []
+    neglected_index = []
     cols = []
     rows = []
+
+    for hidden_field in hidden_fields:
+        neglected_index.append(hidden_field)
 
     obs_values = all_obs_value_column(table_name, table_schema)
     if len(obs_values) < 1:
         return -1, -1
 
     for index in obs_values:
-        selected_index.append(index)
+        neglected_index.append(index)
 
     index, column_name = first_ref_period_column(table_name,
                                                  table_schema,
-                                                 selected_index)
+                                                 neglected_index)
     if column_name is None:
         index, column_name = min_distinct_values_column(table_name,
                                                         table_schema,
-                                                        selected_index)
-    if column_name is None:
+                                                        neglected_index)
+    while column_name is None:
         index, column_name = first_column(table_schema,
-                                          selected_index)
+                                          neglected_index)
+        neglected_index.append(index)
 
     cols.append(column_name)
+    neglected_index.append(index)
 
     index, column_name = first_secret_column(table_name,
                                              table_schema,
-                                             selected_index)
+                                             neglected_index)
     if column_name is None:
         index, column_name = first_ref_area_column(table_name,
                                                    table_schema,
-                                                   selected_index)
+                                                   neglected_index)
     if column_name is None:
         index, column_name = max_distinct_values_column(table_name,
                                                         table_schema,
-                                                        selected_index)
+                                                        neglected_index)
     if column_name is None:
         index, column_name = first_column(table_schema,
-                                          selected_index)
+                                          neglected_index)
 
     rows.append(column_name)
 

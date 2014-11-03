@@ -21,6 +21,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load i18n %}
 {% load jsonify %}
 {% load dictionary_extras %}
+{% load unicode_extras %}
 
 <html>
 <head>
@@ -64,6 +65,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% if not field in obs_values %}
             {% if not field in columns %}
             {% if not field in rows %}
+            {% if not forloop.counter0|to_unicode in hidden_fields  %}
             <li class="dropdown">
                 <span id="{{ field }}"
                       name = "{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
@@ -130,6 +132,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     </div>
                 </span>
             </li>
+            {% endif %}
             {% endif %}
             {% endif %}
             {% endif %}
