@@ -22,8 +22,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load i18n %}
 
 {% block l4s_container %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>{% trans "Manual requests history" %}</li>
+    </ul>
+</div>
 <div data-intro="{% trans "History of manual requests dispatched" %}">
-<h3>{% trans "Dispatched manual requests history" %}</h3>
 <table class="table table-striped">
         <thead>
     <tr>
@@ -40,7 +44,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <tr>
         <td ><a href="/manual_request_view/?id={{ object.id }}">{{ object.id }}</a></td>
         <td >{{ object.inquirer }}</td>
-        <td>{{ object.subject }}</td>
+        <td><a href="/manual_request_view/?id={{ object.id }}">{{ object.subject }}</a></td>
         <td>{{ object.dispatcher }}</td>
         <td>{{ object.request_date }}</td>
         <td>{{ object.dispatch_date }}</td>

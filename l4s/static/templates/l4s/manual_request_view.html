@@ -22,12 +22,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load i18n %}
 
 {% block l4s_container %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>
+            <li><a href="/manual_request_list/">{% trans "Manual requests" %}</a></li>
+            <li>{% trans "Manual request" %} {{ manual_request.id }}</li>
+        </li>
+    </ul>
+</div>
 {% if manual_request.dispatched %}
 <div data-intro="{% trans "Dispatched manual request" %}">
-<h3>{% trans "Dispatched manual request" %} {{ manual_request.id }}</h3>
 {% else %}
 <div data-intro="{% trans "Manual request" %}">
-<h3>{% trans "Manual request" %} {{ manual_request.id }}</h3>
 {% endif %}
 <table class="table table-striped">
         <thead>

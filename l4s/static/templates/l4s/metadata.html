@@ -22,14 +22,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load i18n %}
 
 {% block l4s_container %}
-<h3>
-    <a href="/table/?name={{ table_name }}">
-        {% trans "Table " %} '{{ table_name }}'
-    </a>
-    {% if column_name != "NULL" %}
-    , {% trans "column " %} '{{ column_name }}'
-    {% endif %}
-</h3>
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>
+            <li><a href="/table_list/">{% trans "Join Metadata"%}</a></li>
+            <li><a href="/table/?name={{ table_name }}">{% trans "Table " %} '{{ table_name }}'</a></li>
+            {% if column_name != "NULL" %}
+            <li>{% trans "column " %} '{{ column_name }}'</li>
+            {% endif %}
+        </li>
+    </ul>
+</div>
 <input type="button"
        class="btn btn-default"
        value="{% trans " Add metadata" %}"

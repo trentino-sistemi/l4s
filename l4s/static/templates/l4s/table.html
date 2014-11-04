@@ -23,11 +23,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load dictionary_extras %}
 
 {% block l4s_container %}
-<h3>
-    <a href="/table/metadata/?table={{ table_name }};column=NULL">
-        {% trans "Table " %} {{ table_name }}
-    </a>
-</h3>
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>
+            <li><a href="/table_list/">{% trans "Join Metadata"%}</a></li>
+            <li>{% trans "Table " %} '{{ table_name }}'</li>
+        </li>
+    </ul>
+</div>
+
 <table class="table table-striped">
     <thead>
     <tr>

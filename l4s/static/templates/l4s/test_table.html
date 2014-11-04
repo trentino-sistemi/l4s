@@ -23,10 +23,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load dictionary_extras %}
 
 {% block l4s_container %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>{% trans "Test"%}</li>
+    </ul>
+</div>
 <div align="center">
-    <h2 style="padding-bottom: 20px">
+    <h3 style="padding-bottom: 20px">
         {% trans "You can add random values to the selected test table or empty it" %}
-    </h2>
+    </h3>
     <form id='frm' method="POST" action=".">
         {% csrf_token %}
         <table>{{ form.as_table }}</table>

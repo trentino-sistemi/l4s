@@ -23,7 +23,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load dictionary_extras %}
 
 {% block l4s_container %}
-<h3>{% trans "Table list" %}</h3>
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>{% trans "Join Metadata"%}</li>
+    </ul>
+</div>
 <div class="col-lg-4 nav navbar-nav navbar-right">
     <form method="GET">
 

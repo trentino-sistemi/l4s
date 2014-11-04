@@ -23,6 +23,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load dictionary_extras %}
 
 {% block sql_explorer_content %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>{% trans "Most Recently Used" %}</li>
+    </ul>
+</div>
 <form method="GET">
     <div class="col-lg-3">
         <div class="input-group">
@@ -36,7 +41,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </div>
 </form>
 <br><br>
-<h3>{% trans "Most Recently Used" %}</h3>
 <table class="table table-striped">
     <thead>
     <tr>

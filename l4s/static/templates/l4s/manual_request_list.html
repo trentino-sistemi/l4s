@@ -22,8 +22,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load i18n %}
 
 {% block l4s_container %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>{% trans "Manual requests" %}</li>
+    </ul>
+</div>
 <div data-intro="{% trans " List of manual requests" %}">
-<h3>{% trans "Manual requests" %}</h3>
 <table class="table table-striped">
         <thead>
     <tr>
