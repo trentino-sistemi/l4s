@@ -2479,7 +2479,7 @@ def build_query_title(df, obs_values):
         rows = []
         for i, index in enumerate(df.index.levels[len(df.index.levels)-1]):
             rows.append(index.decode('utf-8').lower())
-        title += ",".join(rows)
+        title += ", ".join(rows)
 
     title += " %s " % for_s
 
@@ -2488,7 +2488,7 @@ def build_query_title(df, obs_values):
         if col is not None:
             cols.append(col.decode('utf-8').lower())
 
-    title += ",".join(cols)
+    title += ", ".join(cols)
 
     for i, index in enumerate(df.index.names):
         if index is not None:
