@@ -2444,19 +2444,19 @@ def build_query_title(df, obs_values):
     if len(obs_values) == 1:
         title += df.columns.levels[0][0]
     else:
+        rows = []
         for i, index in enumerate(df.index.levels[len(df.index.levels)-1]):
-            if i != 0:
-                title += ", %s" % index.decode('utf-8').lower()
-            else:
-                title += index
+            rows.append(index.decode('utf-8').lower())
+        title += ",".join(rows)
 
-    title += " %s" % for_s
+    title += " %s " % for_s
 
+    cols = []
     for c, col in enumerate(df.columns.names):
-        if c != 0:
-            title += ","
         if col is not None:
-            title += " %s" % col.decode('utf-8').lower()
+            cols.append(col.decode('utf-8').lower())
+
+    title += ",".join(cols)
 
     for i, index in enumerate(df.index.names):
         if index is not None:
