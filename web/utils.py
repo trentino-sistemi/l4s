@@ -705,15 +705,19 @@ def remove_code_from_data_frame(df):
         column_name = df.columns.levels[0][len(df.columns.levels[0])-1]
         df = df.rename(columns={u"": column_name})
 
+    dropped_levels = 0
     # Now I can drop the codes indices preserving totals.
-    for d, c in enumerate(df.columns.names):
-        if c is not None and c.startswith(CODE):
-            df.columns = df.columns.droplevel(d)
+    for level, column in enumerate(df.columns.names):
+        if column is not None and column.startswith(CODE):
+            df.columns = df.columns.droplevel(level-dropped_levels)
+            dropped_levels += 1
 
+    dropped_levels = 0
     # Now I can drop the codes columns preserving totals.
-    for d, c in enumerate(df.index.names):
-        if c is not None and c.startswith(CODE):
-            df.index = df.index.droplevel(d)
+    for level, index in enumerate(df.index.names):
+        if index is not None and index.startswith(CODE):
+            df.index = df.index.droplevel(level-dropped_levels)
+            dropped_levels += 1
 
     return df
 
