@@ -695,23 +695,50 @@ def remove_code_from_data_frame(df):
 
     :param df:
     """
+    # Rename empty index with total index name.
+    if has_data_frame_multi_level_index(df):
+        index_name = df.index.levels[0][len(df.index.levels[0]) - 1]
+        df = df.rename(index={u"": index_name})
+
+    # Rename empty columns with total column name.
+    if has_data_frame_multi_level_columns(df):
+        column_name = df.columns.levels[0][len(df.columns.levels[0])-1]
+        df = df.rename(columns={u"": column_name})
+
+    # Now I can drop the codes indices preserving totals.
     for d, c in enumerate(df.columns.names):
         if c is not None and c.startswith(CODE):
             df.columns = df.columns.droplevel(d)
 
+    # Now I can drop the codes columns preserving totals.
     for d, c in enumerate(df.index.names):
-        if c is None:
-            continue
-        if c.startswith(CODE):
+        if c is not None and c.startswith(CODE):
             df.index = df.index.droplevel(d)
 
     return df
+
+
+def is_to_be_sorted_by_description(table, column):
+    """
+    Is the column to be sorted by description?
+
+    :param table: Table name.
+    :param column: Column name.
+    :return: boolean
+    """
+    val = get_key_column_value(table, column, "order_by")
+    if val is not None and val == "description":
+        return False
+    return True
 
 
 def build_description_query(query, fields, pivot_cols, order, include_code):
     """
     Take a query with the table fields structure and return a query enriched
     by descriptions.
+    REGARDS: The code are included for columns to be sorted by code also.
+             The code must be removed if not requested by the user
+             with the function remove_code_from_data_frame.
 
     :param query: query to be enriched.
     :param fields: fields structure.
@@ -752,7 +779,8 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                     alias = dest_column
                 alias = "%s" % alias
                 alias = alias.strip()
-                if include_code:
+                sort_by_code = is_to_be_sorted_by_description(table, field)
+                if include_code or sort_by_code:
                     desc_query += "\n%s.%s " % (main_table, field)
                     desc_query += "AS \"%s %s\"," % (CODE, alias)
                     new_header += "%s %s.%s %d\n" % (JOIN_TOKEN,

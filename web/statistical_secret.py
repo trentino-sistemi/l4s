@@ -1287,7 +1287,7 @@ def headers_and_data(query,
                                             st.cols,
                                             pivot_cols,
                                             False,
-                                            True)
+                                            include_code)
         st = detect_special_columns(query.sql)
 
     old_head, data, duration, err = query.headers_and_data()
@@ -1320,9 +1320,6 @@ def headers_and_data(query,
                                                               debug)
     if not include_code:
         # Fix all columns before drop the codes.
-        all = df.index.levels[0][len(df.index.levels[0])-1]
-        df = df.rename(index={u"": all})
-        df = df.rename(columns={u"":all})
         df = remove_code_from_data_frame(df)
 
     if contains_ref_period(st.pivot, st.cols, axis=0):
