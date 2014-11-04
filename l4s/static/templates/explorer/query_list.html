@@ -23,7 +23,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {% block sql_explorer_content %}
 
-
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>{% trans "List Query" %}</li>
+    </ul>
+</div>
 <div class="col-lg-3 nav navbar-nav navbar-right">
     <form method="GET"
           data-position="right"
@@ -58,7 +62,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 <div id="myTabContent" class="tab-content">
     <div class="tab-pane fade" id="public_queries">
-        <h3>{% trans "Public Queries" %}</h3>
         {% if object_list|length > 0 %}
         <table class="table table-striped">
             <thead>
@@ -172,7 +175,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         {% endif %}
     </div>
     <div class="tab-pane fade in active" id="my_queries">
-        <h3>{% trans "My Queries" %}</h3>
         {% if request.user.is_authenticated %}
         {% if object_list|length > 0 %}
         {% if request.user.is_staff %}

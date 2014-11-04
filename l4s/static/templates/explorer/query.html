@@ -24,6 +24,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load dictionary_extras %}
 
 {% block sql_explorer_content %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li><a href="/explorer/">{% trans "List Query" %}</a></li>
+    </ul>
+</div>
 <div class="row">
     <div id="query_area" class="col-md-12">
         <h2 style="padding-bottom: 20px">

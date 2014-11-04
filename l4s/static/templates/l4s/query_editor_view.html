@@ -24,6 +24,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load dictionary_extras %}
 
 {% block l4s_container %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>
+            <li><a href="/query_editor/">{% trans "Query editor" %}</a></li>
+            <li><a href="/query_editor/?topic={{ topic_id }}">{{ topic }}</a></li>
+        </li>
+    </ul>
+</div>
+
 <h3>{{ title }}</h3>
 <div style="overflow: auto; max-heigth: 100%;" id="overflow_wrapper">
     <center>

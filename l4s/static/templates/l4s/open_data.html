@@ -22,8 +22,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load i18n %}
 
 {% block l4s_container %}
-<h3>{% trans "Open data" %}
-</h3>
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>{% trans "Open data" %}</li>
+    </ul>
+</div>
 <table class="table table-striped">
     {% for object in object_list %}
     <tr>

@@ -23,8 +23,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load dictionary_extras %}
 
 {% block l4s_container %}
-<h3>{% trans "Query editor" %}
-</h3>
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>
+            {% if topic == 0 %}
+            {% trans "Query editor" %}
+            {% else %}
+            <li><a href="/query_editor/">{% trans "Query editor" %}</a></li>
+            <li>{{ topics|lookup:topic }}</li>
+            {% endif %}
+        </li>
+    </ul>
+</div>
 <div class="col-lg-4 nav navbar-nav navbar-right">
     <form method="GET">
 
