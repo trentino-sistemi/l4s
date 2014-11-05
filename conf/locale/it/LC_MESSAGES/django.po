@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-03 11:37+0100\n"
-"PO-Revision-Date: 2014-11-03 11:38+0100\n"
+"POT-Creation-Date: 2014-11-05 12:59+0100\n"
+"PO-Revision-Date: 2014-11-05 12:59+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -186,19 +186,18 @@ msgid " Search"
 msgstr "Cerca"
 
 #: l4s/static/templates/explorer/base.html:34
-#: l4s/static/templates/explorer/query_list.html:54
-#: l4s/static/templates/explorer/query_list.html:61
+#: l4s/static/templates/explorer/query_list.html:58
 msgid "Public Queries"
 msgstr "Interrogazioni pubbliche"
 
 #: l4s/static/templates/explorer/base.html:38
-#: l4s/static/templates/explorer/query.html:59
-#: l4s/static/templates/explorer/query_list.html:76
-#: l4s/static/templates/explorer/query_list.html:203
-#: l4s/static/templates/explorer/recent_queries.html:43
+#: l4s/static/templates/explorer/query.html:64
+#: l4s/static/templates/explorer/query_list.html:79
+#: l4s/static/templates/explorer/query_list.html:205
+#: l4s/static/templates/explorer/recent_queries.html:47
 #: l4s/static/templates/l4s/ontology.html:34
 #: l4s/static/templates/l4s/source_table_list.html:33
-#: l4s/static/templates/l4s/table_list.html:64
+#: l4s/static/templates/l4s/table_list.html:68
 #: l4s/static/templates/l4s/user_profile.html:39
 #: web/forms.py:322
 msgid "Name"
@@ -216,126 +215,132 @@ msgstr "Anteprima"
 msgid "in order to get the full result set click on 'Export' and choose a format."
 msgstr "per scaricare  il risultato completo vai su 'Esporta' e scegli un formato."
 
-#: l4s/static/templates/explorer/query.html:33
-#: l4s/static/templates/explorer/query_list.html:182
-#: l4s/static/templates/explorer/query_list.html:187
+#: l4s/static/templates/explorer/query.html:29
+#: l4s/static/templates/explorer/query_list.html:28
+#: l4s/static/templates/l4s/base.html:82
+msgid "List Query"
+msgstr "Elenco interrogazioni"
+
+#: l4s/static/templates/explorer/query.html:38
+#: l4s/static/templates/explorer/query_list.html:184
+#: l4s/static/templates/explorer/query_list.html:189
 msgid "New query"
 msgstr "Nuova interrogazione"
 
-#: l4s/static/templates/explorer/query.html:57
-#: l4s/static/templates/explorer/query_list.html:74
-#: l4s/static/templates/explorer/query_list.html:201
+#: l4s/static/templates/explorer/query.html:62
+#: l4s/static/templates/explorer/query_list.html:77
+#: l4s/static/templates/explorer/query_list.html:203
 msgid "Query name"
 msgstr "Nome interrogazione"
 
-#: l4s/static/templates/explorer/query.html:74
+#: l4s/static/templates/explorer/query.html:79
 msgid "Query description"
 msgstr "Descrizione dell'interrogazione"
 
-#: l4s/static/templates/explorer/query.html:78
+#: l4s/static/templates/explorer/query.html:83
 #: l4s/static/templates/l4s/source_table_list.html:34
-#: l4s/static/templates/l4s/table.html:35
-#: l4s/static/templates/l4s/table_list.html:65
+#: l4s/static/templates/l4s/table.html:39
+#: l4s/static/templates/l4s/table_list.html:69
 #: web/actions.py:120
 #: web/actions.py:263
 msgid "Description"
 msgstr "Descrizione"
 
-#: l4s/static/templates/explorer/query.html:92
+#: l4s/static/templates/explorer/query.html:97
 msgid "Query owner"
 msgstr "Proprietario dell'interrogazione"
 
-#: l4s/static/templates/explorer/query.html:95
+#: l4s/static/templates/explorer/query.html:100
 msgid "Owner"
 msgstr "Proprietario"
 
-#: l4s/static/templates/explorer/query.html:142
+#: l4s/static/templates/explorer/query.html:147
 msgid "Is public"
 msgstr "Pubblica"
 
-#: l4s/static/templates/explorer/query.html:152
+#: l4s/static/templates/explorer/query.html:157
 #: l4s/static/templates/l4s/base.html:87
-#: l4s/static/templates/l4s/open_data.html:25
+#: l4s/static/templates/l4s/open_data.html:27
 msgid "Open data"
 msgstr "Dati aperti"
 
-#: l4s/static/templates/explorer/query.html:165
-#: l4s/static/templates/l4s/query_editor_customize.html:356
+#: l4s/static/templates/explorer/query.html:170
+#: l4s/static/templates/l4s/query_editor_customize.html:359
 msgid "Debug"
 msgstr "Analizza"
 
-#: l4s/static/templates/explorer/query.html:182
+#: l4s/static/templates/explorer/query.html:187
 msgid "Show Sql Editor"
 msgstr "Mostra editor Sql"
 
-#: l4s/static/templates/explorer/query.html:188
+#: l4s/static/templates/explorer/query.html:193
 msgid "Hide Sql Editor"
 msgstr "Nascondi editor Sql"
 
-#: l4s/static/templates/explorer/query.html:194
+#: l4s/static/templates/explorer/query.html:199
 msgid "Run"
 msgstr "Esegui"
 
-#: l4s/static/templates/explorer/query.html:200
-#: l4s/static/templates/l4s/open_data.html:36
-#: l4s/static/templates/l4s/query_editor_view.html:70
+#: l4s/static/templates/explorer/query.html:205
+#: l4s/static/templates/l4s/open_data.html:39
+#: l4s/static/templates/l4s/query_editor_view.html:78
 msgid "Export"
 msgstr "Esporta"
 
-#: l4s/static/templates/explorer/query.html:219
-#: l4s/static/templates/explorer/query.html:223
-#: l4s/static/templates/explorer/query.html:225
-#: l4s/static/templates/l4s/query_editor_view.html:84
-#: l4s/static/templates/l4s/query_editor_view.html:87
-#: l4s/static/templates/l4s/query_editor_view.html:186
+#: l4s/static/templates/explorer/query.html:224
+#: l4s/static/templates/explorer/query.html:228
+#: l4s/static/templates/explorer/query.html:230
+#: l4s/static/templates/l4s/query_editor_view.html:92
+#: l4s/static/templates/l4s/query_editor_view.html:95
+#: l4s/static/templates/l4s/query_editor_view.html:195
 msgid "Save"
 msgstr "Salva"
 
-#: l4s/static/templates/explorer/query.html:225
-#: l4s/static/templates/explorer/query.html:235
-#: l4s/static/templates/l4s/query_editor_view.html:87
-#: l4s/static/templates/l4s/query_editor_view.html:88
+#: l4s/static/templates/explorer/query.html:230
+#: l4s/static/templates/explorer/query.html:240
+#: l4s/static/templates/l4s/query_editor_view.html:95
+#: l4s/static/templates/l4s/query_editor_view.html:96
 msgid "Log in to use this feature"
 msgstr "Accedi per poter usare questa funzione"
 
-#: l4s/static/templates/explorer/query.html:233
-#: l4s/static/templates/explorer/query.html:235
-#: l4s/static/templates/explorer/query.html:441
+#: l4s/static/templates/explorer/query.html:238
+#: l4s/static/templates/explorer/query.html:240
+#: l4s/static/templates/explorer/query.html:446
 #: l4s/static/templates/l4s/manual_request.html:41
 #: l4s/static/templates/l4s/manual_request_view.html:29
-#: l4s/static/templates/l4s/manual_request_view.html:30
-#: l4s/static/templates/l4s/query_editor_view.html:85
-#: l4s/static/templates/l4s/query_editor_view.html:88
-#: l4s/static/templates/l4s/query_editor_view.html:164
+#: l4s/static/templates/l4s/manual_request_view.html:36
+#: l4s/static/templates/l4s/query_editor_view.html:93
+#: l4s/static/templates/l4s/query_editor_view.html:96
+#: l4s/static/templates/l4s/query_editor_view.html:173
 msgid "Manual request"
 msgstr "Richiesta manuale"
 
-#: l4s/static/templates/explorer/query.html:258
+#: l4s/static/templates/explorer/query.html:263
 msgid "You can build a"
 msgstr "Puoi costruire una"
 
-#: l4s/static/templates/explorer/query.html:258
+#: l4s/static/templates/explorer/query.html:263
 msgid "pivot table"
 msgstr "tabella pivot"
 
-#: l4s/static/templates/explorer/query.html:258
+#: l4s/static/templates/explorer/query.html:263
 msgid "on column"
 msgstr "con in colonna"
 
-#: l4s/static/templates/explorer/query.html:281
+#: l4s/static/templates/explorer/query.html:286
 msgid "Aggregate for"
 msgstr "Aggrega per"
 
-#: l4s/static/templates/explorer/query.html:288
 #: l4s/static/templates/explorer/query.html:293
+#: l4s/static/templates/explorer/query.html:298
 msgid "Nothing"
 msgstr "Nulla"
 
-#: l4s/static/templates/explorer/query.html:321
+#: l4s/static/templates/explorer/query.html:326
 msgid "Apply"
 msgstr "Applica"
 
-#: l4s/static/templates/explorer/query.html:338
+#: l4s/static/templates/explorer/query.html:343
 msgid "Please wait, this may take a few minutes"
 msgstr "Attendere prego, questa operazione potrebbe richiedere alcuni minuti"
 
@@ -347,138 +352,142 @@ msgstr "Sei sicuro di voler cancellare l'interrogazione con nome"
 msgid "Delete Query"
 msgstr "Cancella Interrogazione"
 
-#: l4s/static/templates/explorer/query_list.html:30
-#: l4s/static/templates/explorer/query_list.html:37
+#: l4s/static/templates/explorer/query_list.html:34
+#: l4s/static/templates/explorer/query_list.html:41
 msgid "Search queries by name and description; insert a word and push the 'Search' button in order to search queries"
 msgstr "Cerca le parole all'interno dei nomi e delle descrizioni delle interrogazioni"
 
-#: l4s/static/templates/explorer/query_list.html:37
-#: l4s/static/templates/explorer/recent_queries.html:32
-#: l4s/static/templates/l4s/query_editor.html:56
-#: l4s/static/templates/l4s/table_list.html:55
+#: l4s/static/templates/explorer/query_list.html:41
+#: l4s/static/templates/explorer/recent_queries.html:37
+#: l4s/static/templates/l4s/query_editor.html:66
+#: l4s/static/templates/l4s/table_list.html:59
 msgid "Search"
 msgstr "Cerca"
 
-#: l4s/static/templates/explorer/query_list.html:48
+#: l4s/static/templates/explorer/query_list.html:52
 msgid "Your personal queries"
 msgstr "Lista delle tue interrogazioni personali"
 
-#: l4s/static/templates/explorer/query_list.html:49
-#: l4s/static/templates/explorer/query_list.html:175
+#: l4s/static/templates/explorer/query_list.html:53
 msgid "My Queries"
 msgstr "Interrogazioni personali"
 
-#: l4s/static/templates/explorer/query_list.html:53
+#: l4s/static/templates/explorer/query_list.html:57
 msgid "Public queries; you can see, execute and copy query build by other users"
 msgstr "Interrogazioni pubbliche; puoi vedere , eseguire e copiare interrogazioni create da altri utenti"
 
-#: l4s/static/templates/explorer/query_list.html:66
-#: l4s/static/templates/explorer/query_list.html:193
+#: l4s/static/templates/explorer/query_list.html:69
+#: l4s/static/templates/explorer/query_list.html:195
 msgid "Query id"
 msgstr "Identificativo"
 
-#: l4s/static/templates/explorer/query_list.html:67
-#: l4s/static/templates/explorer/query_list.html:194
+#: l4s/static/templates/explorer/query_list.html:70
+#: l4s/static/templates/explorer/query_list.html:196
 msgid "Sort queries for id"
 msgstr "Ordina le interrogazioni per numero identificativo"
 
-#: l4s/static/templates/explorer/query_list.html:68
-#: l4s/static/templates/explorer/query_list.html:195
+#: l4s/static/templates/explorer/query_list.html:71
+#: l4s/static/templates/explorer/query_list.html:197
 msgid "Id"
 msgstr "Id"
 
-#: l4s/static/templates/explorer/query_list.html:75
-#: l4s/static/templates/explorer/query_list.html:202
+#: l4s/static/templates/explorer/query_list.html:78
+#: l4s/static/templates/explorer/query_list.html:204
 msgid "Sort queries in alphabetical order by name"
 msgstr "Ordina le interrogazioni per nome in ordine alfabetico"
 
-#: l4s/static/templates/explorer/query_list.html:82
+#: l4s/static/templates/explorer/query_list.html:85
 msgid "Query author"
 msgstr "Proprietario dell'interrogazione"
 
-#: l4s/static/templates/explorer/query_list.html:83
+#: l4s/static/templates/explorer/query_list.html:86
 msgid "Sort queries by author"
 msgstr "Ordina le interrogazioni per autore"
 
-#: l4s/static/templates/explorer/query_list.html:84
+#: l4s/static/templates/explorer/query_list.html:87
 msgid "Author"
 msgstr "Autore"
 
-#: l4s/static/templates/explorer/query_list.html:90
-#: l4s/static/templates/explorer/query_list.html:209
+#: l4s/static/templates/explorer/query_list.html:93
+#: l4s/static/templates/explorer/query_list.html:211
 msgid "Query creation date"
 msgstr "Data di creazione dell'interrogazione"
 
-#: l4s/static/templates/explorer/query_list.html:91
-#: l4s/static/templates/explorer/query_list.html:210
+#: l4s/static/templates/explorer/query_list.html:94
+#: l4s/static/templates/explorer/query_list.html:212
 msgid "Sort queries by date (most recent first)"
 msgstr "Ordina le interrogazioni per data (le più recenti per prime)"
 
-#: l4s/static/templates/explorer/query_list.html:92
-#: l4s/static/templates/explorer/query_list.html:211
+#: l4s/static/templates/explorer/query_list.html:95
+#: l4s/static/templates/explorer/query_list.html:213
 msgid "Creation date"
 msgstr "Data di creazione"
 
-#: l4s/static/templates/explorer/query_list.html:98
+#: l4s/static/templates/explorer/query_list.html:101
 msgid "Query actions; you can import query in your query list and delete it"
 msgstr "Azioni sull'interrogazione; puoi importarla nella lista delle tue interrogazioni personali o cancellarla"
 
-#: l4s/static/templates/explorer/query_list.html:98
-#: l4s/static/templates/explorer/query_list.html:219
-#: l4s/static/templates/l4s/metadata.html:42
+#: l4s/static/templates/explorer/query_list.html:101
+#: l4s/static/templates/explorer/query_list.html:221
+#: l4s/static/templates/l4s/metadata.html:45
 #: l4s/static/templates/l4s/ontology.html:35
 msgid "Actions"
 msgstr "Azioni"
 
-#: l4s/static/templates/explorer/query_list.html:147
-#: l4s/static/templates/explorer/query_list.html:278
+#: l4s/static/templates/explorer/query_list.html:150
+#: l4s/static/templates/explorer/query_list.html:280
 msgid "Delete query"
 msgstr "Cancella interrogazione"
 
-#: l4s/static/templates/explorer/query_list.html:156
+#: l4s/static/templates/explorer/query_list.html:159
 msgid "Copy query in your query list"
 msgstr "Copia l'interrogazione nelle tue interrogazioni personali"
 
-#: l4s/static/templates/explorer/query_list.html:170
-#: l4s/static/templates/explorer/query_list.html:290
+#: l4s/static/templates/explorer/query_list.html:173
+#: l4s/static/templates/explorer/query_list.html:292
 msgid "No queries found for selected criteria"
 msgstr "Non sono state trovate interrogazioni che corrispondono ai tuoi criteri di ricerca"
 
-#: l4s/static/templates/explorer/query_list.html:181
+#: l4s/static/templates/explorer/query_list.html:183
 msgid "Create a new query"
 msgstr "Crea una nuova interrogazione"
 
-#: l4s/static/templates/explorer/query_list.html:218
+#: l4s/static/templates/explorer/query_list.html:220
 msgid "Query visibility; open eye means that others can see your query"
 msgstr "Visibilità dell'interrogazione; l'occhio aperto significa che gli altri possono vedere la tua interrogazione"
 
-#: l4s/static/templates/explorer/query_list.html:218
+#: l4s/static/templates/explorer/query_list.html:220
 msgid "Visibility"
 msgstr "Visibilità"
 
-#: l4s/static/templates/explorer/query_list.html:219
+#: l4s/static/templates/explorer/query_list.html:221
 msgid "Query actions; you can delete it clicking on trash"
 msgstr "Azioni sull'interrogazione; puoi cancellarlo cliccando sul cestino"
 
-#: l4s/static/templates/explorer/query_list.html:296
+#: l4s/static/templates/explorer/query_list.html:298
 msgid "You can see some public queries only!"
 msgstr "Puoi vedere solo le interrogazioni pubbliche!"
 
-#: l4s/static/templates/explorer/query_list.html:299
+#: l4s/static/templates/explorer/query_list.html:301
 msgid "In order to edit new queries you need to register."
 msgstr "Per comporre nuove interrogazioni è necessario registrarsi."
 
-#: l4s/static/templates/explorer/query_list.html:303
+#: l4s/static/templates/explorer/query_list.html:305
 msgid "Register now"
 msgstr "Registrati adesso"
 
-#: l4s/static/templates/explorer/recent_queries.html:39
+#: l4s/static/templates/explorer/recent_queries.html:28
 msgid "Most Recently Used"
 msgstr "Storico interrogazioni"
 
-#: l4s/static/templates/explorer/recent_queries.html:44
+#: l4s/static/templates/explorer/recent_queries.html:48
 msgid "Last Run"
 msgstr "Ultima esecuzione"
+
+#: l4s/static/templates/l4s/about.html:27
+#: l4s/static/templates/l4s/base.html:143
+msgid "About"
+msgstr "Informazioni"
 
 #: l4s/static/templates/l4s/add_ontology.html:25
 msgid "Load rdf ontology"
@@ -489,40 +498,42 @@ msgid "Upload file"
 msgstr "Carica file"
 
 #: l4s/static/templates/l4s/base.html:69
+#: l4s/static/templates/l4s/index.html:27
 msgid "Home"
 msgstr "Pagina iniziale"
 
 #: l4s/static/templates/l4s/base.html:72
-#: l4s/static/templates/l4s/manual_request_view.html:93
-msgid "Query"
-msgstr "Interrogazione"
+msgid "Queries"
+msgstr "Interrogazioni"
 
 #: l4s/static/templates/l4s/base.html:77
 msgid "Query Editor"
 msgstr "Editor delle interrogazioni"
-
-#: l4s/static/templates/l4s/base.html:82
-msgid "List Query"
-msgstr "Elenco interrogazioni"
 
 #: l4s/static/templates/l4s/base.html:93
 msgid "Queries history"
 msgstr "Storico delle interrogazioni"
 
 #: l4s/static/templates/l4s/base.html:98
-#: l4s/static/templates/l4s/manual_request_list.html:26
+#: l4s/static/templates/l4s/manual_request_list.html:27
+#: l4s/static/templates/l4s/manual_request_view.html:28
 msgid "Manual requests"
 msgstr "Richieste manuali"
 
 #: l4s/static/templates/l4s/base.html:103
+#: l4s/static/templates/l4s/manual_request_history.html:27
 msgid "Manual requests history"
 msgstr "Storico delle richieste manuali"
 
 #: l4s/static/templates/l4s/base.html:112
+#: l4s/static/templates/l4s/metadata.html:28
+#: l4s/static/templates/l4s/table.html:29
+#: l4s/static/templates/l4s/table_list.html:28
 msgid "Join Metadata"
 msgstr "Associa metadati"
 
 #: l4s/static/templates/l4s/base.html:117
+#: l4s/static/templates/l4s/test_table.html:28
 msgid "Test"
 msgstr "Prova"
 
@@ -541,10 +552,6 @@ msgstr "Sincronizza"
 #: l4s/static/templates/l4s/base.html:135
 msgid "Load ontology"
 msgstr "Carica ontologia"
-
-#: l4s/static/templates/l4s/base.html:143
-msgid "About"
-msgstr "Informazioni"
 
 #: l4s/static/templates/l4s/base.html:146
 msgid " Overlay help"
@@ -594,15 +601,15 @@ msgstr "note legali"
 msgid "Credits"
 msgstr "Crediti"
 
-#: l4s/static/templates/l4s/index.html:40
+#: l4s/static/templates/l4s/index.html:45
 msgid "Linked open data statistics"
 msgstr "Dati Aperti e Linkati della Statistica"
 
-#: l4s/static/templates/l4s/index.html:44
+#: l4s/static/templates/l4s/index.html:49
 msgid "Enhance the value of the statistical information in order to increase knowledge of Trentino"
 msgstr "Valorizzare il patrimonio informativo della statistica al fine di aumentare la conoscenza del Trentino"
 
-#: l4s/static/templates/l4s/index.html:49
+#: l4s/static/templates/l4s/index.html:54
 #: l4s/static/templates/l4s/manual_request_accepted.html:32
 msgid "Continue"
 msgstr "Continua"
@@ -614,14 +621,14 @@ msgstr "Note legali"
 #: l4s/static/templates/l4s/manual_request.html:51
 #: l4s/static/templates/l4s/metadata_add.html:35
 #: l4s/static/templates/l4s/metadata_edit.html:36
-#: l4s/static/templates/l4s/query_editor_customize.html:385
+#: l4s/static/templates/l4s/query_editor_customize.html:388
 #: l4s/static/templates/l4s/query_editor_save.html:55
 #: l4s/static/templates/l4s/user_profile_change.html:32
 msgid "Submit"
 msgstr "Conferma"
 
 #: l4s/static/templates/l4s/manual_request.html:54
-#: l4s/static/templates/l4s/query_editor_customize.html:387
+#: l4s/static/templates/l4s/query_editor_customize.html:390
 #: l4s/static/templates/l4s/query_editor_save.html:58
 msgid "Cancel"
 msgstr "Annulla"
@@ -638,103 +645,102 @@ msgstr "con codice"
 msgid "Your request will be dispatched as soon as possible."
 msgstr "La richiesta verrà evasa al più presto compatibilmente con l'attività del Servizio"
 
-#: l4s/static/templates/l4s/manual_request_history.html:25
+#: l4s/static/templates/l4s/manual_request_history.html:30
 msgid "History of manual requests dispatched"
 msgstr "Storico delle richieste manuali evase"
 
-#: l4s/static/templates/l4s/manual_request_history.html:26
-msgid "Dispatched manual requests history"
-msgstr "Storico delle richieste manuali evase"
-
-#: l4s/static/templates/l4s/manual_request_history.html:31
-#: l4s/static/templates/l4s/manual_request_list.html:31
-#: l4s/static/templates/l4s/manual_request_view.html:41
+#: l4s/static/templates/l4s/manual_request_history.html:35
+#: l4s/static/templates/l4s/manual_request_list.html:35
+#: l4s/static/templates/l4s/manual_request_view.html:47
 msgid "Inquirer"
 msgstr "Richiedente"
 
-#: l4s/static/templates/l4s/manual_request_history.html:32
-#: l4s/static/templates/l4s/manual_request_list.html:32
-#: l4s/static/templates/l4s/manual_request_view.html:35
+#: l4s/static/templates/l4s/manual_request_history.html:36
+#: l4s/static/templates/l4s/manual_request_list.html:36
+#: l4s/static/templates/l4s/manual_request_view.html:41
 msgid "Subject"
 msgstr "Oggetto"
 
-#: l4s/static/templates/l4s/manual_request_history.html:33
-#: l4s/static/templates/l4s/manual_request_view.html:46
+#: l4s/static/templates/l4s/manual_request_history.html:37
+#: l4s/static/templates/l4s/manual_request_view.html:52
 msgid "Dispatcher"
 msgstr "Evasore"
 
-#: l4s/static/templates/l4s/manual_request_history.html:34
-#: l4s/static/templates/l4s/manual_request_view.html:55
+#: l4s/static/templates/l4s/manual_request_history.html:38
+#: l4s/static/templates/l4s/manual_request_view.html:61
 msgid "Request date"
 msgstr "Data della richiesta"
 
-#: l4s/static/templates/l4s/manual_request_history.html:35
-#: l4s/static/templates/l4s/manual_request_view.html:60
+#: l4s/static/templates/l4s/manual_request_history.html:39
+#: l4s/static/templates/l4s/manual_request_view.html:66
 msgid "Dispatch date"
 msgstr "Data di evasione"
 
-#: l4s/static/templates/l4s/manual_request_list.html:25
+#: l4s/static/templates/l4s/manual_request_list.html:30
 msgid " List of manual requests"
 msgstr "Lista delle richieste manuali"
 
-#: l4s/static/templates/l4s/manual_request_view.html:26
-#: l4s/static/templates/l4s/manual_request_view.html:27
+#: l4s/static/templates/l4s/manual_request_view.html:34
 msgid "Dispatched manual request"
 msgstr "Richiesta manuale evasa"
 
-#: l4s/static/templates/l4s/manual_request_view.html:50
+#: l4s/static/templates/l4s/manual_request_view.html:56
 #: web/forms.py:180
 msgid "Dispatch note"
 msgstr "Nota di evasione"
 
-#: l4s/static/templates/l4s/manual_request_view.html:65
+#: l4s/static/templates/l4s/manual_request_view.html:71
 msgid "Goal"
 msgstr "Finalità"
 
-#: l4s/static/templates/l4s/manual_request_view.html:69
+#: l4s/static/templates/l4s/manual_request_view.html:75
 msgid "Requested data"
 msgstr "Dati richiesti"
 
-#: l4s/static/templates/l4s/manual_request_view.html:73
+#: l4s/static/templates/l4s/manual_request_view.html:79
 msgid "References years"
 msgstr "Anni di riferimento"
 
-#: l4s/static/templates/l4s/manual_request_view.html:77
+#: l4s/static/templates/l4s/manual_request_view.html:83
 msgid "Territorial level"
 msgstr "Livello territoriale"
 
-#: l4s/static/templates/l4s/manual_request_view.html:82
+#: l4s/static/templates/l4s/manual_request_view.html:88
 msgid "Other territorial level"
 msgstr "Altro livello territoriale"
 
-#: l4s/static/templates/l4s/manual_request_view.html:88
+#: l4s/static/templates/l4s/manual_request_view.html:94
 msgid "Specific territorial level"
 msgstr "Specifiche livello territoriale"
 
-#: l4s/static/templates/l4s/manual_request_view.html:106
+#: l4s/static/templates/l4s/manual_request_view.html:99
+msgid "Query"
+msgstr "Interrogazione"
+
+#: l4s/static/templates/l4s/manual_request_view.html:112
 msgid " Dispatched"
 msgstr "Evasa"
 
-#: l4s/static/templates/l4s/metadata.html:27
-#: l4s/static/templates/l4s/table.html:28
+#: l4s/static/templates/l4s/metadata.html:29
+#: l4s/static/templates/l4s/table.html:30
 msgid "Table "
 msgstr "Tabella"
 
-#: l4s/static/templates/l4s/metadata.html:30
+#: l4s/static/templates/l4s/metadata.html:31
 #: l4s/static/templates/l4s/metadata_add.html:28
 #: l4s/static/templates/l4s/metadata_edit.html:28
 msgid "column "
 msgstr "colonna"
 
-#: l4s/static/templates/l4s/metadata.html:35
+#: l4s/static/templates/l4s/metadata.html:38
 msgid " Add metadata"
 msgstr "Aggiungi metadato"
 
-#: l4s/static/templates/l4s/metadata.html:40
+#: l4s/static/templates/l4s/metadata.html:43
 msgid "Key"
 msgstr "Chiave"
 
-#: l4s/static/templates/l4s/metadata.html:41
+#: l4s/static/templates/l4s/metadata.html:44
 msgid "Value"
 msgstr "Valore"
 
@@ -763,117 +769,119 @@ msgstr "File di ontologia"
 msgid " Add ontology"
 msgstr "Aggiungi ontologia"
 
-#: l4s/static/templates/l4s/query_editor.html:26
+#: l4s/static/templates/l4s/query_editor.html:30
+#: l4s/static/templates/l4s/query_editor.html:32
+#: l4s/static/templates/l4s/query_editor_view.html:30
 msgid "Query editor"
 msgstr "Editor delle interrogazioni"
 
-#: l4s/static/templates/l4s/query_editor.html:34
-#: l4s/static/templates/l4s/table_list.html:33
+#: l4s/static/templates/l4s/query_editor.html:44
+#: l4s/static/templates/l4s/table_list.html:37
 msgid " Filter list of tables by topics; push 'Search' button to filter tables"
 msgstr "Filtra la lista delle tabelle per argomento; schiaccia il bottone 'Cerca' per filtrare le tabelle"
 
-#: l4s/static/templates/l4s/query_editor.html:35
-#: l4s/static/templates/l4s/table_list.html:34
+#: l4s/static/templates/l4s/query_editor.html:45
+#: l4s/static/templates/l4s/table_list.html:38
 msgid "All topics"
 msgstr "Tutti gli argomenti"
 
-#: l4s/static/templates/l4s/query_editor.html:50
-#: l4s/static/templates/l4s/table_list.html:49
+#: l4s/static/templates/l4s/query_editor.html:60
+#: l4s/static/templates/l4s/table_list.html:53
 msgid " Filter list of tables by name and description; push 'Search' button to filter tables"
 msgstr "Filtra la lista delle tabelle per nome e descrizione; schiaccia il bottone 'Cerca' per filtrare le tabelle"
 
-#: l4s/static/templates/l4s/query_editor.html:64
+#: l4s/static/templates/l4s/query_editor.html:74
 msgid "Choose a topic"
 msgstr "Scegli un tema"
 
-#: l4s/static/templates/l4s/query_editor.html:82
+#: l4s/static/templates/l4s/query_editor.html:92
 msgid "Choose a dataset"
 msgstr "Scegli un dataset"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:58
+#: l4s/static/templates/l4s/query_editor_customize.html:59
 msgid "Undisplayed"
 msgstr "Non visualizzati"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:58
+#: l4s/static/templates/l4s/query_editor_customize.html:59
 msgid "drag items on rows and columns"
 msgstr "trascina i campi in riga e in colonna"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:79
-#: l4s/static/templates/l4s/query_editor_customize.html:175
-#: l4s/static/templates/l4s/query_editor_customize.html:248
+#: l4s/static/templates/l4s/query_editor_customize.html:81
+#: l4s/static/templates/l4s/query_editor_customize.html:178
+#: l4s/static/templates/l4s/query_editor_customize.html:251
 msgid "Show"
 msgstr "Visualizza"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:109
-#: l4s/static/templates/l4s/query_editor_customize.html:205
-#: l4s/static/templates/l4s/query_editor_customize.html:278
+#: l4s/static/templates/l4s/query_editor_customize.html:111
+#: l4s/static/templates/l4s/query_editor_customize.html:208
+#: l4s/static/templates/l4s/query_editor_customize.html:281
 msgid "Select"
 msgstr "Seleziona"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:113
-#: l4s/static/templates/l4s/query_editor_customize.html:209
-#: l4s/static/templates/l4s/query_editor_customize.html:282
+#: l4s/static/templates/l4s/query_editor_customize.html:115
+#: l4s/static/templates/l4s/query_editor_customize.html:212
+#: l4s/static/templates/l4s/query_editor_customize.html:285
 #: web/statistical_secret.py:166
 msgid "All"
 msgstr "Tutti"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:118
-#: l4s/static/templates/l4s/query_editor_customize.html:214
-#: l4s/static/templates/l4s/query_editor_customize.html:287
+#: l4s/static/templates/l4s/query_editor_customize.html:120
+#: l4s/static/templates/l4s/query_editor_customize.html:217
+#: l4s/static/templates/l4s/query_editor_customize.html:290
 msgid "None"
 msgstr "Nessuno"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:146
+#: l4s/static/templates/l4s/query_editor_customize.html:149
 msgid "The field with this colour can be grouped"
 msgstr "I campi di questo colore possono essere raggruppati"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:155
+#: l4s/static/templates/l4s/query_editor_customize.html:158
 msgid "Column"
 msgstr "Colonna"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:158
+#: l4s/static/templates/l4s/query_editor_customize.html:161
 msgid "Row"
 msgstr "Riga"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:304
+#: l4s/static/templates/l4s/query_editor_customize.html:307
 msgid "Data"
 msgstr "Valori"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:367
+#: l4s/static/templates/l4s/query_editor_customize.html:370
 msgid "Include code"
 msgstr "Includi codici"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:381
+#: l4s/static/templates/l4s/query_editor_customize.html:384
 msgid "The table must have at least one field in row"
 msgstr "La tabella deve avere almeno un campo in riga"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:382
+#: l4s/static/templates/l4s/query_editor_customize.html:385
 msgid "The table must have at least one field in column"
 msgstr "La tabella deve avere almeno un campo in colonna"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:383
+#: l4s/static/templates/l4s/query_editor_customize.html:386
 msgid "The table must have at least one field in value"
 msgstr "La tabella deve avere almeno un campo come valore"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:384
+#: l4s/static/templates/l4s/query_editor_customize.html:387
 msgid "you can select only one unless you drag it in line or column"
 msgstr "puoi selezionarne solo uno a meno che non lo trascini in riga o in colonna"
 
-#: l4s/static/templates/l4s/query_editor_view.html:44
+#: l4s/static/templates/l4s/query_editor_view.html:52
 msgid "values"
 msgstr "valori"
 
-#: l4s/static/templates/l4s/query_editor_view.html:48
-#: l4s/static/templates/l4s/query_editor_view.html:224
+#: l4s/static/templates/l4s/query_editor_view.html:56
+#: l4s/static/templates/l4s/query_editor_view.html:233
 msgid "See more"
 msgstr "Vedi più dettagli"
 
-#: l4s/static/templates/l4s/query_editor_view.html:64
-#: l4s/static/templates/l4s/query_editor_view.html:119
+#: l4s/static/templates/l4s/query_editor_view.html:72
+#: l4s/static/templates/l4s/query_editor_view.html:127
 msgid "Customize"
 msgstr "Personalizza"
 
-#: l4s/static/templates/l4s/query_editor_view.html:224
+#: l4s/static/templates/l4s/query_editor_view.html:233
 msgid "See less"
 msgstr "Vedi meno dettagli"
 
@@ -885,27 +893,23 @@ msgstr "Lista delle tabelle nella base di dati origine"
 msgid "List of source database tables"
 msgstr "Lista delle tabelle nella base di dati origine"
 
-#: l4s/static/templates/l4s/table.html:34
+#: l4s/static/templates/l4s/table.html:38
 msgid "Column name"
 msgstr "Nome colonna"
 
-#: l4s/static/templates/l4s/table_list.html:26
-msgid "Table list"
-msgstr "Elenco delle tabelle"
-
-#: l4s/static/templates/l4s/table_list.html:80
+#: l4s/static/templates/l4s/table_list.html:84
 msgid "No tables found for selected criteria"
 msgstr "Non ho trovato tabelle che corrispondo ai tuoi criteri di ricerca"
 
-#: l4s/static/templates/l4s/test_table.html:28
+#: l4s/static/templates/l4s/test_table.html:33
 msgid "You can add random values to the selected test table or empty it"
 msgstr "Puoi aggiungere valori random alla tabella di test selezionata o svuotarla"
 
-#: l4s/static/templates/l4s/test_table.html:38
+#: l4s/static/templates/l4s/test_table.html:43
 msgid "Add"
 msgstr "Aggiungi"
 
-#: l4s/static/templates/l4s/test_table.html:42
+#: l4s/static/templates/l4s/test_table.html:47
 msgid " Empty"
 msgstr "Svuota"
 
@@ -1141,129 +1145,135 @@ msgstr "Non è possibile pivotare la tabella; lascia uno o più valori per le ri
 msgid "Code"
 msgstr "Codice"
 
-#: web/utils.py:1197
+#: web/utils.py:1265
 msgid "You can aggregate for a single criterion for each column only."
 msgstr "Puoi aggregare solo per un singolo criterio per ciascuna colonna."
 
-#: web/utils.py:1198
+#: web/utils.py:1266
 msgid "You have selected more than one aggregation on column"
 msgstr "Hai selezionato più di una aggregazione sulla colonna"
 
-#: web/utils.py:1201
+#: web/utils.py:1269
 msgid "with description"
 msgstr "con descrizione"
 
-#: web/utils.py:1524
+#: web/utils.py:1592
 msgid "The statistical service"
 msgstr "Il Servizio Statistica"
 
-#: web/utils.py:1525
+#: web/utils.py:1593
 msgid "is handling"
 msgstr "ha preso in carico"
 
-#: web/utils.py:1526
+#: web/utils.py:1594
 msgid "the request"
 msgstr "la richiesta"
 
-#: web/utils.py:1527
+#: web/utils.py:1595
 msgid "with subject"
 msgstr "con oggetto"
 
-#: web/utils.py:1529
+#: web/utils.py:1597
 msgid "Your request will be dispatched as soon as possible"
 msgstr "La richiesta verrà evasa al più presto compatibilmente con l'attività del Servizio"
 
-#: web/utils.py:1547
-#: web/utils.py:1549
+#: web/utils.py:1615
+#: web/utils.py:1617
 msgid "new manual request"
 msgstr "Nuova richiesta manuale"
 
-#: web/utils.py:1548
+#: web/utils.py:1616
 msgid "with id"
 msgstr "con il codice"
 
-#: web/utils.py:1696
+#: web/utils.py:1764
 msgid "Invalid syntax: "
 msgstr "Sintassi non corretta:"
 
-#: web/utils.py:1697
+#: web/utils.py:1765
 msgid "Usage"
 msgstr "Utilizzo"
 
-#: web/utils.py:1701
+#: web/utils.py:1769
 msgid "Invalid Token "
 msgstr "Carattere non corretto"
 
-#: web/utils.py:1702
+#: web/utils.py:1770
 msgid " expected token is "
 msgstr "carattere atteso"
 
-#: web/utils.py:2234
-#: web/utils.py:2270
+#: web/utils.py:2302
+#: web/utils.py:2338
 msgid "all"
 msgstr "tutti"
 
-#: web/utils.py:2235
+#: web/utils.py:2303
 msgid "total"
 msgstr "totale"
 
-#: web/utils.py:2290
+#: web/utils.py:2358
 msgid "group by"
 msgstr "raggruppato per"
 
-#: web/utils.py:2389
+#: web/utils.py:2457
 msgid "Selected values"
 msgstr "Valori selezionati"
 
-#: web/utils.py:2405
+#: web/utils.py:2473
 msgid "for"
 msgstr "per"
 
-#: web/utils.py:2406
+#: web/utils.py:2474
 msgid "and"
 msgstr "e"
 
-#: web/views.py:141
+#: web/views.py:143
 msgid "No --JOIN statements specified in SQL"
 msgstr "Non hai specificato le istruzioni --JOIN  in SQL"
 
-#: web/views.py:142
+#: web/views.py:144
 msgid "the table is shown as-is"
 msgstr "la tabella è mostrata così com'è"
 
-#: web/views.py:143
+#: web/views.py:145
 msgid "without preserving statistical secret"
 msgstr "senza preservare il segreto statistico"
 
-#: web/views.py:182
+#: web/views.py:184
 msgid "Can not give you the result set"
 msgstr "Non è possibile  mostrare il risultato"
 
-#: web/views.py:183
+#: web/views.py:185
 msgid "in order to preserve the statistical secret"
 msgstr "per preservare il segreto statistico"
 
-#: web/views.py:184
+#: web/views.py:186
 msgid "please chose a pivot and push the Apply button"
 msgstr "per favore scegli come costruire la tabella pivot e schiaccia il bottone Applica"
 
-#: web/views.py:295
-#: web/views.py:419
+#: web/views.py:297
+#: web/views.py:421
 msgid "The Query could not be saved because the data didn't validate."
 msgstr "L'interrogazione non può essere salvata perchè incorretta."
 
-#: web/views.py:310
-#: web/views.py:443
+#: web/views.py:312
+#: web/views.py:445
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
 
-#: web/views.py:1193
+#: web/views.py:1199
 msgid "Please add the metadata 'obsValue'"
 msgstr "Per favore aggiungi il metadato 'obsValue'"
 
-#: web/views.py:1194
+#: web/views.py:1200
 msgid "on one of the columns of the table"
 msgstr "su una delle colonne della tabella"
+
+#~ msgid "Dispatched manual requests history"
+#~ msgstr "Storico delle richieste manuali evase"
+
+#~ msgid "Table list"
+#~ msgstr "Elenco delle tabelle"
 
 #~ msgid " Apply"
 #~ msgstr "Applica"
