@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-05 12:59+0100\n"
-"PO-Revision-Date: 2014-11-05 12:59+0100\n"
+"POT-Creation-Date: 2014-11-05 13:24+0100\n"
+"PO-Revision-Date: 2014-11-05 13:29+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -778,7 +778,7 @@ msgstr "Editor delle interrogazioni"
 #: l4s/static/templates/l4s/query_editor.html:44
 #: l4s/static/templates/l4s/table_list.html:37
 msgid " Filter list of tables by topics; push 'Search' button to filter tables"
-msgstr "Filtra la lista delle tabelle per argomento; schiaccia il bottone 'Cerca' per filtrare le tabelle"
+msgstr "Filtra la lista delle tabelle per argomento; premi il bottone 'Cerca' per filtrare le tabelle"
 
 #: l4s/static/templates/l4s/query_editor.html:45
 #: l4s/static/templates/l4s/table_list.html:38
@@ -788,23 +788,19 @@ msgstr "Tutti gli argomenti"
 #: l4s/static/templates/l4s/query_editor.html:60
 #: l4s/static/templates/l4s/table_list.html:53
 msgid " Filter list of tables by name and description; push 'Search' button to filter tables"
-msgstr "Filtra la lista delle tabelle per nome e descrizione; schiaccia il bottone 'Cerca' per filtrare le tabelle"
+msgstr "Filtra la lista delle tabelle per nome e descrizione; premi il bottone 'Cerca' per filtrare le tabelle"
 
 #: l4s/static/templates/l4s/query_editor.html:74
 msgid "Choose a topic"
-msgstr "Scegli un tema"
+msgstr "Scegli un argomento"
 
 #: l4s/static/templates/l4s/query_editor.html:92
 msgid "Choose a dataset"
 msgstr "Scegli un dataset"
 
 #: l4s/static/templates/l4s/query_editor_customize.html:59
-msgid "Undisplayed"
-msgstr "Non visualizzati"
-
-#: l4s/static/templates/l4s/query_editor_customize.html:59
-msgid "drag items on rows and columns"
-msgstr "trascina i campi in riga e in colonna"
+msgid "Choose the fields to display by dragging them to the row and column"
+msgstr "Scegli i campi da visualizzare trascinandoli in riga e colonna"
 
 #: l4s/static/templates/l4s/query_editor_customize.html:81
 #: l4s/static/templates/l4s/query_editor_customize.html:178
@@ -832,8 +828,8 @@ msgid "None"
 msgstr "Nessuno"
 
 #: l4s/static/templates/l4s/query_editor_customize.html:149
-msgid "The field with this colour can be grouped"
-msgstr "I campi di questo colore possono essere raggruppati"
+msgid "The values ​​of the fields of this color can be grouped"
+msgstr "I valori dei campi di questo colore possono essere raggruppati"
 
 #: l4s/static/templates/l4s/query_editor_customize.html:158
 msgid "Column"
@@ -1249,7 +1245,7 @@ msgstr "per preservare il segreto statistico"
 
 #: web/views.py:186
 msgid "please chose a pivot and push the Apply button"
-msgstr "per favore scegli come costruire la tabella pivot e schiaccia il bottone Applica"
+msgstr "per favore scegli come costruire la tabella pivot e premi il bottone Applica"
 
 #: web/views.py:297
 #: web/views.py:421
@@ -1268,6 +1264,12 @@ msgstr "Per favore aggiungi il metadato 'obsValue'"
 #: web/views.py:1200
 msgid "on one of the columns of the table"
 msgstr "su una delle colonne della tabella"
+
+#~ msgid "Undisplayed"
+#~ msgstr "Non visualizzati"
+
+#~ msgid "drag items on rows and columns"
+#~ msgstr "trascina i campi in riga e in colonna"
 
 #~ msgid "Dispatched manual requests history"
 #~ msgstr "Storico delle richieste manuali evase"
