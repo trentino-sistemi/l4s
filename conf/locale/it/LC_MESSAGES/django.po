@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-05 13:24+0100\n"
-"PO-Revision-Date: 2014-11-05 13:29+0100\n"
+"POT-Creation-Date: 2014-11-05 14:38+0100\n"
+"PO-Revision-Date: 2014-11-05 14:38+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -359,7 +359,7 @@ msgstr "Cerca le parole all'interno dei nomi e delle descrizioni delle interroga
 
 #: l4s/static/templates/explorer/query_list.html:41
 #: l4s/static/templates/explorer/recent_queries.html:37
-#: l4s/static/templates/l4s/query_editor.html:66
+#: l4s/static/templates/l4s/query_editor.html:67
 #: l4s/static/templates/l4s/table_list.html:59
 msgid "Search"
 msgstr "Cerca"
@@ -790,11 +790,15 @@ msgstr "Tutti gli argomenti"
 msgid " Filter list of tables by name and description; push 'Search' button to filter tables"
 msgstr "Filtra la lista delle tabelle per nome e descrizione; premi il bottone 'Cerca' per filtrare le tabelle"
 
-#: l4s/static/templates/l4s/query_editor.html:74
+#: l4s/static/templates/l4s/query_editor.html:62
+msgid "Free text search..."
+msgstr "Ricerca libera..."
+
+#: l4s/static/templates/l4s/query_editor.html:75
 msgid "Choose a topic"
 msgstr "Scegli un argomento"
 
-#: l4s/static/templates/l4s/query_editor.html:92
+#: l4s/static/templates/l4s/query_editor.html:93
 msgid "Choose a dataset"
 msgstr "Scegli un dataset"
 

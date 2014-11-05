@@ -59,6 +59,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
              class="input-group"
              data-intro="{% trans " Filter list of tables by name and description; push 'Search' button to filter tables" %}">
              <input type="text"
+                    placeholder="{% trans "Free text search..." %}"
                     class="form-control"
                     name="search"
                     value="{{ request.GET.search }}">
