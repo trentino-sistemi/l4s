@@ -163,9 +163,9 @@ def pivot(data, headers, columns, rows, value):
     pivot_df = pivot_df.applymap(
         lambda a: str(a).replace(".0", "", 1).replace("nan", "0"))
 
-    all_s = unicode(_("All")).encode('ascii')
-    pivot_df.rename(columns={'All': all_s}, inplace=True)
-    pivot_df.rename(index={'All': all_s}, inplace=True)
+    total = unicode(_("Total")).encode('ascii')
+    pivot_df.rename(columns={'All': total}, inplace=True)
+    pivot_df.rename(index={'All': total}, inplace=True)
     data = get_data_from_data_frame(pivot_df)
 
     return data, pivot_df, None
