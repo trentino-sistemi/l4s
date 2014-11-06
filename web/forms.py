@@ -356,8 +356,8 @@ class SignupForm(forms.Form):
         """
         Signup request performed by the user.
 
-        :param request:
-        :param user:
+        :param request: Django request.
+        :param user: Django user.
         """
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']

@@ -23,19 +23,19 @@ from utils import get_metadata_on_column, \
     get_data_from_data_frame, stringify
 
 
-myns = Namespace("http://ontology.trentinosistemi.com/ns/")
-cube = Namespace("http://purl.org/linked-data/cube/")
-dcterms = Namespace("http://purl.org/dc/terms/")
-sdmx = Namespace("http://purl.org/linked-data/sdmx/2009/")
-slice_ref = term.URIRef(cube['slice'])
-dataStructureDefinition_ref = term.URIRef(cube['DataStructureDefinition'])
-observation_ref = term.URIRef(cube['observation'])
-component_ref = term.URIRef(cube['component'])
-dataset_ref = term.URIRef(cube['DataSet'])
-title_ref = term.URIRef(dcterms['title'])
-description_ref = term.URIRef(dcterms['description'])
-publisher_ref = term.URIRef(dcterms['publisher'])
-subject_ref = term.URIRef(sdmx['subject'])
+my_ns = Namespace("http://ontology.trentinosistemi.com/ns/")
+cube_ns = Namespace("http://purl.org/linked-data/cube/")
+dc_terms = Namespace("http://purl.org/dc/terms/")
+sdmx_ns = Namespace("http://purl.org/linked-data/sdmx/2009/")
+slice_ref = term.URIRef(cube_ns['slice'])
+dataStructureDefinition_ref = term.URIRef(cube_ns['DataStructureDefinition'])
+observation_ref = term.URIRef(cube_ns['observation'])
+component_ref = term.URIRef(cube_ns['component'])
+data_set_ref = term.URIRef(cube_ns['DataSet'])
+title_ref = term.URIRef(dc_terms['title'])
+description_ref = term.URIRef(dc_terms['description'])
+publisher_ref = term.URIRef(dc_terms['publisher'])
+subject_ref = term.URIRef(sdmx_ns['subject'])
 lang = "it"
 
 
@@ -142,10 +142,10 @@ def add_table_triples(description,
     :return: The Rdflib Graph enriched with table triples.
     """
     title_value = table_name
-    publisher_value_ref = term.URIRef(myns['sspat'])
+    publisher_value_ref = term.URIRef(my_ns['sspat'])
     table_description = description
 
-    g.add((subject_t_ref, RDF.type, dataset_ref))
+    g.add((subject_t_ref, RDF.type, data_set_ref))
     g.add((subject_t_ref, title_ref, Literal(title_value)))
     g.add((
         subject_t_ref, description_ref, Literal(table_description, lang=lang)))
@@ -202,7 +202,7 @@ def add_observations_triples(g, data, table_name, slice_t_ref,
     """
     desc = "http://purl.org/dc/terms/description"
     for r, row in enumerate(data):
-        oss_ref = term.URIRef(myns["dataset-%s#o%s" % (table_name, r)])
+        oss_ref = term.URIRef(my_ns["dataset-%s#o%s" % (table_name, r)])
         g.add((slice_t_ref, observation_ref, oss_ref))
         for c in col_dict:
             items = col_dict[c]
@@ -262,12 +262,12 @@ def rdf_report(sql,
     data = get_data_from_data_frame(data_frame)
     title = title.decode('utf-8')
     dataset = "dataset-%s" % title
-    subject_t_ref = term.URIRef(myns[dataset])
+    subject_t_ref = term.URIRef(my_ns[dataset])
     source_tables = get_source_tables(sql)
 
     g = add_table_triples(description, g, source_tables, title, subject_t_ref)
     col_dict = build_column_dict(data_frame, sql)
-    slice_t_ref = term.URIRef(myns['slice'])
+    slice_t_ref = term.URIRef(my_ns['slice'])
 
     g = add_slice_triples(g, subject_t_ref,
                           data_frame, col_dict)

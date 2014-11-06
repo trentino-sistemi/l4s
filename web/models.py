@@ -150,7 +150,7 @@ class UserType(models.Model):
 
     def __unicode__(self):
         """
-        Retun the name in unicode format.
+        Get the name in unicode format.
 
         :return: The name in unicode.
         """

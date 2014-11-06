@@ -253,7 +253,7 @@ def row_primary_suppression(data,
     :param data: List of tuples containing query result set.
     :param secret_column: Columns with secrets.
     :param threshold_columns_dict: The threshold.
-    :param debug:
+    :param debug: Is to be debugged?
     :return: The data set after the primary suppression on rows.
     """
     if len(data[0]) <= 3:
@@ -284,10 +284,10 @@ def column_primary_plain_suppression(data,
     """
     Delete under threshold values on plain table.
 
-    :param data:
-    :param threshold_columns_dict:
-    :param debug:
-    :return:
+    :param data: Data.
+    :param threshold_columns_dict: Dictionary of columns with threshold.
+    :param debug: Is to be debugged?
+    :return: Data.
     """
     if len(data) <= 3:
         return data
@@ -460,7 +460,7 @@ def protect_pivoted_secret(data,
     Protect pivoted secret with marginality.
 
     :param data: List of tuples containing query result set.
-    :param obs_values:
+    :param obs_values: Observable values.
     :param secret_column: column with secret.
     :param threshold_columns_dict: Threshold column dictionary.
     :param debug: If active show debug info on asterisked cells.
@@ -543,8 +543,9 @@ def item_constraint(constraint):
     Take a constraint string and return a lazy structure
     representing the item.
 
-    :param constraint:
-    :return:
+    :param constraint: Constraint from metadata to be used to
+                       perform primary suppression.
+    :return: Item.
     """
     lesser_than = "<"
     lesser_than_equals = "<="
@@ -617,11 +618,11 @@ def apply_constraint_pivot(data,
 
     :param data: List of tuples containing query result set.
     :param data_frame: pandas data frame.
-    :param pivot_cols:
-    :param rows:
+    :param pivot_cols: Pivot columns.
+    :param rows: Rows.
     :param col_dict: Columns dictionary.
     :param constraint_cols: Constraints dictionary.
-    :param filters:
+    :param filters: Filters.
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table applying constraints.
     """
@@ -801,10 +802,10 @@ def append_total_to_plain_table(data, threshold_columns_dict, constraint_cols):
     """
     Append total to the plain table.
 
-    :param data:
-    :param threshold_columns_dict:
-    :param constraint_cols:
-    :return:
+    :param data: Data,
+    :param threshold_columns_dict: Dictionary for columns with threshold.
+    :param constraint_cols: Dictionary for primary suppression constraint.
+    :return: Data.
     """
     sum_row = []
     c = 1
@@ -877,15 +878,15 @@ def secondary_row_suppression_constraint(data,
     """
     Secondary suppression on row following a constraint.
 
-    :param data:
-    :param data_frame:
-    :param pivot_columns:
-    :param rows:
-    :param col_dict:
-    :param secondary:
-    :param filters:
-    :param debug:
-    :return:
+    :param data: Data,
+    :param data_frame: Data frame.
+    :param pivot_columns: Pivot columns.
+    :param rows: Rows.
+    :param col_dict: Columns dictionary.
+    :param secondary: Constraint for secondary suppression.
+    :param filters: Filters.
+    :param debug: Is to be debugged?
+    :return: Data, number of asterisk.
     """
     asterisk_global_count = 0
     query, new_header = build_secondary_query(secondary,
@@ -995,16 +996,16 @@ def secondary_col_suppression_constraint(data,
     Performs secondary suppression on columns following the secondary metadata
     rule on table.
 
-    :param data:
-    :param data_frame:
-    :param pivot_columns:
-    :param rows:
-    :param col_dict:
-    :param obs_values:
-    :param secondary:
-    :param filters:
-    :param debug:
-    :return:
+    :param data: Data.
+    :param data_frame: Data frame.
+    :param pivot_columns: Pivot columns.
+    :param rows: Rows.
+    :param col_dict: Columns dictionary.
+    :param obs_values: Observable values.
+    :param secondary: Constraint for secondary suppression.
+    :param filters: Filters.
+    :param debug: Is to be debugged?
+    :return: data, number of asterisk.
     """
     asterisk_global_count = 0
     column_tuple_list = []
@@ -1127,12 +1128,13 @@ def apply_stat_secret(headers,
 
     :param headers: Result set header.
     :param data: List of tuples containing query result set.
-    :param col_dict:
-    :param pivot_dict:
+    :param col_dict: Column dictionary.
+    :param pivot_dict: Pivot column.
     :param secret_column_dict: Secret column dictionary.
-    :param sec_ref:
+    :param sec_ref: Secret reference...
     :param threshold_columns_dict: Threshold dictionary.
-    :param constraint_cols:
+    :param constraint_cols: Columns with constraint to
+                            perform primary suppression
     :param filters: Filter used in query.
     :param debug: If active show debug info on asterisked cells.
     :return: data, headers, data_frame, warn, err.

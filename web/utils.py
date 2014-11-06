@@ -414,7 +414,7 @@ def get_all_field_values_agg(ag):
     """
     Get all the values that can have the aggregation.
 
-    :param ag:
+    :param ag: Aggregation id.
     :return: All fields that can be  aggregated.
     """
     metadata = Metadata.objects.get(id=ag)
@@ -528,7 +528,7 @@ def build_foreign_keys(table_name):
     """
     Get an hash table with foreign keys for the table specified.
 
-    :param table_name:
+    :param table_name: Table name.
     :return: An hash table with key the table name and value [table,column]
     """
     ret = dict()
@@ -2467,7 +2467,7 @@ def build_query_desc(agg_col_desc, sel_tab):
 
     :param agg_col_desc: Hash of description columns for aggregation.
     :param sel_tab:
-    :return:
+    :return: Sql query containing descriptions.
     """
     description = ""
     for agg in agg_col_desc:
@@ -2525,7 +2525,7 @@ def generate_storage_id():
     """
     Get a new storage id.
 
-    :return:
+    :return: Id fo build storage.
     """
     storage_id = "%d" % uuid.uuid4()
     return storage_id
@@ -2535,8 +2535,8 @@ def get_session_filename(request):
     """
     Get a temporary filename associated to the request.
 
-    :param request:
-    :return:
+    :param request: Http request.
+    :return: Session file name.
     """
     session_id = str(generate_storage_id())
     sys_temp = tempfile.gettempdir()

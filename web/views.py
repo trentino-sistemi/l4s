@@ -235,8 +235,8 @@ def query_viewmodel_get(request,
 
     :param request: Django request.
     :param query: Explorer query.
-    :param title:
-    :param form:
+    :param title: Title.
+    :param form: Query form.
     :return: The request response.
     """
     return RequestContext(request,
@@ -808,8 +808,8 @@ def no_implemented(request):
     """
     Render a page that say that the feature is not implemented yet.
 
-    :param request:
-    :return: The Django request response.
+    :param request: Django request.
+    :return: The request response.
     """
     return render_to_response('l4s/no_implemented.html')
 
@@ -907,7 +907,8 @@ def open_data(request):
     """
     List of open data to be downloaded plain.
 
-    :param request:
+    :param request: Django request.
+    :return: The request response.
     """
     context = RequestContext(request)
     objects = Query.objects.filter(open_data='true')
@@ -1025,8 +1026,8 @@ def query_editor_customize(request):
     """
     Customize the default query in editor.
 
-    :param request:
-    :return:
+    :param request: Django request.
+    :return: The Django request response.
     """
 
     context = RequestContext(request)
@@ -1114,8 +1115,8 @@ def query_editor_view(request):
     """
     Query editor view.
 
-    :param request:
-    :return:
+    :param request: Django request.
+    :return: The request response.
     """
     table_name = request.REQUEST.get('table', '')
     topic = get_topic_description(table_name)
@@ -1281,6 +1282,12 @@ def query_editor_view(request):
 
 
 def query_editor_save_done(request):
+    """
+    Shown after that the user save a query with editor.
+
+    :param request: Django request.
+    :return: The request response.
+    """
     context = RequestContext(request)
     form = CreateQueryEditorForm(request.POST)
     if form.is_valid():
@@ -1297,8 +1304,8 @@ def query_editor_save(request):
     """
     Query editor save.
 
-    :param request:
-    :return:
+    :param request: Django request.
+    :return: The request response.
     """
 
     context = RequestContext(request)
@@ -1337,8 +1344,8 @@ def query_editor(request):
     """
     Query editor.
 
-    :param request:
-    :return:
+    :param request: Django request.
+    :return: The request response.
     """
     context = RequestContext(request)
     topic = request.GET.get('topic', '')
@@ -1461,8 +1468,8 @@ def manual_request_save(request):
     """
     Save manual request.
 
-    :param request:
-    :return:
+    :param request: Django request.
+    :return: The request response.
     """
     context = RequestContext(request)
     form = ManualRequestForm(request.POST)

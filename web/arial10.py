@@ -134,8 +134,11 @@ charwidths = {
 # to set that font as the standard font in Excel and count pixels.
 
 
-def colwidth(n):
-    """Translate human-readable units to BIFF column width units"""
+def col_width(n):
+    """
+    Translate human-readable units to BIFF column width units.
+    :param n: Number of columns.
+    """
     if n <= 0:
         return 0
     if n <= 1:
@@ -143,30 +146,40 @@ def colwidth(n):
     return 200 + n * 256
 
 
-def fitwidth(data, bold=False):
-    """Try to autofit Arial 10"""
+def fit_width(data, bold=False):
+    """
+    Try to auto-fit Arial 10 width.
+
+    :param data: Data in cell.
+    :param bold: Is data bold?
+    """
     if isinstance(data, float):
         data = str(data)
-    maxunits = 0
-    for ndata in data.split("\n"):
+    max_units = 0
+    for n_data in data.split("\n"):
         units = 220
-        for char in ndata:
+        for char in n_data:
             if char in charwidths:
                 units += charwidths[char]
             else:
                 units += charwidths['0']
-        if maxunits < units:
-            maxunits = units
+        if max_units < units:
+            max_units = units
     if bold:
-        maxunits *= 1.1
-    return max(maxunits, 700)  # Don't go smaller than a reported width of 2
+        max_units *= 1.1
+    return max(max_units, 700)  # Don't go smaller than a reported width of 2
 
 
-def fitheight(data, bold=False):
-    """Try to autofit Arial 10"""
-    rowlen = len(data.split("\n"))
-    if rowlen > 1:
-        units = 230 * rowlen
+def fit_height(data, bold=False):
+    """
+    Try to auto-fit Arial 10 height.
+
+    :param data: Data in cell.
+    :param bold: Is data bold?
+    """
+    row_len = len(data.split("\n"))
+    if row_len > 1:
+        units = 230 * row_len
     else:
         units = 290
     if bold:

@@ -147,7 +147,7 @@ def generate_report_action_xls(df):
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
-                column_len = int(arial10.fitwidth(value, False))
+                column_len = int(arial10.fit_width(value, False))
                 if isinstance(value, unicode):
                     if value.isdigit():
                         value = int(value)
@@ -313,7 +313,7 @@ def generate_report_action_xlsx(df):
                 cell = new_sheet.cell(row=rows+k, column=col)
                 cell.value = value
                 cell.style.font.color.index = body_font_color
-                column_len = int(arial10.fitwidth(str(value), False))/256
+                column_len = int(arial10.fit_width(str(value), False))/256
                 if rows >= 1 and column_len > max_widths[col]:
                         max_widths[col] = column_len
 

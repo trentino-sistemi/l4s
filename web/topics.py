@@ -23,6 +23,12 @@ from web.utils import execute_query_on_main_db
 
 def filter_tables_by_topic(topic_id, tables):
     # Filter tables on topic.
+    """
+
+    :param topic_id: Topic id.
+    :param tables: List of tables.
+    :return: Tables that belong to topic.
+    """
     new_tables = []
     for table_name in tables:
         if has_topic(table_name, topic_id):
@@ -92,7 +98,8 @@ def build_topics_counter_dict():
     Build a dictionary with key topic_id and value the number of table belong
     to the topic.
 
-    :return:
+    :return: Dictionary with key the topic id
+             and as value the number of items in topic.
     """
     topics_counter_dict = dict()
     query = "SELECT c.argomento, COUNT(*)\n"
