@@ -778,7 +778,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
             if is_decoder_table(dest_table):
                 dest_column = fk[1]
                 desc_column = find_desc_column(dest_table)
-                alias = get_column_description(table, dest_column)
+                alias = get_column_description(table, field)
                 if alias is None:
                     alias = dest_column
                 alias = "%s" % alias
