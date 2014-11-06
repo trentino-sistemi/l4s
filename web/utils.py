@@ -70,10 +70,10 @@ def filter_table_by_name_or_desc(search, tables, table_description_dict):
     """
     Filter table by name or natural lang description.
 
-    :param search:
-    :param tables:
-    :param table_description_dict:
-    :return:
+    :param search: Expression to be search.
+    :param tables: Table set.
+    :param table_description_dict: Table dictionary.
+    :return: Matching table list.
     """
     new_tables = []
     for table_name in tables:
@@ -132,7 +132,7 @@ def list_tourism_sectors():
     """
     List the tourism sectors.
 
-    :return: The list of the touristict sectors.
+    :return: The list of the tourist sectors.
     """
     valley_communities = []
     query = "SELECT descriz from trcambtn"
@@ -147,7 +147,7 @@ def list_health_districts():
     """
     List the health_districts.
 
-    :return: The list of the healt districts.
+    :return: The list of the health districts.
     """
     valley_communities = []
     query = "SELECT descriz from sacdissa10"
@@ -162,8 +162,8 @@ def count_distinct(table_name, column_name):
     """
     Return the number of distinct values fro the table and column in input.
 
-    :param table_name:
-    :param column_name:
+    :param table_name: Table name.
+    :param column_name: Column name.
     :return:
     """
     query = "SELECT COUNT(DISTINCT %s) FROM %s" % (column_name, table_name)
@@ -248,9 +248,9 @@ def list_ref_period(table_name,
     """
     Get list of ref_period columns in table.
 
-    :param table_name:
-    :param table_description:
-    :return:
+    :param table_name: Table name.
+    :param table_description: Table schema description.
+    :return: Columns containing a ref period.
     """
     columns = []
     for f, field in enumerate(table_description):
@@ -265,10 +265,10 @@ def contains_ref_period(pivot, cols, axis=None):
     Get the pivot list and the columns structure and the axis to be checked.
     It returns if the table defined contains ref period values.
 
-    :param pivot:
-    :param cols:
-    :param axis:
-    :return:
+    :param pivot: Pivot cols.
+    :param cols: Columns.
+    :param axis: Axis where looking for.
+    :return: Boolean.
     """
     if axis == 0:
         for c in pivot:
@@ -290,9 +290,9 @@ def is_visible_field(table_name, column_name):
     """
     Return if the column table is visible.
 
-    :param table_name:
-    :param column_name:
-    :return:
+    :param table_name: Table name.
+    :param column_name: Column name.
+    :return: Boolean.
     """
     value = get_key_column_value(table_name, column_name, "visible")
     if not value is None and value == "false":
@@ -305,9 +305,9 @@ def all_hidden_fields(table_name,
     """
     Get dict of hidden fields in table.
 
-    :param table_name:
-    :param table_description:
-    :return:
+    :param table_name: Table name.
+    :param table_description: Table descriptiopn.
+    :return: All the field to be hidden.
     """
     ret = dict()
     for f, field in enumerate(table_description):
@@ -378,7 +378,7 @@ def list_obs_value_column_from_dict(col_dict):
     Found all observable value from dictionary
     and return indices.
 
-    :param col_dict
+    :param col_dict: Columns dictionary.
     :return: all observable values indices.
     """
     obs_list = []
@@ -396,8 +396,8 @@ def all_obs_value_column(table_name, table_description):
     """
     Found all observable value.
 
-    :param table_name:
-    :param table_description:
+    :param table_name: Table name.
+    :param table_description: Table description.
     :return: index_column, column_name
     """
     ret = OrderedDict()
@@ -415,7 +415,7 @@ def get_all_field_values_agg(ag):
     Get all the values that can have the aggregation.
 
     :param ag:
-    :return:
+    :return: All fields that can be  aggregated.
     """
     metadata = Metadata.objects.get(id=ag)
     if metadata.key == LOCATED_IN_AREA:
@@ -433,9 +433,9 @@ def get_all_field_values(table_name, column_name):
     """
     Get all the value that can assume the field.
 
-    :param table_name:
-    :param column_name:
-    :return:
+    :param table_name: Table name.
+    :param column_name: Column name.
+    :return: All values that can have each one column.
     """
     ret = []
     query = "--JOIN %s.%s 0\n" % (table_name, column_name)
@@ -657,7 +657,7 @@ def extract_header(sql):
     """
     Separate our directives (header) by sql body.
 
-    :param sql:
+    :param sql: Sql text.
     :return: header, sql (without directives)
     """
     clean_sql = ""
@@ -693,7 +693,7 @@ def remove_code_from_data_frame(df):
     """
     Remove code from data frame.
 
-    :param df:
+    :param df: Data frame.
     """
     # Rename empty index with total index name.
     if has_data_frame_multi_level_index(df):
@@ -728,7 +728,7 @@ def is_to_be_sorted_by_description(table, column):
 
     :param table: Table name.
     :param column: Column name.
-    :return: boolean
+    :return: Boolean.
     """
     val = get_key_column_value(table, column, "order_by")
     if val is not None and val == "description":
@@ -864,9 +864,9 @@ def build_constraint_query(constraints,
     """
     Build ad hoc query on related table.
 
-    :param constraints:
-    :param col_dict:
-    :param filters:
+    :param constraints: Constraints.
+    :param col_dict: Column dictionary.
+    :param filters: Filters.
     :return: The new query applying constraints.
     """
 
@@ -939,9 +939,10 @@ def build_secondary_query(secondary,
     """
     Build ad hoc query on related table.
 
-    :param secondary:
-    :param col_dict:
-    :param filters:
+    :param secondary: Constraint to be followed in ordder to apply
+                      the secondary suppression.
+    :param col_dict: Column dictionary.
+    :param filters: Filters.
     :return: The new query applying constraints.
     """
     second_clause = secondary.split()[2]
@@ -1011,10 +1012,10 @@ def add_secret_column(secret_cols, index, table_name, column_name):
     """
     Add secret info to hash table.
 
-    :param secret_cols:
-    :param index:
-    :param table_name:
-    :param column_name:
+    :param secret_cols: Secret columns.
+    :param index: Index.
+    :param table_name: Table name.
+    :param column_name: Column name.
     :return: the secret columns.
     """
     if is_secret(table_name, column_name):
@@ -1028,11 +1029,11 @@ def add_constraint_column(constraint_cols, index, table_name, column_name):
     """
     Add constraint info to hash table.
 
-    :param constraint_cols:
-    :param index:
-    :param table_name:
-    :param column_name:
-    :return:
+    :param constraint_cols: COnstraint columns.
+    :param index: Index.
+    :param table_name: Table name.
+    :param column_name: Column name.
+    :return: The constraint column.
     """
     constraint = get_constraint(table_name, column_name)
     if constraint is not None:
@@ -1045,10 +1046,10 @@ def add_decoder_column(decoder_cols, index, table_name):
     """
     Add decoder info to hash table.
 
-    :param decoder_cols:
-    :param index:
-    :param table_name:
-    :return:
+    :param decoder_cols: Decoder columns.
+    :param index: Index.
+    :param table_name: Table name.
+    :return: Decoder columns.
     """
     if is_decoder_table(table_name):
         decoder_cols.append(index)
@@ -1059,11 +1060,11 @@ def add_threshold_column(threshold_cols, index, table_name, column_name):
     """
     Add threshold info to hash table.
 
-    :param threshold_cols:
-    :param index:
-    :param table_name:
-    :param column_name:
-    :return:
+    :param threshold_cols: Threshold columns.
+    :param index: Index.
+    :param table_name: Table name.
+    :param column_name: Column name.
+    :return: Threshold columns.
     """
     threshold = get_threshold(table_name, column_name)
     if threshold is not None:
@@ -1075,11 +1076,11 @@ def add_column(cols, index, table_name, column_name):
     """
     Add column info to hash table.
 
-    :param cols:
-    :param index:
-    :param table_name:
-    :param column_name:
-    :return:
+    :param cols: Columns.
+    :param index: Index.
+    :param table_name: Table name.
+    :param column_name: Column name.
+    :return: Columns
     """
     cols[index] = dict()
     cols[index]['table'] = table_name
@@ -1091,10 +1092,10 @@ def add_secret_ref(secret_ref, table_name, column_name):
     """
     Add secret info to hash table.
 
-    :param secret_ref:
-    :param table_name:
-    :param column_name:
-    :return:
+    :param secret_ref: Secret...
+    :param table_name: Table name.
+    :param column_name: Column name.
+    :return: Secret...
     """
     sec = dict()
     sec['table'] = table_name
@@ -1243,11 +1244,11 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold):
     """
     Build aggregation query.
 
-    :param sql:
-    :param cols:
-    :param aggregations:
-    :param threshold:
-    :return:
+    :param sql: Sql text.
+    :param cols: Columns.
+    :param aggregations: Aggregations.
+    :param threshold: Threshold.
+    :return: Sql (aggregated query).
     """
     err = None
     cols_s = ','.join([str(k) for k in aggregations])
@@ -1371,9 +1372,9 @@ def build_class_query(sql, cols, metadata, threshold):
     Build query for CLASS aggregation.
 
     :param sql: The sql text.
-    :param cols:
-    :param metadata:
-    :param threshold:
+    :param cols: Columns.
+    :param metadata: Metadatas.
+    :param threshold: Threshold.
     :return: The new query to aggregate to an higher CLASS level.
     """
     column_name = metadata.column_name
@@ -1643,6 +1644,7 @@ def build_description_column_dict(table_name, table_schema):
     Build a dictionary <column_name, description>
     for the specified table schema.
 
+    :param table_name: Table name.
     :param table_schema: Table schema.
     :return: dictionary with column description
     """
@@ -1693,7 +1695,7 @@ def get_params_dictionary(variable_dictionary):
     query args with uri.
 
     :param variable_dictionary: Variable dictionary.
-    :return: the parameters dictionary Parameter dictionary.
+    :return: The parameters dictionary.
     """
     if variable_dictionary is None:
         return None
@@ -1737,7 +1739,7 @@ def get_widgets_dictionary(variable_dictionary):
     The dictionary will be passed on query with post.
 
     :param variable_dictionary: Variable dictionary.
-    :return: the widgets dictionary Widgets dictionary.
+    :return: The widgets dictionary.
     """
     if variable_dictionary is None:
         return None
@@ -2011,7 +2013,7 @@ def get_concept(value):
     Get concept
 
     :param value:
-    :return:
+    :return: Concept.
     """
     query = "SELECT table_name, column_name from %s " % METADATA
     query += "WHERE column_name != 'NULL' and "
@@ -2043,9 +2045,9 @@ def get_dimensions(table, column):
     """
     Get dimension of table column name.
 
-    :param table:
-    :param column:
-    :return:
+    :param table: Table name.
+    :param column: Column name.
+    :return: Dimension.
     """
     return get_key_column_values(table, column, DIMENSION)
 
@@ -2054,9 +2056,9 @@ def get_measure(table, column):
     """
     Get measure of table column name.
 
-    :param table:
-    :param column:
-    :return:
+    :param table: Table name.
+    :param column: Column name.
+    :return: Measure.
     """
     return get_key_column_values(table, column, MEASURE)
 
@@ -2065,9 +2067,9 @@ def is_obs_value(table, column):
     """
     Return if the column table contains an observable value.
 
-    :param table:
-    :param column:
-    :return:
+    :param table: Table name.
+    :param column: Column name.
+    :return: Boolean.
     """
     values = get_measure(table, column)
     for val in values:
@@ -2080,9 +2082,9 @@ def is_ref_period(table, column):
     """
     Return if the column table is a time reference period.
 
-    :param table:
-    :param column:
-    :return:
+    :param table: Table_name.
+    :param column: Column name.
+    :return: Boolean.
     """
     values = get_dimensions(table, column)
     for val in values:
@@ -2095,9 +2097,9 @@ def is_ref_area(table, column):
     """
     Return if the column table is a referenced geographical area.
 
-    :param table:
-    :param column:
-    :return:
+    :param table: Table name.
+    :param column: Column name.
+    :return: Boolean.
     """
     values = get_dimensions(table, column)
     for val in values:
@@ -2110,9 +2112,9 @@ def get_all_aggregations(table_name, table_schema):
     """
     Get all the aggregation that are feasible on table.
 
-    :param table_name:
-    :param table_schema:
-    :return:
+    :param table_name: Table name.
+    :param table_schema: Column name.
+    :return: Boolean.
     """
     agg = dict()
 
@@ -2160,8 +2162,8 @@ def get_aggregations(cols):
     """
     Get the aggregation that are feasible on query passing involved columns.
 
-    :param cols:
-    :return:
+    :param cols: Columns.
+    :return: All feasible aggregations on columns.
     """
     agg = dict()
 
@@ -2209,10 +2211,10 @@ def get_aggregations(cols):
 
 def drop_total_column(data_frame):
     """
-    Drop the total column in dataframe.
+    Drop the total column in data frame.
 
     :param data_frame:
-    :return:
+    :return: Data frame.
     """
     index = data_frame.shape[1]-1
     data_frame = data_frame.drop(data_frame.columns[index], axis=1)
@@ -2221,10 +2223,10 @@ def drop_total_column(data_frame):
 
 def drop_total_row(data_frame):
     """
-    Drop the total row in dataframe.
+    Drop the total row in data frame.
 
     :param data_frame:
-    :return:
+    :return: Data frame.
     """
     index = get_data_frame_first_index(data_frame)
     i = len(index)-1
@@ -2252,8 +2254,8 @@ def get_column_desc(column_description, f):
     """
     Get the description on the field name.
 
-    :param column_description:
-    :param f:
+    :param column_description: hash table with all fields description.
+    :param f: name
     :return: description.
     """
     for c in column_description:
@@ -2271,8 +2273,8 @@ def get_aggregation_descriptions(agg_id):
     Get the id of aggregation and return source description and
     target description.
 
-    :param agg_id:
-    :return:
+    :param agg_id: Aggregation id.
+    :return: Description (from, to).
     """
     metadata = Metadata.objects.get(id=agg_id)
     ref_table, ref_column = located_in_area(metadata.table_name,
@@ -2288,20 +2290,24 @@ def build_summarize_filters(column_description,
                             values,
                             filters,
                             columns_names,
-                            index_names):
+                            index_names,
+                            hidden_fields):
     """
     Build an hash table that summarize the filters.
 
-    :param column_description:
-    :param values:
-    :param filters:
-    :param columns_names:
-    :param index_names:
+    :param column_description: Column description hash table.
+    :param values: Values.
+    :param filters: Filters.
+    :param columns_names: Column names.
+    :param index_names: Indices names.
+    :param hidden_fields: Hidden fields.
     """
     ret = dict()
     all_s = unicode(_("all"))
     total_s = unicode(_("total"))
     for f in filters:
+        if f in hidden_fields.values():
+            continue
         filt = filters[f]
         col_desc = get_column_desc(column_description, f)
         if len(filt) == len(values[f]):
@@ -2328,9 +2334,9 @@ def build_agg_summarize_filters(target_col_desc,
     """
     Build an hash table that summarize the aggregation filters.
 
-    :param target_col_desc:
-    :param all_vals:
-    :param filters:
+    :param target_col_desc: Column description.
+    :param all_vals: All possible values that can have the aggregated field.
+    :param filters: Filters.
     :return:
     """
     ret = dict()
@@ -2351,9 +2357,9 @@ def build_aggregation_title(src_col_desc, target_col_desc):
     """
     Get aggregation title.
 
-    :param src_col_desc:
-    :param target_col_desc:
-    :return:
+    :param src_col_desc: Column description of field to be aggregated.
+    :param target_col_desc: Column description of the aggregated field.
+    :return: Title.
     """
     group_by = unicode(_("group by"))
     title = "%s %s " % (src_col_desc, group_by)
@@ -2369,19 +2375,22 @@ def build_all_filter(column_description,
                      agg_filters,
                      agg_col_desc,
                      columns_names,
-                     index_names):
+                     index_names,
+                     hidden_fields):
     """
     Build a table with all filters.
 
-    :param column_description:
-    :param values:
-    :param filters:
-    :param aggregation_ids:
-    :param agg_values:
-    :param agg_filters:
-    :param agg_col_desc:
-    :param index_names:
-    :return:
+    :param columns_names: Column names.
+    :param column_description: Column descriptions.
+    :param values: Values.
+    :param filters: Filters.
+    :param aggregation_ids: List of aggregation ids.
+    :param agg_values: Hash of aggregations values.
+    :param agg_filters: Hash of aggregations filters.
+    :param agg_col_desc: Hash of description columns for aggregations.
+    :param index_names: Indices names.
+    :param hidden_fields:
+    :return: filters.
     """
     ret = {}
     for a, a_id in enumerate(aggregation_ids):
@@ -2396,7 +2405,8 @@ def build_all_filter(column_description,
                                                 values,
                                                 filters,
                                                 columns_names,
-                                                index_names)
+                                                index_names,
+                                                hidden_fields)
     ret.update(summarize_filters)
     return ret
 
@@ -2408,11 +2418,14 @@ def build_query_summary(column_description,
                         agg_values,
                         agg_filters,
                         columns_names,
-                        index_names):
+                        index_names,
+                        hidden_fields):
     """
     Build a query summary with an hash table with aggregation, description
     and target column an a table with column descriptions, selected values.
 
+    :param columns_names: Column names.
+    :param index_names: Indices names.
     :param column_description: Structure with column description.
     :param values: All values for each field.
     :param filters:  Filter on query.
@@ -2421,7 +2434,8 @@ def build_query_summary(column_description,
     :param agg_filters Filter on aggregated fields.
     :param index_names:: Field used ad columns
     :param index_names:: Field used ad indices.
-    :return:
+    :param hidden_fields: Hidden fields.
+    :return: Dictionary with description.
     """
 
     agg_col_desc = dict()
@@ -2433,9 +2447,16 @@ def build_query_summary(column_description,
         val['description'] = target_col_desc
         agg_col_desc[agg_id] = val
 
-    sel_tab = build_all_filter(column_description, values, filters,
-                               aggregation_ids, agg_values, agg_filters,
-                               agg_col_desc, columns_names, index_names)
+    sel_tab = build_all_filter(column_description,
+                               values,
+                               filters,
+                               aggregation_ids,
+                               agg_values,
+                               agg_filters,
+                               agg_col_desc,
+                               columns_names,
+                               index_names,
+                               hidden_fields)
 
     return agg_col_desc, sel_tab
 
@@ -2444,7 +2465,7 @@ def build_query_desc(agg_col_desc, sel_tab):
     """
     Take build query summary and return a summary in printable format.
 
-    :param agg_col_desc:
+    :param agg_col_desc: Hash of description columns for aggregation.
     :param sel_tab:
     :return:
     """

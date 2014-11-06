@@ -1239,7 +1239,8 @@ def query_editor_view(request):
                                            agg_values,
                                            agg_filters,
                                            df.columns.names,
-                                           df.index.names)
+                                           df.index.names,
+                                           hidden_fields)
 
     description = build_query_desc(agg_col, sel_tab)
     store = store_data_frame(request, df)
