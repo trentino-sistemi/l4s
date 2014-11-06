@@ -219,6 +219,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
+                               {% if field in ref_periods %}
+                               ref_period="true"
+                               {% endif %}
                                name="input_{{ field }}"
                                id="{{ field }}_input_{{val.0}}"
                                value="{{val.0}}">{{val.1}}<br>
@@ -292,6 +295,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
+                               {% if field in ref_periods %}
+                               ref_period="true"
+                               {% endif %}
                                name="input_{{ field }}"
                                id="{{ field }}_input_{{val.0}}"
                                value="{{val.0}}">{{val.1}}<br>
