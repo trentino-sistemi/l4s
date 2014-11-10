@@ -102,6 +102,16 @@ class Metadata(models.Model):
     value = models.CharField(_('value'), max_length=256, blank=False)
 
 
+class Reconciliation(models.Model):
+    """
+    Table to perform reconciliation on data.
+    """
+    table_name = models.CharField(max_length=256, blank=True)
+    column_name = models.CharField(max_length=256, blank=True)
+    code_id = models.IntegerField()
+    url = models.CharField(max_length=512, blank=True)
+
+
 class ManualRequest(models.Model):
     """
     Model used in order to enable the user to do a manual request to be
