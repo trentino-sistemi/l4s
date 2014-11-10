@@ -216,6 +216,8 @@ def min_distinct_values_column(table_name,
         if c in exclude:
             continue
         column_name = field.name
+        if column_name is None:
+            continue
         number_of_el = count_distinct(table_name, column_name)
         if c == 0 or number_of_el < max_occurrences:
             max_occurrences = number_of_el
@@ -252,11 +254,11 @@ def list_ref_period(table_name,
     :param table_description: Table schema description.
     :return: Columns containing a ref period.
     """
-    columns = []
+    columns = dict()
     for f, field in enumerate(table_description):
         column_name = field.name
         if is_ref_period(table_name, column_name):
-            columns.append(column_name)
+            columns[f] = column_name
     return columns
 
 
@@ -329,6 +331,8 @@ def first_column(table_description, exclude):
         if f in exclude:
             continue
         column_name = field.name
+        if column_name is None:
+            continue
         return f, column_name
     return -1, None
 
@@ -466,7 +470,7 @@ def get_all_field_values(table_name, column_name):
     return ret
 
 
-def choose_default_axis(table_name, hidden_fields):
+def choose_default_axis(table_name, ref_periods, hidden_fields):
     """
     Choose default axis to be selected in a table if the user don't specify
     parameters.
@@ -489,20 +493,26 @@ def choose_default_axis(table_name, hidden_fields):
     for index in obs_values:
         neglected_index.append(index)
 
-    index, column_name = first_ref_period_column(table_name,
-                                                 table_schema,
-                                                 neglected_index)
+    column_name = None
+    for index in ref_periods:
+        col_name = ref_periods[index]
+        if col_name not in hidden_fields.values():
+            column_name = col_name
+            neglected_index.append(index)
+            cols.append(column_name)
+
     if column_name is None:
         index, column_name = min_distinct_values_column(table_name,
                                                         table_schema,
                                                         neglected_index)
-    while column_name is None:
+        neglected_index.append(index)
+        cols.append(column_name)
+
+    if column_name is None:
         index, column_name = first_column(table_schema,
                                           neglected_index)
         neglected_index.append(index)
-
-    cols.append(column_name)
-    neglected_index.append(index)
+        cols.append(column_name)
 
     index, column_name = first_secret_column(table_name,
                                              table_schema,

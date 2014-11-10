@@ -1187,6 +1187,7 @@ def query_editor_view(request):
     ref_periods = list_ref_period(table_name, table_schema)
 
     agg_values = dict()
+    filters = dict()
     for agg in aggregations:
         for ag in aggregations[agg]:
             agg_new = dict()
@@ -1195,7 +1196,19 @@ def query_editor_view(request):
             agg_values[ag] = vals
 
     if len(rows) + len(cols) == 0:
-        cols, rows = choose_default_axis(table_name, hidden_fields)
+        cols, rows = choose_default_axis(table_name,
+                                         ref_periods,
+                                         hidden_fields)
+        if len(cols) > 1:
+            if cols[0] in ref_periods.values():
+                for val in values:
+                    if val == cols[0]:
+                        filters[val] = [values[val][len(values[val])-1]]
+                    else:
+                        filters[val] = values[val]
+        else:
+            filters = values
+
         if cols == -1:
             add = unicode(_("Please add the metadata 'obsValue'"))
             choose = unicode(_("on one of the columns of the table"))
@@ -1203,7 +1216,6 @@ def query_editor_view(request):
 
             return render_to_response("l4s/query_editor_view.html", context)
 
-        filters = values
         agg_filters = agg_values
     else:
         filters = json.loads(filters_s)
@@ -1276,7 +1288,7 @@ def query_editor_view(request):
     context['sel_tab'] = sel_tab
     context['agg_col'] = agg_col
     context['include_code'] = include_code
-    context['ref_periods'] = ",".join(ref_periods)
+    context['ref_periods'] = ",".join(ref_periods.values())
 
     return render_to_response("l4s/query_editor_view.html", context)
 
