@@ -1,5 +1,5 @@
 .pvtAxisContainer, .pvtVals {
-    border: 1px solid #1F556F;
+    border: 1px solid #375a7f;
     padding: 5px;
     min-width: 20px;
     min-height: 20px;
@@ -11,8 +11,8 @@
 }
 
 .pvtAxisContainer li span.pvtAttr {
-    background: #1F556F;
-    border: 1px solid #1F556F;
+    background: #375a7f;
+    border: 1px solid #375a7f;
     color: white;
     padding: 2px 5px;
     white-space:nowrap;

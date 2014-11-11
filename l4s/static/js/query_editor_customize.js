@@ -25,7 +25,7 @@
 
 
 function get_aggregation_color() {
-        return "#A1284C";
+        return "#5bc0de";
 }
 
 function colour(field) {
