@@ -1642,10 +1642,23 @@ def build_description_table_dict(tables):
     :param tables: List of table names.
     :return: A dictionary with descriptions.
     """
-    table_description_dict = dict()
-    for table in tables:
-        description = get_table_description(table)
-        table_description_dict[table] = description
+    tables_str = ""
+    for t, table in enumerate(tables):
+        if t!=0:
+            tables_str += ","
+        tables_str+="'%s'" % table
+    table_description_dict = OrderedDict()
+    query = "SELECT table_name, value from %s " % METADATA
+    query += "WHERE column_name ='NULL' "
+    query += "and key='%s' " % DESCRIPTION
+    query += "and table_name IN (%s)" % tables_str
+    query += "ORDER BY value;"
+    rows = execute_query_on_django_db(query)
+    if rows is not None:
+        for row in rows:
+            table= row[0]
+            description = row[1]
+            table_description_dict[table] = description
     return table_description_dict
 
 
