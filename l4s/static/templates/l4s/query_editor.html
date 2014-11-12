@@ -92,14 +92,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% else %}
     <h4>{% trans "Choose a dataset" %}
     </h4>
-    {% for table in table_description %}
-    {% if table in table_list %}
+    {% for table in table_list %}
     <tr>
         <td>
             <a href="/query_editor_view?table={{ table }}">{{ table_description|lookup:table }}</a></p>
         </td>
     </tr>
-    {% endif %}
     {% endfor %}
     {% endif %}
 </table>

@@ -1635,19 +1635,22 @@ def email_new_manual_request(instance):
               fail_silently=False)
 
 
-def build_description_table_dict(tables):
+def order_tables_by_decriptions(tables):
     """
-    Build a dictionary <table_name, description>.
+    Order tables by descriptions.
 
     :param tables: List of table names.
     :return: A dictionary with descriptions.
     """
+    ret_tables = []
+    if tables is None or len(tables) == 0:
+        return ret_tables
+
     tables_str = ""
     for t, table in enumerate(tables):
-        if t!=0:
+        if t != 0:
             tables_str += ","
-        tables_str+="'%s'" % table
-    table_description_dict = OrderedDict()
+        tables_str += "'%s'" % table
     query = "SELECT table_name, value from %s " % METADATA
     query += "WHERE column_name ='NULL' "
     query += "and key='%s' " % DESCRIPTION
@@ -1656,9 +1659,22 @@ def build_description_table_dict(tables):
     rows = execute_query_on_django_db(query)
     if rows is not None:
         for row in rows:
-            table= row[0]
-            description = row[1]
-            table_description_dict[table] = description
+            table = row[0]
+            ret_tables.append(table)
+    return ret_tables
+
+
+def build_description_table_dict(tables):
+    """
+    Build a dictionary <table_name, description>.
+
+    :param tables: List of table names.
+    :return: A dictionary with descriptions.
+    """
+    table_description_dict = dict()
+    for table in tables:
+        description = get_table_description(table)
+        table_description_dict[table] = description
     return table_description_dict
 
 

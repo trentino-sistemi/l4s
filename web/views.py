@@ -79,7 +79,8 @@ from web.utils import get_variable_dictionary, \
     load_data_frame, \
     store_data_frame, \
     list_ref_period, \
-    all_hidden_fields
+    all_hidden_fields, \
+    order_tables_by_decriptions
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1382,6 +1383,8 @@ def query_editor(request):
         tables = filter_table_by_name_or_desc(search, tables,
                                               table_description)
     tables = filter_coder_table(tables)
+    tables = order_tables_by_decriptions(tables)
+
     context['topics'] = build_topics_dict()
     context['table_list'] = tables
     context['topic'] = topic_id
