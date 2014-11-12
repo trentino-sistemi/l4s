@@ -95,6 +95,35 @@ def get_table_by_name_or_desc(search):
     return ret
 
 
+def order_tables_by_descriptions(tables):
+    """
+    Order tables by descriptions.
+
+    :param tables: List of table names.
+    :return: A dictionary with descriptions.
+    """
+    ret_tables = []
+    if tables is None or len(tables) == 0:
+        return ret_tables
+
+    tables_str = ""
+    for t, table in enumerate(tables):
+        if t != 0:
+            tables_str += ","
+        tables_str += "'%s'" % table
+    query = "SELECT table_name, value from %s " % METADATA
+    query += "WHERE column_name ='NULL' "
+    query += "and key='%s' " % DESCRIPTION
+    query += "and table_name IN (%s)" % tables_str
+    query += "ORDER BY value;"
+    rows = execute_query_on_django_db(query)
+    if rows is not None:
+        for row in rows:
+            table = row[0]
+            ret_tables.append(table)
+    return ret_tables
+
+
 def execute_query_on_main_db(query):
     """
     Execute a query on the main database.

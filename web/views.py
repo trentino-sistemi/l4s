@@ -79,7 +79,8 @@ from web.utils import get_variable_dictionary, \
     load_data_frame, \
     store_data_frame, \
     list_ref_period, \
-    all_hidden_fields
+    all_hidden_fields, \
+    order_tables_by_descriptions
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -860,6 +861,7 @@ def table_list(request):
     search = request.GET.get('search', '')
     topic = request.GET.get('topic', '')
     tables = []
+    table_description = dict()
     # Filter tables matching descriptions and table_name.
     if search:
         table_description = get_table_by_name_or_desc(search)
@@ -870,7 +872,7 @@ def table_list(request):
     if topic.isdigit():
         topic_id = int(topic)
 
-    if topic_id is not 0 :
+    if topic_id is not 0:
         if search:
             tables = filter_tables_by_topic(topic_id, tables)
         else:
@@ -1368,33 +1370,32 @@ def query_editor(request):
     topic = request.GET.get('topic', '')
     search = request.GET.get('search', '')
 
-    tables = []
+    table_description = dict()
     # Filter tables matching descriptions and table_name.
     if search:
         table_description = get_table_by_name_or_desc(search)
         tables = table_description.keys()
+    else:
+        connection = connections[EXPLORER_CONNECTION_NAME]
+        tables = connection.introspection.table_names()
 
     # Topic 0 means that all the topics will be displayed.
     topic_id = 0
     if topic.isdigit():
         topic_id = int(topic)
 
-    if topic_id is not 0 :
-        if search:
-            tables = filter_tables_by_topic(topic_id, tables)
-        else:
-            connection = connections[EXPLORER_CONNECTION_NAME]
-            tables = connection.introspection.table_names()
-    else:
+    if topic_id == 0:
         context['topics_counter'] = build_topics_counter_dict()
+    else:
+        tables = filter_tables_by_topic(topic_id, tables)
+        tables = filter_coder_table(tables)
+        tables = order_tables_by_descriptions(tables)
+        if not search:
+            table_description = build_description_table_dict(tables)
 
-    tables = filter_coder_table(tables)
-    if not search:
-        table_description = build_description_table_dict(tables)
-
+    context['topic'] = topic_id
     context['topics'] = build_topics_dict()
     context['table_list'] = tables
-    context['topic'] = topic_id
     context['search'] = search
     context['table_description'] = table_description
     context['selected_topic'] = topic_id

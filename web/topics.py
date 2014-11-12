@@ -29,10 +29,24 @@ def filter_tables_by_topic(topic_id, tables):
     :param tables: List of tables.
     :return: Tables that belong to topic.
     """
+    tables_str = ""
+    for t, table in enumerate(tables):
+        if t != 0:
+            tables_str += ","
+        tables_str += "'%s'" % table
+
+    query = "SELECT a.nome from tabelle a join argomenti_tabelle b \n"
+    query += "on (b.id = a.id) "
+    query += "WHERE b.argomento=%d " % topic_id
+    query += "and a.nome IN (%s)" % tables_str
+
     new_tables = []
-    for table_name in tables:
-        if has_topic(table_name, topic_id):
+    rows = execute_query_on_main_db(query)
+    if rows is not None:
+        for row in rows:
+            table_name = row[0]
             new_tables.append(table_name)
+
     return new_tables
 
 
