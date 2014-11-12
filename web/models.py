@@ -124,11 +124,11 @@ class ManualRequest(models.Model):
     dispatch_note = models.CharField(max_length=512,
                                      blank=True,
                                      null=True)
-    subject = models.CharField(_('subject'), max_length=256, blank=False)
+    subject = models.CharField(_('subject'), max_length=512, blank=False)
     goal = models.CharField(_('goal'), max_length=256, blank=False)
     topic = models.CharField(_('topic'), max_length=100, blank=False)
     requested_data = models.CharField(_('requested data'),
-                                      max_length=400,
+                                      max_length=2048,
                                       blank=False)
     references_years = models.CharField(_('referenced years'),
                                         max_length=30,
