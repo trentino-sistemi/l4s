@@ -447,17 +447,6 @@ def get_all_field_values(table_name, column_name):
     query += "ORDER BY %s" % column_name
     st = detect_special_columns(query)
     query = build_description_query(query, st.cols, [], True, False)
-
-    # Hack the query in order to have also the code.
-    new_query = ""
-    for line in query.strip().splitlines():
-        left_stripped_line = "%s" % line.lstrip(' ')
-        if left_stripped_line == "SELECT ":
-            new_query += "SELECT %s.%s, " % ('main_table', column_name)
-        else:
-            new_query += "%s\n" % line
-    query = new_query
-
     rows = execute_query_on_main_db(query)
     for row in rows:
         if len(row) == 1:
