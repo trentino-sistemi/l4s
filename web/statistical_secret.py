@@ -333,13 +333,12 @@ def column_primary_pivoted_suppression(data,
         threshold = get_threshold_from_dict(threshold_columns_dict, obs)
 
         for c, column in enumerate(data[0], start=0):
-            if not c in secret_column:
-                continue
             if c == len(data[0]) - 1:
                 break
             for r, row in enumerate(data):
-                if r > len(data) - len(obs_values) or r % len(
-                        obs_values) != obs:
+                if r > len(data) - len(obs_values):
+                    continue
+                if len(obs_values) > 1 and r % len(obs_values) != obs:
                     continue
                 val = row[c]
                 if str(val).startswith(ASTERISK):
@@ -455,6 +454,8 @@ def protect_pivoted_secret(data,
                            obs_values,
                            secret_column,
                            threshold_columns_dict,
+                           pivot,
+                           cols,
                            debug):
     """
     Protect pivoted secret with marginality.
@@ -466,13 +467,18 @@ def protect_pivoted_secret(data,
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table preserving statistical secret with marginality.
     """
-    data = row_primary_suppression(data,
-                                   secret_column,
-                                   threshold_columns_dict,
-                                   debug)
-
-    data = column_primary_pivoted_suppression(data, obs_values, secret_column,
-                                              threshold_columns_dict, debug)
+    #@TODO Se tempo allora no row.
+    if not contains_ref_period(pivot, cols, axis=0):
+        data = row_primary_suppression(data,
+                                       secret_column,
+                                       threshold_columns_dict,
+                                       debug)
+    if not contains_ref_period(pivot, cols, axis=1):
+        data = column_primary_pivoted_suppression(data,
+                                                  obs_values,
+                                                  secret_column,
+                                                  threshold_columns_dict,
+                                                  debug)
 
     return data
 
@@ -483,6 +489,8 @@ def protect_pivoted_table(data,
                           threshold_columns_dict,
                           constraint_cols,
                           obs_values,
+                          pivot,
+                          cols,
                           debug):
     """
     Protect pivoted table by statistical secret.
@@ -504,12 +512,18 @@ def protect_pivoted_table(data,
                                       obs_values,
                                       secret_column_dict,
                                       threshold_columns_dict,
+                                      pivot,
+                                      cols,
                                       debug)
 
     tot_asterisked = 1
     while tot_asterisked > 0:
-        data, asterisked_r = row_secondary_suppression(data, debug)
-        data, asterisked_c = column_secondary_suppression(data, debug)
+        asterisked_r = 0
+        if not contains_ref_period(pivot, cols, axis=0):
+            data, asterisked_r = row_secondary_suppression(data, debug)
+        asterisked_c = 0
+        if not contains_ref_period(pivot, cols, axis=1):
+            data, asterisked_c = column_secondary_suppression(data, debug)
         tot_asterisked = asterisked_c + asterisked_r
 
     return data
@@ -1222,6 +1236,8 @@ def apply_stat_secret(headers,
                                          threshold_columns_dict,
                                          constraint_cols,
                                          obs_vals,
+                                         pivot_dict,
+                                         col_dict,
                                          debug)
 
         data_frame = data_frame_from_tuples(data_frame, data)
