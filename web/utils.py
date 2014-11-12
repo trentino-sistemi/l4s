@@ -66,22 +66,33 @@ TOKENS = [DESCRIPTION_TOKEN, JOIN_TOKEN, AGGREGATION_TOKEN, PIVOT_TOKEN]
 CODE = unicode(_("Code"))
 
 
-def filter_table_by_name_or_desc(search, tables, table_description_dict):
+def get_table_by_name_or_desc(search):
     """
-    Filter table by name or natural lang description.
+    Get tables by matching with search criteria.
 
     :param search: Expression to be search.
-    :param tables: Table set.
-    :param table_description_dict: Table dictionary.
     :return: Matching table list.
     """
-    new_tables = []
-    for table_name in tables:
-        matcher = re.compile(search, re.IGNORECASE | re.UNICODE)
-        if matcher.search(unicode(table_description_dict[table_name])) \
-                or matcher.search(unicode(table_name)):
-            new_tables.append(table_name)
-    return new_tables
+    search_s = "'" + '%' + search + '%' + "'"
+    query = "SELECT b.table_name, d.value \n"
+    query += "FROM web_metadata b \n"
+    query += "LEFT JOIN web_metadata d \n"
+    query += "ON (d.table_name = b.table_name and d.column_name = 'NULL' "
+    query += "and d.key = 'http://purl.org/dc/terms/description')"
+    query += "WHERE b.column_name ilike %s or " % search_s
+    query += "b.table_name ilike %s or " % search_s
+    query += "d.value ilike %s" % search_s
+    query += "ORDER BY value"
+
+    rows = execute_query_on_django_db(query)
+    ret = OrderedDict()
+
+    for row in rows:
+        table_name = row[0]
+        desc = row[1]
+        ret[table_name] = desc
+
+    return ret
 
 
 def execute_query_on_main_db(query):
@@ -1622,35 +1633,6 @@ def email_new_manual_request(instance):
     message += "\n" + url
     send_mail(subject, message, DEFAULT_FROM_EMAIL, to_list,
               fail_silently=False)
-
-
-def order_tables_by_decriptions(tables):
-    """
-    Order tables by descriptions.
-
-    :param tables: List of table names.
-    :return: A dictionary with descriptions.
-    """
-    ret_tables = []
-    if tables is None or len(tables) == 0:
-        return ret_tables
-
-    tables_str = ""
-    for t, table in enumerate(tables):
-        if t != 0:
-            tables_str += ","
-        tables_str += "'%s'" % table
-    query = "SELECT table_name, value from %s " % METADATA
-    query += "WHERE column_name ='NULL' "
-    query += "and key='%s' " % DESCRIPTION
-    query += "and table_name IN (%s)" % tables_str
-    query += "ORDER BY value;"
-    rows = execute_query_on_django_db(query)
-    if rows is not None:
-        for row in rows:
-            table = row[0]
-            ret_tables.append(table)
-    return ret_tables
 
 
 def build_description_table_dict(tables):
