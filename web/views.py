@@ -857,37 +857,36 @@ def table_list(request):
     :param request: Django request.
     :return: The Django request response.
     """
-
-    search = request.GET.get('search', '')
+    context = RequestContext(request)
     topic = request.GET.get('topic', '')
-    tables = []
+    search = request.GET.get('search', '')
+
     table_description = dict()
     # Filter tables matching descriptions and table_name.
     if search:
-        table_description = get_table_by_name_or_desc(search)
+        table_description = get_table_by_name_or_desc(search, True)
         tables = table_description.keys()
+    else:
+        connection = connections[EXPLORER_CONNECTION_NAME]
+        tables = connection.introspection.table_names()
+        table_description = build_description_table_dict(tables)
 
     # Topic 0 means that all the topics will be displayed.
     topic_id = 0
     if topic.isdigit():
         topic_id = int(topic)
 
-    if topic_id is not 0:
-        if search:
-            tables = filter_tables_by_topic(topic_id, tables)
-        else:
-            connection = connections[EXPLORER_CONNECTION_NAME]
-            tables = connection.introspection.table_names()
+    if topic_id != 0:
+        tables = filter_tables_by_topic(topic_id, tables)
+        tables = filter_coder_table(tables)
+        tables = order_tables_by_descriptions(tables)
 
-    tables = filter_coder_table(tables)
-    if not search:
-        table_description = build_description_table_dict(tables)
-
-    context = Context({'table_list': tables})
-    context['request'] = request
-    context['table_description_dict'] = table_description
     context['topics'] = build_topics_dict()
+    context['table_list'] = tables
+    context['search'] = search
+    context['table_description'] = table_description
     context['selected_topic'] = topic_id
+
     return render_to_response("l4s/table_list.html", context)
 
 
@@ -1373,7 +1372,7 @@ def query_editor(request):
     table_description = dict()
     # Filter tables matching descriptions and table_name.
     if search:
-        table_description = get_table_by_name_or_desc(search)
+        table_description = get_table_by_name_or_desc(search, True)
         tables = table_description.keys()
     else:
         connection = connections[EXPLORER_CONNECTION_NAME]

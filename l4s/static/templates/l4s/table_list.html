@@ -74,7 +74,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% for table in table_list %}
     <tr>
         <td><a href="/table?name={{ table }}">{{ table }}</a></td>
-        <td>{{ table_description_dict|lookup:table }}</td>
+        <td>{{ table_description|lookup:table }}</td>
     </tr>
     {% endfor %}
     </tbody>

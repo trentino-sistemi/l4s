@@ -66,11 +66,12 @@ TOKENS = [DESCRIPTION_TOKEN, JOIN_TOKEN, AGGREGATION_TOKEN, PIVOT_TOKEN]
 CODE = unicode(_("Code"))
 
 
-def get_table_by_name_or_desc(search):
+def get_table_by_name_or_desc(search, order):
     """
     Get tables by matching with search criteria.
 
     :param search: Expression to be search.
+    :param order: Order table name by description.
     :return: Matching table list.
     """
     search_s = "'" + '%' + search + '%' + "'"
@@ -82,7 +83,8 @@ def get_table_by_name_or_desc(search):
     query += "WHERE b.column_name ilike %s or " % search_s
     query += "b.table_name ilike %s or " % search_s
     query += "d.value ilike %s" % search_s
-    query += "ORDER BY value"
+    if order:
+        query += "ORDER BY value"
 
     rows = execute_query_on_django_db(query)
     ret = OrderedDict()
