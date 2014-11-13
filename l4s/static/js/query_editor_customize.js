@@ -130,17 +130,17 @@ function create_selection(values, too_many) {
         sel_name = "input_" + key;
         var coll = document.getElementsByName(sel_name);
         sp = document.getElementById(key);
-        if (sp == null ) {
-            continue;
+        cl = null;
+        if (sp != null ) {
+            cl = sp.parentNode.parentNode.getAttribute("id");
         }
-        cl = sp.parentNode.parentNode.getAttribute("id");
         sel_ref_period_count = 0;
         if (coll != null) {
              for (var x=0; x<coll.length; x++) {
                 if (coll[x].checked) {
                     ref_period = coll[x].getAttribute("ref_period");
                     if (ref_period  != null  && ref_period == "true"){
-                       if (cl == "unselectedFields" ) {
+                       if (cl != null && cl == "unselectedFields" ) {
                            sel_ref_period_count += 1;
                        }
                     }

@@ -488,7 +488,7 @@ def get_all_field_values(table_name, column_name):
     query += "SELECT DISTINCT %s FROM %s\n" % (column_name, table_name)
     query += "ORDER BY %s" % column_name
     st = detect_special_columns(query)
-    query = build_description_query(query, st.cols, [], True, False)
+    query = build_description_query(query, st.cols, [], True, True)
     rows = execute_query_on_main_db(query)
     for row in rows:
         if len(row) == 1:

@@ -1186,6 +1186,7 @@ def query_editor_view(request):
             vals = get_all_field_values(table_name, column_name)
             values[column_name] = vals
 
+
     table_schema = get_table_schema(table_name)
     aggregations = get_all_aggregations(table_name, table_schema)
 
@@ -1204,7 +1205,6 @@ def query_editor_view(request):
         cols, rows = choose_default_axis(table_name,
                                          ref_periods,
                                          hidden_fields)
-
         if cols == -1:
             add = unicode(_("Please add the metadata 'obsValue'"))
             choose = unicode(_("on one of the columns of the table"))
@@ -1213,6 +1213,7 @@ def query_editor_view(request):
             return render_to_response("l4s/query_editor_view.html", context)
 
         elif len(cols) > 1:
+
             if cols[0] in ref_periods.values():
                 for val in values:
                     if val == cols[0]:
@@ -1248,6 +1249,32 @@ def query_editor_view(request):
                                            True,
                                            include_code)
 
+
+    context['values'] = values
+    context['obs_values'] = obs_values
+    context['selected_obs_values'] = ",".join(selected_obs_values)
+    context['aggregations'] = aggregations
+    context['agg_values'] = agg_values
+    context['aggregation_ids'] = aggregation_ids
+    context['column_description'] = column_description
+    context['topic'] = topic
+    context['topic_id'] = topic_id
+
+    context['hidden_fields'] = hidden_fields
+
+    context['columns'] = ",".join(cols)
+    context['rows'] = ",".join(rows)
+    context['filters'] = filters
+    context['agg_filters'] = agg_filters
+    context['sel_aggregate'] = aggregation
+    context['debug'] = debug
+    context['include_code'] = include_code
+    context['ref_periods'] = ",".join(ref_periods.values())
+
+    if df is None:
+        context['dataframe'] = _("Can not display the requested content")
+        return render_to_response("l4s/query_editor_view.html", context)
+
     title = build_query_title(df, selected_obs_values)
 
     agg_col, sel_tab = build_query_summary(column_description,
@@ -1267,33 +1294,13 @@ def query_editor_view(request):
     url = '/query_editor_view/?table=%s' % table_name
 
     context['dataframe'] = html
-    context['values'] = values
-    context['obs_values'] = obs_values
-    context['selected_obs_values'] = ",".join(selected_obs_values)
-    context['aggregations'] = aggregations
-    context['agg_values'] = agg_values
-    context['aggregation_ids'] = aggregation_ids
-    context['column_description'] = column_description
-    context['topic'] = topic
-    context['topic_id'] = topic_id
-
-    context['hidden_fields'] = hidden_fields
-
     context['store'] = store
     context['sql'] = sql
     context['description'] = description
     context['title'] = title
     context['url'] = url
-    context['columns'] = ",".join(cols)
-    context['rows'] = ",".join(rows)
-    context['filters'] = filters
-    context['agg_filters'] = agg_filters
-    context['sel_aggregate'] = aggregation
-    context['debug'] = debug
     context['sel_tab'] = sel_tab
     context['agg_col'] = agg_col
-    context['include_code'] = include_code
-    context['ref_periods'] = ",".join(ref_periods.values())
 
     return render_to_response("l4s/query_editor_view.html", context)
 
