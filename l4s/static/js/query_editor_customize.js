@@ -130,7 +130,10 @@ function create_selection(values, too_many) {
         sel_name = "input_" + key;
         var coll = document.getElementsByName(sel_name);
         sp = document.getElementById(key);
-                         cl = sp.parentNode.parentNode.getAttribute("id");
+        if (sp == null ) {
+            continue;
+        }
+        cl = sp.parentNode.parentNode.getAttribute("id");
         sel_ref_period_count = 0;
         if (coll != null) {
              for (var x=0; x<coll.length; x++) {
