@@ -63,7 +63,7 @@ DECLARE_TOKEN = '--DECLARE'
 SET_TOKEN = '--SET'
 WIDGET_TOKEN = '--WIDGET'
 TOKENS = [DESCRIPTION_TOKEN, JOIN_TOKEN, AGGREGATION_TOKEN, PIVOT_TOKEN]
-CODE = unicode(_("Code"))
+CODE = unicode(_("Code")).encode("utf-8")
 
 
 def get_table_by_name_or_desc(search, order):

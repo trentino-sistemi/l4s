@@ -861,7 +861,6 @@ def table_list(request):
     topic = request.GET.get('topic', '')
     search = request.GET.get('search', '')
 
-    table_description = dict()
     # Filter tables matching descriptions and table_name.
     if search:
         table_description = get_table_by_name_or_desc(search, True)
@@ -1205,7 +1204,15 @@ def query_editor_view(request):
         cols, rows = choose_default_axis(table_name,
                                          ref_periods,
                                          hidden_fields)
-        if len(cols) > 1:
+
+        if cols == -1:
+            add = unicode(_("Please add the metadata 'obsValue'"))
+            choose = unicode(_("on one of the columns of the table"))
+            context['error'] = "%s %s '%s'" % (add, choose, table_name)
+
+            return render_to_response("l4s/query_editor_view.html", context)
+
+        elif len(cols) > 1:
             if cols[0] in ref_periods.values():
                 for val in values:
                     if val == cols[0]:
@@ -1214,13 +1221,6 @@ def query_editor_view(request):
                         filters[val] = values[val]
         else:
             filters = values
-
-        if cols == -1:
-            add = unicode(_("Please add the metadata 'obsValue'"))
-            choose = unicode(_("on one of the columns of the table"))
-            context['error'] = "%s %s '%s'" % (add, choose, table_name)
-
-            return render_to_response("l4s/query_editor_view.html", context)
 
         agg_filters = agg_values
     else:
@@ -1239,7 +1239,6 @@ def query_editor_view(request):
                                                        table_schema)
 
     query = Query(title=table_name, sql=sql)
-
     df, data, warn, err = headers_and_data(query,
                                            filters,
                                            aggregation_ids,
