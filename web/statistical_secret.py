@@ -311,7 +311,6 @@ def column_primary_plain_suppression(data,
 
 def column_primary_pivoted_suppression(data,
                                        obs_values,
-                                       secret_column,
                                        threshold_columns_dict,
                                        debug):
     """
@@ -321,7 +320,6 @@ def column_primary_pivoted_suppression(data,
     :rtype : list of tuples.
     :param data: List of tuples containing query result set.
     :param obs_values: Observation values.
-    :param secret_column: Secret column list.
     :param threshold_columns_dict: The threshold dictionary.
     :param debug: Debug flag.
     :return: The data set after the primary suppression on columns.
@@ -329,15 +327,15 @@ def column_primary_pivoted_suppression(data,
     if len(data) <= 3:
         return data
 
-    for obs in obs_values:
+    for o, obs in enumerate(obs_values):
         threshold = get_threshold_from_dict(threshold_columns_dict, obs)
 
         for c, column in enumerate(data[0], start=0):
             if c == len(data[0]) - 1:
                 break
             for r, row in enumerate(data):
-                if r > len(data) - len(obs_values):
-                    continue
+                if r > len(data) - len(obs_values) - 1:
+                    break
                 if len(obs_values) > 1 and r % len(obs_values) != obs:
                     continue
                 val = row[c]
@@ -346,7 +344,11 @@ def column_primary_pivoted_suppression(data,
                 if is_to_be_asterisked(val, threshold):
                     row[c] = ASTERISK
                     if debug:
-                        row[c] += 'C' + str(obs) + '(' + str(val) + ")"
+                        row[c] += 'C' + '(' + str(val) + ")"
+                if val == data[len(data)-1-o][c]:
+                    row[c] = ASTERISK
+                    if debug:
+                        row[c] += 'C' + '(TOT,' + str(val) + ")"
     return data
 
 
@@ -398,7 +400,7 @@ def row_secondary_suppression(data, debug):
     return data, asterisked
 
 
-def column_secondary_suppression(data, debug):
+def column_secondary_suppression(data, obs_values, debug):
     """
     Perform secondary suppression for columns.
     The function asterisk at least 2 value
@@ -406,10 +408,12 @@ def column_secondary_suppression(data, debug):
 
     :rtype :  List of tuples.
     :param data: List of tuples containing query result set.
+    :param obs_values: Observable values.
     :param debug: If active show debug info on asterisked cells.
     :return: The data set after the secondary suppression on columns.
     """
     asterisked = 0
+    row_limit = len(data) - len(obs_values) - 1
     if len(data) <= 3:
         return data, asterisked
 
@@ -418,7 +422,7 @@ def column_secondary_suppression(data, debug):
         if c == len(data[0]):
             break
 
-        for r, row in enumerate(data):
+        for row in data:
             val = str(row[c])
             if val.startswith("*"):
                 asterisk += 1
@@ -426,7 +430,10 @@ def column_secondary_suppression(data, debug):
                 break
 
         if asterisk == 1:
-            min_r = find_row_with_min_value(data, 0, len(data) - 2, c)
+            min_r = find_row_with_min_value(data,
+                                            0,
+                                            row_limit,
+                                            c)
             if min_r is None:
                 continue
             value = data[min_r][c]
@@ -438,7 +445,7 @@ def column_secondary_suppression(data, debug):
             if float(value) == 0.0 and asterisked == 1:
                 min_r = find_row_with_min_value_exclude_zero(data,
                                                              0,
-                                                             len(data) - 2,
+                                                             row_limit,
                                                              c)
                 if min_r is not None:
                     value = data[min_r][c]
@@ -464,10 +471,11 @@ def protect_pivoted_secret(data,
     :param obs_values: Observable values.
     :param secret_column: column with secret.
     :param threshold_columns_dict: Threshold column dictionary.
+    :param pivot:
+    :param cols:
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table preserving statistical secret with marginality.
     """
-    #@TODO Se tempo allora no row.
     if not contains_ref_period(pivot, cols, axis=0):
         data = row_primary_suppression(data,
                                        secret_column,
@@ -476,7 +484,6 @@ def protect_pivoted_secret(data,
     if not contains_ref_period(pivot, cols, axis=1):
         data = column_primary_pivoted_suppression(data,
                                                   obs_values,
-                                                  secret_column,
                                                   threshold_columns_dict,
                                                   debug)
 
@@ -501,6 +508,8 @@ def protect_pivoted_table(data,
     :param threshold_columns_dict: Threshold columns.
     :param constraint_cols: Column with constraints,
     :param obs_values:  Observable values.
+    :param pivot: Pivot columns.
+    :param cols: Columns.
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table preserving the statistical secret.
     """
@@ -523,7 +532,9 @@ def protect_pivoted_table(data,
             data, asterisked_r = row_secondary_suppression(data, debug)
         asterisked_c = 0
         if not contains_ref_period(pivot, cols, axis=1):
-            data, asterisked_c = column_secondary_suppression(data, debug)
+            data, asterisked_c = column_secondary_suppression(data,
+                                                              obs_values,
+                                                              debug)
         tot_asterisked = asterisked_c + asterisked_r
 
     return data
