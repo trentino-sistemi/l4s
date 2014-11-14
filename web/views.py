@@ -80,7 +80,9 @@ from web.utils import get_variable_dictionary, \
     store_data_frame, \
     list_ref_period, \
     all_hidden_fields, \
-    order_tables_by_descriptions
+    order_tables_by_descriptions,\
+    build_topic_keywords,\
+    build_topic_icons
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1398,12 +1400,17 @@ def query_editor(request):
         if not search:
             table_description = build_description_table_dict(tables)
 
+    keywords = build_topic_keywords()
+    icons = build_topic_icons()
+
     context['topic'] = topic_id
     context['topics'] = build_topics_dict()
     context['table_list'] = tables
     context['search'] = search
     context['table_description'] = table_description
     context['selected_topic'] = topic_id
+    context['keywords'] = keywords
+    context['icons'] = icons
 
     return render_to_response("l4s/query_editor.html", context)
 

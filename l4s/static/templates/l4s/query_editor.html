@@ -79,12 +79,16 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <td width="100px">
             <a href="/query_editor?topic={{ topic }}">
                 <img align="left"
-                     src="/static/img/economy.png"
+                     src="/static/img/topics/{{ icons|lookup:topic }}"
                      height="80px"/>
             </a>
         <td>
             <p><a href="/query_editor?topic={{ topic }}">{{ topics|lookup:topic }}</a>({{ topics_counter|lookup:topic }} dataset)</p>
-            <p>Tutte le attività che si occupano di statistiche a livello di economia</p>
+            <p>
+                {% for keyword in keywords|lookup:topic %}
+                   {{ keyword }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
         </td>
     </tr>
     {% endfor %}

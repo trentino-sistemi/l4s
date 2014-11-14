@@ -1666,6 +1666,44 @@ def email_new_manual_request(instance):
               fail_silently=False)
 
 
+def build_topic_keywords():
+    """
+    Build a dictionary with key the topic and value the list of keywords.
+
+    :return: Dictionary to join the topic to keywords.
+    """
+    topic_keywords = dict()
+    query = "SELECT topic, keyword \n"
+    query += "FROM topics_keywords;"
+    rows = execute_query_on_main_db(query)
+    if rows is not None:
+        for row in rows:
+            topic = int(row[0])
+            keyword = row[1]
+            if not topic in topic_keywords:
+                topic_keywords[topic] = []
+            topic_keywords[topic].append(keyword)
+    return topic_keywords
+
+
+def build_topic_icons():
+    """
+    Build a dictionary with key the topic and value the icon to be used.
+
+    :return: Dictionary to join the topic to keywords.
+    """
+    topic_keywords = dict()
+    query = "SELECT topic, image_path \n"
+    query += "FROM topics_images;"
+    rows = execute_query_on_main_db(query)
+    if rows is not None:
+        for row in rows:
+            topic = int(row[0])
+            path = row[1]
+            topic_keywords[topic] = path
+    return topic_keywords
+
+
 def build_description_table_dict(tables):
     """
     Build a dictionary <table_name, description>.
