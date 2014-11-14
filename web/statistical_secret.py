@@ -345,7 +345,7 @@ def column_primary_pivoted_suppression(data,
                     row[c] = ASTERISK
                     if debug:
                         row[c] += 'C' + '(' + str(val) + ")"
-                if val == data[len(data)-1-o][c]:
+                if val == data[len(data)-len(obs_values)+o][c]:
                     row[c] = ASTERISK
                     if debug:
                         row[c] += 'C' + '(TOT,' + str(val) + ")"

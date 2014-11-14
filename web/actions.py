@@ -294,7 +294,7 @@ def generate_report_action_xlsx(df):
                 max_widths[c] = 7
             break
 
-        #Copy rows from existing sheets
+        # Copy rows from existing sheet.
         for r, row in enumerate(sheet.iter_rows()):
             for c, cell in enumerate(row):
                 value = cell.value
