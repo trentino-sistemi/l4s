@@ -227,10 +227,8 @@ def generate_report_action_xlsx(df):
         :param title: Query tile.
         :param description: Query description.
         """
-        workbook = load_workbook(filename=file_name)
+        workbook = load_workbook(filename=file_name, use_iterators = True)
         sheet = workbook.active
-        n_cols = len(sheet.columns)
-        sheet_rows = len(sheet.rows)
         new_workbook = OWorkbook(encoding="UTF-8")
         header_len = 12
         new_sheet = new_workbook.active
@@ -297,30 +295,33 @@ def generate_report_action_xlsx(df):
 
         k = 2 + line_num
         max_widths = dict()
-        for col in range(n_cols):
-            max_widths[col] = 7
+
+        for r, row in enumerate(sheet.iter_rows()):
+            for c, cell in enumerate(row):
+                 max_widths[c] = 7
+            break
 
         #Copy rows from existing sheets
-        for rows in range(0, sheet_rows):
-            for col in range(n_cols):
-                data = sheet.cell(row=rows, column=col)
-                value = data.value
+        for r, row in enumerate(sheet.iter_rows()):
+            for c, cell in enumerate(row):
+                value = cell.internal_value
                 if value is None:
                     continue
-                if not isinstance(value, int):
+                if not isinstance(value, (int, long, float, complex)):
                     value = value.strip()
                     value = value.encode('utf-8')
-                cell = new_sheet.cell(row=rows+k, column=col)
+                cell = new_sheet.cell(row=r+k, column=c)
                 cell.value = value
                 cell.style.font.color.index = body_font_color
                 column_len = int(arial10.fit_width(str(value), False))/256
-                if rows >= 1 and column_len > max_widths[col]:
-                        max_widths[col] = column_len
+                if r >= 1 and column_len > max_widths[c]:
+                        max_widths[c] = column_len
 
         for i in max_widths:
             column_letter = get_column_letter(i+1)
             new_sheet.column_dimensions[column_letter].width = max_widths[i]
 
+        sheet_rows = len(new_sheet.rows)
         k = k + sheet_rows + 1
         if settings.DEBUG:
             stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'

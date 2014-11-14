@@ -2674,7 +2674,7 @@ def stringify(v):
     :param v: Param to be converted.
     :return: encoding string in utf-8 or numeric type
     """
-    if isinstance(v, (int, float, long)):
+    if isinstance(v, (int, long, float, complex)):
         return "%s" % v
     return v.encode('utf-8')
 
