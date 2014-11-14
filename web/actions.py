@@ -32,10 +32,12 @@ import pandas as pd
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
 from xlwt import easyxf, add_palette_colour, Alignment, XFStyle
+from openpyxl.styles import Style, Fill, Color, PatternFill, Font
+from openpyxl.styles import Alignment as OAlignment
 from openpyxl import Workbook as OWorkbook
 from openpyxl import load_workbook
 from openpyxl.drawing import Image
-from openpyxl.style import Color, Fill
+
 from openpyxl.cell import get_column_letter
 from l4s import settings
 import arial10
@@ -227,7 +229,7 @@ def generate_report_action_xlsx(df):
         :param title: Query tile.
         :param description: Query description.
         """
-        workbook = load_workbook(filename=file_name, use_iterators = True)
+        workbook = load_workbook(filename=file_name, use_iterators=True)
         sheet = workbook.active
         new_workbook = OWorkbook(encoding="UTF-8")
         header_len = 12
@@ -235,27 +237,27 @@ def generate_report_action_xlsx(df):
 
         title_label = unicode(_("Title"))
         line_num = 1
-        header_fill_type = Fill.FILL_SOLID
-        header_color = "8B1F3F"
-        header_font_color = Color.WHITE
-        body_font_color = "1F556F"
 
-        cell = new_sheet.cell(row=0, column=0)
+        alignment = OAlignment(horizontal='right')
+
+        header_fill = PatternFill(patternType='solid',
+                                  fgColor=Color('8B1F3F'))
+        header_font = Font(color="FFFFFF", bold=True)
+        header_style = Style(fill=header_fill, font=header_font)
+
+        body_font = Font(color="1F556F")
+        body_style = Style(font=body_font, alignment=alignment)
+
+        cell = new_sheet.cell(row=1, column=1)
         cell.value = title_label
-        cell.style.fill.fill_type = header_fill_type
-        cell.style.fill.start_color.index = header_color
-        cell.style.font.color.index = header_font_color
-        cell.style.font.bold = True
+        cell.style = header_style
 
-        cell = new_sheet.cell(row=0, column=1)
+        cell = new_sheet.cell(row=1, column=2)
         cell.value = title
-        cell.style.fill.fill_type = header_fill_type
-        cell.style.fill.start_color.index = header_color
-        cell.style.font.color.index = header_font_color
-        cell.style.font.bold = True
+        cell.style = header_style
 
-        new_sheet.merge_cells(start_row=0, start_column=1,
-                              end_row=0, end_column=header_len)
+        new_sheet.merge_cells(start_row=1, start_column=2,
+                              end_row=1, end_column=header_len+1)
 
         if description is not None:
             description_label = unicode(_("Description"))
@@ -267,52 +269,43 @@ def generate_report_action_xlsx(df):
                     add = (len(line) / (char_per_cell * header_len)) + 1
                     line_num += add
 
-            cell = new_sheet.cell(row=1, column=0)
-            cell.style.fill.fill_type = header_fill_type
-            cell.style.fill.start_color.index = header_color
-            cell.style.font.color.index = header_font_color
-            cell.style.alignment.wrap_text = True
-            cell.style.font.bold = True
-
+            cell = new_sheet.cell(row=2, column=1)
+            cell.style = header_style
             cell.value = description_label
-            new_sheet.merge_cells(start_row=1,
-                                  start_column=0,
-                                  end_row=line_num,
-                                  end_column=0)
+            new_sheet.merge_cells(start_row=2,
+                                  start_column=1,
+                                  end_row=line_num+1,
+                                  end_column=1)
 
-            cell = new_sheet.cell(row=1, column=1)
-            cell.style.fill.fill_type = header_fill_type
-            cell.style.fill.start_color.index = header_color
-            cell.style.font.color.index = header_font_color
-            cell.style.font.bold = True
-            cell.style.alignment.wrap_text = True
+            cell = new_sheet.cell(row=2, column=2)
+            cell.style = header_style
             cell.value = description
 
-            new_sheet.merge_cells(start_row=1,
-                                  start_column=1,
-                                  end_row=line_num,
-                                  end_column=header_len)
+            new_sheet.merge_cells(start_row=2,
+                                  start_column=2,
+                                  end_row=line_num+1,
+                                  end_column=header_len+1)
 
         k = 2 + line_num
         max_widths = dict()
 
         for r, row in enumerate(sheet.iter_rows()):
             for c, cell in enumerate(row):
-                 max_widths[c] = 7
+                max_widths[c] = 7
             break
 
         #Copy rows from existing sheets
         for r, row in enumerate(sheet.iter_rows()):
             for c, cell in enumerate(row):
-                value = cell.internal_value
+                value = cell.value
                 if value is None:
                     continue
                 if not isinstance(value, (int, long, float, complex)):
                     value = value.strip()
                     value = value.encode('utf-8')
-                cell = new_sheet.cell(row=r+k, column=c)
+                cell = new_sheet.cell(row=r+k+1, column=c+1)
                 cell.value = value
-                cell.style.font.color.index = body_font_color
+                cell.style = body_style
                 column_len = int(arial10.fit_width(str(value), False))/256
                 if r >= 1 and column_len > max_widths[c]:
                         max_widths[c] = column_len
@@ -329,7 +322,11 @@ def generate_report_action_xlsx(df):
             stat_bitmap = static('/img/testata_Statistica.bmp')
 
         stat_img = Image(stat_bitmap)
-        stat_img.anchor(new_sheet.cell(row=k, column=0))
+        stat_img.drawing.left = 0
+        stat_img.drawing.top = k * 19
+
+        #new_cell = new_sheet.cell(row=k, column=1)
+        #stat_img.anchor(new_cell)
         new_sheet.add_image(stat_img)
 
         new_workbook.save(file_name)
