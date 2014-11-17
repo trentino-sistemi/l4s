@@ -70,7 +70,9 @@ function submit_form() {
         if (inputs[i].type != 'hidden' ) {
             input_name = inputs[i].id;
             var label = $("label[for='" + input_name + "']").text().replace(':','');
-            if (inputs[i].value == '') {
+            alert(inputs[i].disabled);
+            if ((inputs[i].disabled == false) &&
+                (inputs[i].value == '')) {
               alert('{% trans "The field" %}' + " " +
               label + " " +
               '{% trans "is required" %}' + '.');
