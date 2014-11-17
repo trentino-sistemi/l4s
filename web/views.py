@@ -1319,8 +1319,7 @@ def query_editor_save_done(request):
     if form.is_valid():
         form.save()
         return HttpResponse('<script type="text/javascript">'
-                            'window.close();'
-                            'window.parent.location.href = "/";'
+                            "$('#popup').modal('hide');"
                             '</script>')
     context['form'] = form
     return render_to_response("l4s/query_editor_save.html", context)

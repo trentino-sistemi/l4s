@@ -39,24 +39,42 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 <form id='frm'
       method="POST"
-      action="/query_editor_save_done/"
       role="form"
       class="form-horizontal"
       accept-charset="utf-8">
     {% csrf_token %}
-
     <table class="table table-striped" style="width=100%">
         {{ form.as_table }}
     </table>
     <p></p>
-
-    <p align="center">
-        <button class="btn btn-default" type="submit">
-            {% trans "Submit" %}
-        </button>
-        <button class="btn btn-default" onclick="window.close()">
-            {% trans "Cancel" %}
-        </button>
-    </p>
 </form>
+<p align="center">
+    <button class="btn btn-default" onclick="submit_form()">
+        {% trans "Submit" %}
+    </button>
+    <button class="btn btn-default" onclick="$('#popup').modal('hide');">
+        {% trans "Cancel" %}
+    </button>
+</p>
+<script>
+function submit_form() {
+    title = document.getElementById('id_title').value;
+    if (title == '') {
+        alert('{% trans "The field" %}' + " " +
+              '{% trans "Title" %}' + " " +
+              '{% trans "is required" %}' + '.');
+        return false;
+    }
+
+    url="/query_editor_save_done/";
+    $.ajax({ // create an AJAX call...
+        data: $('#frm').serialize(), // get the form data
+        type: $('#frm').attr('method'), // GET or POST
+        url: url, // the file to call
+        success: function(response) { // on success..
+            $('#popup-body').html(response); // update the DIV
+        }
+    });
+}
+</script>
 </body>

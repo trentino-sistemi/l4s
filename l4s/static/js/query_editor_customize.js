@@ -230,6 +230,7 @@ function addHiddenInput(form, id, value) {
 
 
 function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns, no_values, too_many) {
+    $('#popup').modal('hide');
     selection = create_selection(values, too_many);
     if (selection == null) {
         return
@@ -269,7 +270,7 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
       if (include_code!=null && include_code.checked == 1) {
         include_code_value = "true";
      }
-    
+
     url="/query_editor_view/"
     data = { 'table': table_name,
                       'include_code': include_code_value,
@@ -286,9 +287,7 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
         type: "POST",
         data: data,
         success: function(response) {
-            window.opener.document.write(response);
-            window.opener.document.close();
-            window.close();
+            document.write(response);
 	    },
         error: function(xhr, status) {
 			alert(xhr.responseText);

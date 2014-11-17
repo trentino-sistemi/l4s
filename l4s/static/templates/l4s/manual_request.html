@@ -40,22 +40,56 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <h3 style="padding-bottom: 20px">
     {% trans "Manual request" %} '{{ title.strip }}'
 </h3>
-<form id='frm' method="POST" action="/manual_request_save/" role="form" class="form-horizontal">
+<div id="frm_div">
+<form id='frm'
+      method="POST"
+      role="form"
+      class="form-horizontal"
+      accept-charset="utf-8">
     {% csrf_token %}
-    <table class="table">{{ form.as_table }}</table>
+    <table class="table">
+        {{ form.as_table }}
+    </table>
     <p></p>
-
+</form>
     <p align="center">
         <button class="btn btn-default"
-                type="submit">
+                onclick="submit_form()">
             {% trans "Submit" %}
         </button>
-        <button class="btn btn-default" onclick="window.close()">
+        <button class="btn btn-default" onclick="$('#popup').modal('hide');">
             {% trans "Cancel" %}
         </button>
     </p>
-</form>
+</div>
 <script>
+function submit_form() {
+    element = document.getElementById("frm_div");
+    inputs = element.getElementsByTagName("input");
+    for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].type != 'hidden' ) {
+            input_name = inputs[i].id;
+            var label = $("label[for='" + input_name + "']").text().replace(':','');
+            if (inputs[i].value == '') {
+              alert('{% trans "The field" %}' + " " +
+              label + " " +
+              '{% trans "is required" %}' + '.');
+               return false;
+            }
+        }
+    }
+
+    url="/manual_request_save/";
+    $.ajax({ // create an AJAX call...
+        data: $('#frm').serialize(), // get the form data
+        type: $('#frm').attr('method'), // GET or POST
+        url: url, // the file to call
+        success: function(response) { // on success..
+            $('#frm_div').html(response); // update the popup body
+        }
+    });
+    return false;
+}
 function updateTerritorialLevel(cmb) {
    var txt = document.forms['frm']['id_other_territorial_level'];
    txt.disabled = (cmb.value!='Altro')

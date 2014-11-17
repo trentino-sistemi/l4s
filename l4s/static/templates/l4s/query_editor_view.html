@@ -23,7 +23,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load jsonify %}
 {% load dictionary_extras %}
 
+
 {% block l4s_container %}
+<!-- Modal -->
+<div class="modal fade" id="popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body" id="popup-body">
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="col-sm-12">
     <ul class="breadcrumb">
         <li>
@@ -109,23 +120,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="/static/js/download.js"></script>
 <script>
 initToken();
-function OpenPopupCenter(pageURL, title, w, h) {
-    var left = (screen.width - w) / 2;
-    // for 25% - divide by 4  |  for 33% - divide by 3
-    var top = (screen.height - h) / 4;
-    var opt = 'toolbar=no, location=no, directories=no, status=no, ' +
-              'menubar=no, scrollbars=no, resizable=no, copyhistory=no, ' +
-              ' width=' + w + ', height=' + h + ', top=' + top + ', left=' +
-              left
-    var targetWin = window.open(pageURL, title, opt);
-    targetWin.focus();
-    return targetWin;
-}
 function OpenCustomizePopup() {
-    w = 900;
-    h = 600;
-    title = '{% trans "Customize" %}';
-
     debug_value = "false"
     debug = '{{ debug }}';
     if (debug=='True') {
@@ -158,21 +153,17 @@ function OpenCustomizePopup() {
         type: "POST",
         data: data,
         success: function(response) {
-        x = OpenPopupCenter('', title, w, h);
-        x.document.write(response);
-        x.document.close();
+            $('#popup-body').html(response);
+            $('#popup').modal('show');
 	    },
         error: function(xhr, status) {
             alert(xhr.responseText);
 			alert(status);
-			}
+	    }
     });
 
 }
 function OpenManualrequestPopup() {
-    title = '{% trans "Manual request" %}';
-    w = 1000;
-    h = 700;
     url = '/manual_request/';
     data = { 'title': '{{ title|escapejs }}',
              'url':'{{ url|escapejs }}'
@@ -182,9 +173,8 @@ function OpenManualrequestPopup() {
         type: "POST",
         data: data,
         success: function(response) {
-        x = OpenPopupCenter('', title, w, h);
-        x.document.write(response);
-        x.document.close();
+        $('#popup-body').html(response);
+        $('#popup').modal('show');
 	    },
         error: function(xhr, status) {
 			alert(status);
@@ -192,9 +182,6 @@ function OpenManualrequestPopup() {
     });
 }
 function OpenSavePopup() {
-    title = '{% trans "Save" %}';
-    w = 800;
-    h = 340;
     filters = "{{ filters }}";
     include_code_value = "false"
     include_code = '{{ include_code }}';
@@ -220,9 +207,8 @@ function OpenSavePopup() {
         type: "POST",
         data: data,
         success: function(response) {
-        x = OpenPopupCenter('', title, w, h);
-        x.document.write(response);
-        x.document.close();
+        $('#popup-body').html(response);
+        $('#popup').modal('show');
 	    },
         error: function(xhr, status) {
 			alert(status);
