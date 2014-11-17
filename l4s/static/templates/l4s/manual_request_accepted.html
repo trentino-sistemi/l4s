@@ -18,18 +18,32 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 
-{% extends "explorer/base.html" %}
 {% load i18n %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+ html, body {
+    background-color: #eef4f8;
+    height: 100%;
+    padding-top: 0px;
+}
+</style>
+</head>
 
-{% block l4s_container %}
+<body>
+
 <div align="center">
     <h3>
         {% trans "Your request is accepted by the system" %} {% trans "with code " %} l4s{{ id }}</h3>
     <h4>
         {% trans "Your request will be dispatched as soon as possible." %}
     </h4>
-    <a class="btn btn-large btn-primary" href="/explorer">
-        {% trans "Continue" %}
-    </a>
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"> {% trans "Continue" %}</button>
 </div>
-{% endblock %}
+</body>

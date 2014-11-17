@@ -70,9 +70,7 @@ function submit_form() {
         if (inputs[i].type != 'hidden' ) {
             input_name = inputs[i].id;
             var label = $("label[for='" + input_name + "']").text().replace(':','');
-            alert(inputs[i].disabled);
-            if ((inputs[i].disabled == false) &&
-                (inputs[i].value == '')) {
+            if ((inputs[i].disabled == false) && (inputs[i].value == '')) {
               alert('{% trans "The field" %}' + " " +
               label + " " +
               '{% trans "is required" %}' + '.');
@@ -80,14 +78,13 @@ function submit_form() {
             }
         }
     }
-
     url="/manual_request_save/";
     $.ajax({ // create an AJAX call...
         data: $('#frm').serialize(), // get the form data
         type: $('#frm').attr('method'), // GET or POST
         url: url, // the file to call
         success: function(response) { // on success..
-            $('#frm_div').html(response); // update the popup body
+            $('#popup-body').html(response);
         }
     });
     return false;
