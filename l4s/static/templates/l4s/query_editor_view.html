@@ -158,12 +158,12 @@ function OpenCustomizePopup() {
 	    },
         error: function(xhr, status) {
             alert(xhr.responseText);
-			alert(status);
 	    }
     });
 
 }
 function OpenManualrequestPopup() {
+    title = '{% trans "Manual request" %}';
     url = '/manual_request/';
     data = { 'title': '{{ title|escapejs }}',
              'url':'{{ url|escapejs }}'
@@ -173,11 +173,11 @@ function OpenManualrequestPopup() {
         type: "POST",
         data: data,
         success: function(response) {
-        $('#popup-body').html(response);
-        $('#popup').modal('show');
+            $('#popup-body').html(response);
+            $('#popup').modal('show');
 	    },
         error: function(xhr, status) {
-			alert(status);
+            alert(xhr.responseText);
 			}
     });
 }
@@ -207,12 +207,12 @@ function OpenSavePopup() {
         type: "POST",
         data: data,
         success: function(response) {
-        $('#popup-body').html(response);
-        $('#popup').modal('show');
+            $('#popup-body').html(response);
+            $('#popup').modal('show');
 	    },
         error: function(xhr, status) {
-			alert(status);
-			}
+			alert(xhr.responseText);
+	    }
     });
 }
 $("#morebtn").click(function() {
