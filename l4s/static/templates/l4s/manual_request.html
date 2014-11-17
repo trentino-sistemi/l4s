@@ -83,7 +83,10 @@ function submit_form() {
         url: url, // the file to call
         success: function(response) { // on success..
             $('#popup-body').html(response);
-        }
+        },
+        error: function(xhr, status) {
+            alert(xhr.responseText);
+	    }
     });
     return false;
 }

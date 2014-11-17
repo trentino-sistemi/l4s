@@ -26,6 +26,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
     <script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
+    <script>
+        $(document).ready(function(){
+             initToken();
+        });
+    </script>
 </head>
 
 <body>
@@ -58,7 +63,6 @@ function submit_form() {
               '{% trans "is required" %}' + '.');
         return false;
     }
-
     url="/query_editor_save_done/";
     $.ajax({ // create an AJAX call...
         data: $('#frm').serialize(), // get the form data
@@ -66,7 +70,10 @@ function submit_form() {
         url: url, // the file to call
         success: function(response) { // on success..
             $('#popup-body').html(response); // update the DIV
-        }
+        },
+        error: function(xhr, status) {
+            alert(xhr.responseText);
+	    }
     });
 }
 </script>

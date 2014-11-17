@@ -288,7 +288,8 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
         data: data,
         success: function(response) {
             document.write(response);
-	    },
+            document.close();
+	},
         error: function(xhr, status) {
 			alert(xhr.responseText);
 		}
