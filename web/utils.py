@@ -79,12 +79,14 @@ def get_table_by_name_or_desc(search, order):
     query += "FROM web_metadata b \n"
     query += "LEFT JOIN web_metadata d \n"
     query += "ON (d.table_name = b.table_name and d.column_name = 'NULL' "
-    query += "and d.key = 'http://purl.org/dc/terms/description')"
+    query += "and d.key = 'http://purl.org/dc/terms/description') \n"
     query += "WHERE b.column_name ilike %s or " % search_s
     query += "b.table_name ilike %s or " % search_s
-    query += "d.value ilike %s" % search_s
+    query += "d.value ilike %s \n" % search_s
     if order:
         query += "ORDER BY value"
+
+    print query
 
     rows = execute_query_on_django_db(query)
     ret = OrderedDict()
@@ -2092,9 +2094,18 @@ def filter_coder_table(tables):
     :param tables:
     :return:
     """
+    table_names = "'"+ "','".join(tables) + "'"
+    query = "SELECT table_name FROM web_metadata \n"
+    query += "WHERE key='decoder' and value='TRUE' \n"
+    query += "and table_name IN(%s)" % table_names
+    rows = execute_query_on_django_db(query)
+    decoder_tables = []
+    if rows is not None:
+        for row in rows:
+            decoder_tables.append(row[0])
     coder_tables = []
     for table_name in tables:
-        if not is_decoder_table(table_name):
+        if not table_name in decoder_tables:
             coder_tables.append(table_name)
 
     return coder_tables
