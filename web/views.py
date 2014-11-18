@@ -199,7 +199,7 @@ def execute_query_viewmodel(request,
                                                               st.constraint,
                                                               dict(),
                                                               debug)
-            if warn_n is not None:
+            if warn_n is not None and warn != "":
                 warn = warn_n
 
         if df is not None:
@@ -270,12 +270,12 @@ class CreateQueryView(ExplorerContextMixin, CreateView):
 
         pivot_column = request.REQUEST.get('pivot_column')
         pivot_cols = []
-        if not pivot_column is None:
+        if not pivot_column is None and pivot_column != "":
             pivot_cols = [int(x) for x in pivot_column.split(',')]
 
         aggregation = request.REQUEST.get('aggregate')
         aggregation_ids = []
-        if not aggregation is None:
+        if not aggregation is None and aggregation != "":
             aggregation_ids = [int(x) for x in aggregation.split(',')]
 
         debug = False
@@ -383,7 +383,7 @@ class QueryView(ExplorerContextMixin, View):
 
         aggregation = request.REQUEST.get('aggregate')
         aggregation_ids = []
-        if not aggregation is None:
+        if not aggregation is None and aggregation != "":
             aggregation_ids = [int(x) for x in aggregation.split(',')]
 
         debug = False
@@ -394,7 +394,7 @@ class QueryView(ExplorerContextMixin, View):
 
         pivot_column = request.REQUEST.get('pivot_column')
         pivot_cols = []
-        if not pivot_column is None:
+        if not pivot_column is None and pivot_column != "":
             pivot_cols = [int(x) for x in pivot_column.split(',')]
 
         if not EXPLORER_PERMISSION_VIEW(request.user):
@@ -612,7 +612,7 @@ def empty_table(request):
     :return: The request response.
     """
     table_name = request.GET.get('table')
-    if not table_name is None:
+    if not table_name is None and table_name != "":
         delete_all(table_name)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -673,8 +673,8 @@ def table_add_metadata(request):
                                       {'form': form},
                                       context_instance=context)
 
-    table_name = request.GET.get('table', '')
-    column_name = request.GET.get('column', '')
+    table_name = request.GET.get('table')
+    column_name = request.GET.get('column')
     form = MetadataForm(initial={'table_name': table_name,
                                  'column_name': column_name})
     context['table_name'] = table_name
@@ -693,7 +693,7 @@ def table_delete_metadata(request):
     :return: The request response.
     """
     metadata_id = request.GET.get('id')
-    if not metadata_id is None:
+    if not metadata_id is None and metadata_id != "":
         Metadata.objects.filter(id=metadata_id).delete()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -746,9 +746,9 @@ def table_view_metadata(request):
     context = RequestContext(request)
     table_name = request.GET.get('table')
     column_name = request.GET.get('column', '')
-    if not table_name is None:
+    if not table_name is None and table_name != "":
         context['table_name'] = table_name
-    if not column_name is None:
+    if not column_name is None and column_name != "":
         metadata_list = Metadata.objects.filter(table_name=table_name,
                                                 column_name=column_name)
         context['column_name'] = column_name
@@ -768,7 +768,7 @@ def delete_ontology(request):
     :return: The Django request response.
     """
     ontology_id = request.GET.get('id')
-    if not ontology_id is None:
+    if not ontology_id is None and ontology_id != "":
         item = OntologyFileModel.objects.get(id=ontology_id)
         item.delete()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -865,7 +865,7 @@ def table_list(request):
         tables = connection.introspection.table_names()
         table_description = build_description_table_dict(tables)
 
-    if not topic is None:
+    if not topic is None and topic != "":
         topic_id = int(topic)
     else:
         # Topic 0 means that all the topics will be displayed.
@@ -935,7 +935,7 @@ def query_list(request):
                                  description__icontains=search))
     criteria = "None"
     order_by = request.GET.get('order_by')
-    if not order_by is None:
+    if not order_by is None and order_by != "":
         criteria = order_by
         objects = objects.order_by(criteria)
     else:
@@ -959,7 +959,7 @@ def recent_queries(request):
     """
     search = request.GET.get('search')
     objects = Query.objects
-    if not search is None:
+    if not search is None and search != "":
         objects = objects & (Query.objects.filter(title__icontains=search) |
                              Query.objects.filter(
                                  description__icontains=search))
@@ -982,7 +982,7 @@ def query_copy(request):
     :return: The Django request response.
     """
     query_id = request.GET.get('id')
-    if not query_id is None:
+    if not query_id is None and query_id != "":
         query = get_object_or_404(Query, id=query_id)
         new_query = deepcopy(query)
         new_query.id = None
@@ -1003,7 +1003,7 @@ def index(request):
     """
     search = request.GET.get('search')
     objects = Query.objects.filter(is_public=True)
-    if not search is None:
+    if not search is None and search != "":
         found = Query.objects.filter(title__icontains=search)
         found = found | Query.objects.filter(description__icontains=search)
         objects = objects & found
@@ -1046,30 +1046,30 @@ def query_editor_customize(request):
 
     selected_obs_values_s = request.REQUEST.get('selected_obs_values')
     selected_obs_values = []
-    if not selected_obs_values_s is None:
+    if not selected_obs_values_s is None and selected_obs_values != "":
         selected_obs_values = [x for x in selected_obs_values_s.split(',')]
 
     table_name = request.REQUEST.get('table')
 
     columns = request.REQUEST.get('columns')
     cols = []
-    if not columns is None:
+    if not columns is None and columns != "":
         cols = [x for x in columns.split(',')]
 
     rows_s = request.REQUEST.get('rows')
     rows = []
-    if not rows_s is None:
+    if not rows_s is None and rows_s != "":
         rows = [x for x in rows_s.split(',')]
 
     ref_periods = request.REQUEST.get('ref_periods')
     periods = []
-    if not ref_periods is None:
+    if not ref_periods is None and ref_periods != "":
         periods = [x for x in ref_periods.split(',')]
 
 
     sel_aggregation = request.REQUEST.get('aggregate')
     sel_aggregation_ids = []
-    if sel_aggregation is not None:
+    if sel_aggregation is not None and sel_aggregation != "":
         sel_aggregation_ids = [x for x in sel_aggregation.split(',')]
 
     table_schema = get_table_schema(table_name)
@@ -1125,7 +1125,7 @@ def query_editor_view(request):
 
     selected_obs_values_s = request.REQUEST.get('selected_obs_values')
     selected_obs_values = []
-    if not selected_obs_values_s is None:
+    if not selected_obs_values_s is None and selected_obs_values != "":
         selected_obs_values = [x for x in selected_obs_values_s.split(',')]
 
     filters_s = request.REQUEST.get('filters')
@@ -1133,12 +1133,12 @@ def query_editor_view(request):
 
     columns = request.REQUEST.get('columns')
     cols = []
-    if not columns is None:
+    if not columns is None and columns != "":
         cols = [x for x in columns.split(',')]
 
     rows_s = request.REQUEST.get('rows')
     rows = []
-    if not rows_s is None:
+    if not rows_s is None and rows_s != "":
         rows = [x for x in rows_s.split(',')]
 
     debug = False
@@ -1368,7 +1368,7 @@ def query_editor(request):
         connection = connections[EXPLORER_CONNECTION_NAME]
         tables = connection.introspection.table_names()
 
-    if topic is not None:
+    if topic is not None and topic != "":
         topic_id = int(topic)
     else:
         # Topic 0 means that all the topics will be displayed.
@@ -1448,7 +1448,7 @@ def manual_request_view(request):
     """
     if request.method == 'POST':
         manual_request_id = request.POST.get('id')
-        if not manual_request is None:
+        if not manual_request is None and manual_request_id != "":
             item = ManualRequest.objects.get(id=manual_request_id)
             item.dispatched = True
             item.dispatch_date = datetime.now()
