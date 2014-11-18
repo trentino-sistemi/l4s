@@ -1227,6 +1227,7 @@ def query_editor_view(request):
                              values)
 
     query = Query(title=table_name, sql=sql)
+
     df, data, warn, err = headers_and_data(query,
                                            filters,
                                            aggregation_ids,

@@ -330,20 +330,6 @@ def contains_ref_period(pivot, cols, axis=None):
     return False
 
 
-def is_visible_field(table_name, column_name):
-    """
-    Return if the column table is visible.
-
-    :param table_name: Table name.
-    :param column_name: Column name.
-    :return: Boolean.
-    """
-    value = get_key_column_value(table_name, column_name, "visible")
-    if not value is None and value == "false":
-        return False
-    return True
-
-
 def all_hidden_fields(table_name,
                       table_description):
     """
@@ -353,10 +339,19 @@ def all_hidden_fields(table_name,
     :param table_description: Table descriptiopn.
     :return: All the field to be hidden.
     """
+    query = "SELECT column_name FROM web_metadata \n"
+    query += "WHERE table_name='%s' and \n" % table_name
+    query += "key='visible' and value='false'"
+    rows = execute_query_on_django_db(query)
+    res = []
+    if rows is not None:
+        for row in rows:
+            res.append(row[0])
+
     ret = dict()
     for f, field in enumerate(table_description):
         column_name = field.name
-        if not is_visible_field(table_name, column_name):
+        if column_name in res:
             ret[f] = column_name
     return ret
 
@@ -447,10 +442,18 @@ def all_obs_value_column(table_name, table_description):
     :return: index_column, column_name
     """
     ret = OrderedDict()
+    query = "SELECT column_name FROM web_metadata \n"
+    query += "WHERE table_name='%s' \n" % table_name
+    query += "and key='%s'" % MEASURE
+    rows = execute_query_on_django_db(query)
+    obs_set = []
+    if not rows is None:
+        for row in rows:
+            obs_set.append(row[0])
 
     for f, field in enumerate(table_description):
         column_name = field.name
-        if is_obs_value(table_name, column_name):
+        if column_name in obs_set:
             ret[f] = column_name
 
     return ret
@@ -1533,7 +1536,7 @@ def get_table_description(table):
     :return: The table description in natural language.
     """
     query = "SELECT value from %s " % METADATA
-    query += "WHERE column_name ='NULL' "
+    query += "WHERE column_name = 'NULL' "
     query += "and key='%s' " % DESCRIPTION
     query += "and table_name='%s';" % table
     rows = execute_query_on_django_db(query)
