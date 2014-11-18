@@ -1154,7 +1154,7 @@ def query_editor_view(request):
 
     aggregation = request.REQUEST.get('aggregate')
     aggregation_ids = []
-    if aggregation is not None:
+    if aggregation is not None and aggregation != "":
         aggregation_ids = [x for x in aggregation.split(',')]
 
     values = dict()
@@ -1214,6 +1214,10 @@ def query_editor_view(request):
         filters = json.loads(filters_s)
         agg_filters = json.loads(agg_filters_s)
 
+    column_description = build_description_column_dict(table_name,
+                                                       table_schema)
+
+
     sql, pivot = build_query(table_name,
                              cols,
                              rows,
@@ -1221,9 +1225,6 @@ def query_editor_view(request):
                              aggregation_ids,
                              filters,
                              values)
-
-    column_description = build_description_column_dict(table_name,
-                                                       table_schema)
 
     query = Query(title=table_name, sql=sql)
     df, data, warn, err = headers_and_data(query,
@@ -1245,9 +1246,7 @@ def query_editor_view(request):
     context['column_description'] = column_description
     context['topic'] = topic
     context['topic_id'] = topic_id
-
     context['hidden_fields'] = hidden_fields
-
     context['columns'] = ",".join(cols)
     context['rows'] = ",".join(rows)
     context['filters'] = filters
