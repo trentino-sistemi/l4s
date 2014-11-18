@@ -442,6 +442,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         }
 function OpenManualrequestPopup() {
     title = '{% trans "Manual request" %}';
+    w = 1000;
+    h = 700;
     url = '/manual_request/';
     data = { 'title': '{{ title|escapejs }}',
              'url':'{{ url|escapejs }}'

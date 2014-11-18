@@ -228,8 +228,8 @@ function addHiddenInput(form, id, value) {
     form.appendChild(hiddenField);
 }
 
-
 function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns, no_values, too_many) {
+	$('#dataframe').spin("modal");
     $('#popup').modal('hide');
     selection = create_selection(values, too_many);
     if (selection == null) {

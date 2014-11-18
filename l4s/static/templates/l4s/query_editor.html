@@ -69,7 +69,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
          </div>
      </form>
 </div>
-<table class="table table-striped">
+<table class="table table-striped" id="table_list">
     <tbody>
     {% if topic == 0 and search == "" %}
     <h4>{% trans "Choose a topic" %}
@@ -99,11 +99,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% for table in table_list %}
     <tr>
         <td>
-            <a href="/query_editor_view?table={{ table }}">{{ table_description|lookup:table }}</a></p>
+            <a href=javascript:open_query("{{ table }}")>{{ table_description|lookup:table }}</a></p>
         </td>
     </tr>
     {% endfor %}
     {% endif %}
 </table>
+<script type="text/javascript" src="/static/js/spin.min.js"></script>
+<script>
+function open_query(table) {
+   url="/query_editor_view?table=" + table
+   $('#table_list').spin("modal");
+   location.href=url
+}
+</script>
 {% endblock %}
 

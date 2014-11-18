@@ -1278,10 +1278,6 @@ def query_editor_view(request):
 
         return render_to_response("l4s/query_editor_view.html", context)
 
-    print str(df.columns.names)
-    print str(df.index.names)
-
-
     store = store_data_frame(request, df)
     html = data_frame_to_html(df, pivot)
 

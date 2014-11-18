@@ -108,7 +108,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% endif %}
 </div>
 {% if dataframe %}
-<div style="overflow: auto; max-heigth: 100%;" id="overflow_wrapper">
+<div style="overflow: auto; max-heigth: 100%;" id="dataframe">
     <center>
     {{ dataframe|safe }}
     </center>
@@ -120,6 +120,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="/static/js/download.js"></script>
 <script>
 initToken();
+$('#progress').hide();
 function OpenCustomizePopup() {
     debug_value = "false"
     debug = '{{ debug }}';
