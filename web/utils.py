@@ -297,11 +297,23 @@ def list_ref_period(table_name,
     :return: Columns containing a ref period.
     """
     columns = dict()
+    query = "SELECT column_name FROM web_metadata \n"
+    query += "WHERE table_name='%s' \n" % table_name
+    query += "and value='%s'" % REF_PERIOD
+    print query
+    rows = execute_query_on_django_db(query)
+    obs_set = []
+    if not rows is None:
+        for row in rows:
+            obs_set.append(row[0])
+
     for f, field in enumerate(table_description):
         column_name = field.name
-        if is_ref_period(table_name, column_name):
+        if column_name in obs_set:
             columns[f] = column_name
+
     return columns
+
 
 
 def contains_ref_period(pivot, cols, axis=None):

@@ -1173,10 +1173,8 @@ def query_editor_view(request):
             vals = get_all_field_values(table_name, column_name)
             values[column_name] = vals
 
-    table_schema = get_table_schema(table_name)
-    aggregations = get_all_aggregations(table_name, table_schema)
-
     ref_periods = list_ref_period(table_name, table_schema)
+    aggregations = get_all_aggregations(table_name, table_schema)
 
     agg_values = dict()
     filters = dict()
