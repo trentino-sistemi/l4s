@@ -263,32 +263,28 @@ class CreateQueryView(ExplorerContextMixin, CreateView):
         :param request: Django request.
         :return: The request response.
         """
-        save = request.REQUEST.get('save', '')
+        save = request.REQUEST.get('save')
         to_be_saved = False
-        if save and save == 'true':
+        if not save is None and save == 'true':
             to_be_saved = True
 
-        pivot_column = request.REQUEST.get('pivot_column', '')
+        pivot_column = request.REQUEST.get('pivot_column')
         pivot_cols = []
-        for i in pivot_column.split(','):
-            if i.isdigit():
-                pivot_cols.append(int(i))
+        if not pivot_column is None:
+            pivot_cols = [int(x) for x in pivot_column.split(',')]
 
-        aggregation = request.REQUEST.get('aggregate', '')
-
+        aggregation = request.REQUEST.get('aggregate')
         aggregation_ids = []
-        for i in aggregation.split(','):
-            if i.isdigit():
-                aggregation_ids.append(int(i))
+        if not aggregation is None:
+            aggregation_ids = [int(x) for x in aggregation.split(',')]
 
         debug = False
         if request.user.is_staff:
-            debug_s = request.REQUEST.get('debug', '')
-            if debug_s and debug_s == 'true':
+            debug_s = request.REQUEST.get('debug')
+            if not debug_s is None and debug_s == 'true':
                 debug = True
 
         form = CreateQueryForm(request.POST)
-
         message = None
 
         if to_be_saved:
@@ -380,30 +376,26 @@ class QueryView(ExplorerContextMixin, View):
         :return: The request response.
         """
 
-        save = request.REQUEST.get('save', '')
+        save = request.REQUEST.get('save')
         to_be_saved = False
-        if save and save == 'true':
+        if not save is None and save == 'true':
             to_be_saved = True
 
-        aggregation = request.REQUEST.get('aggregate', '')
-
+        aggregation = request.REQUEST.get('aggregate')
         aggregation_ids = []
-        for i in aggregation.split(','):
-            if i.isdigit():
-                aggregation_ids.append(int(i))
+        if not aggregation is None:
+            aggregation_ids = [int(x) for x in aggregation.split(',')]
 
         debug = False
         if request.user.is_staff:
-            debug_s = request.REQUEST.get('debug', '')
-            if debug_s and debug_s == 'true':
+            debug_s = request.REQUEST.get('debug')
+            if not debug_s is None and debug_s == 'true':
                 debug = True
 
-        pivot_column = request.GET.get('pivot_column', '')
+        pivot_column = request.REQUEST.get('pivot_column')
         pivot_cols = []
-        message = None
-        for i in pivot_column.split(','):
-            if i.isdigit():
-                pivot_cols.append(int(i))
+        if not pivot_column is None:
+            pivot_cols = [int(x) for x in pivot_column.split(',')]
 
         if not EXPLORER_PERMISSION_VIEW(request.user):
             return HttpResponseRedirect(
@@ -412,7 +404,7 @@ class QueryView(ExplorerContextMixin, View):
 
         query = get_object_or_404(Query, pk=query_id)
         url = '/explorer/%d/' % query.pk
-
+        message = None
         form = CreateQueryForm(data=request.POST or None, instance=query)
         if to_be_saved and QueryView.user_has_privilege(request.user,
                                                         query):
@@ -619,8 +611,9 @@ def empty_table(request):
     :param request: Django request.
     :return: The request response.
     """
-    table_name = request.GET.get('table', '')
-    delete_all(table_name)
+    table_name = request.GET.get('table')
+    if not table_name is None:
+        delete_all(table_name)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -699,8 +692,9 @@ def table_delete_metadata(request):
     :param request: Django request.
     :return: The request response.
     """
-    metadata_id = request.GET.get('id', '')
-    Metadata.objects.filter(id=metadata_id).delete()
+    metadata_id = request.GET.get('id')
+    if not metadata_id is None:
+        Metadata.objects.filter(id=metadata_id).delete()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -713,10 +707,9 @@ def table_edit_metadata(request):
     :return: The request response.
     """
     context = RequestContext(request)
+    metadata_id = request.REQUEST.get('id')
+    metadata = Metadata.objects.get(id=metadata_id)
     if request.method == 'POST':
-        metadata_id = request.POST.get('id', '')
-
-        metadata = Metadata.objects.get(id=metadata_id)
         form = MetadataChangeForm(request.POST, instance=metadata)
         if form.is_valid():
             form.save()
@@ -731,8 +724,6 @@ def table_edit_metadata(request):
                                       {'form': form},
                                       context_instance=context)
 
-    metadata_id = request.GET.get('id', '')
-    metadata = Metadata.objects.get(id=metadata_id)
     form = MetadataChangeForm(instance=metadata)
     context['id'] = metadata_id
     context['table_name'] = metadata.table_name
@@ -749,20 +740,21 @@ def table_view_metadata(request):
     View metadata on table.
 
     :param request: Django request.
-    :return: The Django request response.
+    :return: T
+    he Django request response.
     """
-    table_name = request.GET.get('table', '')
+    context = RequestContext(request)
+    table_name = request.GET.get('table')
     column_name = request.GET.get('column', '')
-    if column_name:
+    if not table_name is None:
+        context['table_name'] = table_name
+    if not column_name is None:
         metadata_list = Metadata.objects.filter(table_name=table_name,
                                                 column_name=column_name)
+        context['column_name'] = column_name
     else:
         metadata_list = Metadata.objects.filter(table_name=table_name)
-    context = Context({'metadata_list': metadata_list})
-    if table_name:
-        context['table_name'] = table_name
-    if column_name:
-        context['column_name'] = column_name
+    context['metadata_list'] = metadata_list
     context['request'] = request
     return render_to_response('l4s/metadata.html', context)
 
@@ -775,9 +767,10 @@ def delete_ontology(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    ontology_id = request.GET.get('id', '')
-    item = OntologyFileModel.objects.get(id=ontology_id)
-    item.delete()
+    ontology_id = request.GET.get('id')
+    if not ontology_id is None:
+        item = OntologyFileModel.objects.get(id=ontology_id)
+        item.delete()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -860,7 +853,7 @@ def table_list(request):
     :return: The Django request response.
     """
     context = RequestContext(request)
-    topic = request.GET.get('topic', '')
+    topic = request.GET.get('topic')
     search = request.GET.get('search', '')
 
     # Filter tables matching descriptions and table_name.
@@ -872,10 +865,11 @@ def table_list(request):
         tables = connection.introspection.table_names()
         table_description = build_description_table_dict(tables)
 
-    # Topic 0 means that all the topics will be displayed.
-    topic_id = 0
-    if topic.isdigit():
+    if not topic is None:
         topic_id = int(topic)
+    else:
+        # Topic 0 means that all the topics will be displayed.
+        topic_id = 0
 
     if topic_id != 0:
         tables = filter_tables_by_topic(topic_id, tables)
@@ -940,8 +934,8 @@ def query_list(request):
                              Query.objects.filter(
                                  description__icontains=search))
     criteria = "None"
-    order_by = request.GET.get('order_by', '')
-    if order_by:
+    order_by = request.GET.get('order_by')
+    if not order_by is None:
         criteria = order_by
         objects = objects.order_by(criteria)
     else:
@@ -963,9 +957,9 @@ def recent_queries(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    search = request.GET.get('search', '')
+    search = request.GET.get('search')
     objects = Query.objects
-    if search:
+    if not search is None:
         objects = objects & (Query.objects.filter(title__icontains=search) |
                              Query.objects.filter(
                                  description__icontains=search))
@@ -987,14 +981,15 @@ def query_copy(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    query_id = request.GET.get('id', '')
-    query = get_object_or_404(Query, id=query_id)
-    new_query = deepcopy(query)
-    new_query.id = None
-    new_query.is_public = False
-    # The author of the new copied query is the authenticated user.
-    new_query.created_by = request.user
-    new_query.save()
+    query_id = request.GET.get('id')
+    if not query_id is None:
+        query = get_object_or_404(Query, id=query_id)
+        new_query = deepcopy(query)
+        new_query.id = None
+        new_query.is_public = False
+        # The author of the new copied query is the authenticated user.
+        new_query.created_by = request.user
+        new_query.save()
     url = '/explorer'
     return redirect(url)
 
@@ -1006,9 +1001,9 @@ def index(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    search = request.GET.get('search', '')
+    search = request.GET.get('search')
     objects = Query.objects.filter(is_public=True)
-    if search:
+    if not search is None:
         found = Query.objects.filter(title__icontains=search)
         found = found | Query.objects.filter(description__icontains=search)
         objects = objects & found
@@ -1040,47 +1035,42 @@ def query_editor_customize(request):
     context = RequestContext(request)
     debug = False
     if request.user.is_staff:
-        debug_s = request.REQUEST.get('debug', '')
-        if debug_s and debug_s == 'true':
+        debug_s = request.REQUEST.get('debug')
+        if not debug_s is None and debug_s == 'true':
             debug = True
 
     include_code = False
-    include_code_s = request.REQUEST.get('include_code', '')
-    if include_code_s and include_code_s == 'true':
+    include_code_s = request.REQUEST.get('include_code')
+    if not include_code_s is None and include_code_s == 'true':
         include_code = True
 
-    selected_obs_values_s = request.REQUEST.get('selected_obs_values', '')
-
+    selected_obs_values_s = request.REQUEST.get('selected_obs_values')
     selected_obs_values = []
-    if selected_obs_values_s != "":
-        for i in selected_obs_values_s.split(','):
-            selected_obs_values.append(i)
+    if not selected_obs_values_s is None:
+        selected_obs_values = [x for x in selected_obs_values_s.split(',')]
 
-    table_name = request.REQUEST.get('table', '')
-    columns = request.REQUEST.get('columns', '')
+    table_name = request.REQUEST.get('table')
+
+    columns = request.REQUEST.get('columns')
     cols = []
-    if columns != "":
-        for i in columns.split(','):
-            cols.append(i)
+    if not columns is None:
+        cols = [x for x in columns.split(',')]
 
-    ref_periods = request.REQUEST.get('ref_periods', '')
-    periods = []
-    if ref_periods != "":
-        for i in ref_periods.split(','):
-            periods.append(i)
-
-    rows_s = request.REQUEST.get('rows', '')
+    rows_s = request.REQUEST.get('rows')
     rows = []
-    if rows_s != "":
-        for i in rows_s.split(','):
-            rows.append(i)
+    if not rows_s is None:
+        rows = [x for x in rows_s.split(',')]
 
-    sel_aggregation = request.REQUEST.get('aggregate', '')
+    ref_periods = request.REQUEST.get('ref_periods')
+    periods = []
+    if not ref_periods is None:
+        periods = [x for x in ref_periods.split(',')]
 
+
+    sel_aggregation = request.REQUEST.get('aggregate')
     sel_aggregation_ids = []
-    for i in sel_aggregation.split(','):
-        if i.isdigit():
-            sel_aggregation_ids.append(i)
+    if sel_aggregation is not None:
+        sel_aggregation_ids = [x for x in sel_aggregation.split(',')]
 
     table_schema = get_table_schema(table_name)
     column_description = request.REQUEST.get('column_description')
@@ -1125,7 +1115,7 @@ def query_editor_view(request):
     :param request: Django request.
     :return: The request response.
     """
-    table_name = request.REQUEST.get('table', '')
+    table_name = request.REQUEST.get('table')
     topic = get_topic_description(table_name)
     topic_id = get_topic_id(table_name)
     context = RequestContext(request)
@@ -1133,44 +1123,39 @@ def query_editor_view(request):
     table_description_dict = build_description_table_dict([table_name])
     context['table_description'] = table_description_dict[table_name]
 
-    selected_obs_values_s = request.REQUEST.get('selected_obs_values', '')
+    selected_obs_values_s = request.REQUEST.get('selected_obs_values')
     selected_obs_values = []
-    if selected_obs_values_s != "":
-        for i in selected_obs_values_s.split(','):
-            selected_obs_values.append(i)
+    if not selected_obs_values_s is None:
+        selected_obs_values = [x for x in selected_obs_values_s.split(',')]
 
     filters_s = request.REQUEST.get('filters')
     agg_filters_s = request.REQUEST.get('agg_filters')
-    columns = request.REQUEST.get('columns', '')
 
+    columns = request.REQUEST.get('columns')
     cols = []
-    if columns != "":
-        for i in columns.split(','):
-            cols.append(i)
+    if not columns is None:
+        cols = [x for x in columns.split(',')]
 
-    rows_s = request.REQUEST.get('rows', '')
+    rows_s = request.REQUEST.get('rows')
     rows = []
-    if rows_s != "":
-        for i in rows_s.split(','):
-            rows.append(i)
+    if not rows_s is None:
+        rows = [x for x in rows_s.split(',')]
 
     debug = False
     if request.user.is_staff:
-        debug_s = request.REQUEST.get('debug', '')
-        if debug_s and debug_s == 'true':
+        debug_s = request.REQUEST.get('debug')
+        if not debug_s is None and debug_s == 'true':
             debug = True
 
     include_code = False
-    include_code_s = request.REQUEST.get('include_code', '')
-    if include_code_s and include_code_s == 'true':
+    include_code_s = request.REQUEST.get('include_code')
+    if not include_code_s is None and include_code_s == 'true':
         include_code = True
 
-    aggregation = request.REQUEST.get('aggregate', '')
-
+    aggregation = request.REQUEST.get('aggregate')
     aggregation_ids = []
-    for i in aggregation.split(','):
-        if i.isdigit():
-            aggregation_ids.append(i)
+    if aggregation is not None:
+        aggregation_ids = [x for x in aggregation.split(',')]
 
     values = dict()
     table_schema = get_table_schema(table_name)
@@ -1187,7 +1172,6 @@ def query_editor_view(request):
         if not column_name in obs_values:
             vals = get_all_field_values(table_name, column_name)
             values[column_name] = vals
-
 
     table_schema = get_table_schema(table_name)
     aggregations = get_all_aggregations(table_name, table_schema)
@@ -1373,7 +1357,7 @@ def query_editor(request):
     :return: The request response.
     """
     context = RequestContext(request)
-    topic = request.GET.get('topic', '')
+    topic = request.GET.get('topic')
     search = request.GET.get('search', '')
 
     table_description = dict()
@@ -1385,10 +1369,11 @@ def query_editor(request):
         connection = connections[EXPLORER_CONNECTION_NAME]
         tables = connection.introspection.table_names()
 
-    # Topic 0 means that all the topics will be displayed.
-    topic_id = 0
-    if topic.isdigit():
+    if topic is not None:
         topic_id = int(topic)
+    else:
+        # Topic 0 means that all the topics will be displayed.
+        topic_id = 0
 
     if topic_id == 0:
         context['topics_counter'] = build_topics_counter_dict()
@@ -1463,15 +1448,16 @@ def manual_request_view(request):
     :return: The Django request response.
     """
     if request.method == 'POST':
-        manual_request_id = request.POST.get('id', '')
-        dispatcher = request.POST.get('dispatcher', '')
-        dispatch_note = request.POST.get('dispatch_note', '')
-        item = ManualRequest.objects.get(id=manual_request_id)
-        item.dispatched = True
-        item.dispatch_date = datetime.now()
-        item.dispatcher = dispatcher
-        item.dispatch_note = dispatch_note
-        item.save()
+        manual_request_id = request.POST.get('id')
+        if not manual_request is None:
+            item = ManualRequest.objects.get(id=manual_request_id)
+            item.dispatched = True
+            item.dispatch_date = datetime.now()
+            dispatcher = request.POST.get('dispatcher', '')
+            item.dispatcher = dispatcher
+            dispatch_note = request.POST.get('dispatch_note', '')
+            item.dispatch_note = dispatch_note
+            item.save()
         return HttpResponseRedirect('/manual_request_list')
 
     context = RequestContext(request)
@@ -1492,7 +1478,7 @@ def manual_request_accepted(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    query_id = request.GET.get('id', '')
+    query_id = request.GET.get('id')
     context = RequestContext(request)
     context['id'] = query_id
     return render_to_response("l4s/manual_request_accepted.html", context)
