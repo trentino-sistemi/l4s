@@ -300,7 +300,6 @@ def list_ref_period(table_name,
     query = "SELECT column_name FROM web_metadata \n"
     query += "WHERE table_name='%s' \n" % table_name
     query += "and value='%s'" % REF_PERIOD
-    print query
     rows = execute_query_on_django_db(query)
     obs_set = []
     if not rows is None:
@@ -313,7 +312,6 @@ def list_ref_period(table_name,
             columns[f] = column_name
 
     return columns
-
 
 
 def contains_ref_period(pivot, cols, axis=None):
@@ -2406,7 +2404,7 @@ def build_summarize_filters(column_description,
         col_desc = get_column_desc(column_description, f)
         if len(filt) == len(values[f]):
             vect = []
-            if col_desc in index_names or col_desc in columns_names:
+            if f in index_names or f in columns_names:
                 vect.append(all_s)
                 ret[col_desc] = vect
             else:
@@ -2578,40 +2576,43 @@ def build_query_desc(agg_col_desc, sel_tab):
     return description
 
 
-def build_query_title(df, obs_values):
+def build_query_title(column_description, obs_values, cols, rows):
     """
     Build a title for the data frame taking the columns and indices.
 
-    :param df: Data frame.
-    :return: obs_values
+    :param column_description:
+    :param obs_values:
+    :param cols:
+    :param rows:
     """
     for_s = unicode(_("for"))
     and_s = unicode(_("and"))
     title = ""
-    if len(obs_values) == 1:
-        title += df.columns.levels[0][0]
-    else:
-        rows = []
-        for i, index in enumerate(df.index.levels[len(df.index.levels)-1]):
-            rows.append(index.decode('utf-8').lower())
-        title += ", ".join(rows)
+
+    for o, obs_value in enumerate(obs_values):
+        desc = get_column_desc(column_description, obs_value)
+        if o == 0:
+            title = desc[0].upper() + desc[1:]
+        else:
+            title += ", " + desc.lower()
 
     title += " %s " % for_s
 
-    cols = []
-    for c, col in enumerate(df.columns.names):
-        if col is not None:
-            cols.append(col.decode('utf-8').lower())
+    for c, col in enumerate(cols):
+        desc = get_column_desc(column_description, col)
+        if c == 0:
+            title += desc.lower()
+        else:
+            title += ", " + desc.lower()
 
-    title += ", ".join(cols)
+    for r, row in enumerate(rows):
+        desc = get_column_desc(column_description, row)
+        if r == len(rows)-1:
+            title += " %s " % and_s
+            title += desc.lower()
+        else:
+            title += ", " + desc.lower()
 
-    for i, index in enumerate(df.index.names):
-        if index is not None:
-            if i != len(df.index.names)-1:
-                title += ","
-            else:
-                title += " %s" % and_s
-            title += " %s" % index.decode('utf-8').lower()
     return title
 
 

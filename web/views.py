@@ -1212,10 +1212,6 @@ def query_editor_view(request):
         filters = json.loads(filters_s)
         agg_filters = json.loads(agg_filters_s)
 
-    column_description = build_description_column_dict(table_name,
-                                                       table_schema)
-
-
     sql, pivot = build_query(table_name,
                              cols,
                              rows,
@@ -1225,7 +1221,6 @@ def query_editor_view(request):
                              values)
 
     query = Query(title=table_name, sql=sql)
-
     df, data, warn, err = headers_and_data(query,
                                            filters,
                                            aggregation_ids,
@@ -1235,14 +1230,12 @@ def query_editor_view(request):
                                            True,
                                            include_code)
 
-
     context['values'] = values
     context['obs_values'] = obs_values
     context['selected_obs_values'] = ",".join(selected_obs_values)
     context['aggregations'] = aggregations
     context['agg_values'] = agg_values
     context['aggregation_ids'] = aggregation_ids
-    context['column_description'] = column_description
     context['topic'] = topic
     context['topic_id'] = topic_id
     context['hidden_fields'] = hidden_fields
@@ -1255,11 +1248,14 @@ def query_editor_view(request):
     context['include_code'] = include_code
     context['ref_periods'] = ",".join(ref_periods.values())
 
-    if df is None:
-        context['dataframe'] = _("Can not display the requested content")
-        return render_to_response("l4s/query_editor_view.html", context)
+    column_description = build_description_column_dict(table_name,
+                                                       table_schema)
 
-    title = build_query_title(df, selected_obs_values)
+    title = build_query_title(column_description,
+                              selected_obs_values,
+                              cols,
+                              rows)
+    context['title'] = title
 
     agg_col, sel_tab = build_query_summary(column_description,
                                            values,
@@ -1267,24 +1263,35 @@ def query_editor_view(request):
                                            aggregation_ids,
                                            agg_values,
                                            agg_filters,
-                                           df.columns.names,
-                                           df.index.names,
+                                           cols,
+                                           rows,
                                            hidden_fields)
 
     description = build_query_desc(agg_col, sel_tab)
+    context['description'] = description
+    context['sel_tab'] = sel_tab
+    context['agg_col'] = agg_col
+
+    if df is None:
+        no_display = _("Can not display the requested content")
+        context['dataframe'] = no_display
+
+        return render_to_response("l4s/query_editor_view.html", context)
+
+    print str(df.columns.names)
+    print str(df.index.names)
+
+
     store = store_data_frame(request, df)
     html = data_frame_to_html(df, pivot)
 
     url = '/query_editor_view/?table=%s' % table_name
 
+    context['column_description'] = column_description
     context['dataframe'] = html
     context['store'] = store
     context['sql'] = sql
-    context['description'] = description
-    context['title'] = title
     context['url'] = url
-    context['sel_tab'] = sel_tab
-    context['agg_col'] = agg_col
 
     return render_to_response("l4s/query_editor_view.html", context)
 
