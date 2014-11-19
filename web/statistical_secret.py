@@ -637,6 +637,7 @@ def apply_constraint_pivot(data,
                            col_dict,
                            constraint_cols,
                            filters,
+                           aggregation,
                            debug):
     """
     Apply a constraint limit to the result set.
@@ -649,8 +650,13 @@ def apply_constraint_pivot(data,
     :param constraint_cols: Constraints dictionary.
     :param filters: Filters.
     :param debug: If active show debug info on asterisked cells.
+    :param aggregation: Aggregation
     :return: The pivoted table applying constraints.
     """
+    if len(aggregation) > 0:
+        #@TODO perform constraint grouping on aggregation.
+        return data
+
     constraint_dict = build_constraint_dict(constraint_cols)
 
     for con, constraint in enumerate(constraint_dict):
@@ -1148,6 +1154,7 @@ def apply_stat_secret(headers,
                       threshold_columns_dict,
                       constraint_cols,
                       filters,
+                      aggregation,
                       debug):
     """
     Take in input the full data set and the column descriptions
@@ -1163,6 +1170,7 @@ def apply_stat_secret(headers,
     :param constraint_cols: Columns with constraint to
                             perform primary suppression
     :param filters: Filter used in query.
+    :param aggregation:
     :param debug: If active show debug info on asterisked cells.
     :return: data, headers, data_frame, warn, err.
     """
@@ -1215,6 +1223,7 @@ def apply_stat_secret(headers,
                                       col_dict,
                                       constraint_cols,
                                       filters,
+                                      aggregation,
                                       debug)
         sec = get_table_metadata_value(col_dict[0]['table'], 'secondary')
         if not sec is None and len(sec) > 0:
@@ -1348,6 +1357,7 @@ def headers_and_data(query,
                                                               st.threshold,
                                                               st.constraint,
                                                               filters,
+                                                              aggregation,
                                                               debug)
     if not include_code:
         # Fix all columns before drop the codes.
