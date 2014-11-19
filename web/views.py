@@ -72,7 +72,6 @@ from web.utils import get_variable_dictionary, \
     get_all_aggregations, \
     build_description_query, \
     get_all_field_values, \
-    get_all_field_values_agg, \
     build_query_title, \
     build_query_summary, \
     build_query_desc, \
@@ -549,7 +548,6 @@ def query_download_json_stat(request):
     """
     df = load_data_frame(request)
     title = request.REQUEST.get('title')
-
     fn = generate_report_action_json_stat(df)
     return fn(title)
 
@@ -565,7 +563,6 @@ def query_download_sdmx(request):
     title = request.REQUEST.get('title')
     fn = generate_report_action_sdmx(df)
     sql = request.REQUEST.get('sql')
-
     return fn(title, sql)
 
 
@@ -580,9 +577,7 @@ def query_download_rdf(request):
     title = request.REQUEST.get('title')
     sql = request.REQUEST.get('sql')
     description = request.REQUEST.get('description')
-
     fn = generate_report_action_rdf(df)
-
     return fn(title, description, sql)
 
 
@@ -597,9 +592,7 @@ def query_download_turtle(request):
     title = request.REQUEST.get('title')
     sql = request.REQUEST.get('sql')
     description = request.REQUEST.get('description')
-
     fn = generate_report_action_turtle(df)
-
     return fn(title, description, sql)
 
 
@@ -1066,7 +1059,6 @@ def query_editor_customize(request):
     if not ref_periods is None and ref_periods != "":
         periods = [x for x in ref_periods.split(',')]
 
-
     sel_aggregation = request.REQUEST.get('aggregate')
     sel_aggregation_ids = []
     if sel_aggregation is not None and sel_aggregation != "":
@@ -1170,21 +1162,13 @@ def query_editor_view(request):
     for f, field in enumerate(table_schema):
         column_name = field.name
         if not column_name in obs_values:
-            vals = get_all_field_values(table_name, column_name)
+            vals = get_all_field_values(table_name, column_name, None)
             values[column_name] = vals
 
     ref_periods = list_ref_period(table_name, table_schema)
-    aggregations = get_all_aggregations(table_name, table_schema)
+    aggregations, agg_values = get_all_aggregations(table_name)
 
-    agg_values = dict()
     filters = dict()
-    for agg in aggregations:
-        for ag in aggregations[agg]:
-            agg_new = dict()
-            agg_new[ag] = agg
-            vals = get_all_field_values_agg(ag)
-            agg_values[ag] = vals
-
     if len(rows) + len(cols) == 0:
         cols, rows = choose_default_axis(table_name,
                                          ref_periods,

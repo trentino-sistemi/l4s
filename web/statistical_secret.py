@@ -461,7 +461,7 @@ def protect_pivoted_secret(data,
                            obs_values,
                            secret_column,
                            threshold_columns_dict,
-                           pivot,
+                           pivot_c,
                            cols,
                            debug):
     """
@@ -471,17 +471,17 @@ def protect_pivoted_secret(data,
     :param obs_values: Observable values.
     :param secret_column: column with secret.
     :param threshold_columns_dict: Threshold column dictionary.
-    :param pivot:
+    :param pivot_c:
     :param cols:
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table preserving statistical secret with marginality.
     """
-    if not contains_ref_period(pivot, cols, axis=0):
+    if not contains_ref_period(pivot_c, cols, axis=0):
         data = row_primary_suppression(data,
                                        secret_column,
                                        threshold_columns_dict,
                                        debug)
-    if not contains_ref_period(pivot, cols, axis=1):
+    if not contains_ref_period(pivot_c, cols, axis=1):
         data = column_primary_pivoted_suppression(data,
                                                   obs_values,
                                                   threshold_columns_dict,
@@ -496,7 +496,7 @@ def protect_pivoted_table(data,
                           threshold_columns_dict,
                           constraint_cols,
                           obs_values,
-                          pivot,
+                          pivot_c,
                           cols,
                           debug):
     """
@@ -508,7 +508,7 @@ def protect_pivoted_table(data,
     :param threshold_columns_dict: Threshold columns.
     :param constraint_cols: Column with constraints,
     :param obs_values:  Observable values.
-    :param pivot: Pivot columns.
+    :param pivot_c: Pivot columns.
     :param cols: Columns.
     :param debug: If active show debug info on asterisked cells.
     :return: The pivoted table preserving the statistical secret.
@@ -521,17 +521,17 @@ def protect_pivoted_table(data,
                                       obs_values,
                                       secret_column_dict,
                                       threshold_columns_dict,
-                                      pivot,
+                                      pivot_c,
                                       cols,
                                       debug)
 
     tot_asterisked = 1
     while tot_asterisked > 0:
         asterisked_r = 0
-        if not contains_ref_period(pivot, cols, axis=0):
+        if not contains_ref_period(pivot_c, cols, axis=0):
             data, asterisked_r = row_secondary_suppression(data, debug)
         asterisked_c = 0
-        if not contains_ref_period(pivot, cols, axis=1):
+        if not contains_ref_period(pivot_c, cols, axis=1):
             data, asterisked_c = column_secondary_suppression(data,
                                                               obs_values,
                                                               debug)
@@ -817,8 +817,7 @@ def protect_plain_table(data,
                                             threshold_columns_dict,
                                             debug)
 
-    data, asterisked_c = column_secondary_suppression(data,
-                                                      debug)
+    data, asterisked_c = column_secondary_suppression(data, debug)
 
     return data
 
@@ -957,7 +956,7 @@ def secondary_row_suppression_constraint(data,
         index_tuples = list(itertools.product(*levels_contents))
     else:
         index_tuples = []
-        for c, col in enumerate(data_frame.index):
+        for col in data_frame.index:
             index_tuples.append(col)
 
     for rt, row_tup in enumerate(index_tuples):

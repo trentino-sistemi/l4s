@@ -86,8 +86,6 @@ def get_table_by_name_or_desc(search, order):
     if order:
         query += "ORDER BY value"
 
-    print query
-
     rows = execute_query_on_django_db(query)
     ret = OrderedDict()
 
@@ -471,39 +469,26 @@ def all_obs_value_column(table_name, table_description):
     return ret
 
 
-def get_all_field_values_agg(ag):
-    """
-    Get all the values that can have the aggregation.
-
-    :param ag: Aggregation id.
-    :return: All fields that can be  aggregated.
-    """
-    metadata = Metadata.objects.get(id=ag)
-    if metadata.key == LOCATED_IN_AREA:
-        ref_table, ref_column = located_in_area(metadata.table_name,
-                                                metadata.column_name,
-                                                metadata.value)
-        vals = get_all_field_values(ref_table, ref_column)
-    else:
-        #@TODO Some magic code to have the values.
-        vals = get_all_field_values(metadata.table_name, metadata.column_name)
-    return vals
-
-
-def get_all_field_values(table_name, column_name):
+def get_all_field_values(table_name, column_name, select):
     """
     Get all the value that can assume the field.
 
     :param table_name: Table name.
     :param column_name: Column name.
+    :param select: Function to select if None than use column_name.
     :return: All values that can have each one column.
     """
     ret = []
     query = "--JOIN %s.%s 0\n" % (table_name, column_name)
-    query += "SELECT DISTINCT %s FROM %s\n" % (column_name, table_name)
-    query += "ORDER BY %s" % column_name
-    st = detect_special_columns(query)
-    query = build_description_query(query, st.cols, [], True, True)
+    if select is None:
+        query += "SELECT DISTINCT %s FROM %s\n" % (column_name, table_name)
+        query += "ORDER BY %s" % column_name
+        st = detect_special_columns(query)
+        query = build_description_query(query, st.cols, [], True, True)
+    else:
+        query += "SELECT DISTINCT %s FROM %s\n" % (select, table_name)
+        query += "ORDER BY %s" % select
+
     rows = execute_query_on_main_db(query)
     for row in rows:
         if len(row) == 1:
@@ -772,8 +757,10 @@ def remove_code_from_data_frame(df):
     # Now I can drop the codes columns preserving totals.
     for level, index in enumerate(df.index.names):
         if index is not None and index.startswith(CODE):
-            df.index = df.index.droplevel(level-dropped_levels)
-            dropped_levels += 1
+            desc = index[len(CODE)+1:]
+            if desc in df.index.names:
+                df.index = df.index.droplevel(level-dropped_levels)
+                dropped_levels += 1
 
     return df
 
@@ -819,7 +806,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
         table = fields[f]['table']
         field = fields[f]['column']
         if f != 0:
-            desc_query += ", "
+            desc_query += ", \n"
         if field is None:
             desc_query += "%s" % table
             continue
@@ -843,23 +830,23 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 if include_code or sort_by_code:
                     desc_query += "\n%s.%s " % (main_table, field)
                     desc_query += "AS \"%s %s\"," % (CODE, alias)
-                    new_header += "%s %s.%s %d\n" % (JOIN_TOKEN,
-                                                     dest_table,
-                                                     desc_column,
-                                                     counter)
+                    new_header += "%s %s.%s %d \n" % (JOIN_TOKEN,
+                                                      dest_table,
+                                                      desc_column,
+                                                      counter)
 
                     if f in pivot_cols:
-                        new_header += "%s %d\n" % (PIVOT_TOKEN, counter)
+                        new_header += "%s %d \n" % (PIVOT_TOKEN, counter)
                     counter += 1
 
-                new_header += "%s %s.%s %d\n" % (JOIN_TOKEN,
-                                                 table,
-                                                 field,
-                                                 counter)
+                new_header += "%s %s.%s %d \n" % (JOIN_TOKEN,
+                                                  table,
+                                                  field,
+                                                  counter)
                 if f in pivot_cols:
-                    new_header += "%s %d\n" % (PIVOT_TOKEN, counter)
+                    new_header += "%s %d \n" % (PIVOT_TOKEN, counter)
                 counter += 1
-                desc_query += "\n%s.%s " % (dest_table, desc_column)
+                desc_query += "%s.%s " % (dest_table, desc_column)
                 desc_query += "AS \"%s\"" % alias
                 continue
 
@@ -869,9 +856,9 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
         alias = "%s" % alias
         alias = alias.strip()
         desc_query += "%s.%s AS \"%s\"" % (main_table, field, alias)
-        new_header += "%s %s.%s %d\n" % (JOIN_TOKEN, table, field, counter)
+        new_header += "%s %s.%s %d \n" % (JOIN_TOKEN, table, field, counter)
         if f in pivot_cols:
-            new_header += "%s %d\n" % (PIVOT_TOKEN, counter)
+            new_header += "%s %d \n" % (PIVOT_TOKEN, counter)
         counter += 1
 
     desc_query += "\nFROM\n"
@@ -1308,9 +1295,9 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold):
     """
     err = None
     cols_s = ','.join([str(k) for k in aggregations])
-    query = "SELECT table_name, column_name, count(id) from %s " % METADATA
-    query += "WHERE id IN(%s) " % cols_s
-    query += "GROUP BY table_name, column_name ORDER BY count(id) DESC"
+    query = "SELECT table_name, column_name, count(id) FROM %s \n" % METADATA
+    query += "WHERE id IN(%s) \n" % cols_s
+    query += "GROUP BY table_name, column_name ORDER BY count(id) DESC "
     rows = execute_query_on_django_db(query)
     first_row = rows[0]
     num = int(first_row[2])
@@ -1338,7 +1325,13 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold):
 
         metadata_value = "%s" % metadata.value
         if metadata_value.startswith(SQL_PREFIX):
-            sql = build_class_query(sql, cols, metadata, threshold)
+            formula, alias = get_class_formula_alias(aggregation)
+            sql = build_class_query(sql,
+                                    cols,
+                                    metadata.column_name,
+                                    formula,
+                                    None,
+                                    threshold)
         else:
             sql = build_located_in_area_query(sql, cols, metadata, agg_filters,
                                               threshold)
@@ -1423,24 +1416,36 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold):
     return query
 
 
-def build_class_query(sql, cols, metadata, threshold):
+def get_class_formula_alias(aggregation):
+    """
+    Get formula and alias from a class aggregation metadata.
+
+    :param aggregation: Aggregation id.
+    :return: Formula, alias.
+    """
+    metadata = Metadata.objects.get(id=aggregation)
+    column_name = metadata.column_name
+    value = metadata.value
+    value = value[len(SQL_PREFIX):]
+    url = re.findall(r'(https?://[^\s]+)', value)[0].strip(",")
+    subs = value.replace(url, column_name)
+    alias = re.findall(r'AS(.*)', value)[0]
+    formula = subs.replace('AS' + alias, "")
+    return formula, alias
+
+
+def build_class_query(sql, cols, column_name, formula, alias, threshold):
     """
     Build query for CLASS aggregation.
 
     :param sql: The sql text.
     :param cols: Columns.
-    :param metadata: Metadatas.
+    :param column_name:
+    :param formula:
+    :param alias:
     :param threshold: Threshold.
     :return: The new query to aggregate to an higher CLASS level.
     """
-    column_name = metadata.column_name
-    value = "%s" % metadata.value
-    value = value[len(SQL_PREFIX):]
-    url = re.findall(r'(https?://[^\s]+)', value)[0].strip(",")
-    #ref_table, ref_column = get_concept(url)
-    subs = value.replace(url, column_name)
-    rename = re.findall(r'AS(.*)', value)[0]
-    subs = subs.replace('AS' + rename, "")
 
     query = "SELECT "
     params = ""
@@ -1449,31 +1454,30 @@ def build_class_query(sql, cols, metadata, threshold):
     for c in cols:
         table = cols[c]['table']
         column = cols[c]['column']
-
+        if c != 0:
+            query += ", \n"
         if c in threshold:
-            query += ", SUM(%s.%s) %s " % (new_table, column, column)
+            query += "SUM(%s.%s) %s " % (new_table, column, column)
             header += "%s " % JOIN_TOKEN
             header += "%s.%s %d\n" % (table, column, c)
             continue
-        if c != 0:
-            query += ", "
         if params != "":
             params += ', '
         if column == column_name:
-            if rename is None or rename == "":
-                rename = column
-            query += "%s AS %s" % (subs, rename)
-            params += subs
+            if alias is None or alias == "":
+                alias = column
+            query += "%s AS %s" % (formula, alias)
+            params += alias
         else:
             query += " %s.%s" % (new_table, column)
             params += " %s.%s" % (new_table, column)
 
         header += "%s " % JOIN_TOKEN
-        header += "%s.%s %d\n" % (table, column, c)
+        header += "%s.%s %d \n" % (table, column, c)
 
     old_header, inner_sql = extract_header(sql)
 
-    query += "FROM (%s) %s " % (inner_sql, new_table)
+    query += "\n FROM (%s) %s \n" % (inner_sql, new_table)
     query += "GROUP BY %s\n" % params
     query += "ORDER BY %s" % params
     query = header + query
@@ -2094,7 +2098,7 @@ def filter_coder_table(tables):
     :param tables:
     :return:
     """
-    table_names = "'"+ "','".join(tables) + "'"
+    table_names = "'" + "','".join(tables) + "'"
     query = "SELECT table_name FROM web_metadata \n"
     query += "WHERE key='decoder' and value='TRUE' \n"
     query += "and table_name IN(%s)" % table_names
@@ -2211,54 +2215,69 @@ def is_ref_area(table, column):
     return False
 
 
-def get_all_aggregations(table_name, table_schema):
+def get_all_aggregations(table_name):
     """
     Get all the aggregation that are feasible on table.
 
     :param table_name: Table name.
-    :param table_schema: Column name.
     :return: Boolean.
     """
     agg = dict()
+    agg_values = dict()
 
-    for field in table_schema:
-        column_name = field.name
-        src_description = get_column_description(table_name, column_name)
-        if src_description is None or src_description == "":
-            src_description = column_name
-        metadata_list = Metadata.objects.filter(table_name=table_name,
-                                                column_name=column_name,
-                                                key=LOCATED_IN_AREA)
+    query = "SELECT b.id, b.table_name, b.column_name, "
+    query += "d.table_name, d.column_name \n"
+    query += "FROM web_metadata b \n"
+    query += "JOIN web_metadata d ON( \n"
+    query += "b.key='%s' \n" % LOCATED_IN_AREA
+    query += "and b.table_name='%s' \n" % table_name
+    query += "and d.column_name != 'NULL' \n"
+    query += "and d.key = '%s' \n" % CONCEPT
+    query += "and d.value = b.value \n"
+    query += ")"
 
-        for metadata in metadata_list:
-            ref_tab, ref_col = located_in_area(metadata.table_name,
-                                               metadata.column_name,
-                                               metadata.value)
-            if ref_tab is not None and ref_col is not None:
-                ref_description = get_column_description(ref_tab, ref_col)
-                if ref_description is None or ref_description == "":
-                    ref_description = ref_col
-                if not src_description in agg:
-                    agg[src_description] = dict()
-                agg[src_description][metadata.pk] = ref_description
-
-        metadata_list = Metadata.objects.filter(table_name=table_name,
-                                                column_name=column_name,
-                                                key=CLASS)
-        for m, metadata in enumerate(metadata_list):
+    rows = execute_query_on_django_db(query)
+    if not rows is None:
+        for row in rows:
+            pk = int(row[0])
+            table_name = row[1]
+            column_name = row[2]
+            ref_tab = row[3]
+            ref_col = row[4]
             src_description = get_column_description(table_name, column_name)
             if src_description is None or src_description == "":
                 src_description = column_name
+
+            ref_description = get_column_description(ref_tab, ref_col)
+            if ref_description is None or ref_description == "":
+                ref_description = ref_col
             if not src_description in agg:
                 agg[src_description] = dict()
-            value = "%s" % metadata.value
-            ref_description = re.findall(r'AS(.*)', value)[0].strip().strip(
-                '"')
-            if ref_description is None or ref_description == "":
-                ref_description = column_name + "_" + str(m+1)
-            agg[src_description][metadata.pk] = ref_description
+            agg[src_description][pk] = ref_description
+            vals = get_all_field_values(ref_tab, ref_col, None)
+            agg_values[pk] = vals
 
-    return agg
+    metadata_list = Metadata.objects.filter(table_name=table_name,
+                                            key=CLASS)
+
+    for m, metadata in enumerate(metadata_list):
+        column_name = metadata.column_name
+        src_description = get_column_description(table_name, column_name)
+        if src_description is None or src_description == "":
+            src_description = column_name
+        if not src_description in agg:
+            agg[src_description] = dict()
+        value = "%s" % metadata.value
+        ref_description = re.findall(r'AS(.*)', value)[0].strip().strip('"')
+        if ref_description is None or ref_description == "":
+            ref_description = column_name + "_" + str(m+1)
+        agg[src_description][metadata.pk] = ref_description
+        formula, alias = get_class_formula_alias(metadata.pk)
+        vals = get_all_field_values(table_name, column_name, formula)
+        pk = int(metadata.pk)
+        agg_values[pk] = vals
+
+    return agg, agg_values
 
 
 def get_aggregations(cols):
@@ -2456,18 +2475,25 @@ def build_agg_summarize_filters(target_col_desc,
     return ret
 
 
-def build_aggregation_title(src_col_desc, target_col_desc):
+def build_aggregation_title(agg_id):
     """
     Get aggregation title.
 
-    :param src_col_desc: Column description of field to be aggregated.
-    :param target_col_desc: Column description of the aggregated field.
+    :param agg_id: Aggregation metadata id.
     :return: Title.
     """
     group_by = unicode(_("group by"))
+    metadata = Metadata.objects.get(id=agg_id)
+    if metadata.key == LOCATED_IN_AREA:
+        src_col_desc, target_col_desc = get_aggregation_descriptions(agg_id)
+    else:
+        table_name = metadata.table_name
+        column_name = metadata.column_name
+        src_col_desc = get_column_description(table_name, column_name)
+        target_col_desc = metadata.value.split('AS')[1]
     title = "%s %s " % (src_col_desc, group_by)
     title += "%s" % target_col_desc.lower()
-    return title
+    return title, target_col_desc
 
 
 def build_all_filter(column_description,
@@ -2543,11 +2569,11 @@ def build_query_summary(column_description,
 
     agg_col_desc = dict()
     for a, agg_id in enumerate(aggregation_ids):
-        src_col_desc, target_col_desc = get_aggregation_descriptions(agg_id)
-        agg_title = build_aggregation_title(src_col_desc, target_col_desc)
+        build_aggregation_title(agg_id)
+        agg_title, agg_desc = build_aggregation_title(agg_id)
         val = dict()
         val['title'] = agg_title
-        val['description'] = target_col_desc
+        val['description'] = agg_desc
         agg_col_desc[agg_id] = val
 
     sel_tab = build_all_filter(column_description,
