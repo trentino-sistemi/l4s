@@ -229,16 +229,7 @@ function addHiddenInput(form, id, value) {
 }
 
 function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns, no_values, too_many) {
-	$('#dataframe').spin("modal");
-    $('#popup').modal('hide');
-    selection = create_selection(values, too_many);
-    if (selection == null) {
-        return
-    }
-    
-    filter_value = JSON.stringify(selection);
-        
-    rows = get_lis('rowFields');
+	rows = get_lis('rowFields');
     if (rows == "") {
         alert(no_rows);
         return;
@@ -249,6 +240,15 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
         return;
     }
     
+	spinner = $('#dataframe').spin("modal");
+    $('#popup').modal('hide');
+    
+    selection = create_selection(values, too_many);
+    if (selection == null) {
+        return
+    }
+    
+    filter_value = JSON.stringify(selection);
     selected_obs = create_obs_selection(obs_values) ;
     if (selected_obs.length==0) {
          alert(no_values);
@@ -273,14 +273,14 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
 
     url="/query_editor_view/"
     data = { 'table': table_name,
-                      'include_code': include_code_value,
-                      'columns': cols,
-                      'rows': rows,
-                      'selected_obs_values':  selected_obs_values,
-                      'aggregate': sel_aggregations,
-                      'filters': filter_value,
-                      'agg_filters': agg_selection_value,
-                      'debug': debug_value,
+             'include_code': include_code_value,
+             'columns': cols,
+             'rows': rows,
+             'selected_obs_values':  selected_obs_values,
+             'aggregate': sel_aggregations,
+             'filters': filter_value,
+             'agg_filters': agg_selection_value,
+             'debug': debug_value,
               };
     $.ajax({
 		url: url,
@@ -291,9 +291,11 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
             document.close();
 	},
         error: function(xhr, status) {
+			close_spinner(spinner, "modal");
 			alert(xhr.responseText);
 		}
     });
+
 }
 
 $(function () {
