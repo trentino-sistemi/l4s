@@ -960,7 +960,10 @@ def secondary_row_suppression_constraint(data,
             index_tuples.append(col)
 
     for rt, row_tup in enumerate(index_tuples):
-            row_index = data_frame.index.get_loc(index_tuples[rt])
+            try:
+                row_index = data_frame.index.get_loc(index_tuples[rt])
+            except:
+                continue
             src_row = data[row_index]
             for ct, col_tup in enumerate(col_tuples):
                 column_index = data_frame.columns.get_loc(col_tuples[ct])
