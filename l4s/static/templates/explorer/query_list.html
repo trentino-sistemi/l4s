@@ -312,6 +312,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 </div>
 <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
+<script type="text/javascript" src="/static/js/spin.min.js"></script>
 <script>
 $(document).ready(function(){
     initToken();
@@ -356,6 +357,7 @@ function query_editor(table,
                       aggregations,
                       filters,
                       agg_filters) {
+    spinner = $('#wrap').spin("modal");
     include_code_value = "false"
     if (include_code=='True') {
        include_code_value = "true"
@@ -381,6 +383,7 @@ function query_editor(table,
             document.close();
 	    },
         error: function(xhr, status) {
+            close_spinner(spinner, "modal");
 			alert(xhr.responseText);
 		}
     });

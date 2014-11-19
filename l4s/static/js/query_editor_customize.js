@@ -229,19 +229,20 @@ function addHiddenInput(form, id, value) {
 }
 
 function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns, no_values, too_many) {
+    spinner = $('#dataframe').spin("modal");
+    $('#popup').modal('hide');
 	rows = get_lis('rowFields');
     if (rows == "") {
+		close_spinner(spinner, "modal");
         alert(no_rows);
         return;
     }
     cols = get_lis('columnFields');
     if (cols == "") {
+		close_spinner(spinner, "modal");
         alert(no_columns);
         return;
     }
-    
-	spinner = $('#dataframe').spin("modal");
-    $('#popup').modal('hide');
     
     selection = create_selection(values, too_many);
     if (selection == null) {
@@ -251,7 +252,8 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
     filter_value = JSON.stringify(selection);
     selected_obs = create_obs_selection(obs_values) ;
     if (selected_obs.length==0) {
-         alert(no_values);
+		close_spinner(spinner, "modal"); 
+        alert(no_values);
         return;
     }
     selected_obs_values = selected_obs .join(",")

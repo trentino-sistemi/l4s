@@ -1145,7 +1145,7 @@ def query_editor_view(request):
     if not include_code_s is None and include_code_s == 'true':
         include_code = True
 
-    aggregation = request.REQUEST.get('aggregate')
+    aggregation = request.REQUEST.get('aggregate', "")
     aggregation_ids = []
     if aggregation is not None and aggregation != "":
         aggregation_ids = [x for x in aggregation.split(',')]
