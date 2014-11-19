@@ -36,7 +36,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <body>
 
 <h3 style="padding-bottom: 20px">
-    {% trans "Manual request" %} '{{ title.strip }}'
+    {% trans "Manual request" %}
 </h3>
 <div id="frm_div">
 <form id='frm'
@@ -78,7 +78,7 @@ function submit_form() {
         }
     }
     */
-    
+
     url="/manual_request_save/";
     $.ajax({ // create an AJAX call...
         data: $('#frm').serialize(), // get the form data
