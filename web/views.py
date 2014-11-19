@@ -849,14 +849,14 @@ def table_list(request):
     topic = request.GET.get('topic')
     search = request.GET.get('search', '')
 
+    table_description = dict()
     # Filter tables matching descriptions and table_name.
     if search:
-        table_description = get_table_by_name_or_desc(search, True)
+        table_description = get_table_by_name_or_desc(search, 'table_name')
         tables = table_description.keys()
     else:
         connection = connections[EXPLORER_CONNECTION_NAME]
         tables = connection.introspection.table_names()
-        table_description = build_description_table_dict(tables)
 
     if not topic is None and topic != "":
         topic_id = int(topic)
@@ -865,9 +865,10 @@ def table_list(request):
         topic_id = 0
 
     if topic_id != 0:
-        tables = filter_tables_by_topic(topic_id, tables)
-        tables = filter_coder_table(tables)
-        tables = order_tables_by_descriptions(tables)
+        tables = filter_tables_by_topic(topic_id, tables, 'nome')
+
+    if not search:
+        table_description = build_description_table_dict(tables)
 
     context['topics'] = build_topics_dict()
     context['table_list'] = tables
@@ -1348,7 +1349,7 @@ def query_editor(request):
     table_description = dict()
     # Filter tables matching descriptions and table_name.
     if search:
-        table_description = get_table_by_name_or_desc(search, True)
+        table_description = get_table_by_name_or_desc(search, 'value')
         tables = table_description.keys()
     else:
         connection = connections[EXPLORER_CONNECTION_NAME]
@@ -1363,7 +1364,7 @@ def query_editor(request):
     if topic_id == 0:
         context['topics_counter'] = build_topics_counter_dict()
     else:
-        tables = filter_tables_by_topic(topic_id, tables)
+        tables = filter_tables_by_topic(topic_id, tables, None)
         tables = filter_coder_table(tables)
         tables = order_tables_by_descriptions(tables)
         if not search:

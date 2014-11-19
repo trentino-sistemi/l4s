@@ -21,7 +21,7 @@ Routines for topics..
 from web.utils import execute_query_on_main_db
 
 
-def filter_tables_by_topic(topic_id, tables):
+def filter_tables_by_topic(topic_id, tables, order):
     # Filter tables on topic.
     """
 
@@ -38,7 +38,9 @@ def filter_tables_by_topic(topic_id, tables):
     query = "SELECT a.nome from tabelle a join argomenti_tabelle b \n"
     query += "on (b.id = a.id) "
     query += "WHERE b.argomento=%d " % topic_id
-    query += "and a.nome IN (%s)" % tables_str
+    query += "and a.nome IN (%s) \n" % tables_str
+    if not order is None:
+        query += "ORDER BY %s" % order
 
     new_tables = []
     rows = execute_query_on_main_db(query)

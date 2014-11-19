@@ -74,7 +74,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% for table in table_list %}
     <tr>
         <td><a href="/table?name={{ table }}">{{ table }}</a></td>
+        {% if table in table_description %}
         <td>{{ table_description|lookup:table }}</td>
+        {% else %}
+        <td></td>
+        {% endif %}
     </tr>
     {% endfor %}
     </tbody>

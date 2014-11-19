@@ -71,7 +71,7 @@ def get_table_by_name_or_desc(search, order):
     Get tables by matching with search criteria.
 
     :param search: Expression to be search.
-    :param order: Order table name by description.
+    :param order: Order table name by specified field.
     :return: Matching table list.
     """
     search_s = "'" + '%' + search + '%' + "'"
@@ -83,8 +83,8 @@ def get_table_by_name_or_desc(search, order):
     query += "WHERE b.column_name ilike %s or " % search_s
     query += "b.table_name ilike %s or " % search_s
     query += "d.value ilike %s \n" % search_s
-    if order:
-        query += "ORDER BY value"
+    if not order is None:
+        query += "ORDER BY %s" %order
 
     rows = execute_query_on_django_db(query)
     ret = OrderedDict()
@@ -1730,10 +1730,21 @@ def build_description_table_dict(tables):
     :param tables: List of table names.
     :return: A dictionary with descriptions.
     """
+    table_str = "'" + "','".join(tables) + "'"
+    query = "SELECT table_name, value from %s " % METADATA
+    query += "WHERE column_name = 'NULL' "
+    query += "and key='%s' " % DESCRIPTION
+    query += "and table_name IN (%s);" % table_str
+
+    rows = execute_query_on_django_db(query)
     table_description_dict = dict()
-    for table in tables:
-        description = get_table_description(table)
-        table_description_dict[table] = description
+
+    if not rows is None:
+        for row in rows:
+            table_name = row[0]
+            description = row[1]
+            table_description_dict[table_name] = description
+
     return table_description_dict
 
 
