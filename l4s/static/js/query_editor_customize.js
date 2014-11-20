@@ -120,7 +120,7 @@ function checkByParent(aId, aChecked) {
     }
 }
 
-function create_selection(values, too_many) {
+function create_selection(values, too_many, spinner) {
     var selection_obj = new Object();
     var value_hash = eval('(' + values + ')');
     for (var key in value_hash) {
@@ -145,7 +145,8 @@ function create_selection(values, too_many) {
                        }
                     }
                     if (sel_ref_period_count > 1) {
-                         name = sp.getAttribute("name");
+						close_spinner(spinner, "modal");
+                        name = sp.getAttribute("name");
                         alert(name + "; " + too_many);
                         return null;
                     }
@@ -244,9 +245,8 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
         return;
     }
     
-    selection = create_selection(values, too_many);
+    selection = create_selection(values, too_many, spinner);
     if (selection == null) {
-		close_spinner(spinner, "modal");
         return
     }
     
