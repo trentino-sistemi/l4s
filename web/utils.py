@@ -2351,8 +2351,8 @@ def drop_total_column(data_frame):
     :param data_frame:
     :return: Data frame.
     """
-    last_index_name = data_frame.columns[len(data_frame.columns)-1]
-    if last_index_name == TOTAL:
+    last_column_name = data_frame.columns[len(data_frame.columns)-1]
+    if last_column_name == TOTAL:
         index = data_frame.shape[1]-1
         data_frame = data_frame.drop(data_frame.columns[index], axis=1)
     return data_frame
@@ -2365,9 +2365,14 @@ def drop_total_row(data_frame):
     :param data_frame:
     :return: Data frame.
     """
-    index = get_data_frame_first_index(data_frame)
-    i = len(index)-1
-    data_frame = data_frame.drop(index[i])
+    last_index_name = data_frame.index[len(data_frame.index)-1]
+    if  isinstance(last_index_name, tuple):
+        last_index_name = last_index_name[0]
+
+    if last_index_name == TOTAL:
+        index = get_data_frame_first_index(data_frame)
+        i = len(index)-1
+        data_frame = data_frame.drop(index[i])
     return data_frame
 
 
