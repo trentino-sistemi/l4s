@@ -1395,7 +1395,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold):
 
     query += "\nFROM (%s) %s JOIN %s" % (inner_sql, new_table, ref_table)
     query += "\nON (%s.%s=" % (new_table, orig_column)
-    query += "%s.%s" % (ref_table, ref_column)
+    query += "%s.%s" % (ref_table, orig_column)
 
     pk = str(metadata.pk)
     if pk in agg_filters:
