@@ -64,6 +64,8 @@ SET_TOKEN = '--SET'
 WIDGET_TOKEN = '--WIDGET'
 TOKENS = [DESCRIPTION_TOKEN, JOIN_TOKEN, AGGREGATION_TOKEN, PIVOT_TOKEN]
 CODE = unicode(_("Code")).encode("utf-8")
+TOTAL = unicode(_("Total")).encode("utf-8")
+ALL = unicode(_("All")).encode("utf-8")
 
 
 def get_table_by_name_or_desc(search, order):
@@ -2349,8 +2351,10 @@ def drop_total_column(data_frame):
     :param data_frame:
     :return: Data frame.
     """
-    index = data_frame.shape[1]-1
-    data_frame = data_frame.drop(data_frame.columns[index], axis=1)
+    last_index_name = data_frame.columns[len(data_frame.columns)-1]
+    if last_index_name == TOTAL:
+        index = data_frame.shape[1]-1
+        data_frame = data_frame.drop(data_frame.columns[index], axis=1)
     return data_frame
 
 
@@ -2436,8 +2440,6 @@ def build_summarize_filters(column_description,
     :param hidden_fields: Hidden fields.
     """
     ret = dict()
-    all_s = unicode(_("all"))
-    total_s = unicode(_("total"))
     for f in filters:
         if f in hidden_fields.values():
             continue
@@ -2446,10 +2448,10 @@ def build_summarize_filters(column_description,
         if len(filt) == len(values[f]):
             vect = []
             if f in index_names or f in columns_names:
-                vect.append(all_s)
+                vect.append(ALL)
                 ret[col_desc] = vect
             else:
-                vect.append(total_s)
+                vect.append(TOTAL)
                 ret[col_desc] = vect
         elif len(filt) > 0:
             vect = []
@@ -2474,9 +2476,8 @@ def build_agg_summarize_filters(target_col_desc,
     """
     ret = dict()
     vect = []
-    all_s = unicode(_("all"))
     if len(all_vals) == len(filters):
-        vect.append(all_s)
+        vect.append(ALL)
     else:
         for v, val in enumerate(filters):
             val_desc = "%s" % val[1]
