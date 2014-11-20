@@ -145,7 +145,7 @@ function create_selection(values, too_many, spinner) {
                        }
                     }
                     if (sel_ref_period_count > 1) {
-						
+						close_spinner(spinner, "modal"); 
                         name = sp.getAttribute("name");
                         alert(name + "; " + too_many);
                         return null;
@@ -236,17 +236,20 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
     if (rows == "") {
 		close_spinner(spinner, "modal");
         alert(no_rows);
+        $('#popup').modal('show');
         return;
     }
     cols = get_lis('columnFields');
     if (cols == "") {
 		close_spinner(spinner, "modal");
         alert(no_columns);
+        $('#popup').modal('show');
         return;
     }
     
     selection = create_selection(values, too_many, spinner);
     if (selection == null) {
+		$('#popup').modal('show');
         return
     }
     
@@ -255,6 +258,7 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
     if (selected_obs.length==0) {
 		close_spinner(spinner, "modal"); 
         alert(no_values);
+        $('#popup').modal('show');
         return;
     }
     selected_obs_values = selected_obs .join(",")
