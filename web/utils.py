@@ -2352,6 +2352,8 @@ def drop_total_column(data_frame):
     :return: Data frame.
     """
     last_column_name = data_frame.columns[len(data_frame.columns)-1]
+    if  isinstance(last_column_name, tuple):
+        last_column_name = last_column_name[len(last_column_name)-1]
     if last_column_name == TOTAL:
         index = data_frame.shape[1]-1
         data_frame = data_frame.drop(data_frame.columns[index], axis=1)
