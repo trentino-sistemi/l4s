@@ -120,7 +120,7 @@ function checkByParent(aId, aChecked) {
     }
 }
 
-function create_selection(values, too_many, spinner) {
+function create_selection(values, too_many) {
     var selection_obj = new Object();
     var value_hash = eval('(' + values + ')');
     for (var key in value_hash) {
@@ -145,7 +145,6 @@ function create_selection(values, too_many, spinner) {
                        }
                     }
                     if (sel_ref_period_count > 1) {
-						close_spinner(spinner, "modal"); 
                         name = sp.getAttribute("name");
                         alert(name + "; " + too_many);
                         return null;
@@ -230,39 +229,27 @@ function addHiddenInput(form, id, value) {
 }
 
 function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns, no_values, too_many) {
-    spinner = $('#wrap').spin("modal");
-    $('#popup').modal('hide');
 	rows = get_lis('rowFields');
     if (rows == "") {
-		close_spinner(spinner, "modal");
         alert(no_rows);
-        $('#popup').modal('show');
         return;
     }
     cols = get_lis('columnFields');
     if (cols == "") {
-		close_spinner(spinner, "modal");
         alert(no_columns);
-        $('#popup').modal('show');
         return;
     }
     
-    selection = create_selection(values, too_many, spinner);
+    selection = create_selection(values, too_many);
     if (selection == null) {
-		$('#popup').modal('show');
         return
     }
+    spinner = $('#wrap').spin("modal");
     
     filter_value = JSON.stringify(selection);
-    selected_obs = create_obs_selection(obs_values) ;
-    if (selected_obs.length==0) {
-		close_spinner(spinner, "modal"); 
-        alert(no_values);
-        $('#popup').modal('show');
-        return;
-    }
-    selected_obs_values = selected_obs .join(",")
+    selected_obs = create_obs_selection(obs_values);
     
+    selected_obs_values = selected_obs .join(",")
     sel_aggregations = get_aggregations();
     agg_selection = create_agg_selection(agg_values);
     agg_selection_value = JSON.stringify(agg_selection);
@@ -277,7 +264,8 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
       if (include_code!=null && include_code.checked == 1) {
         include_code_value = "true";
      }
-
+    
+    $('#popup').modal('hide');
     url="/query_editor_view/"
     data = { 'table': table_name,
              'include_code': include_code_value,

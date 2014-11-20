@@ -263,8 +263,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     </a>
                 </td>
                 <td>{{ object.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
-                {% if can_change and object.created_by == request.user.email %}
-                {% if object.is_public %}
+                {% if object.created_by == request.user.email %}
+                {% if can_change and object.is_public %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
                     <i class="glyphicon glyphicon-eye-open"
                        style="font-size: 18px;"></i></a>
