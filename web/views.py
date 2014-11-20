@@ -197,6 +197,7 @@ def execute_query_viewmodel(request,
                                                               st.threshold,
                                                               st.constraint,
                                                               dict(),
+                                                              aggregation,
                                                               debug)
             if warn_n is not None and warn != "":
                 warn = warn_n
