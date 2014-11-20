@@ -246,6 +246,7 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
     
     selection = create_selection(values, too_many);
     if (selection == null) {
+		close_spinner(spinner, "modal");
         return
     }
     
