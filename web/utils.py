@@ -610,6 +610,20 @@ def build_foreign_keys(table_name):
     return ret
 
 
+def found_column_position(x, table_schema):
+    """
+    Return the position of x in table_schema
+
+    :param x:
+    :param table_schema:
+    :return:
+    """
+    for f, field in enumerate(table_schema):
+        if field.name == x:
+            return f
+    return -11
+
+
 def build_query(table_name,
                 columns,
                 rows,

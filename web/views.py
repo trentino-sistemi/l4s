@@ -81,7 +81,8 @@ from web.utils import get_variable_dictionary, \
     all_hidden_fields, \
     order_tables_by_descriptions,\
     build_topic_keywords,\
-    build_topic_icons
+    build_topic_icons,\
+    found_column_position
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -108,6 +109,7 @@ from django.contrib.auth.decorators import login_required, \
     user_passes_test
 from django.utils import translation
 import json
+from collections import OrderedDict
 
 
 def execute_query_viewmodel(request,
@@ -1045,16 +1047,19 @@ def query_editor_customize(request):
         selected_obs_values = [x for x in selected_obs_values_s.split(',')]
 
     table_name = request.REQUEST.get('table')
+    table_schema = get_table_schema(table_name)
 
     columns = request.REQUEST.get('columns')
-    cols = []
+    cols = OrderedDict()
     if not columns is None and columns != "":
-        cols = [x for x in columns.split(',')]
+        for x in columns.split(','):
+            cols[found_column_position(x, table_schema)]= x
 
     rows_s = request.REQUEST.get('rows')
-    rows = []
+    rows = OrderedDict()
     if not rows_s is None and rows_s != "":
-        rows = [x for x in rows_s.split(',')]
+        for x in rows_s.split(','):
+            rows[found_column_position(x, table_schema)]= x
 
     ref_periods = request.REQUEST.get('ref_periods')
     periods = []
@@ -1066,7 +1071,6 @@ def query_editor_customize(request):
     if sel_aggregation is not None and sel_aggregation != "":
         sel_aggregation_ids = [x for x in sel_aggregation.split(',')]
 
-    table_schema = get_table_schema(table_name)
     column_description = request.REQUEST.get('column_description')
     fields = [field.name for field in table_schema]
     obs_values = all_obs_value_column(table_name, table_schema).values()

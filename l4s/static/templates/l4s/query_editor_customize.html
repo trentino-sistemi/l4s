@@ -47,12 +47,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <th>{% trans "Choose the fields to display by dragging them to the row and column" %}</th>
     </tr>
     <tr>
+
         <td style="background-color:#a1284c" class="pvtAxisContainer pvtUnused pvtHorizList ui-sortable drag_ul"
             id="unselectedFields">
             {% for field in fields %}
             {% if not field in obs_values %}
-            {% if not field in columns %}
-            {% if not field in rows %}
+            {% if not field in columns.values %}
+            {% if not field in rows.values %}
             {% if not forloop.counter0|to_unicode in hidden_fields  %}
             <li class="dropdown">
                 <span id="{{ field }}"
@@ -149,14 +150,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <th style="color:#ffffff; background-color:#a1284c">{% trans "Row" %}</th>
         <td style="background-color:#a1284c" class="pvtAxisContainer pvtHorizList pvtCols ui-sortable drag_ul"
             id="columnFields">
-            {% for field in fields %}
-            {% if field in columns %}
+            {% for f in columns %}
+            {% with columns|lookup:f as field %}
+            {% if field in fields %}
             <li class="dropdown">
-                <span id="{{ field }}"
-                      name = "{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
+                <span id="{{ field}}"
+                      name = "{{ column_description|lookup_unicode:f|lookup:"description" }}"
                       class="pvtAttr btn btn-default dropdown-toggle"
-                      data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
-                      <span style="display:None">{{ field }}</span>
+                      data-toggle="dropdown">{{ column_description|lookup_unicode:f|lookup:"description" }}
+                      <span style="display:None">{{ field  }}</span>
                       <span class="caret"></span>
                 </span>
                 <span class="dropdown-menu" role="menu">
@@ -164,9 +166,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
                 <script>colour('{{ field }}');</script>
                     {% trans "Show" %} 
-                    <div class="radio" id="radio_{{field}}">
+                    <div class="radio" id="radio_{{columns|lookup:f }}">
                         <label>
-                            <input onclick="handleRadio(this, '{{ field }}', '{{ values|lookup:field|jsonify|escapejs }}', false, true);"
+                            <input onclick="handleRadio(this, '{{ field  }}', '{{ values|lookup:field|jsonify|escapejs }}', false, true);"
                                    type="radio"
                                    name="columns"
                                    checked="checked"
@@ -211,13 +213,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                ref_period="true"
                                {% endif %}
                                name="input_{{ field }}"
-                               id="{{ field }}_input_{{val.0}}"
+                               id="{{ columns|lookup:f }}_input_{{val.0}}"
                                value="{{val.0}}">{{val.1}}<br>
                     {% endfor %}
                     </div>
                 </span>
             </li>
             {% endif %}
+            {% endwith %}
             {% endfor %}
         </td>
     </tr>
@@ -225,13 +228,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <td style="width:80;background-color:#a1284c" valign="top"
             class="pvtAxisContainer pvtRows ui-sortable drag_ul"
             id="rowFields">
-            {% for field in fields %}
-            {% if field in rows %}
+            {% for f in rows %}
+            {% with rows|lookup:f as field %}
+            {% if field in fields %}
             <li class="dropdown">
                 <span id="{{ field }}"
-                      name = "{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
+                      name = "{{ column_description|lookup_unicode:f|lookup:"description" }}"
                       class="pvtAttr btn btn-default dropdown-toggle"
-                      data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
+                      data-toggle="dropdown">{{ column_description|lookup_unicode:f|lookup:"description" }}
                     <span style="display:None">{{ field }}</span>
                     <span class="caret"></span>
                 </span>
@@ -283,7 +287,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
-                               {% if field in ref_periods %}
+                               {% if field.1 in ref_periods %}
                                ref_period="true"
                                {% endif %}
                                name="input_{{ field }}"
@@ -294,6 +298,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </span>
             </li>
             {% endif %}
+            {% endwith %}
             {% endfor %}
         </td>
         <td>
