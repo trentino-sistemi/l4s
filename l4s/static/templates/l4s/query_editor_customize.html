@@ -163,7 +163,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </span>
                 <span class="dropdown-menu" role="menu">
                 {% for agg in aggregations %}
-                {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
+                {% if agg == column_description|lookup_unicode:f|lookup:"description" %}
                 <script>colour('{{ field }}');</script>
                     {% trans "Show" %} 
                     <div class="radio" id="radio_{{columns|lookup:f }}">
@@ -241,7 +241,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </span>
                 <span class="dropdown-menu" role="menu">
                 {% for agg in aggregations %}
-                {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
+                {% if agg == column_description|lookup_unicode:f|lookup:"description" %}
                 <script>colour('{{ field }}');</script>
                     {% trans "Show" %} 
                     <div class="radio" id="radio_{{field}}">
