@@ -1508,6 +1508,12 @@ def manual_request(request):
 
     subject = request.REQUEST.get('title')
     url = request.REQUEST.get('url')
+    topic = request.REQUEST.get('topic')
+    if topic is None:
+        topic_id = 1
+    else:
+        topic_id = int(topic)
+
     context['title'] = subject
     context['districts'] = list_districts()
     context['valley_communities'] = list_valley_communities()
@@ -1516,6 +1522,7 @@ def manual_request(request):
     form = ManualRequestForm(initial={'inquirer': request.user,
                                       'url': url,
                                       'subject': subject,
+                                      'topic': topic,
                                       'territorial_level': " "})
 
     return render_to_response('l4s/manual_request.html',

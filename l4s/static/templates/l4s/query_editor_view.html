@@ -197,7 +197,8 @@ function OpenManualrequestPopup() {
     title = '{% trans "Manual request" %}';
     url = '/manual_request/';
     data = { 'title': '{{ title|escapejs }}',
-             'url':'{{ url|escapejs }}'
+             'url':'{{ url|escapejs }}',
+             'topic': {{ topic_id }}
     };
     $.ajax({
 		url: url,
