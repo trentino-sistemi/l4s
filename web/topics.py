@@ -129,7 +129,7 @@ def build_topics_counter_dict():
     return topics_counter_dict
 
 
-def build_topics_dict():
+def build_topics_decoder_dict():
     """
     Build the topics dict <numeric_value, natural_language_description>.
 
@@ -143,6 +143,21 @@ def build_topics_dict():
             value = row[2]
             topics_dict[key] = value
     return topics_dict
+
+
+def build_topics_dict(tables):
+    ret = dict()
+    tables_s = "'" + "','".join(tables) + "'"
+    query = "SELECT a.nome, b.argomento from tabelle \n"
+    query += "a join argomenti_tabelle b \n"
+    query += "on (b.id = a.id) WHERE a.nome IN (%s)" % tables_s
+    rows = execute_query_on_main_db(query)
+    if not rows is None:
+        for row in rows:
+            table_name = row[0]
+            topic = int(row[1])
+            ret[table_name] = topic
+    return ret
 
 
 def build_topics_choice():

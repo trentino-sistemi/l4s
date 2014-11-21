@@ -87,11 +87,12 @@ from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
     headers_and_data
-from web.topics import build_topics_dict, \
+from web.topics import build_topics_decoder_dict, \
     filter_tables_by_topic, \
     build_topics_counter_dict, \
     get_topic_description, \
-    get_topic_id
+    get_topic_id,\
+    build_topics_dict
 from explorer.views import ExplorerContextMixin, \
     view_permission, \
     reverse_lazy
@@ -836,7 +837,7 @@ def source_table_list(request):
     context = Context({'table_list': tables})
     context['request'] = request
     context['table_description_dict'] = table_description_dict
-    context['topics'] = build_topics_dict()
+    context['topics'] = build_topics_decoder_dict()
     return render_to_response("l4s/source_table_list.html", context)
 
 
@@ -873,7 +874,7 @@ def table_list(request):
     if not search:
         table_description = build_description_table_dict(tables)
 
-    context['topics'] = build_topics_dict()
+    context['topics'] = build_topics_decoder_dict()
     context['table_list'] = tables
     context['search'] = search
     context['table_description'] = table_description
@@ -1351,11 +1352,14 @@ def query_editor(request):
     topic = request.GET.get('topic')
     search = request.GET.get('search', '')
 
+    topic_dict = dict()
+    topic_mapping = build_topics_decoder_dict()
     table_description = dict()
     # Filter tables matching descriptions and table_name.
     if search:
         table_description = get_table_by_name_or_desc(search, 'value')
         tables = table_description.keys()
+
     else:
         connection = connections[EXPLORER_CONNECTION_NAME]
         tables = connection.introspection.table_names()
@@ -1368,6 +1372,7 @@ def query_editor(request):
 
     if topic_id == 0:
         context['topics_counter'] = build_topics_counter_dict()
+        topic_dict = build_topics_dict(tables)
     else:
         tables = filter_tables_by_topic(topic_id, tables, None)
         tables = filter_coder_table(tables)
@@ -1379,10 +1384,11 @@ def query_editor(request):
     icons = build_topic_icons()
 
     context['topic'] = topic_id
-    context['topics'] = build_topics_dict()
+    context['topics'] = topic_mapping
     context['table_list'] = tables
     context['search'] = search
     context['table_description'] = table_description
+    context['topic_dict'] = topic_dict
     context['selected_topic'] = topic_id
     context['keywords'] = keywords
     context['icons'] = icons
