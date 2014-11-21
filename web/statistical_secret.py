@@ -324,9 +324,6 @@ def column_primary_pivoted_suppression(data,
     :param debug: Debug flag.
     :return: The data set after the primary suppression on columns.
     """
-    if len(data) <= 3:
-        return data
-
     for o, obs in enumerate(obs_values):
         threshold = get_threshold_from_dict(threshold_columns_dict, obs)
 
