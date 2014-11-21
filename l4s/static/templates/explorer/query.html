@@ -244,10 +244,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             {% if request.user.is_authenticated %}
                             <input type="button"
                                    class="btn btn-default"
-                                   onclick="javascript:OpenManualrequestPopup()"
+                                   onclick="javascript:l4s/static/templates/l4s/base.html()"
                                    value="{% trans "Manual request" %}"/>
                             {% else %}
-                            <button class="btn btn-default" value="{% trans "Manual request" %}" onclick='alert("{% trans "Log in to use this feature" %}");'>{% trans "Manual request" %}</button>
+                            <button class="btn btn-default" value="{% trans "Manual request" %}" onclick='alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Manual request" %}</button>
                             {% endif %}
                             {% endif %}
                         </div>

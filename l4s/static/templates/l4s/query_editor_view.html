@@ -26,7 +26,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {% block l4s_container %}
 <!-- Modal -->
-<div class="modal fade" id="popup" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade"
+     id="popup" tabindex="-1"
+     role="dialog"
+     aria-labelledby="myModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-body" id="popup-body">
@@ -38,8 +42,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <div class="col-sm-12">
     <ul class="breadcrumb">
         <li>
-            <li><a href="/query_editor/">{% trans "Query editor" %}</a></li>
-            <li><a href="/query_editor/?topic={{ topic_id }}">{{ topic }}</a></li>
+            <li>
+                <a href="/query_editor/">{% trans "Query editor" %}</a>
+            </li>
+            <li>
+                <a href="/query_editor/?topic={{ topic_id }}">{{ topic }}</a>
+            </li>
         </li>
     </ul>
 </div>
@@ -64,7 +72,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% endif %}
                     {% for s in sel_tab|lookup:sel|slice:":9" %}
                     {{ s }}{% if forloop.counter0 == 8 %}<text id="suspension_points">...</text>
-                    <a id="morebtn" class="navbar-right" data-toggle="collapse" data-target="#more" href="javascript:void(0)">{% trans "See more" %}</a>
+                    <a id="morebtn"
+                       class="navbar-right"
+                       data-toggle="collapse"
+                       data-target="#more"
+                       href="javascript:void(0)">{% trans "See more" %}</a>
                     <div id="more" class="collapse">{% for s in sel_tab|lookup:sel|slice:"9:" %}{{s}}, {% endfor %}</div>
                     {% else %}{% if not forloop.last %},{% endif %}{% endif %}
                     {% endfor %}
@@ -80,31 +92,49 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 </div>
 {% else %}
  <div class="btn-group">
-<button class="btn btn-default" onclick="OpenCustomizePopup();">{% trans "Customize" %}</button>
-
-                                <div class="btn-group">
-                                <button type="button"
-                                        class="btn btn-default dropdown-toggle"
-                                        data-toggle="dropdown">
-                                    {% trans "Export" %}
-                                    <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li><a class="btn btn-default download_csv_button" href="#">CSV</a></li>
-                                    <li><a class="btn btn-default download_xls_button" href="#">Excel 1997-2003</a></li>
-                                    <li><a class="btn btn-default download_xlsx_button" href="#">Excel 2007</a></li>
-                                    <li><a class="btn btn-default download_rdf_button" href="#">RDF Data Cube</a></li>
-                                    <li><a class="btn btn-default download_turtle_button" href="#">Turtle</a></li>
-                                    <li><a class="btn btn-default download_sdmx_button" href="#">Sdmx</a></li>
-                                    <li><a class="btn btn-default download_json_stat_button" href="#">JSON-stat</a></li>
-                                </ul>
-                            </div>
+     <button class="btn btn-default"
+             onclick="OpenCustomizePopup();">{% trans "Customize" %}</button>
+     <div class="btn-group">
+         <button type="button"
+                 class="btn btn-default dropdown-toggle"
+                 data-toggle="dropdown">
+             {% trans "Export" %}
+             <span class="caret"></span>
+         </button>
+         <ul class="dropdown-menu">
+             <li><a class="btn btn-default download_csv_button"
+                    href="#">CSV</a></li>
+             <li>
+                 <a class="btn btn-default download_xls_button"
+                    href="#">Excel 1997-2003</a>
+             </li>
+             <li>
+                 <a class="btn btn-default download_xlsx_button"
+                    href="#">Excel 2007</a>
+             </li>
+             <li><a class="btn btn-default download_rdf_button"
+                    href="#">RDF Data Cube</a>
+             </li>
+             <li><a class="btn btn-default download_turtle_button"
+                    href="#">Turtle</a>
+             </li>
+             <li><a class="btn btn-default download_sdmx_button"
+                    href="#">Sdmx</a></li>
+             <li><a class="btn btn-default download_json_stat_button"
+                    href="#">JSON-stat</a>
+             </li>
+         </ul>
+     </div>
 {% if request.user.is_authenticated %}
-<button class="btn btn-default" onclick="OpenSavePopup();">{% trans "Save" %}</button>
-<button class="btn btn-default" onclick="OpenManualrequestPopup();">{% trans "Manual request" %}</button>
+<button class="btn btn-default"
+        onclick="OpenSavePopup();">{% trans "Save" %}</button>
+<button class="btn btn-default"
+        onclick="OpenManualrequestPopup();">{% trans "Manual request" %}</button>
 {% else %}
-<button class="btn btn-default" onclick='alert("{% trans "Log in to use this feature" %}");'>{% trans "Save" %}</button>
-<button class="btn btn-default" value="{% trans "Manual request" %}" onclick='alert("{% trans "Log in to use this feature" %}");'>{% trans "Manual request" %}</button>
+<button class="btn btn-default"
+        onclick='alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Save" %}</button>
+<button class="btn btn-default" value="{% trans "Manual request" %}"
+        onclick='alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Manual request" %}</button>
 {% endif %}
 </div>
 {% if dataframe %}
