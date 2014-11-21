@@ -486,7 +486,7 @@ def get_all_field_values(table_name, column_name, select):
         query += "SELECT DISTINCT %s FROM %s\n" % (column_name, table_name)
         query += "ORDER BY %s" % column_name
         st = detect_special_columns(query)
-        query = build_description_query(query, st.cols, [], True, True)
+        query, h = build_description_query(query, st.cols, [], True, True)
     else:
         query += "SELECT DISTINCT %s FROM %s\n" % (select, table_name)
         query += "ORDER BY %s" % select
@@ -796,8 +796,9 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
     :param include_code: Force to include code.
     :return: query with descriptions.
     """
+    query_header = []
     header, inner_sql = extract_header(query)
-    new_header = ""
+    new_sql_header = ""
     main_table = "main_table"
     desc_query = "SELECT "
     fk_hash = dict()
@@ -831,25 +832,29 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 sort_by_code = is_to_be_sorted_by_description(table, field)
                 if include_code or sort_by_code:
                     desc_query += "\n%s.%s " % (main_table, field)
-                    desc_query += "AS \"%s %s\"," % (CODE, alias)
-                    new_header += "%s %s.%s %d \n" % (JOIN_TOKEN,
-                                                      dest_table,
-                                                      desc_column,
-                                                      counter)
+                    code_name = "%s %s" % (CODE, alias)
+                    desc_query += "AS \"%s\", " % code_name
+                    query_header.append(code_name)
+                    new_sql_header += "%s %s.%s %d \n" % (JOIN_TOKEN,
+                                                          dest_table,
+                                                          desc_column,
+                                                          counter)
 
                     if f in pivot_cols:
-                        new_header += "%s %d \n" % (PIVOT_TOKEN, counter)
+                        new_sql_header += "%s %d \n" % (PIVOT_TOKEN, counter)
                     counter += 1
 
-                new_header += "%s %s.%s %d \n" % (JOIN_TOKEN,
-                                                  table,
-                                                  field,
-                                                  counter)
+                new_sql_header += "%s %s.%s %d \n" % (JOIN_TOKEN,
+                                                      table,
+                                                      field,
+                                                      counter)
+
                 if f in pivot_cols:
-                    new_header += "%s %d \n" % (PIVOT_TOKEN, counter)
+                    new_sql_header += "%s %d \n" % (PIVOT_TOKEN, counter)
                 counter += 1
                 desc_query += "%s.%s " % (dest_table, desc_column)
                 desc_query += "AS \"%s\"" % alias
+                query_header.append(alias)
                 continue
 
         alias = get_column_description(table, field)
@@ -858,9 +863,10 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
         alias = "%s" % alias
         alias = alias.strip()
         desc_query += "%s.%s AS \"%s\"" % (main_table, field, alias)
-        new_header += "%s %s.%s %d \n" % (JOIN_TOKEN, table, field, counter)
+        query_header.append(alias)
+        new_sql_header += "%s %s.%s %d \n" % (JOIN_TOKEN, table, field, counter)
         if f in pivot_cols:
-            new_header += "%s %d \n" % (PIVOT_TOKEN, counter)
+            new_sql_header += "%s %d \n" % (PIVOT_TOKEN, counter)
         counter += 1
 
     desc_query += "\nFROM\n"
@@ -882,7 +888,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 desc_query += "(%s.%s=" % (main_table, field)
                 desc_query += "%s.%s)" % (dest_table, dest_column)
 
-    desc_query = "%s\n%s\n" % (new_header, desc_query)
+    desc_query = "%s\n%s\n" % (new_sql_header, desc_query)
 
     if order:
         for f in fields:
@@ -900,7 +906,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                         desc_query += "ORDER BY %s." % dest_table
                         desc_query += "%s" % desc_column
 
-    return desc_query
+    return desc_query, query_header
 
 
 def build_constraint_query(constraints,

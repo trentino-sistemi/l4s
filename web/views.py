@@ -161,11 +161,11 @@ def execute_query_viewmodel(request,
         st = detect_special_columns(query.sql)
 
     if st.include_descriptions:
-        query.sql = build_description_query(query.sql,
-                                            st.cols,
-                                            [],
-                                            False,
-                                            False)
+        query.sql, h = build_description_query(query.sql,
+                                               st.cols,
+                                               [],
+                                               False,
+                                               False)
 
     old_head, data, duration, error = query.headers_and_data()
     if error is None:

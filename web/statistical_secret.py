@@ -670,11 +670,11 @@ def apply_constraint_pivot(data,
             return data
 
         st = detect_special_columns(query)
-        query = build_description_query(query,
-                                        st.cols,
-                                        pivot_cols,
-                                        False,
-                                        False)
+        query, new_header = build_description_query(query,
+                                                    st.cols,
+                                                    pivot_cols,
+                                                    False,
+                                                    False)
 
         dest_data = execute_query_on_main_db(query)
 
@@ -684,10 +684,9 @@ def apply_constraint_pivot(data,
         for row in dest_data:
             start_col = 0
             key = []
-            for c, co in enumerate(pivot_cols):
-                c_name = col_dict[co]['column']
-                if c_name in new_header:
-                    p_col = row[c]
+            for cn, co in enumerate(data_frame.columns.names):
+                if co in new_header:
+                    p_col = row[cn]
                     key.append(p_col)
                     start_col += 1
 
@@ -787,7 +786,7 @@ def apply_constraint_plain(data,
                                                    dict())
 
         st = detect_special_columns(query)
-        query = build_description_query(query, st.cols, [], False, False)
+        query, h  = build_description_query(query, st.cols, [], False, False)
 
         dest_data = execute_query_on_main_db(query)
 
@@ -927,11 +926,11 @@ def secondary_row_suppression_constraint(data,
         return data, asterisk_global_count
 
     st = detect_special_columns(query)
-    query = build_description_query(query,
-                                    st.cols,
-                                    pivot_columns,
-                                    False,
-                                    False)
+    query, h = build_description_query(query,
+                                       st.cols,
+                                       pivot_columns,
+                                       False,
+                                       False)
     query += "\n ORDER BY %s" % new_header[len(new_header)-1]
 
     dest_data = execute_query_on_main_db(query)
@@ -1060,11 +1059,11 @@ def secondary_col_suppression_constraint(data,
         return data, asterisk_global_count
 
     st = detect_special_columns(query)
-    query = build_description_query(query,
-                                    st.cols,
-                                    pivot_columns,
-                                    False,
-                                    False)
+    query, h = build_description_query(query,
+                                       st.cols,
+                                       pivot_columns,
+                                       False,
+                                       False)
     query += "\n ORDER BY %s" % new_header[len(new_header)-1]
 
     dest_data = execute_query_on_main_db(query)
@@ -1225,6 +1224,7 @@ def apply_stat_secret(headers,
                                       filters,
                                       aggregation,
                                       debug)
+
         sec = get_table_metadata_value(col_dict[0]['table'], 'secondary')
         if not sec is None and len(sec) > 0:
             tot_asterisked = 1
@@ -1323,11 +1323,11 @@ def headers_and_data(query,
         st = detect_special_columns(query.sql)
 
     if include_descriptions or st.include_descriptions:
-        query.sql = build_description_query(query.sql,
-                                            st.cols,
-                                            pivot_cols,
-                                            False,
-                                            include_code)
+        query.sql, h = build_description_query(query.sql,
+                                               st.cols,
+                                               pivot_cols,
+                                               False,
+                                               include_code)
         st = detect_special_columns(query.sql)
 
     old_head, data, duration, err = query.headers_and_data()
