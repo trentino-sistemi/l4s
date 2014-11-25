@@ -783,7 +783,7 @@ def apply_constraint_plain(data,
                                                    dict())
 
         st = detect_special_columns(query)
-        query, h  = build_description_query(query, st.cols, [], False, False)
+        query, h = build_description_query(query, st.cols, [], False, False)
 
         dest_data = execute_query_on_main_db(query)
 
@@ -973,17 +973,17 @@ def secondary_row_suppression_constraint(data,
     for rt, row_tup in enumerate(index_tuples):
             try:
                 row_index = data_frame.index.get_loc(index_tuples[rt])
-            except:
+            except KeyError:
                 continue
             src_row = data[row_index]
             for ct, col_tup in enumerate(col_tuples):
                 try:
                     column_index = data_frame.columns.get_loc(col_tuples[ct])
-                except:
+                except KeyError:
                     continue
                 if not isinstance(column_index, slice):
                     start_col = 0
-                    stop_col = len(src_row) -1
+                    stop_col = len(src_row) - 1
                 else:
                     start_col = column_index.start
                     stop_col = column_index.stop
@@ -994,54 +994,41 @@ def secondary_row_suppression_constraint(data,
                         asterisk_count += 1
                     sel_col += 1
                 if asterisk_count == 1:
-                    #Need to asterisk an other one.
+                    # Is to be asterisked an other one.
                     for d_r, target_row in enumerate(dest_data):
                         if asterisk_count >= 2:
                             break
-                        col_count = 1
                         cell_col_list = []
-                        if isinstance (col_tuples[ct], slice):
+                        if isinstance(col_tuples[ct], slice):
                             for i, index in enumerate(col_tuples[ct]):
                                 if dest_data[d_r][i] != col_tuples[ct][i]:
                                     continue
                                 cell_col_list.append(dest_data[d_r][i])
-                                col_count += 1
                             if len(cell_col_list) == 0:
                                 continue
                             col_tuple = tuple(cell_col_list)
-                            column_index = data_frame.columns.get_loc(col_tuple)
+                            column_index = data_frame.columns.get_loc(
+                                col_tuple)
                             start_column = column_index.start
                             stop_column = column_index.stop
                             sel_column = start_column
-                            while sel_column != stop_column:
-                                cell = str(src_row[sel_column])
-                                if not cell.startswith(ASTERISK):
-                                    src_row[sel_column] = ASTERISK
-                                    if debug:
-                                        src_row[sel_column] += ASTERISK
-                                        src_row[sel_column] += 'R(' + cell + ")"
-                                    asterisk_count += 1
-                                    asterisk_global_count += asterisk_count
-                                    break
-                                sel_column += 1
                         else:
                             start_column = 0
-                            stop_column = len(src_row) -1
+                            stop_column = len(src_row) - 1
                             sel_column = start_column
-                            while sel_column != stop_column:
-                                cell = str(src_row[sel_column])
-                                if not cell.startswith(ASTERISK):
-                                    src_row[sel_column] = ASTERISK
-                                    if debug:
-                                        src_row[sel_column] += ASTERISK
-                                        src_row[sel_column] += 'R(' + cell + ")"
+                        while sel_column != stop_column:
+                            cell = str(src_row[sel_column])
+                            if not cell.startswith(ASTERISK):
+                                src_row[sel_column] = ASTERISK
+                                if debug:
+                                    src_row[sel_column] += ASTERISK
+                                    src_row[sel_column] += 'R(' + cell + ")"
+                                if cell != "0":
+                                    # Asterisk an other one.
                                     asterisk_count += 1
-                                    asterisk_global_count += asterisk_count
-                                    break
-                                sel_column += 1
-
-
-
+                                asterisk_global_count += asterisk_count
+                                break
+                            sel_column += 1
 
     return data, asterisk_global_count
 
@@ -1155,10 +1142,11 @@ def secondary_col_suppression_constraint(data,
     for column_tuple in column_tuple_list:
         column_index = data_frame.columns.get_loc(column_tuple)
         min_index = None
+        min_value = None
         for r, row in enumerate(data):
             cell = str(row[column_index])
             if not cell.startswith(ASTERISK):
-                if min_index is None or row[column_index] < min_value:
+                if min_value is None or row[column_index] < min_value:
                     min_index = r
                 min_value = data[min_index][column_index]
 
