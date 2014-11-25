@@ -923,12 +923,12 @@ def secondary_row_suppression_constraint(data,
         return data, asterisk_global_count
 
     st = detect_special_columns(query)
-    query, h = build_description_query(query,
-                                       st.cols,
-                                       pivot_columns,
-                                       False,
-                                       False)
-    query += "\n ORDER BY %s" % new_header[len(new_header)-1]
+    query, new_header = build_description_query(query,
+                                                st.cols,
+                                                pivot_columns,
+                                                False,
+                                                False)
+    query += "\n ORDER BY \"%s\"" % new_header[len(new_header)-1]
 
     dest_data = execute_query_on_main_db(query)
 
@@ -1056,22 +1056,20 @@ def secondary_col_suppression_constraint(data,
         return data, asterisk_global_count
 
     st = detect_special_columns(query)
-    query, h = build_description_query(query,
-                                       st.cols,
-                                       pivot_columns,
-                                       False,
-                                       False)
-    query += "\n ORDER BY %s" % new_header[len(new_header)-1]
-
+    query, new_header = build_description_query(query,
+                                                st.cols,
+                                                pivot_columns,
+                                                False,
+                                                False)
+    query += "\n ORDER BY \"%s\"" % new_header[len(new_header)-1]
     dest_data = execute_query_on_main_db(query)
 
     if len(rows) > 1:
         data_frame.sortlevel(inplace=True)
 
     start_col = 0
-    for c, co in enumerate(pivot_columns):
-        c_name = col_dict[co]['column']
-        if c_name in new_header:
+    for cn, co in enumerate(data_frame.columns.names):
+        if co in new_header:
             start_col += 1
 
     for column_tuple in column_tuple_list:
@@ -1126,9 +1124,9 @@ def secondary_col_suppression_constraint(data,
         for r, row in enumerate(data):
             cell = str(row[column_index])
             if not cell.startswith(ASTERISK):
-                min_value = data[min_index][column_index]
                 if min_index is None or row[column_index] < min_value:
                     min_index = r
+                min_value = data[min_index][column_index]
 
         for o, obs_value in enumerate(obs_values):
             cell = data[min_index + o][column_index]
