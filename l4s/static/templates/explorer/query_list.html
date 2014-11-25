@@ -48,12 +48,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
 <ul id="myTab" class="nav nav-tabs">
-    <li class="active">
+    <li class="active" id="li_my_queries">
         <a title="{% trans "Your personal queries" %}" href="#my_queries" data-toggle="tab">
             {% trans "My Queries" %}
         </a>
     </li>
-    <li>
+    <li id="li_public_queries">
         <a title="{% trans "Public queries; you can see, execute and copy query build by other users" %}" href="#public_queries" data-toggle="tab">
             {% trans "Public Queries" %}
         </a>
@@ -315,6 +315,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="/static/js/spin.min.js"></script>
 <script>
 $(document).ready(function(){
+
     initToken();
     //console.log($('a[data-toggle="tab"]:first').tab('show'))
     $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
