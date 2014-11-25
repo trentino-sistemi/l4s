@@ -1242,12 +1242,6 @@ def query_editor_view(request):
     column_description = build_description_column_dict(table_name,
                                                        table_schema)
 
-    title = build_query_title(column_description,
-                              selected_obs_values,
-                              cols,
-                              rows)
-    context['title'] = title
-
     agg_col, sel_tab = build_query_summary(column_description,
                                            values,
                                            filters,
@@ -1257,6 +1251,13 @@ def query_editor_view(request):
                                            cols,
                                            rows,
                                            hidden_fields)
+
+    title = build_query_title(column_description,
+                              selected_obs_values,
+                              agg_col,
+                              cols,
+                              rows)
+    context['title'] = title
 
     description = build_query_desc(agg_col, sel_tab)
     context['description'] = description

@@ -2527,7 +2527,7 @@ def build_aggregation_title(agg_id):
         target_col_desc = metadata.value.split('AS')[1]
     title = "%s %s " % (src_col_desc, group_by)
     title += "%s" % target_col_desc.lower()
-    return title, target_col_desc
+    return title, src_col_desc, target_col_desc
 
 
 def build_all_filter(column_description,
@@ -2604,10 +2604,11 @@ def build_query_summary(column_description,
     agg_col_desc = dict()
     for a, agg_id in enumerate(aggregation_ids):
         build_aggregation_title(agg_id)
-        agg_title, agg_desc = build_aggregation_title(agg_id)
+        agg_title, src_desc, agg_desc = build_aggregation_title(agg_id)
         val = dict()
         val['title'] = agg_title
         val['description'] = agg_desc
+        val['column'] = src_desc
         agg_col_desc[agg_id] = val
 
     sel_tab = build_all_filter(column_description,
@@ -2647,7 +2648,7 @@ def build_query_desc(agg_col_desc, sel_tab):
     return description
 
 
-def build_query_title(column_description, obs_values, cols, rows):
+def build_query_title(column_description, obs_values, agg_col, cols, rows):
     """
     Build a title for the data frame taking the columns and indices.
 
@@ -2671,6 +2672,11 @@ def build_query_title(column_description, obs_values, cols, rows):
 
     for c, col in enumerate(cols):
         desc = get_column_desc(column_description, col)
+        for agg_id in agg_col:
+            src_col_desc = agg_col[agg_id]["column"]
+            if src_col_desc == desc:
+                desc = agg_col[agg_id]["description"]
+
         if c == 0:
             title += desc.lower()
         else:
@@ -2678,6 +2684,11 @@ def build_query_title(column_description, obs_values, cols, rows):
 
     for r, row in enumerate(rows):
         desc = get_column_desc(column_description, row)
+        for agg_id in agg_col:
+            src_col_desc = agg_col[agg_id]["column"]
+            if src_col_desc == desc:
+                desc = agg_col[agg_id]["description"]
+
         if r == len(rows)-1:
             title += " %s " % and_s
             title += desc.lower()
