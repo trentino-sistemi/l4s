@@ -360,8 +360,6 @@ def row_secondary_suppression(data, debug):
     :return: The data set after the secondary suppression on rows.
     """
     asterisked = 0
-    if len(data[0]) <= 3:
-        return data, asterisked
 
     for r, row in enumerate(data):
         asterisk = 0
@@ -524,14 +522,10 @@ def protect_pivoted_table(data,
 
     tot_asterisked = 1
     while tot_asterisked > 0:
-        asterisked_r = 0
-        if not contains_ref_period(pivot_c, cols, axis=0):
-            data, asterisked_r = row_secondary_suppression(data, debug)
-        asterisked_c = 0
-        if not contains_ref_period(pivot_c, cols, axis=1):
-            data, asterisked_c = column_secondary_suppression(data,
-                                                              obs_values,
-                                                              debug)
+        data, asterisked_r = row_secondary_suppression(data, debug)
+        data, asterisked_c = column_secondary_suppression(data,
+                                                          obs_values,
+                                                          debug)
         tot_asterisked = asterisked_c + asterisked_r
 
     return data
