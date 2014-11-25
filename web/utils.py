@@ -754,13 +754,11 @@ def remove_code_from_data_frame(df):
     """
     # Rename empty index with total index name.
     if has_data_frame_multi_level_index(df):
-        index_name = df.index.levels[0][len(df.index.levels[0]) - 1]
-        df = df.rename(index={u"": index_name})
+        df = df.rename(index={u"": TOTAL})
 
     # Rename empty columns with total column name.
     if has_data_frame_multi_level_columns(df):
-        column_name = df.columns.levels[0][len(df.columns.levels[0])-1]
-        df = df.rename(columns={u"": column_name})
+        df = df.rename(columns={u"": TOTAL})
 
     dropped_levels = 0
     # Now I can drop the codes indices preserving totals.
