@@ -753,12 +753,9 @@ def remove_code_from_data_frame(df):
     :param df: Data frame.
     """
     # Rename empty index with total index name.
-    if has_data_frame_multi_level_index(df):
-        df = df.rename(index={u"": TOTAL})
-
+    df.rename(index={u"": TOTAL}, inplace=True)
     # Rename empty columns with total column name.
-    if has_data_frame_multi_level_columns(df):
-        df = df.rename(columns={u"": TOTAL})
+    df.rename(columns={u"": TOTAL}, inplace=True)
 
     dropped_levels = 0
     # Now I can drop the codes indices preserving totals.
@@ -2370,7 +2367,7 @@ def drop_total_column(data_frame):
     :return: Data frame.
     """
     last_column_name = data_frame.columns[len(data_frame.columns)-1]
-    if  isinstance(last_column_name, tuple):
+    if isinstance(last_column_name, tuple):
         last_column_name = last_column_name[len(last_column_name)-1]
     if last_column_name == TOTAL:
         index = data_frame.shape[1]-1

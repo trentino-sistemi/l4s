@@ -1275,13 +1275,6 @@ def apply_stat_secret(headers,
 
         data_frame = data_frame_from_tuples(data_frame, data)
 
-        if (data_frame.shape[1]) == 2:
-            data_frame = drop_total_column(data_frame)
-
-        index = get_data_frame_first_index(data_frame)
-        if len(index) == 2:
-            data_frame = drop_total_row(data_frame)
-
         return data, headers, data_frame, warn, err
 
     # If plain and secret does not return it.
@@ -1374,10 +1367,11 @@ def headers_and_data(query,
         # Fix all columns before drop the codes.
         df = remove_code_from_data_frame(df)
 
-    if contains_ref_period(st.pivot, st.cols, axis=0):
+    if contains_ref_period(st.pivot, st.cols, axis=0) or df.shape[1] == 2:
         df = drop_total_column(df)
 
-    if contains_ref_period(st.pivot, st.cols, axis=1):
+    index = get_data_frame_first_index(df)
+    if contains_ref_period(st.pivot, st.cols, axis=1) or len(index) == 2:
         df = drop_total_row(df)
 
     return df, data, warn, err
