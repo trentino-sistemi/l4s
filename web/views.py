@@ -925,6 +925,8 @@ def query_list(request):
     """
 
     search = request.GET.get('search', '')
+    public = request.GET.get('public', '')
+
     objects = (Query.objects.filter(created_by=request.user) |
                Query.objects.filter(is_public='true'))
     if search:
@@ -943,6 +945,7 @@ def query_list(request):
     context['request'] = request
     context['can_change'] = EXPLORER_PERMISSION_CHANGE(request.user)
     context['order_by'] = criteria
+    context['public'] = public
     return render_to_response("explorer/query_list.html", context)
 
 
