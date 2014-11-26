@@ -697,7 +697,10 @@ def apply_constraint_pivot(data,
                 p_col = row[c]
                 key.append(p_col)
             try:
-                row_index = data_frame.index.get_loc(tuple(key))
+                if len(key) == 1:
+                    row_index = data_frame.index.get_loc(key[0])
+                else:
+                    row_index = data_frame.index.get_loc(tuple(key))
             except (KeyError, TypeError):
                 continue
 
