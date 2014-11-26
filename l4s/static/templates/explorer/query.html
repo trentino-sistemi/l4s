@@ -237,7 +237,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                 {% if request.user.is_authenticated %}
                                    <a class="btn btn-default" href="/explorer/copy/?id={{query.id}}">{% trans "Save" %}</a>
                                 {% else %}
-                                   <button class="btn btn-default" onclick='alert("{% trans "Log in to use this feature" %}");'>{% trans "Save" %}</button>
+                                   <button class="btn btn-default"
+                                           onclick='bootbox.alert("{% trans "Log in to use this feature" %}");'>{% trans "Save" %}</button>
                                 {% endif %}
                             {% endif %}
                             {% if manual_request %}
@@ -247,7 +248,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                    onclick="javascript:l4s/static/templates/l4s/base.html()"
                                    value="{% trans "Manual request" %}"/>
                             {% else %}
-                            <button class="btn btn-default" value="{% trans "Manual request" %}" onclick='alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Manual request" %}</button>
+                            <button class="btn btn-default"
+                                    value="{% trans "Manual request" %}"
+                                    onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Manual request" %}</button>
                             {% endif %}
                             {% endif %}
                         </div>
@@ -457,8 +460,8 @@ function OpenManualrequestPopup() {
             $('#popup').modal('show');
 	    },
         error: function(xhr, status) {
-			alert(status);
-			}
+			bootbox.alert(status);
+	    }
     });
 }
         $(function() {

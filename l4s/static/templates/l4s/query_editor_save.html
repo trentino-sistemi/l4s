@@ -58,9 +58,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 function submit_form() {
     title = document.getElementById('id_title').value;
     if (title == '') {
-        alert('{% trans "The field" %}' + " " +
-              '{% trans "Title" %}' + " " +
-              '{% trans "is required" %}' + '.');
+        bootbox.alert('{% trans "The field" %}' + " " +
+                      '{% trans "Title" %}' + " " +
+                      '{% trans "is required" %}' + '.');
         return false;
     }
     url="/query_editor_save_done/";
@@ -72,7 +72,7 @@ function submit_form() {
             $('#popup-body').html(response); // update the DIV
         },
         error: function(xhr, status) {
-            alert(xhr.responseText);
+            bootbox.alert(xhr.responseText);
 	    }
     });
 }

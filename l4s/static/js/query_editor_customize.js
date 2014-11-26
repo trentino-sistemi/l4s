@@ -23,7 +23,6 @@
   This contains all the javascript used by the query editor customization popup.
 */
 
-
 function get_aggregation_color() {
         return "#5bc0de";
 }
@@ -146,7 +145,7 @@ function create_selection(values, too_many) {
                     }
                     if (sel_ref_period_count > 1) {
                         name = sp.getAttribute("name");
-                        alert(name + "; " + too_many);
+                        bootbox.alert(name + "; " + too_many);
                         return null;
                     }
                     field_obj.push(field_value[x]);
@@ -231,12 +230,12 @@ function addHiddenInput(form, id, value) {
 function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns, no_values, too_many) {
 	rows = get_lis('rowFields');
     if (rows == "") {
-        alert(no_rows);
+        bootbox.alert(no_rows);
         return;
     }
     cols = get_lis('columnFields');
     if (cols == "") {
-        alert(no_columns);
+        bootbox.alert(no_columns);
         return;
     }
     
@@ -287,7 +286,7 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
 	},
         error: function(xhr, status) {
 			close_spinner(spinner, "modal");
-			alert(xhr.responseText);
+			bootbox.alert(xhr.responseText);
 		}
     });
 

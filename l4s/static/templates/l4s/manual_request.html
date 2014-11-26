@@ -70,7 +70,7 @@ function submit_form() {
             input_name = inputs[i].id;
             var label = $("label[for='" + input_name + "']").text().replace(':','');
             if ((inputs[i].disabled == false) && (inputs[i].value == '')) {
-              alert('{% trans "The field" %}' + " " +
+              bootbox.alert('{% trans "The field" %}' + " " +
               label + " " +
               '{% trans "is required" %}' + '.');
                return false;
@@ -88,7 +88,7 @@ function submit_form() {
             $('#popup-body').html(response);
         },
         error: function(xhr, status) {
-            alert(xhr.responseText);
+            bootbox.alert(xhr.responseText);
 	    }
     });
     return false;

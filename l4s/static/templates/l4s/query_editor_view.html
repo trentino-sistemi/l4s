@@ -132,9 +132,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         onclick="OpenManualrequestPopup();">{% trans "Manual request" %}</button>
 {% else %}
 <button class="btn btn-default"
-        onclick='alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Save" %}</button>
+        onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Save" %}</button>
 <button class="btn btn-default" value="{% trans "Manual request" %}"
-        onclick='alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Manual request" %}</button>
+        onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Manual request" %}</button>
 {% endif %}
 </div>
 {% if dataframe %}
@@ -188,7 +188,7 @@ function OpenCustomizePopup() {
             $('#popup').modal('show');
 	    },
         error: function(xhr, status) {
-            alert(xhr.responseText);
+            bootbox.alert(xhr.responseText);
 	    }
     });
 
@@ -209,8 +209,8 @@ function OpenManualrequestPopup() {
             $('#popup').modal('show');
 	    },
         error: function(xhr, status) {
-            alert(xhr.responseText);
-			}
+            bootbox.alert(xhr.responseText);
+	    }
     });
 }
 function OpenSavePopup() {
@@ -243,7 +243,7 @@ function OpenSavePopup() {
             $('#popup').modal('show');
 	    },
         error: function(xhr, status) {
-			alert(xhr.responseText);
+			bootbox.alert(xhr.responseText);
 	    }
     });
 }

@@ -391,7 +391,7 @@ function query_editor(table,
 	    },
         error: function(xhr, status) {
             close_spinner(spinner, "modal");
-			alert(xhr.responseText);
+			bootbox.alert(xhr.responseText);
 		}
     });
 }
