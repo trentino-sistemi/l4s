@@ -111,6 +111,10 @@ def generate_report_action_xls(df):
         body_cfg += 'alignment: vertical top, wrap true;'
         body_cell = easyxf(body_cfg)
 
+        ast_cfg = 'font: colour blue;'
+        ast_cfg += 'alignment: horizontal right, wrap true;'
+        ast_cell = easyxf(ast_cfg)
+
         new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
 
         title_label = unicode(_("Title"))
@@ -150,13 +154,17 @@ def generate_report_action_xls(df):
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
-                column_len = ast.literal_eval(arial10.fit_width(value, False))
+                column_len = int(round(arial10.fit_width(value, False)))
                 if isinstance(value, unicode):
                     if value.isdigit():
                         value = ast.literal_eval(value)
+                        new_sheet.write(rows+k, index, value, body_cell)
                     else:
                         value = value.strip()
-                new_sheet.write(rows+k, index, value, body_cell)
+                        if value.startswith("*"):
+                            new_sheet.write(rows+k, index, value, ast_cell)
+                        else:
+                            new_sheet.write(rows+k, index, value, body_cell)
                 if column_len > max_widths[index]:
                     max_widths[index] = column_len
 
@@ -239,15 +247,15 @@ def generate_report_action_xlsx(df):
         title_label = unicode(_("Title"))
         line_num = 1
 
-        alignment = OAlignment(horizontal='right')
-
         header_fill = PatternFill(patternType='solid',
                                   fgColor=Color('8B1F3F'))
         header_font = Font(color="FFFFFF", bold=True)
         header_style = Style(fill=header_fill, font=header_font)
 
         body_font = Font(color="1F556F")
-        body_style = Style(font=body_font, alignment=alignment)
+        r_alignment = OAlignment(horizontal='right')
+        r_style = Style(font=body_font, alignment=r_alignment)
+        body_style = Style(font=body_font)
 
         cell = new_sheet.cell(row=1, column=1)
         cell.value = title_label
@@ -301,13 +309,19 @@ def generate_report_action_xlsx(df):
                 value = cell.value
                 if value is None:
                     continue
+                cell = new_sheet.cell(row=r + k + 1, column=c + 1)
                 if not isinstance(value, (int, long, float, complex)):
                     value = value.strip()
                     value = value.encode('utf-8')
-                cell = new_sheet.cell(row=r+k+1, column=c+1)
+                    if value.startswith("*") or value.isdigit():
+                        cell.style = r_style
+                    else:
+                        cell.style = body_style
+                else:
+                    cell.style = body_style
                 cell.value = value
-                cell.style = body_style
-                column_len = ast.literal_eval(arial10.fit_width(str(value), False))/256
+                r_size = round(arial10.fit_width(str(value), False) / 256)
+                column_len = int(r_size)
                 if r >= 1 and column_len > max_widths[c]:
                         max_widths[c] = column_len
 
