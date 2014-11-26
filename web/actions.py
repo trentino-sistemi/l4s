@@ -42,6 +42,7 @@ from openpyxl.cell import get_column_letter
 from l4s import settings
 import arial10
 import StringIO
+import ast
 
 
 def generate_report_action_csv(df):
@@ -149,10 +150,10 @@ def generate_report_action_xls(df):
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
-                column_len = int(arial10.fit_width(value, False))
+                column_len = ast.literal_eval(arial10.fit_width(value, False))
                 if isinstance(value, unicode):
                     if value.isdigit():
-                        value = int(value)
+                        value = ast.literal_eval(value)
                     else:
                         value = value.strip()
                 new_sheet.write(rows+k, index, value, body_cell)
@@ -306,7 +307,7 @@ def generate_report_action_xlsx(df):
                 cell = new_sheet.cell(row=r+k+1, column=c+1)
                 cell.value = value
                 cell.style = body_style
-                column_len = int(arial10.fit_width(str(value), False))/256
+                column_len = ast.literal_eval(arial10.fit_width(str(value), False))/256
                 if r >= 1 and column_len > max_widths[c]:
                         max_widths[c] = column_len
 

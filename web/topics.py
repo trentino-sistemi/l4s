@@ -22,8 +22,8 @@ from web.utils import execute_query_on_main_db
 
 
 def filter_tables_by_topic(topic_id, tables, order):
-    # Filter tables on topic.
     """
+    Filter tables on topic.
 
     :param topic_id: Topic id.
     :param tables: List of tables.
@@ -64,8 +64,8 @@ def get_topic_id(table):
     rows = execute_query_on_main_db(query)
     if rows is not None:
         for row in rows:
-            return int(row[0])
-    return "999"
+            return row[0]
+    return 999
 
 
 def get_topic_description(table):
@@ -155,7 +155,7 @@ def build_topics_dict(tables):
     if not rows is None:
         for row in rows:
             table_name = row[0]
-            topic = int(row[1])
+            topic = row[1]
             ret[table_name] = topic
     return ret
 

@@ -21,6 +21,7 @@ from rdflib.namespace import RDF, FOAF
 from utils import get_metadata_on_column, \
     get_subject_table,\
     get_data_from_data_frame, stringify
+import ast
 
 
 my_ns = Namespace("http://ontology.trentinosistemi.com/ns/")
@@ -75,7 +76,7 @@ def build_column_dict(data_frame, sql):
         declare_token = '--JOIN'
         if declare == declare_token:
             table_and_column = words[1]
-            index = int(words[2])
+            index = ast.literal_eval(words[2])
             words = table_and_column.split('.')
             table_name = words[0]
             column_name = words[1]

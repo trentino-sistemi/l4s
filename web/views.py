@@ -111,6 +111,7 @@ from django.contrib.auth.decorators import login_required, \
 from django.utils import translation
 import json
 from collections import OrderedDict
+import ast
 
 
 def execute_query_viewmodel(request,
@@ -274,12 +275,13 @@ class CreateQueryView(ExplorerContextMixin, CreateView):
         pivot_column = request.REQUEST.get('pivot_column')
         pivot_cols = []
         if not pivot_column is None and pivot_column != "":
-            pivot_cols = [int(x) for x in pivot_column.split(',')]
+            pivot_cols = [ast.literal_eval(x) for x in pivot_column.split(',')]
 
         aggregation = request.REQUEST.get('aggregate')
         aggregation_ids = []
         if not aggregation is None and aggregation != "":
-            aggregation_ids = [int(x) for x in aggregation.split(',')]
+            aggregation_ids = [ast.literal_eval(x) for x in
+                               aggregation.split(',')]
 
         debug = False
         if request.user.is_staff:
@@ -387,7 +389,8 @@ class QueryView(ExplorerContextMixin, View):
         aggregation = request.REQUEST.get('aggregate')
         aggregation_ids = []
         if not aggregation is None and aggregation != "":
-            aggregation_ids = [int(x) for x in aggregation.split(',')]
+            aggregation_ids = [ast.literal_eval(x) for x in
+                               aggregation.split(',')]
 
         debug = False
         if request.user.is_staff:
@@ -398,7 +401,7 @@ class QueryView(ExplorerContextMixin, View):
         pivot_column = request.REQUEST.get('pivot_column')
         pivot_cols = []
         if not pivot_column is None and pivot_column != "":
-            pivot_cols = [int(x) for x in pivot_column.split(',')]
+            pivot_cols = [ast.literal_eval(x) for x in pivot_column.split(',')]
 
         if not EXPLORER_PERMISSION_VIEW(request.user):
             return HttpResponseRedirect(
@@ -863,7 +866,7 @@ def table_list(request):
         tables = connection.introspection.table_names()
 
     if not topic is None and topic != "":
-        topic_id = int(topic)
+        topic_id = ast.literal_eval(topic)
     else:
         # Topic 0 means that all the topics will be displayed.
         topic_id = 0
@@ -1369,7 +1372,7 @@ def query_editor(request):
         tables = connection.introspection.table_names()
 
     if topic is not None and topic != "":
-        topic_id = int(topic)
+        topic_id = ast.literal_eval(topic)
     else:
         # Topic 0 means that all the topics will be displayed.
         topic_id = 0
@@ -1522,7 +1525,7 @@ def manual_request(request):
     if topic is None:
         topic_id = 1
     else:
-        topic_id = int(topic)
+        topic_id = ast.literal_eval(topic)
 
     context['title'] = subject
     context['districts'] = list_districts()
@@ -1532,7 +1535,7 @@ def manual_request(request):
     form = ManualRequestForm(initial={'inquirer': request.user,
                                       'url': url,
                                       'subject': subject,
-                                      'topic': topic,
+                                      'topic': topic_id,
                                       'territorial_level': " "})
 
     return render_to_response('l4s/manual_request.html',

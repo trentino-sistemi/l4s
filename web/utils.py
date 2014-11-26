@@ -39,6 +39,7 @@ import os
 import pandas as pd
 import uuid
 from collections import OrderedDict
+import ast
 
 
 METADATA = 'web_metadata'
@@ -86,7 +87,7 @@ def get_table_by_name_or_desc(search, order):
     query += "b.table_name ilike %s or " % search_s
     query += "d.value ilike %s \n" % search_s
     if not order is None:
-        query += "ORDER BY %s" %order
+        query += "ORDER BY %s" % order
 
     rows = execute_query_on_django_db(query)
     ret = OrderedDict()
@@ -110,11 +111,7 @@ def order_tables_by_descriptions(tables):
     if tables is None or len(tables) == 0:
         return ret_tables
 
-    tables_str = ""
-    for t, table in enumerate(tables):
-        if t != 0:
-            tables_str += ","
-        tables_str += "'%s'" % table
+    tables_str = "'" + "','".join(tables) + "'"
     query = "SELECT table_name, value from %s " % METADATA
     query += "WHERE column_name ='NULL' "
     query += "and key='%s' " % DESCRIPTION
@@ -460,8 +457,7 @@ def all_obs_value_column(table_name, table_description):
     rows = execute_query_on_django_db(query)
     obs_set = []
     if not rows is None:
-        for row in rows:
-            obs_set.append(row[0])
+        obs_set = [row[0] for row in rows]
 
     for f, field in enumerate(table_description):
         column_name = field.name
@@ -689,10 +685,7 @@ def build_query(table_name,
         filter_vals = filters[field]
 
         if len(values[field]) != len(filter_vals):
-            selected_vals = []
-
-            for val in filter_vals:
-                selected_vals.append(str(val[0]))
+            selected_vals = [str(val[0]) for val in filter_vals]
             if filter_vals is not None and len(filter_vals) > 0:
                 if filtered:
                     query += '\nAND'
@@ -873,7 +866,8 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
         alias = alias.strip()
         desc_query += "%s.%s AS \"%s\"" % (main_table, field, alias)
         query_header.append(alias)
-        new_sql_header += "%s %s.%s %d \n" % (JOIN_TOKEN, table, field, counter)
+        new_sql_header += "%s " % JOIN_TOKEN
+        new_sql_header += "%s.%s %d \n" % (table, field, counter)
         if f in pivot_cols:
             new_sql_header += "%s %d \n" % (PIVOT_TOKEN, counter)
         counter += 1
@@ -933,9 +927,7 @@ def build_constraint_query(constraints,
     table = constraints[0]['table']
     enum_column = constraints[0]['column']
     dest_table_description = get_table_schema(table)
-    dest_columns = []
-    for field in dest_table_description:
-        dest_columns.append(field.name)
+    dest_columns = [field.name for field in dest_table_description]
 
     columns = []
     for col in col_dict:
@@ -969,17 +961,18 @@ def build_constraint_query(constraints,
         else:
             query += "AND "
         counter += 1
-        query += "%s in (SELECT DISTINCT %s from %s ) \n" % (k, k, src_table)
+        query += "%s IN (SELECT DISTINCT %s from %s ) \n" % (k, k, src_table)
     for f in filters:
         if not f in columns and f in dest_columns:
-            if counter == 0:
-                query += "WHERE "
-            else:
-                query += "AND "
-            counter += 1
             filter_value = filters[f]
-            values = ','.join(["%s" % k[0] for k in filter_value])
-            query += " %s in (%s)\n" % (f, values)
+            if len(filter_value) > 0:
+                values = ','.join(["%s" % k[0] for k in filter_value])
+                if counter == 0:
+                    query += "WHERE "
+                else:
+                    query += "AND "
+                query += " %s IN (%s)\n" % (f, values)
+            counter += 1
     query += "GROUP BY %s \n" % fields
     query += "HAVING "
     for c, constraint in enumerate(constraints):
@@ -1012,9 +1005,7 @@ def build_secondary_query(secondary,
     enum_column = tpc[1]
 
     dest_table_description = get_table_schema(table)
-    dest_columns = []
-    for field in dest_table_description:
-        dest_columns.append(field.name)
+    dest_columns = [field.name for field in dest_table_description]
 
     columns = []
     for col in col_dict:
@@ -1048,17 +1039,18 @@ def build_secondary_query(secondary,
         else:
             query += "AND "
         counter += 1
-        query += "%s in (SELECT DISTINCT %s from %s ) \n" % (k, k, src_table)
+        query += "%s IN (SELECT DISTINCT %s from %s ) \n" % (k, k, src_table)
     for f in filters:
         if f in dest_columns:
-            if counter == 0:
-                query += "WHERE "
-            else:
-                query += "AND "
-            counter += 1
             filter_value = filters[f]
-            values = ','.join(["%s" % k[0] for k in filter_value])
-            query += " %s in (%s)\n" % (f, values)
+            if len(filter_value) > 0:
+                if counter == 0:
+                    query += "WHERE "
+                else:
+                    query += "AND "
+                values = ','.join(["%s" % k[0] for k in filter_value])
+                query += " %s IN (%s)\n" % (f, values)
+                counter += 1
     query += "AND %s\n" % second_clause
     query += "GROUP BY %s \n" % fields
 
@@ -1272,7 +1264,7 @@ def detect_special_columns(sql):
                 if len(words) == 2:
                     add_secret_ref(st.secret_ref, table_name, column_name)
                 else:
-                    index = int(words[2])
+                    index = ast.literal_eval(words[2])
                     add_secret_column(st.secret,
                                       index,
                                       table_name,
@@ -1284,13 +1276,13 @@ def detect_special_columns(sql):
                                          column_name)
                     add_column(st.cols, index, table_name, column_name)
             else:
-                index = int(words[1])
+                index = ast.literal_eval(words[1])
                 add_column(st.cols, index, table_name, column_name)
         elif first_word == PIVOT_TOKEN:
-            position = int(words[1])
+            position = ast.literal_eval(words[1])
             st.pivot.append(position)
         elif first_word == AGGREGATION_TOKEN:
-            agg_id = int(words[1])
+            agg_id = ast.literal_eval(words[1])
             st.aggregation.append(agg_id)
         elif first_word == DESCRIPTION_TOKEN:
             st.include_descriptions = True
@@ -1317,7 +1309,7 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold):
     query += "GROUP BY table_name, column_name ORDER BY count(id) DESC "
     rows = execute_query_on_django_db(query)
     first_row = rows[0]
-    num = int(first_row[2])
+    num = ast.literal_eval(first_row[2])
     if num > 1:
         table_name = first_row[0]
         column_name = first_row[1]
@@ -1714,7 +1706,7 @@ def build_topic_keywords():
     rows = execute_query_on_main_db(query)
     if rows is not None:
         for row in rows:
-            topic = int(row[0])
+            topic = row[0]
             keyword = row[1]
             if not topic in topic_keywords:
                 topic_keywords[topic] = []
@@ -1734,7 +1726,7 @@ def build_topic_icons():
     rows = execute_query_on_main_db(query)
     if rows is not None:
         for row in rows:
-            topic = int(row[0])
+            topic = row[0]
             path = row[1]
             topic_keywords[topic] = path
     return topic_keywords
@@ -2007,7 +1999,6 @@ def get_key_column_value(table_name, column_name, key_name):
     metadata_list = metadata_list & Metadata.objects.filter(key=key_name)
 
     if metadata_list is not None:
-
         for metadata in metadata_list:
             return metadata.value
 
@@ -2267,7 +2258,7 @@ def get_all_aggregations(table_name):
     rows = execute_query_on_django_db(query)
     if not rows is None:
         for row in rows:
-            pk = int(row[0])
+            pk = row[0]
             table_name = row[1]
             column_name = row[2]
             ref_tab = row[3]
@@ -2302,7 +2293,7 @@ def get_all_aggregations(table_name):
         agg[src_description][metadata.pk] = ref_description
         formula, alias = get_class_formula_alias(metadata.pk)
         vals = get_all_field_values(table_name, column_name, formula)
-        pk = int(metadata.pk)
+        pk = ast.literal_eval(metadata.pk)
         agg_values[pk] = vals
 
     return agg, agg_values
@@ -2383,7 +2374,7 @@ def drop_total_row(data_frame):
     :return: Data frame.
     """
     last_index_name = data_frame.index[len(data_frame.index)-1]
-    if  isinstance(last_index_name, tuple):
+    if isinstance(last_index_name, tuple):
         last_index_name = last_index_name[0]
 
     if last_index_name == TOTAL:
@@ -2558,7 +2549,7 @@ def build_all_filter(column_description,
     ret = {}
     for a, a_id in enumerate(aggregation_ids):
         target_col_desc = agg_col_desc[a_id]['description']
-        i_id = int(a_id)
+        i_id = ast.literal_eval(a_id)
         summarize_agg_filters = build_agg_summarize_filters(target_col_desc,
                                                             agg_values[i_id],
                                                             agg_filters[a_id])
