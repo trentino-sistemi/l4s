@@ -659,17 +659,20 @@ def build_query(table_name,
 
     col_positions = []
     for col in columns:
-        annotation += "%s " % JOIN_TOKEN
-        annotation += "%s.%s %d\n" % (table_name, col, position)
-        annotation += "%s %d\n" % (PIVOT_TOKEN, position)
-        col_positions.append(position)
-        fields.append(col)
-        position += 1
+        if not col is None:
+            annotation += "%s " % JOIN_TOKEN
+            annotation += "%s.%s %d\n" % (table_name, col, position)
+            annotation += "%s %d\n" % (PIVOT_TOKEN, position)
+            col_positions.append(position)
+            fields.append(col)
+            position += 1
 
     for row in rows:
-        annotation += "%s %s.%s %d\n" % (JOIN_TOKEN, table_name, row, position)
-        fields.append(row)
-        position += 1
+        if not row is None:
+            annotation += "%s " % JOIN_TOKEN
+            annotation += "%s.%s %d\n" % (table_name, row, position)
+            fields.append(row)
+            position += 1
 
     comma_sep_fields = ", ".join(fields)
     query += "\n"
@@ -736,8 +739,10 @@ def find_desc_column(table_name):
     query += "and key = '%s'" % SAME_AS
     query += "and value='%s'" % DESCRIPTION_SUBJECT
     rows = execute_query_on_django_db(query)
-    return rows[0][0]
-
+    if not rows is None:
+        for row in rows:
+            return row[0]
+    return ""
 
 def remove_code_from_data_frame(df):
     """

@@ -45,6 +45,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         {{ form.as_table }}
     </table>
     <p></p>
+    {% if request.user.is_staff  %}
+    <label class="control-label ">
+        {% trans "Is public" %}
+    </label>
+    <input type="checkbox" name="is_public">
+    {% endif %}
 </form>
 <p align="center">
     <button class="btn btn-default" onclick="submit_form()">

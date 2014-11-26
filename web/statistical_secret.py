@@ -1363,15 +1363,16 @@ def headers_and_data(query,
                                                               filters,
                                                               aggregation,
                                                               debug)
-    if not include_code:
-        # Fix all columns before drop the codes.
-        df = remove_code_from_data_frame(df)
+    if not df is None:
+        if not include_code:
+            # Fix all columns before drop the codes.
+            df = remove_code_from_data_frame(df)
 
-    if contains_ref_period(st.pivot, st.cols, axis=0) or df.shape[1] == 2:
-        df = drop_total_column(df)
+        if contains_ref_period(st.pivot, st.cols, axis=0) or df.shape[1] == 2:
+            df = drop_total_column(df)
 
-    index = get_data_frame_first_index(df)
-    if contains_ref_period(st.pivot, st.cols, axis=1) or len(index) == 2:
-        df = drop_total_row(df)
+        index = get_data_frame_first_index(df)
+        if contains_ref_period(st.pivot, st.cols, axis=1) or len(index) == 2:
+            df = drop_total_row(df)
 
     return df, data, warn, err
