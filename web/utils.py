@@ -2798,7 +2798,7 @@ def has_data_frame_multi_level_index(df):
     return type(df.index) == pd.MultiIndex
 
 
-def stringify(v):
+def to_utf8(v):
     """
     Encode the string in Utf-8. If it is not a string return the simple type
     as is.
@@ -2806,8 +2806,10 @@ def stringify(v):
     :param v: Param to be converted.
     :return: encoding string in utf-8 or numeric type
     """
+    if v is None:
+        return "*"
     if isinstance(v, (int, long, float, complex)):
-        return "%s" % v
+        return v
     return v.encode('utf-8')
 
 

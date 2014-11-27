@@ -38,6 +38,7 @@ from web.utils import execute_query_on_main_db, \
     remove_code_from_data_frame, \
     contains_ref_period
 import itertools
+from utils import to_utf8
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
@@ -678,7 +679,7 @@ def apply_constraint_pivot(data,
             for cn, co in enumerate(data_frame.columns.names):
                 if co in new_header:
                     p_col = row[cn]
-                    key.append(p_col)
+                    key.append(to_utf8(p_col))
                     start_col += 1
 
             try:
@@ -686,7 +687,7 @@ def apply_constraint_pivot(data,
                     column_index = data_frame.columns.get_loc(key[0])
                 else:
                     column_index = data_frame.columns.get_loc(tuple(key))
-            except (KeyError, TypeError):
+            except KeyError:
                 continue
 
             key = []
@@ -695,13 +696,13 @@ def apply_constraint_pivot(data,
                 if c == len(new_header) - 1:
                     continue
                 p_col = row[c]
-                key.append(p_col)
+                key.append(to_utf8(p_col))
             try:
                 if len(key) == 1:
                     row_index = data_frame.index.get_loc(key[0])
                 else:
                     row_index = data_frame.index.get_loc(tuple(key))
-            except (KeyError, TypeError):
+            except (KeyError):
                 continue
 
             start_row = row_index.start
@@ -1104,7 +1105,7 @@ def secondary_col_suppression_constraint(data,
                         found = False
                         break
                 elif c != len(new_header)-1:
-                    key.append(row[c])
+                    key.append(to_utf8(row[c]))
             if found:
                 column_index = data_frame.columns.get_loc(column_tuple)
                 row_index = data_frame.index.get_loc(tuple(key))
@@ -1337,6 +1338,7 @@ def headers_and_data(query,
                                                include_code)
         st = detect_special_columns(query.sql)
 
+    print query.sql
     old_head, data, duration, err = query.headers_and_data()
 
     if len(data) == 0:
