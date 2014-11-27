@@ -687,7 +687,7 @@ def apply_constraint_pivot(data,
                     column_index = data_frame.columns.get_loc(key[0])
                 else:
                     column_index = data_frame.columns.get_loc(tuple(key))
-            except KeyError:
+            except (KeyError, TypeError):
                 continue
 
             key = []
@@ -702,7 +702,7 @@ def apply_constraint_pivot(data,
                     row_index = data_frame.index.get_loc(key[0])
                 else:
                     row_index = data_frame.index.get_loc(tuple(key))
-            except (KeyError):
+            except (KeyError, TypeError):
                 continue
 
             start_row = row_index.start
@@ -971,13 +971,13 @@ def secondary_row_suppression_constraint(data,
     for rt, row_tup in enumerate(index_tuples):
             try:
                 row_index = data_frame.index.get_loc(index_tuples[rt])
-            except KeyError:
+            except (KeyError, TypeError):
                 continue
             src_row = data[row_index]
             for ct, col_tup in enumerate(col_tuples):
                 try:
                     column_index = data_frame.columns.get_loc(col_tuples[ct])
-                except KeyError:
+                except (KeyError, TypeError):
                     continue
                 if not isinstance(column_index, slice):
                     start_col = 0
@@ -1338,7 +1338,6 @@ def headers_and_data(query,
                                                include_code)
         st = detect_special_columns(query.sql)
 
-    print query.sql
     old_head, data, duration, err = query.headers_and_data()
 
     if len(data) == 0:
