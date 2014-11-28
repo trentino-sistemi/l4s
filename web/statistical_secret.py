@@ -187,18 +187,21 @@ def get_threshold_from_dict(threshold_columns_dict, col):
     return threshold
 
 
-def find_column_with_min_value(data, row):
+def find_column_with_min_value(row, start_index, end_index):
     """
-    Return the index of the column with minimum value.
+    Return the index of the column with minimum value
+    between start and end index.
 
-    :param data: List of tuples containing query result set.
     :param row: The row where found the min value.
+    :param start_index: Start index.
+    :param end_index: End index.
     :return: The column index that point to the row cell with minimum value.
     """
     min_index = None
-    for c, column in enumerate(row):
-        if c == len(data[0]) - 1:
-            continue
+    for co, column in enumerate(row[start_index:]):
+        c = start_index + co
+        if c == end_index:
+            break
         val = row[c]
         if str(val).startswith(ASTERISK):
             continue
@@ -208,18 +211,19 @@ def find_column_with_min_value(data, row):
     return min_index
 
 
-def find_column_with_min_value_exclude_zero(data, row):
+def find_column_with_min_value_exclude_zero(row, start_index, end_index):
     """
     Return the index of the column with minimum value excluding zero.
 
-    :param data: List of tuples containing query result set.
     :param row: The row where found the min value.
-    :return: The column index that point to the row cell with minimum value.
+    :param start_index: Start index.
+    :param end_index: End index.
     """
     min_index = None
-    for c, column in enumerate(row):
-        if c == len(data[0]) - 1:
-            continue
+    for co, column in enumerate(row[start_index:]):
+        c = start_index + co
+        if c == end_index:
+             break
         val = row[c]
         if str(val).startswith(ASTERISK):
             continue
@@ -245,14 +249,12 @@ def is_to_be_asterisked(val, threshold):
 
 
 def row_primary_suppression(data,
-                            secret_column,
                             threshold_columns_dict,
                             debug):
     """
     Preform primary suppression for row.
 
     :param data: List of tuples containing query result set.
-    :param secret_column: Columns with secrets.
     :param threshold_columns_dict: The threshold.
     :param debug: Is to be debugged?
     :return: The data set after the primary suppression on rows.
@@ -263,8 +265,6 @@ def row_primary_suppression(data,
         if r == len(data) - 1:
             continue
         for c, column in enumerate(row):
-            if not c in secret_column:
-                continue
             threshold = get_threshold_from_dict(threshold_columns_dict, c)
             if c == len(row):
                 break
@@ -350,50 +350,117 @@ def column_primary_pivoted_suppression(data,
     return data
 
 
-def row_secondary_suppression(data, debug):
+def row_secondary_suppression(data,
+                              data_frame,
+                              rows,
+                              debug):
     """
-    Perform secondary suppression for rows.
-    The function asterisk at least 2 value
-    if is asterisked a 0 then is asterisked an other one.
+    Secondary suppression.
 
-    :param data: List of tuples containing query result set.
-    :param debug: Debug flag.
-    :return: The data set after the secondary suppression on rows.
+    :param data:
+    :param data_frame:
+    :param pivot_columns:
+    :param rows:
+    :param col_dict:
+    :param filters:
+    :param debug:
+    :return:
     """
-    asterisked = 0
+    asterisk_global_count = 0
 
-    for r, row in enumerate(data):
-        asterisk = 0
-        if r == len(data) - 1:
-            continue
-        for c, column in enumerate(row):
-            if c == len(row) - 1:
-                break
-            val = str(row[c])
-            if val.startswith(ASTERISK):
-                asterisk += 1
-            if asterisk > 1:
-                break
-        if asterisk == 1:
-            min_c = find_column_with_min_value(data, row)
-            if min_c is None:
+    if len(rows) > 1:
+        data_frame.sortlevel(inplace=True)
+
+    if not has_data_frame_multi_level_columns(data_frame):
+        col_tuples = []
+        for col in data_frame.columns:
+            col_tuples.append(col)
+    else:
+        levels_contents = []
+        for l, levels in enumerate(data_frame.columns.levels):
+            if l < len(data_frame.columns.levels) - 2:
+                levels_list = data_frame.columns.levels[l].tolist()
+                if "" in levels_list:
+                    levels_list.remove("")
+                if l == 0:
+                    start = 0
+                    end = len(data_frame.index.levels[l])-1
+                    levels_contents.append(levels_list[start:end])
+                else:
+                    levels_contents.append(levels_list)
+        col_tuples = list(itertools.product(*levels_contents))
+
+    if has_data_frame_multi_level_index(data_frame):
+        levels_contents = []
+        for l, levels in enumerate(data_frame.index.levels):
+            if l < len(data_frame.index.levels):
+                levels_list = data_frame.index.levels[l].tolist()
+                if "" in levels_list:
+                    levels_list.remove("")
+                if l == 0:
+                    start = 0
+                    end = len(data_frame.index.levels[l])-1
+                    levels_contents.append(levels_list[start:end])
+                else:
+                    levels_contents.append(levels_list)
+        index_tuples = list(itertools.product(*levels_contents))
+    else:
+        index_tuples = []
+        for c, col in enumerate(data_frame.index):
+            index_tuples.append(col)
+
+    for rt, row_tup in enumerate(index_tuples):
+            try:
+                row_index = data_frame.index.get_loc(index_tuples[rt])
+            except (KeyError, TypeError):
                 continue
-            value = row[min_c]
-            row[min_c] = ASTERISK
-            if debug:
-                row[min_c] += ASTERISK + 'R(' + str(value) + ")"
-            asterisked += 1
-            if float(value) == 0.0 and asterisked == 1:
-                min_c = find_column_with_min_value_exclude_zero(data,
-                                                                row)
-                if min_c is None:
+
+            src_row = data[row_index]
+            for ct, col_tup in enumerate(col_tuples):
+                try:
+                    column_index = data_frame.columns.get_loc(col_tuples[ct])
+                except (KeyError, TypeError):
                     continue
-                value = row[min_c]
-                row[min_c] = ASTERISK
-                if debug:
-                    row[min_c] += ASTERISK + 'R(' + str(value) + ")"
-                asterisked += 1
-    return data, asterisked
+                start_col = column_index.start
+                stop_col = column_index.stop
+                sel_col = start_col
+                asterisk_count = 0
+                while sel_col != stop_col:
+                    if str(src_row[sel_col]).startswith(ASTERISK):
+                        asterisk_count += 1
+                    sel_col += 1
+                if asterisk_count == 1:
+                    #Need to asterisk an other one.
+                    sel_column = find_column_with_min_value(src_row.tolist(),
+                                                            start_col,
+                                                            stop_col)
+                    if sel_column is None:
+                       break
+
+                    value = src_row[sel_column]
+                    src_row[sel_column] = ASTERISK
+                    if debug:
+                        src_row[sel_column] += ASTERISK
+                        src_row[sel_column] += "R(%s)" % str(value)
+                    asterisk_count += 1
+                    asterisk_global_count += asterisk_count
+                    if float(value) == 0.0:
+                        sel_column = find_column_with_min_value_exclude_zero(
+                            src_row.tolist(),
+                            start_col,
+                            stop_col)
+                        if sel_column is None:
+                            break
+                        value = src_row[sel_column]
+                        src_row[sel_column] = ASTERISK
+                        if debug:
+                            src_row[sel_column] += ASTERISK
+                            src_row[sel_column] += "R(%s)" % str(value)
+                        asterisk_count += 1
+                        asterisk_global_count += asterisk_count
+                    break
+
+    return data, asterisk_global_count
 
 
 def column_secondary_suppression(data, obs_values, debug):
@@ -410,8 +477,6 @@ def column_secondary_suppression(data, obs_values, debug):
     """
     asterisked = 0
     row_limit = len(data) - len(obs_values) - 1
-    if len(data) <= 3:
-        return data, asterisked
 
     for c, column in enumerate(data[0]):
         asterisk = 0
@@ -474,7 +539,6 @@ def protect_pivoted_secret(data,
     """
     if not contains_ref_period(pivot_c, cols, axis=0):
         data = row_primary_suppression(data,
-                                       secret_column,
                                        threshold_columns_dict,
                                        debug)
     if not contains_ref_period(pivot_c, cols, axis=1):
@@ -487,6 +551,7 @@ def protect_pivoted_secret(data,
 
 
 def protect_pivoted_table(data,
+                          data_frame,
                           secret_column_dict,
                           sec_ref,
                           threshold_columns_dict,
@@ -494,6 +559,7 @@ def protect_pivoted_table(data,
                           obs_values,
                           pivot_c,
                           cols,
+                          rows,
                           debug):
     """
     Protect pivoted table by statistical secret.
@@ -522,11 +588,17 @@ def protect_pivoted_table(data,
                                       debug)
 
     tot_asterisked = 1
+
     while tot_asterisked > 0:
-        data, asterisked_r = row_secondary_suppression(data, debug)
+        data, asterisked_r = row_secondary_suppression(data,
+                                                       data_frame,
+                                                       rows,
+                                                       debug)
+
         data, asterisked_c = column_secondary_suppression(data,
                                                           obs_values,
                                                           debug)
+
         tot_asterisked = asterisked_c + asterisked_r
 
     return data
@@ -940,14 +1012,16 @@ def secondary_row_suppression_constraint(data,
     else:
         levels_contents = []
         for l, levels in enumerate(data_frame.columns.levels):
-            if l < len(data_frame.columns.levels):
+            if l < len(data_frame.columns.levels) - 2:
                 levels_list = data_frame.columns.levels[l].tolist()
                 if "" in levels_list:
                     levels_list.remove("")
-                start = 0
-                end = len(data_frame.columns.levels[l])-1
-                levels_contents.append(levels_list[start:end])
-        col_tuples = list(itertools.product(*levels_contents))
+                if l == 0:
+                    start = 0
+                    end = len(data_frame.index.levels[l])-1
+                    levels_contents.append(levels_list[start:end])
+                else:
+                    levels_contents.append(levels_list)
 
     if has_data_frame_multi_level_index(data_frame):
         levels_contents = []
@@ -1005,8 +1079,11 @@ def secondary_row_suppression_constraint(data,
                             if len(cell_col_list) == 0:
                                 continue
                             col_tuple = tuple(cell_col_list)
-                            column_index = data_frame.columns.get_loc(
-                                col_tuple)
+                            try:
+                                column_index = data_frame.columns.get_loc(
+                                    col_tuple)
+                            except (KeyError, TypeError):
+                                continue
                             start_column = column_index.start
                             stop_column = column_index.stop
                             sel_column = start_column
@@ -1107,8 +1184,11 @@ def secondary_col_suppression_constraint(data,
                 elif c != len(new_header)-1:
                     key.append(to_utf8(row[c]))
             if found:
-                column_index = data_frame.columns.get_loc(column_tuple)
-                row_index = data_frame.index.get_loc(tuple(key))
+                try:
+                    column_index = data_frame.columns.get_loc(column_tuple)
+                    row_index = data_frame.index.get_loc(tuple(key))
+                except (KeyError, TypeError):
+                    continue
                 start_row = row_index.start
                 stop_row = row_index.stop
                 sel_row = start_row
@@ -1138,7 +1218,10 @@ def secondary_col_suppression_constraint(data,
             column_tuple_list.append(column_tuple)
 
     for column_tuple in column_tuple_list:
-        column_index = data_frame.columns.get_loc(column_tuple)
+        try:
+            column_index = data_frame.columns.get_loc(column_tuple)
+        except (KeyError, TypeError):
+            continue
         min_index = None
         min_value = None
         for r, row in enumerate(data):
@@ -1268,6 +1351,7 @@ def apply_stat_secret(headers,
 
         else:
             data = protect_pivoted_table(data,
+                                         data_frame,
                                          secret_column_dict,
                                          sec_ref,
                                          threshold_columns_dict,
@@ -1275,6 +1359,7 @@ def apply_stat_secret(headers,
                                          obs_vals,
                                          pivot_dict,
                                          col_dict,
+                                         rows,
                                          debug)
 
         data_frame = data_frame_from_tuples(data_frame, data)
