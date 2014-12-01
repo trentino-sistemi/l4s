@@ -567,9 +567,9 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
                             start_row,
                             stop_row,
                             column_index)
-                        src_row = data[min_row_index]
                         if min_row_index is None:
                             continue
+                        src_row = data[min_row_index]
                         value = src_row[column_index]
                         src_row[column_index] = ASTERISK
                         if debug:
