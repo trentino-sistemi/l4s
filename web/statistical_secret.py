@@ -1129,7 +1129,7 @@ def secondary_row_suppression_constraint(data,
     else:
         levels_contents = []
         for l, levels in enumerate(data_frame.columns.levels):
-            if l < len(data_frame.columns.levels) - 2:
+            if l < len(data_frame.columns.levels):
                 levels_list = data_frame.columns.levels[l].tolist()
                 if "" in levels_list:
                     levels_list.remove("")
@@ -1139,6 +1139,7 @@ def secondary_row_suppression_constraint(data,
                     levels_contents.append(levels_list[start:end])
                 else:
                     levels_contents.append(levels_list)
+        col_tuples = list(itertools.product(*levels_contents))
 
     if has_data_frame_multi_level_index(data_frame):
         levels_contents = []
