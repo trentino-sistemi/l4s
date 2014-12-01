@@ -744,6 +744,7 @@ def find_desc_column(table_name):
             return row[0]
     return ""
 
+
 def remove_code_from_data_frame(df):
     """
     Remove code from data frame.
@@ -859,7 +860,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 if f in pivot_cols:
                     new_sql_header += "%s %d \n" % (PIVOT_TOKEN, counter)
                 counter += 1
-                j_table = "%s_%s" %(dest_table, field)
+                j_table = "%s_%s" % (dest_table, field)
                 desc_query += "%s.%s " % (j_table, desc_column)
                 desc_query += "AS \"%s\"" % alias
                 query_header.append(alias)
@@ -893,7 +894,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
             dest_table = fk[0]
             if is_decoder_table(dest_table):
                 dest_column = fk[1]
-                alias = "%s_%s" %(dest_table, field)
+                alias = "%s_%s" % (dest_table, field)
                 desc_query += "\nJOIN %s %s ON " % (dest_table, alias)
                 desc_query += "(%s.%s=" % (main_table, field)
                 desc_query += "%s.%s)" % (alias, dest_column)
@@ -913,7 +914,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 if is_decoder_table(dest_table):
                     desc_column = find_desc_column(dest_table)
                     if order:
-                        alias_t = "%s_%s" %(dest_table, field)
+                        alias_t = "%s_%s" % (dest_table, field)
                         desc_query += "ORDER BY %s." % alias_t
                         desc_query += "%s" % desc_column
 

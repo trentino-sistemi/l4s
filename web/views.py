@@ -1060,13 +1060,13 @@ def query_editor_customize(request):
     cols = OrderedDict()
     if not columns is None and columns != "":
         for x in columns.split(','):
-            cols[found_column_position(x, table_schema)]= x
+            cols[found_column_position(x, table_schema)] = x
 
     rows_s = request.REQUEST.get('rows')
     rows = OrderedDict()
     if not rows_s is None and rows_s != "":
         for x in rows_s.split(','):
-            rows[found_column_position(x, table_schema)]= x
+            rows[found_column_position(x, table_schema)] = x
 
     ref_periods = request.REQUEST.get('ref_periods')
     periods = []
