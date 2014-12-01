@@ -1322,7 +1322,7 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold):
     query += "GROUP BY table_name, column_name ORDER BY count(id) DESC "
     rows = execute_query_on_django_db(query)
     first_row = rows[0]
-    num = ast.literal_eval(first_row[2])
+    num = first_row[2]
     if num > 1:
         table_name = first_row[0]
         column_name = first_row[1]
