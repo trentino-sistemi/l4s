@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-01 10:38+0100\n"
-"PO-Revision-Date: 2014-12-01 10:38+0100\n"
+"POT-Creation-Date: 2014-12-01 14:21+0100\n"
+"PO-Revision-Date: 2014-12-01 14:22+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -63,8 +63,8 @@ msgid "Don't have an account?"
 msgstr "Non sei registrato?"
 
 #: l4s/static/templates/account/login.html:48
-#: l4s/static/templates/account/signup.html:51
-#: l4s/static/templates/account/signup.html:90
+#: l4s/static/templates/account/signup.html:66
+#: l4s/static/templates/account/signup.html:109
 #: l4s/static/templates/l4s/base.html:173
 msgid "Sign Up"
 msgstr "Iscriviti"
@@ -121,35 +121,36 @@ msgstr "Accedi"
 msgid "Signup"
 msgstr "Iscriviti"
 
-#: l4s/static/templates/account/signup.html:52
-msgid "All fields marked with an asterisk"
-msgstr "Tutti i campi contrassegnati con un asterisco"
-
-#: l4s/static/templates/account/signup.html:52
-msgid "are required"
-msgstr "sono obbligatori"
-
-#: l4s/static/templates/account/signup.html:82
+#: l4s/static/templates/account/signup.html:59
+#: l4s/static/templates/account/signup.html:100
 msgid "Accept"
 msgstr "Accetto"
 
-#: l4s/static/templates/account/signup.html:82
+#: l4s/static/templates/account/signup.html:67
+msgid "All fields marked with an asterisk"
+msgstr "Tutti i campi contrassegnati con un asterisco"
+
+#: l4s/static/templates/account/signup.html:67
+msgid "are required"
+msgstr "sono obbligatori"
+
+#: l4s/static/templates/account/signup.html:101
 msgid "license agreement"
 msgstr "le condizioni di utilizzo"
 
-#: l4s/static/templates/account/signup.html:93
+#: l4s/static/templates/account/signup.html:112
 msgid "Already have an account?"
 msgstr "Sei già registrato?"
 
-#: l4s/static/templates/account/signup.html:93
+#: l4s/static/templates/account/signup.html:112
 msgid "Sign in"
 msgstr "Accedi"
 
-#: l4s/static/templates/account/signup.html:98
+#: l4s/static/templates/account/signup.html:124
 msgid "Password (again)"
 msgstr "Password (ripeti)"
 
-#: l4s/static/templates/account/signup.html:105
+#: l4s/static/templates/account/signup.html:131
 msgid "Accept the license agreement in order to continue"
 msgstr "Accetta le condizioni di utilizzo per poter procedere"
 
@@ -278,7 +279,7 @@ msgid "Open data"
 msgstr "Dati aperti"
 
 #: l4s/static/templates/explorer/query.html:180
-#: l4s/static/templates/l4s/query_editor_customize.html:360
+#: l4s/static/templates/l4s/query_editor_customize.html:370
 msgid "Debug"
 msgstr "Analizza"
 
@@ -322,7 +323,7 @@ msgstr "Accedi per poter usare questa funzione"
 #: l4s/static/templates/l4s/query_editor_view.html:132
 #: l4s/static/templates/l4s/query_editor_view.html:136
 #: l4s/static/templates/l4s/query_editor_view.html:137
-#: l4s/static/templates/l4s/query_editor_view.html:197
+#: l4s/static/templates/l4s/query_editor_view.html:196
 msgid "Manual request"
 msgstr "Richiesta manuale"
 
@@ -638,14 +639,14 @@ msgstr "Note legali"
 #: l4s/static/templates/l4s/manual_request.html:58
 #: l4s/static/templates/l4s/metadata_add.html:35
 #: l4s/static/templates/l4s/metadata_edit.html:36
-#: l4s/static/templates/l4s/query_editor_customize.html:389
+#: l4s/static/templates/l4s/query_editor_customize.html:399
 #: l4s/static/templates/l4s/query_editor_save.html:57
 #: l4s/static/templates/l4s/user_profile_change.html:32
 msgid "Submit"
 msgstr "Conferma"
 
 #: l4s/static/templates/l4s/manual_request.html:61
-#: l4s/static/templates/l4s/query_editor_customize.html:391
+#: l4s/static/templates/l4s/query_editor_customize.html:401
 #: l4s/static/templates/l4s/query_editor_save.html:60
 msgid "Cancel"
 msgstr "Annulla"
@@ -876,23 +877,27 @@ msgstr "Riga"
 msgid "Data"
 msgstr "Valori"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:371
+#: l4s/static/templates/l4s/query_editor_customize.html:360
+msgid "View all"
+msgstr "Vedi tutto"
+
+#: l4s/static/templates/l4s/query_editor_customize.html:381
 msgid "Include code"
 msgstr "Includi codici"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:385
+#: l4s/static/templates/l4s/query_editor_customize.html:395
 msgid "The table must have at least one field in row"
 msgstr "La tabella deve avere almeno un campo in riga"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:386
+#: l4s/static/templates/l4s/query_editor_customize.html:396
 msgid "The table must have at least one field in column"
 msgstr "La tabella deve avere almeno un campo in colonna"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:387
+#: l4s/static/templates/l4s/query_editor_customize.html:397
 msgid "The table must have at least one field in value"
 msgstr "La tabella deve avere almeno un campo come valore"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:388
+#: l4s/static/templates/l4s/query_editor_customize.html:398
 msgid "you can select only one unless you drag it in line or column"
 msgstr "puoi selezionarne solo uno a meno che non lo trascini in riga o in colonna"
 
@@ -907,7 +912,7 @@ msgid "values"
 msgstr "valori"
 
 #: l4s/static/templates/l4s/query_editor_view.html:79
-#: l4s/static/templates/l4s/query_editor_view.html:251
+#: l4s/static/templates/l4s/query_editor_view.html:250
 msgid "See more"
 msgstr "Vedi più dettagli"
 
@@ -915,7 +920,7 @@ msgstr "Vedi più dettagli"
 msgid "Customize"
 msgstr "Personalizza"
 
-#: l4s/static/templates/l4s/query_editor_view.html:251
+#: l4s/static/templates/l4s/query_editor_view.html:250
 msgid "See less"
 msgstr "Vedi meno dettagli"
 
@@ -1159,16 +1164,16 @@ msgid "All objects passed were None"
 msgstr "Il risultato contiene solo valori nulli"
 
 #: web/statistical_secret.py:167
-#: web/statistical_secret.py:951
+#: web/statistical_secret.py:1025
 #: web/utils.py:68
 msgid "Total"
 msgstr "Totale"
 
-#: web/statistical_secret.py:1332
+#: web/statistical_secret.py:1409
 msgid "Can not pivot the table; missing numerosity!"
 msgstr "Non è possibile pivotare la tabella; manca la numerosità!"
 
-#: web/statistical_secret.py:1343
+#: web/statistical_secret.py:1420
 msgid "Can not pivot the table; missing rows!"
 msgstr "Non è possibile pivotare la tabella; lascia uno o più valori per le righe!"
 
@@ -1176,76 +1181,76 @@ msgstr "Non è possibile pivotare la tabella; lascia uno o più valori per le ri
 msgid "Code"
 msgstr "Codice"
 
-#: web/utils.py:1326
+#: web/utils.py:1327
 msgid "You can aggregate for a single criterion for each column only."
 msgstr "Puoi aggregare solo per un singolo criterio per ciascuna colonna."
 
-#: web/utils.py:1327
+#: web/utils.py:1328
 msgid "You have selected more than one aggregation on column"
 msgstr "Hai selezionato più di una aggregazione sulla colonna"
 
-#: web/utils.py:1330
+#: web/utils.py:1331
 msgid "with description"
 msgstr "con descrizione"
 
-#: web/utils.py:1670
+#: web/utils.py:1671
 msgid "The statistical service"
 msgstr "Il Servizio Statistica"
 
-#: web/utils.py:1671
+#: web/utils.py:1672
 msgid "is handling"
 msgstr "ha preso in carico"
 
-#: web/utils.py:1672
+#: web/utils.py:1673
 msgid "the request"
 msgstr "la richiesta"
 
-#: web/utils.py:1673
+#: web/utils.py:1674
 msgid "with subject"
 msgstr "con oggetto"
 
-#: web/utils.py:1675
+#: web/utils.py:1676
 msgid "Your request will be dispatched as soon as possible"
 msgstr "La richiesta verrà evasa al più presto compatibilmente con l'attività del Servizio"
 
-#: web/utils.py:1693
-#: web/utils.py:1695
+#: web/utils.py:1694
+#: web/utils.py:1696
 msgid "new manual request"
 msgstr "Nuova richiesta manuale"
 
-#: web/utils.py:1694
+#: web/utils.py:1695
 msgid "with id"
 msgstr "con il codice"
 
-#: web/utils.py:1892
+#: web/utils.py:1893
 msgid "Invalid syntax: "
 msgstr "Sintassi non corretta:"
 
-#: web/utils.py:1893
+#: web/utils.py:1894
 msgid "Usage"
 msgstr "Utilizzo"
 
-#: web/utils.py:1897
+#: web/utils.py:1898
 msgid "Invalid Token "
 msgstr "Carattere non corretto"
 
-#: web/utils.py:1898
+#: web/utils.py:1899
 msgid " expected token is "
 msgstr "carattere atteso"
 
-#: web/utils.py:2518
+#: web/utils.py:2519
 msgid "group by"
 msgstr "raggruppato per"
 
-#: web/utils.py:2641
+#: web/utils.py:2642
 msgid "Selected values"
 msgstr "Valori selezionati"
 
-#: web/utils.py:2659
+#: web/utils.py:2660
 msgid "for"
 msgstr "per"
 
-#: web/utils.py:2660
+#: web/utils.py:2661
 msgid "and"
 msgstr "e"
 
@@ -1273,25 +1278,25 @@ msgstr "per preservare il segreto statistico"
 msgid "please chose a pivot and push the Apply button"
 msgstr "per favore scegli come costruire la tabella pivot e premi il bottone Applica"
 
-#: web/views.py:301
-#: web/views.py:422
+#: web/views.py:302
+#: web/views.py:423
 msgid "The Query could not be saved because the data didn't validate."
 msgstr "L'interrogazione non può essere salvata perchè incorretta."
 
-#: web/views.py:316
-#: web/views.py:446
+#: web/views.py:317
+#: web/views.py:447
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
 
-#: web/views.py:1190
+#: web/views.py:1195
 msgid "Please add the metadata 'obsValue'"
 msgstr "Per favore aggiungi il metadato 'obsValue'"
 
-#: web/views.py:1191
+#: web/views.py:1196
 msgid "on one of the columns of the table"
 msgstr "su una delle colonne della tabella"
 
-#: web/views.py:1274
+#: web/views.py:1280
 msgid "Can not display the requested content"
 msgstr "Impossibile mostrare il contenuto richiesto"
 

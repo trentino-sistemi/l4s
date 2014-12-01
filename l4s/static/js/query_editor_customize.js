@@ -254,9 +254,16 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
     agg_selection_value = JSON.stringify(agg_selection);
     debug_value = "false";
     var debug = document.getElementById('debug');  
-      if (debug!=null && debug.checked == 1) {
+      if (debug != null && debug.checked == 1) {
         debug_value = "true";
      }
+     
+    visible_value = "false";
+    var visible = document.getElementById('visible');  
+      if (visible != null && visible.checked == 1){
+        visible_value = "true";
+      }
+    localStorage.setItem('visible', visible_value);
     
     include_code_value = "false"
     var include_code = document.getElementById('include_code');  
@@ -275,6 +282,7 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
              'filters': filter_value,
              'agg_filters': agg_selection_value,
              'debug': debug_value,
+             'visible': visible_value,
               };
     $.ajax({
 		url: url,

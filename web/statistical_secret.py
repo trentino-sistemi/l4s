@@ -1369,7 +1369,8 @@ def apply_stat_secret(headers,
                       constraint_cols,
                       filters,
                       aggregation,
-                      debug):
+                      debug,
+                      visible):
     """
     Take in input the full data set and the column descriptions
     and return the data set statistical secret free.
@@ -1386,6 +1387,8 @@ def apply_stat_secret(headers,
     :param filters: Filter used in query.
     :param aggregation:
     :param debug: If active show debug info on asterisked cells.
+    :param visible: View all data without put asterisks.
+                    In this case it apply pivot only if required.
     :return: data, headers, data_frame, warn, err.
     """
     warn = None
@@ -1422,6 +1425,9 @@ def apply_stat_secret(headers,
                                       pivot_cols,
                                       rows,
                                       pivot_values)
+
+        if visible and not debug:
+            return data, headers, data_frame, warn, err
 
         if len(obs_vals) > 1:
             data_frame = data_frame.stack(0)
@@ -1503,7 +1509,8 @@ def headers_and_data(query,
                      pivot_cols,
                      debug,
                      include_descriptions,
-                     include_code):
+                     include_code,
+                     visible):
     """
     Execute query, get headers, data, duration, error
     and filter result set to preserve the statistical secret.
@@ -1518,6 +1525,7 @@ def headers_and_data(query,
     :return: df, data, duration, warn, err.
     :param include_descriptions: Force to include description.
     :param include_descriptions: Force to include code.
+    :param visible: View all data without put asterisks.
     """
     warn = None
     df = None
@@ -1568,7 +1576,8 @@ def headers_and_data(query,
                                                               st.constraint,
                                                               filters,
                                                               aggregation,
-                                                              debug)
+                                                              debug,
+                                                              visible)
     if not df is None:
         if not include_code:
             # Fix all columns before drop the codes.

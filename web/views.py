@@ -202,7 +202,8 @@ def execute_query_viewmodel(request,
                                                               st.constraint,
                                                               dict(),
                                                               aggregation,
-                                                              debug)
+                                                              debug,
+                                                              False)
             if warn_n is not None and warn != "":
                 warn = warn_n
 
@@ -1147,10 +1148,14 @@ def query_editor_view(request):
         rows = [x for x in rows_s.split(',')]
 
     debug = False
+    visible = False
     if request.user.is_staff:
         debug_s = request.REQUEST.get('debug')
         if not debug_s is None and debug_s == 'true':
             debug = True
+        visible_s = request.REQUEST.get('visible')
+        if not visible_s is None and visible_s == 'true':
+            visible = True
 
     include_code = False
     include_code_s = request.REQUEST.get('include_code')
@@ -1225,7 +1230,8 @@ def query_editor_view(request):
                                            pivot,
                                            debug,
                                            True,
-                                           include_code)
+                                           include_code,
+                                           visible)
 
     context['values'] = values
     context['obs_values'] = obs_values

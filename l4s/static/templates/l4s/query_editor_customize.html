@@ -30,17 +30,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="/static/js/jquery-ui.js"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-    <script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
     <script type="text/javascript" src="/static/js/spin.min.js"></script>
     <script type="text/javascript" src="/static/js/bootbox.min.js"></script>
     <script type="text/javascript" src="/static/js/bootbox.conf.js"></script>
+    <link href="/static/css/drag_and_drop.css" rel="stylesheet">
+    <script type="text/javascript" src="/static/js/query_editor_customize.js"></script>
+    <script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
     <script>
     $(document).ready(function(){
         initToken();
     });
     </script>
-    <script type="text/javascript" src="/static/js/query_editor_customize.js"></script>
-    <link href="/static/css/drag_and_drop.css" rel="stylesheet">
 </head>
 
 <body style="cursor: auto;">
@@ -350,6 +350,20 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <table style="width:100%">
     <tr align="center">
         {% if request.user.is_staff %}
+        <td>
+            <input type="checkbox"
+                   id="visible"/>
+            <label class="control-label">
+                {% trans "View all" %}
+            </label>
+        </td>
+        <script>
+            var visible = localStorage.getItem('visible');
+            if (visible != null && visible=="true") {
+               var vis = document.getElementById('visible');
+               vis.checked = "checked"
+            }
+        </script>
         <td>
             <input type="checkbox"
                    id="debug"
