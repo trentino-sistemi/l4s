@@ -75,6 +75,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <h4>{% trans "Choose a topic" %}
     </h4>
     {% for topic in topics %}
+    {% if topic in topics_counter %}
     <tr>
         <td width="100px">
             <a href="/query_editor?topic={{ topic }}">
@@ -91,6 +92,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </p>
         </td>
     </tr>
+    {% endif %}
     {% endfor %}
     </tbody>
     {% else %}

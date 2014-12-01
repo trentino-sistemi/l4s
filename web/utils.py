@@ -69,7 +69,7 @@ TOTAL = unicode(_("Total")).encode("utf-8")
 ALL = unicode(_("All")).encode("utf-8")
 
 
-def get_table_by_name_or_desc(search, order):
+def get_table_by_name_or_desc(search, tables, order):
     """
     Get tables by matching with search criteria.
 
@@ -77,15 +77,19 @@ def get_table_by_name_or_desc(search, order):
     :param order: Order table name by specified field.
     :return: Matching table list.
     """
+
     search_s = "'" + '%' + search + '%' + "'"
-    query = "SELECT b.table_name, d.value \n"
+    query = "SELECT DISTINCT b.table_name, d.value \n"
     query += "FROM web_metadata b \n"
-    query += "LEFT JOIN web_metadata d \n"
+    query += "JOIN web_metadata d \n"
     query += "ON (d.table_name = b.table_name and d.column_name = 'NULL' "
     query += "and d.key = 'http://purl.org/dc/terms/description') \n"
     query += "WHERE b.column_name ilike %s or " % search_s
     query += "b.table_name ilike %s or " % search_s
     query += "d.value ilike %s \n" % search_s
+    if not tables is None:
+        table_names = "'" + "','".join(tables) + "'"
+        query += "and b.table_name IN (%s)" % table_names
     if not order is None:
         query += "ORDER BY %s" % order
 
@@ -2143,9 +2147,45 @@ def filter_coder_table(tables):
     return coder_tables
 
 
+def all_visible_tables():
+    """
+    Get the list of the tables visible in query editor.
+
+    :return: List of table names.
+    """
+    query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
+    query += "WHERE key='visible' and value='TRUE' "
+    rows = execute_query_on_django_db(query)
+    ret_tables = []
+    if rows is not None:
+        for row in rows:
+            ret_tables.append(row[0])
+    return ret_tables
+
+
+def exclude_invisible_tables(tables):
+    """
+    Exclude to the input set the tables not visible in the query editor.
+
+    :param tables:
+    :return:
+    """
+    table_names = "'" + "','".join(tables) + "'"
+    query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
+    query += "WHERE key='visible' and value='TRUE' "
+    query += "and table_name IN(%s)" % table_names
+    rows = execute_query_on_django_db(query)
+    ret_tables = []
+    if rows is not None:
+        for row in rows:
+            ret_tables.append(row[0])
+
+    return ret_tables
+
+
 def get_concept(value):
     """
-    Get concept
+    Get concept.
 
     :param value:
     :return: Concept.

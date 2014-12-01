@@ -109,7 +109,7 @@ def execute_topics_query():
     return rows
 
 
-def build_topics_counter_dict():
+def build_topics_counter_dict(tables):
     """
     Build a dictionary with key topic_id and value the number of table belong
     to the topic.
@@ -117,11 +117,14 @@ def build_topics_counter_dict():
     :return: Dictionary with key the topic id
              and as value the number of items in topic.
     """
+    table_names = "'" + "','".join(tables) + "'"
     topics_counter_dict = dict()
     query = "SELECT c.argomento, COUNT(*)\n"
     query += "FROM tabelle a, argomenti_tabelle b, argomenti c\n"
     query += "WHERE b.id = a.id and c.argomento=b.argomento\n"
+    query += "and a.nome IN(%s)" % table_names
     query += "GROUP BY c.argomento"
+
     rows = execute_query_on_main_db(query)
     if rows is not None:
         for row in rows:

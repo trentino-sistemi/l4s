@@ -65,7 +65,6 @@ from web.utils import get_variable_dictionary, \
     get_table_by_name_or_desc, \
     data_frame_to_html, \
     choose_default_axis, \
-    filter_coder_table, \
     build_query, \
     all_obs_value_column, \
     change_query, \
@@ -82,7 +81,9 @@ from web.utils import get_variable_dictionary, \
     order_tables_by_descriptions,\
     build_topic_keywords,\
     build_topic_icons,\
-    found_column_position
+    found_column_position, \
+    exclude_invisible_tables, \
+    all_visible_tables
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -860,7 +861,8 @@ def table_list(request):
     table_description = dict()
     # Filter tables matching descriptions and table_name.
     if search:
-        table_description = get_table_by_name_or_desc(search, 'table_name')
+        table_description = get_table_by_name_or_desc(search, None,
+                                                      'table_name')
         tables = table_description.keys()
     else:
         connection = connections[EXPLORER_CONNECTION_NAME]
@@ -1368,14 +1370,11 @@ def query_editor(request):
     topic_dict = dict()
     topic_mapping = build_topics_decoder_dict()
     table_description = dict()
+    tables = all_visible_tables()
     # Filter tables matching descriptions and table_name.
     if search:
-        table_description = get_table_by_name_or_desc(search, 'value')
+        table_description = get_table_by_name_or_desc(search, tables, 'value')
         tables = table_description.keys()
-
-    else:
-        connection = connections[EXPLORER_CONNECTION_NAME]
-        tables = connection.introspection.table_names()
 
     if topic is not None and topic != "":
         topic_id = ast.literal_eval(topic)
@@ -1384,11 +1383,11 @@ def query_editor(request):
         topic_id = 0
 
     if topic_id == 0:
-        context['topics_counter'] = build_topics_counter_dict()
+        context['topics_counter'] = build_topics_counter_dict(tables)
         topic_dict = build_topics_dict(tables)
     else:
         tables = filter_tables_by_topic(topic_id, tables, None)
-        tables = filter_coder_table(tables)
+        tables = exclude_invisible_tables(tables)
         tables = order_tables_by_descriptions(tables)
         if not search:
             table_description = build_description_table_dict(tables)
