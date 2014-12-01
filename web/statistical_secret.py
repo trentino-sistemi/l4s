@@ -495,7 +495,7 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
     if has_data_frame_multi_level_index(data_frame):
         levels_contents = []
         for l, levels in enumerate(data_frame.index.levels):
-            if l < len(data_frame.index.levels) - 2:
+            if l < len(data_frame.index.levels) - 1:
                 levels_list = data_frame.index.levels[l].tolist()
                 if "" in levels_list:
                     levels_list.remove("")
@@ -518,13 +518,18 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
         except (KeyError, TypeError):
             continue
         for rt, row_tup in enumerate(index_tuples):
-            try:
-                row_index = data_frame.index.get_loc(index_tuples[rt])
-            except (KeyError, TypeError):
-                continue
-            start_row = row_index.start
-            stop_row = row_index.stop
-            sel_row = start_row
+            if len(index_tuples[rt]) == 1:
+                start_row = 0
+                stop_row = len(data) - len(obs_values) - 1
+                sel_row = start_row
+            else:
+                try:
+                    row_index = data_frame.index.get_loc(index_tuples[rt])
+                except (KeyError, TypeError):
+                    continue
+                start_row = row_index.start
+                stop_row = row_index.stop
+                sel_row = start_row
             if stop_row == start_row + 1:
                 src_row = data[sel_row]
                 value = src_row[column_index]
@@ -556,13 +561,28 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
                         src_row[column_index] += "C(%s)" % str(value)
                     asterisk_count += 1
                     asterisk_global_count += asterisk_count
+                    if float(value) == 0.0:
+                        min_row_index = find_row_with_min_value_exclude_zero(
+                            data,
+                            start_row,
+                            stop_row,
+                            column_index)
+                        src_row = data[min_row_index]
+                        if min_row_index is None:
+                            continue
+                        value = src_row[column_index]
+                        src_row[column_index] = ASTERISK
+                        if debug:
+                            src_row[column_index] += ASTERISK
+                            src_row[column_index] += "C(%s)" % str(value)
+                        asterisk_count += 1
+                        asterisk_global_count += asterisk_count
 
     return data, 0
 
 
 def protect_pivoted_secret(data,
                            obs_values,
-                           secret_column,
                            threshold_columns_dict,
                            pivot_c,
                            cols,
@@ -572,7 +592,6 @@ def protect_pivoted_secret(data,
 
     :param data: List of tuples containing query result set.
     :param obs_values: Observable values.
-    :param secret_column: column with secret.
     :param threshold_columns_dict: Threshold column dictionary.
     :param pivot_c:
     :param cols:
@@ -623,7 +642,6 @@ def protect_pivoted_table(data,
     else:
         data = protect_pivoted_secret(data,
                                       obs_values,
-                                      secret_column_dict,
                                       threshold_columns_dict,
                                       pivot_c,
                                       cols,
@@ -916,6 +934,62 @@ def apply_constraint_plain(data,
     return data
 
 
+def column_secondary_plain_suppression(data, debug):
+    """
+    Perform secondary suppression for columns.
+    The function asterisk at least 2 value
+    if is asterisked a 0 then is asterisked an other one.
+
+    :rtype :  List of tuples.
+    :param data: List of tuples containing query result set.
+    :param debug: If active show debug info on asterisked cells.
+    :return: The data set after the secondary suppression on columns.
+    """
+    asterisked = 0
+    row_limit = len(data) - 1
+    if len(data) <= 3:
+        return data, asterisked
+
+    for c, column in enumerate(data[0]):
+        asterisk = 0
+        if c == len(data[0]):
+            break
+
+        for row in data:
+            val = str(row[c])
+            if val.startswith("*"):
+                asterisk += 1
+            if asterisk > 1:
+                break
+
+        if asterisk == 1:
+            min_r = find_row_with_min_value(data,
+                                            0,
+                                            row_limit,
+                                            c)
+            if min_r is None:
+                continue
+            value = data[min_r][c]
+            data[min_r][c] = ASTERISK
+            if debug:
+                data[min_r][c] += ASTERISK + 'C(' + str(value) + ")"
+            asterisked += 1
+
+            if float(value) == 0.0 and asterisked == 1:
+                min_r = find_row_with_min_value_exclude_zero(data,
+                                                             0,
+                                                             row_limit,
+                                                             c)
+                if min_r is not None:
+                    value = data[min_r][c]
+                    data[min_r][c] = ASTERISK
+                    if debug:
+                        data[min_r][c] += ASTERISK + 'C(' + str(value) + ")"
+                    asterisked += 1
+
+    return data, asterisked
+
+
 def protect_plain_table(data,
                         threshold_columns_dict,
                         debug):
@@ -932,7 +1006,7 @@ def protect_plain_table(data,
                                             threshold_columns_dict,
                                             debug)
 
-    data, asterisked_c = column_secondary_suppression(data, debug)
+    data, asterisked_c = column_secondary_plain_suppression(data, debug)
 
     return data
 
