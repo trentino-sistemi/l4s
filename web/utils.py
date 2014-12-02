@@ -1507,6 +1507,40 @@ def build_class_query(sql, cols, column_name, formula, alias, threshold):
     return query
 
 
+def add_xml_header(contents):
+    """
+    Add xml header.
+
+    :param contents:
+    :return:
+    """
+    header = "<!--\n"
+    header += "\tThis file is generated with Lod4Stat.\n"
+    header += "\tCopyright (C) 2014 Provincia autonoma di Trento\n\n"
+    header += "\tREGARDS: Some obsValue has been omitted in order "
+    header += "to preserve the statical secret.\n"
+    header += "-->\n\n"
+    new_contents = header + contents
+    return new_contents
+
+
+def add_sh_like_header(contents):
+    """
+    Add shell like header.
+
+    :param contents:
+    :return:
+    """
+    header = "# This file is generated with Lod4Stat.\n"
+    header += "# Copyright (C) 2014 Provincia autonoma di Trento\n"
+    header += "#\n"
+    header += "#REGARDS: Some obsValue has been omitted in order "
+    header += "to preserve the statical secret.\n"
+    header += "\n\n"
+    new_contents = header + contents
+    return new_contents
+
+
 def execute_query_on_django_db(query):
     """
     Execute a query on the django database.
@@ -2895,19 +2929,4 @@ def data_frame_to_html(df, pivot):
     return html
 
 
-def add_xml_header(contents):
-    """
-    Add xml header.
-
-    :param contents:
-    :return:
-    """
-    header = "<!--\n"
-    header += "\tThis file is generated with Lod4Stat.\n"
-    header += "\tCopyright (C) 2014 Provincia autonoma di Trento\n\n"
-    header += "\tREGARDS: Some obsValue has been omitted in order "
-    header += "to preserve the statical secret.\n"
-    header += "-->\n\n"
-    new_contents = header + contents
-    return new_contents
 

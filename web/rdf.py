@@ -24,7 +24,8 @@ from utils import get_metadata_on_column, \
     to_utf8,\
     get_column_description,\
     column_position_in_dataframe,\
-    add_xml_header
+    add_xml_header,\
+    add_sh_like_header
 
 
 my_ns = Namespace("http://ontology.trentinosistemi.com/ns/")
@@ -281,5 +282,9 @@ def rdf_report(sql,
                                  slice_t_ref,
                                  col_dict)
     ser = g.serialize(format=rdf_format)
-    ser = add_xml_header(ser)
+
+    if rdf_format == "xml":
+        ser = add_xml_header(ser)
+    elif rdf_format == "turtle":
+        ser = add_sh_like_header(ser)
     return ser
