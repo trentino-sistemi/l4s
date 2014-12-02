@@ -380,7 +380,7 @@ def row_secondary_suppression(data,
                     levels_list.remove("")
                 if l == 0:
                     start = 0
-                    end = len(data_frame.index.levels[l])-1
+                    end = len(data_frame.index.levels[l]) - 1
                     levels_contents.append(levels_list[start:end])
                 else:
                     levels_contents.append(levels_list)
@@ -395,7 +395,7 @@ def row_secondary_suppression(data,
                     levels_list.remove("")
                 if l == 0:
                     start = 0
-                    end = len(data_frame.index.levels[l])-1
+                    end = len(data_frame.index.levels[l]) - 1
                     levels_contents.append(levels_list[start:end])
                 else:
                     levels_contents.append(levels_list)
@@ -417,8 +417,12 @@ def row_secondary_suppression(data,
                     column_index = data_frame.columns.get_loc(col_tuples[ct])
                 except (KeyError, TypeError):
                     continue
-                start_col = column_index.start
-                stop_col = column_index.stop
+                if not isinstance(column_index, slice):
+                    start_col = 0
+                    stop_col = len(src_row) - 1
+                else:
+                    start_col = column_index.start
+                    stop_col = column_index.stop
                 sel_col = start_col
                 asterisk_count = 0
                 while sel_col != stop_col:
@@ -455,7 +459,6 @@ def row_secondary_suppression(data,
                         asterisk_count += 1
                         asterisk_global_count += asterisk_count
                     break
-                break
 
     return data, asterisk_global_count
 
