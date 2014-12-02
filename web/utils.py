@@ -2905,11 +2905,12 @@ def to_utf8(v):
     return v.encode('utf-8')
 
 
-def data_frame_to_html(df, pivot):
+def data_frame_to_html(df, visible, pivot):
     """
     Convert data frame in html language ready to be shown.
 
     :param df: Data frame.
+    :param visible: We must show all the data frame.
     :param pivot: Columns in pivot.
     :return: Html code to be rendered in a html page.
     """
@@ -2921,10 +2922,14 @@ def data_frame_to_html(df, pivot):
         else:
             df = df.drop(df.columns[0], axis=1)
 
-        html = df.to_html(classes="table table-striped",
-                          index=index_v,
-                          max_cols=EXPLORER_DEFAULT_COLS,
-                          max_rows=EXPLORER_DEFAULT_ROWS)
+        if not visible:
+            html = df.to_html(classes="table table-striped",
+                              index=index_v,
+                              max_cols=EXPLORER_DEFAULT_COLS,
+                              max_rows=EXPLORER_DEFAULT_ROWS)
+        else:
+            html = df.to_html(classes="table table-striped",
+                              index=index_v)
         #html = html.replace("...", "")
     return html
 
