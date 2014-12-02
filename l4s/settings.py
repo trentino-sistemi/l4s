@@ -221,6 +221,8 @@ LOCALE_PATHS = ('conf/locale',)
 
 CONTENT_TYPES = ['application/rdf+xml']
 
+LEGEND = "* = dato coperto da segreto statistico (art. 9 D.L. 322/89)"
+
 # Only defined in settings_local.py.
 LOCAL_APPS = ()
 try:

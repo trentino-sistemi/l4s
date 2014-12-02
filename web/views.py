@@ -32,7 +32,8 @@ from django.views.generic.edit import CreateView
 from l4s.settings import EXPLORER_PERMISSION_CHANGE, \
     EXPLORER_RECENT_QUERY_COUNT, \
     EXPLORER_CONNECTION_NAME, \
-    EXPLORER_PERMISSION_VIEW
+    EXPLORER_PERMISSION_VIEW, \
+    LEGEND
 from web.models import Metadata, ManualRequest, OntologyFileModel
 from web.forms import QueryForm, \
     UserChangeForm, \
@@ -1252,6 +1253,7 @@ def query_editor_view(request):
     context['debug'] = debug
     context['include_code'] = include_code
     context['ref_periods'] = ",".join(ref_periods.values())
+    context['legend'] = LEGEND
 
     column_description = build_description_column_dict(table_name,
                                                        table_schema)

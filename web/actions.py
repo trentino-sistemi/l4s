@@ -28,6 +28,7 @@ from tempfile import NamedTemporaryFile
 from pandas import ExcelWriter
 from web.pyjstat import to_json_stat
 from web.utils import unpivot, has_data_frame_multi_level_columns
+from l4s.settings import LEGEND
 import pandas as pd
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
@@ -144,13 +145,22 @@ def generate_report_action_xls(df):
                                   description,
                                   head_cell)
 
+        new_sheet.write(line_num + 2, 0, LEGEND, body_cell)
+        new_sheet.write_merge(line_num + 2,
+                              line_num + 2,
+                              0,
+                              1,
+                              LEGEND,
+                              body_cell)
+        line_num += 2
+
         k = 2 + line_num
         max_widths = dict()
         default_width = 10
         for col in range(sheet.ncols):
             max_widths[col] = default_width
-        #Copy rows from existing sheets
 
+        #Copy rows from existing sheets
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
@@ -249,6 +259,7 @@ def generate_report_action_xlsx(df):
 
         header_fill = PatternFill(patternType='solid',
                                   fgColor=Color('8B1F3F'))
+
         header_font = Font(color="FFFFFF", bold=True)
         header_style = Style(fill=header_fill, font=header_font)
 
@@ -283,7 +294,7 @@ def generate_report_action_xlsx(df):
             cell.value = description_label
             new_sheet.merge_cells(start_row=2,
                                   start_column=1,
-                                  end_row=line_num+1,
+                                  end_row=line_num + 1,
                                   end_column=1)
 
             cell = new_sheet.cell(row=2, column=2)
@@ -292,10 +303,20 @@ def generate_report_action_xlsx(df):
 
             new_sheet.merge_cells(start_row=2,
                                   start_column=2,
-                                  end_row=line_num+1,
-                                  end_column=header_len+1)
+                                  end_row=line_num + 1,
+                                  end_column=header_len + 1)
 
-        k = 2 + line_num
+        line_num += 3
+        cell = new_sheet.cell(row=line_num, column=1)
+        cell.value = LEGEND
+        cell.style = body_style
+
+        new_sheet.merge_cells(start_row=line_num,
+                              start_column=1,
+                              end_row=line_num,
+                              end_column=5)
+
+        k = 1 + line_num
         max_widths = dict()
 
         for r, row in enumerate(sheet.iter_rows()):
