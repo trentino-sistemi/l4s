@@ -134,7 +134,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% endif %}>{{ object }}
                     </a>
                 </td>
-                <td>{{ object.created_by }}</td>
                 <td>{{ object.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
                 {% if can_change and object.created_by == request.user.email %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
