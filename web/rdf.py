@@ -16,12 +16,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import string
-from rdflib import Graph, URIRef, Literal, BNode, Namespace, term
+from rdflib import Graph,URIRef, Literal, BNode, Namespace, term
 from rdflib.namespace import RDF, FOAF
 from utils import get_metadata_on_column, \
     get_subject_table,\
-    get_data_from_data_frame, to_utf8
-import ast
+    get_data_from_data_frame,\
+    to_utf8,\
+    get_column_description,\
+    column_position_in_dataframe,\
+    add_xml_header
 
 
 my_ns = Namespace("http://ontology.trentinosistemi.com/ns/")
@@ -76,23 +79,23 @@ def build_column_dict(data_frame, sql):
         declare_token = '--JOIN'
         if declare == declare_token:
             table_and_column = words[1]
-            index = ast.literal_eval(words[2])
             words = table_and_column.split('.')
             table_name = words[0]
             column_name = words[1]
+            column_description = get_column_description(table_name,
+                                                        column_name)
+            index = column_position_in_dataframe(column_description,
+                                                 data_frame)
             column_dict[index] = dict()
             column_dict[index]['table'] = table_name
             column_dict[index]['column'] = column_name
-        else:
-            continue
 
     col_dict = dict()
 
-    for c, col in enumerate(data_frame.columns):
-        if c not in column_dict:
-            continue
+    for c in column_dict:
         table_name = column_dict[c]['table']
         column_name = column_dict[c]['column']
+
         rows = get_metadata_on_column(table_name, column_name)
         for row in rows:
             t_predicate = "%s" % row[3]
@@ -173,10 +176,10 @@ def add_slice_triples(g, subject_t_ref, data_frame, col_dict):
     """
     for c, column in enumerate(data_frame.columns):
         column = to_utf8(column)
-        g.add((subject_t_ref, component_ref, Literal(column)))
+        g.add((subject_t_ref, component_ref, Literal(column.strip())))
         if c not in col_dict:
             continue
-        anode = BNode(Literal(column))
+        anode = BNode(Literal(column.strip()))
         items = col_dict[c]
         for item in items:
             source = "%s" % item.get_t_predicate()
@@ -211,7 +214,7 @@ def add_observations_triples(g, data, table_name, slice_t_ref,
                 if item.get_t_predicate().strip() != desc:
                     dest = item.get_t_object()
                     if '#' in dest:
-                        val = row[c + (len(row) - len(col_dict))]
+                        val = row[c]
                         value = "%s" % val
                         value = value.strip()
                         if not value.startswith('*'):
@@ -272,7 +275,11 @@ def rdf_report(sql,
 
     g = add_slice_triples(g, subject_t_ref,
                           data_frame, col_dict)
-    g = add_observations_triples(g, data, title,
-                                 slice_t_ref, col_dict)
+    g = add_observations_triples(g,
+                                 data,
+                                 title,
+                                 slice_t_ref,
+                                 col_dict)
     ser = g.serialize(format=rdf_format)
+    ser = add_xml_header(ser)
     return ser

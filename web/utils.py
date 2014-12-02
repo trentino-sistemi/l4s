@@ -1584,6 +1584,20 @@ def get_table_description(table):
     return ""
 
 
+def column_position_in_dataframe(column_description, data_frame):
+    """
+    Get the column position in dataframe.
+
+    :param column_description:
+    :param data_frame:
+    :return:
+    """
+    for c, col_name in enumerate(data_frame.columns):
+        if col_name == column_description:
+            return c
+    return -1
+
+
 def get_column_description(table_name, column):
     """
     Return the description of the column.
@@ -2879,3 +2893,21 @@ def data_frame_to_html(df, pivot):
                           max_rows=EXPLORER_DEFAULT_ROWS)
         #html = html.replace("...", "")
     return html
+
+
+def add_xml_header(contents):
+    """
+    Add xml header.
+
+    :param contents:
+    :return:
+    """
+    header = "<!--\n"
+    header += "\tThis file is generated with Lod4Stat.\n"
+    header += "\tCopyright (C) 2014 Provincia autonoma di Trento\n\n"
+    header += "\tREGARDS: Some obsValue has been omitted in order "
+    header += "to preserve the statical secret.\n"
+    header += "-->\n\n"
+    new_contents = header + contents
+    return new_contents
+

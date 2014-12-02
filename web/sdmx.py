@@ -20,7 +20,11 @@ import sdmx_message as sdmx
 import time
 from datetime import datetime
 from l4s.settings import SENDER, LANGUAGE_CODE, SENDER_NAME
-from web.utils import get_metadata_on_column, get_data_from_data_frame
+from web.utils import get_metadata_on_column,\
+    get_data_from_data_frame,\
+    get_column_description,\
+    column_position_in_dataframe,\
+    add_xml_header
 
 
 class Item(object):
@@ -59,15 +63,16 @@ def build_column_dict(data_frame, sql):
         declare_token = '--JOIN'
         if declare == declare_token:
             table_and_column = words[1]
-            index = int(words[2])
             words = table_and_column.split('.')
             table_name = words[0]
             column_name = words[1]
+            column_description = get_column_description(table_name,
+                                                        column_name)
+            index = column_position_in_dataframe(column_description,
+                                                 data_frame)
             column_dict[index] = dict()
             column_dict[index]['table'] = table_name
             column_dict[index]['column'] = column_name
-        else:
-            continue
 
     col_dict = dict()
 
@@ -158,10 +163,7 @@ def sdmx_report(sql, data_frame=None):
         series_key = sdmx.SeriesKeyType()
         obs = sdmx.ObsType()
         for c in col_dict:
-            if len(row) > len(data_frame.columns):
-                v = row[c + (len(row) - len(data_frame.columns))]
-            else:
-                v = row[c]
+            v = row[c]
             val = "%s" % v
             value = sdmx.ValueType()
             concept = get_concept(col_dict, c)
@@ -172,7 +174,7 @@ def sdmx_report(sql, data_frame=None):
                     obs.set_ObsValue(obs_value)
             elif concept is not None:
                 value.set_concept(concept)
-                value.set_value(val)
+                value.set_value(val.strip())
                 series_key.add_Value(value)
         series.set_SeriesKey(series_key)
         series.add_Obs(obs)
@@ -181,4 +183,7 @@ def sdmx_report(sql, data_frame=None):
     generic_data.set_DataSet(data_set)
     generic_data.export(out_stream, 0)
 
-    return out_stream.getvalue()
+    value = out_stream.getvalue()
+    value = add_xml_header(value)
+
+    return value
