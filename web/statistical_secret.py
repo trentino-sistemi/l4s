@@ -1429,16 +1429,15 @@ def apply_stat_secret(headers,
                                       pivot_cols,
                                       rows,
                                       pivot_values)
-
-        if visible and not debug:
-            return data, headers, data_frame, warn, err
+        if err:
+            return rows, headers, None, warn, err
 
         if len(obs_vals) > 1:
             data_frame = data_frame.stack(0)
             data = get_data_from_data_frame(data_frame)
 
-        if err:
-            return rows, headers, None, warn, err
+        if visible and not debug:
+            return data, headers, data_frame, warn, err
 
         data = apply_constraint_pivot(data,
                                       data_frame,
@@ -1566,7 +1565,6 @@ def headers_and_data(query,
                                                      st.threshold,
                                                      st.constraint,
                                                      debug)
-
         # Check id I can give the full result set.
         elif (len(st.secret) + len(st.constraint) + len(st.secret_ref) == 0) \
                 or (pivot_cols is not None and len(pivot_cols) > 0):
