@@ -84,8 +84,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                      src="/static/img/topics/{{ icons|lookup:topic }}"
                      height="80px"/>
             </a>
+        </td>
         <td>
-            <p><a href="/query_editor?topic={{ topic }}">{{ topics|lookup:topic }}</a>({{ topics_counter|lookup:topic }} dataset)</p>
+            <p><a href="/query_editor?topic={{ topic }}">{{ topics|lookup:topic }}</a> ({{ topics_counter|lookup:topic }} dataset)</p>
             <p>
                 {% for keyword in keywords|lookup:topic %}
                    {{ keyword }}{% if not forloop.last %}, {% endif %}
@@ -109,7 +110,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                      src="/static/img/topics/{{ icons|lookup:topic }}"
                      height="80px"/>
             </a>
-        <td>
+        </td>
         {% else %}
         {% if table in topic_dict %}
         {% with topic_dict|lookup:table as inntopic %}
@@ -120,14 +121,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                      src="/static/img/topics/{{ icons|lookup:inntopic }}"
                      height="80px"/>
             </a>
-        <td>
+        </td>
         {% endwith %}
+        {% endif %}
+        {% endif %}
         <td>
             <a href=javascript:open_query("{{ table }}")>{{ table_description|lookup:table }}</a></p>
         </td>
-        {% endif %}
-        {% endif %}
-
     </tr>
     {% endfor %}
     {% endif %}
