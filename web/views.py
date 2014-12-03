@@ -85,7 +85,8 @@ from web.utils import get_variable_dictionary, \
     build_topic_icons,\
     found_column_position, \
     exclude_invisible_tables, \
-    all_visible_tables
+    all_visible_tables,\
+    build_queries_to_tables_mapping
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -934,6 +935,13 @@ def query_list(request):
 
     search = request.GET.get('search', '')
     public = request.GET.get('public', '')
+    topic = request.GET.get('topic')
+
+    if topic is not None and topic != "":
+        selected_topic = ast.literal_eval(topic)
+    else:
+        # Topic 0 means that all the topics will be displayed.
+        selected_topic = 0
 
     objects = (Query.objects.filter(created_by=request.user) |
                Query.objects.filter(is_public='true'))
@@ -941,19 +949,43 @@ def query_list(request):
         objects = objects & (Query.objects.filter(title__icontains=search) |
                              Query.objects.filter(
                                  description__icontains=search))
+
+    query_to_tables = build_queries_to_tables_mapping(objects)
+    queries_to_topics = dict()
+    for pk in query_to_tables:
+        table_name = query_to_tables[pk]
+        topic = get_topic_id(table_name)
+        if topic != 999:
+            queries_to_topics[pk] = topic
+
     criteria = "None"
     order_by = request.GET.get('order_by')
     if not order_by is None and order_by != "":
         criteria = order_by
-        objects = objects.order_by(criteria)
+        if criteria == "topic":
+            tab_top = sorted(queries_to_topics.items(), key=lambda x: x[1])
+            query_pks = [z[0] for z in tab_top]
+            objects = []
+            for pk in query_pks:
+                query = Query.objects.get(pk=pk)
+                objects.append(query)
+        else:
+            objects = objects.order_by(criteria)
     else:
         objects = objects.order_by('-created_at')
 
+    topic_mapping = build_topics_decoder_dict()
+    icons = build_topic_icons()
+
     context = Context({'object_list': objects})
+    context['selected_topic'] = selected_topic
+    context['icons'] = icons
     context['request'] = request
     context['can_change'] = EXPLORER_PERMISSION_CHANGE(request.user)
     context['order_by'] = criteria
     context['public'] = public
+    context['tables'] = queries_to_topics
+    context['topics'] = topic_mapping
     return render_to_response("explorer/query_list.html", context)
 
 
@@ -1312,7 +1344,6 @@ def query_editor_save_done(request):
     form = CreateQueryEditorForm(request.POST)
     if form.is_valid():
         pk = request.REQUEST.get('pk')
-        print "'%s'" % pk
         if pk == "-1":
             form.save()
         else:

@@ -1755,6 +1755,22 @@ def email_new_manual_request(instance):
               fail_silently=False)
 
 
+def build_queries_to_tables_mapping(queries):
+    """
+    Build a dictionary with key the query pk and as value the table name used.
+
+    :param queries: Query model list.
+    :return:
+    """
+    ret = dict()
+    for query in queries:
+        m = re.findall ( r'--JOIN\ (.+?)\.', query.sql, re.DOTALL)
+        table_list = list(set(m))
+        if len(table_list) != 0:
+            ret[query.pk] = list(set(m))[0]
+    return ret
+
+
 def build_topic_keywords():
     """
     Build a dictionary with key the topic and value the list of keywords.

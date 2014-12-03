@@ -78,7 +78,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% if topic in topics_counter %}
     <tr>
         <td width="100px">
-            <a href="/query_editor?topic={{ topic }}">
+            <a title="{{ topics|lookup:topic }}"
+               href="/query_editor?topic={{ topic }}">
                 <img align="left"
                      src="/static/img/topics/{{ icons|lookup:topic }}"
                      height="80px"/>
@@ -102,7 +103,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <tr>
         {% if topic != 0 %}
         <td width="100px">
-            <a href="/query_editor?topic={{ topic }}">
+            <a title="{{ topics|lookup:topic }}"
+               href="/query_editor?topic={{ topic }}">
                 <img align="left"
                      src="/static/img/topics/{{ icons|lookup:topic }}"
                      height="80px"/>
@@ -112,21 +114,20 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         {% if table in topic_dict %}
         {% with topic_dict|lookup:table as inntopic %}
         <td width="100px">
-            <a href="/query_editor?topic={{ inntopic }}">
+            <a title="{{ topics|lookup:inntopic }}"
+               href="/query_editor?topic={{ inntopic }}">
                 <img align="left"
                      src="/static/img/topics/{{ icons|lookup:inntopic }}"
                      height="80px"/>
             </a>
         <td>
         {% endwith %}
-        {% else %}
-        <td width="100px">
-        <td></td>
-        {% endif %}
-        {% endif %}
         <td>
             <a href=javascript:open_query("{{ table }}")>{{ table_description|lookup:table }}</a></p>
         </td>
+        {% endif %}
+        {% endif %}
+
     </tr>
     {% endfor %}
     {% endif %}

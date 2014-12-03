@@ -143,7 +143,7 @@ def build_topics_decoder_dict():
     if rows is not None:
         for row in rows:
             key = row[1]
-            value = row[2]
+            value = row[2].strip()
             topics_dict[key] = value
     return topics_dict
 

@@ -20,6 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {% extends "explorer/base.html" %}
 {% load i18n %}
+{% load dictionary_extras %}
 
 {% block sql_explorer_content %}
 
@@ -29,21 +30,38 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </ul>
 </div>
 <div class="col-lg-3 nav navbar-nav navbar-right">
-    <form method="GET"
-          data-position="right"
-          data-intro="{% trans "Search queries by name and description; insert a word and push the 'Search' button in order to search queries" %}">
+    <form method="GET">
 
-    <div class="input-group">
-        <input type="text" class="form-control"
-               name="search"
-               value="{{ request.GET.search }}">
-      <span class="input-group-btn">
-        <button title="{% trans "Search queries by name and description; insert a word and push the 'Search' button in order to search queries" %}" class="btn btn-default" type="submit">{% trans "Search" %}
-        </button>
-      </span>
-
-    </div>
-    </form>
+        <select name='topic'
+                data-position="left"
+                class="form-control"
+                data-intro="{% trans " Filter list of tables by topics; push 'Search' button to filter tables" %}">
+        <option value="0">{% trans "All topics" %}</option>
+        {% for topic in topics %}
+        {% if topic == selected_topic %}
+        <option value="{{ topic }}" selected>
+            {{ topics|lookup:topic }}
+        </option>
+        {% else %}
+        <option value="{{ topic }}">
+            {{ topics|lookup:topic }}
+        </option>
+        {% endif %}
+        {% endfor %}
+        </select>
+        <div data-position="right"
+             class="input-group"
+             data-intro="{% trans " Filter list of tables by name and description; push 'Search' button to filter tables" %}">
+             <input type="text"
+                    placeholder="{% trans "Free text search..." %}"
+                    class="form-control"
+                    name="search"
+                    value="{{ request.GET.search }}">
+             <span class="input-group-btn">
+                 <button class="btn btn-default" type="submit">{% trans "Search" %}</button>
+            </span>
+         </div>
+     </form>
 </div>
 
 
@@ -66,11 +84,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <table class="table table-striped">
             <thead>
             <tr>
+                 <th data-intro="{% trans "Topic" %}">
+                     <a title="{% trans "Sort queries for topic" %}"
+                        href="/explorer?order_by=topic">{% trans "Topic" %}
+                     </a>
+                     <a id="topic" href="/explorer?order_by=topic">
+                        <span class="caret"></span>
+                     </a>
+                </th>
                 <th data-intro="{% trans "Query id" %}">
                      <a title="{% trans "Sort queries for id" %}"
                         href="/explorer?order_by=id">{% trans "Id" %}
                      </a>
-                     <a id="title" href="/explorer?order_by=title">
+                     <a id="id" href="/explorer?order_by=id">
                         <span class="caret"></span>
                      </a>
                 </th>
@@ -97,7 +123,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
             {% for object in object_list %}
             {% if object.is_public %}
+            {% if object.id in tables %}
+            {% with tables|lookup:object.id as topic %}
+            {% if selected_topic == 0 or topic == selected_topic %}
             <tr>
+                <td width="100px">
+                    <a title="{{ topics|lookup:topic }}"
+                       href="/query_editor?topic={{ topic }}">
+                        <img align="left"
+                             src="/static/img/topics/{{ icons|lookup:topic }}"
+                             height="80px"/>
+                    </a>
+                </td>
                 <td>
                     {% if object.query_editor %}
                     <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
@@ -156,6 +193,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% endif %}
             </tr>
             {% endif %}
+            {% endwith %}
+            {% endif %}
+            {% endif %}
             {% endfor %}
             </tbody>
         </table>
@@ -183,11 +223,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <table class="table table-striped">
             <thead>
             <tr>
+                <th data-intro="{% trans "Topic" %}">
+                     <a title="{% trans "Sort queries for topic" %}"
+                        href="/explorer?order_by=topic">{% trans "Topic" %}
+                     </a>
+                     <a id="topic" href="/explorer?order_by=topic">
+                        <span class="caret"></span>
+                     </a>
+                </th>
                 <th data-intro="{% trans "Query id" %}">
                      <a title="{% trans "Sort queries for id" %}"
                         href="/explorer?order_by=id">{% trans "Id" %}
                      </a>
-                     <a id="title" href="/explorer?order_by=title">
+                     <a id="id_private" href="/explorer?order_by=id">
                         <span class="caret"></span>
                      </a>
                 </th>
@@ -216,7 +264,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             <tbody>
             {% for object in object_list %}
             {% if object.created_by == request.user.email %}
+            {% with tables|lookup:object.id as topic %}
+            {% if selected_topic == 0 or topic == selected_topic %}
             <tr>
+                <td width="100px">
+                    <a title="{{ topics|lookup:topic }}"
+                       href="/query_editor?topic={{ topic }}">
+                        <img align="left"
+                             src="/static/img/topics/{{ icons|lookup:topic }}"
+                             height="80px"/>
+                    </a>
+                </td>
                 <td>
                     {% if object.query_editor %}
                     <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
@@ -275,6 +333,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% endif %}
             </tr>
             {% endif %}
+            {% endwith %}
+            {% endif %}
             {% endfor %}
             </tbody>
         </table>
@@ -297,7 +357,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </a>
             </p>
         </div>
-
         {% endif %}
     </div>
 </div>
