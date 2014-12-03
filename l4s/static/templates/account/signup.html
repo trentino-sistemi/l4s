@@ -166,8 +166,8 @@ function validate_form() {
 }
 
 function show_license(check) {
+    var radio = document.getElementById('accept_license');
     if (check) {
-       var radio = document.getElementById('accept_license');
        if (! radio.checked) {
           return;
        }
@@ -180,8 +180,27 @@ function show_license(check) {
             var parser = new DOMParser ();
             var responseDoc = parser.parseFromString (response, "text/html");
             var body = responseDoc.getElementById('wrap');
-            $('#popup-body').html(body);
-            $('#popup').modal('show');
+            var confirm = "{% trans "I accept" %}";
+            var cancel = "{% trans "I don't accept" %}";
+            bootbox.dialog({
+                message: body,
+                buttons: {
+                    success: {
+                        label: confirm,
+                        className: "btn-danger",
+                        callback: function() {
+                            radio.checked = true;
+                        }
+                    },
+                    danger: {
+                        label: cancel,
+                        className: "btn-success",
+                        callback: function() {
+                            radio.checked = false;
+                        }
+                    }
+                }
+            });
 	    },
         error: function(xhr, status) {
             bootbox.alert(xhr.responseText);
