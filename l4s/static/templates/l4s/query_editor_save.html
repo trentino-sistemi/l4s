@@ -34,7 +34,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 </head>
 
 <body>
-
 <form id='frm'
       method="POST"
       role="form"
@@ -61,17 +60,24 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </button>
 </p>
 <script>
-function submit_form() {
-    title = document.getElementById('id_title').value;
-    if (title == '') {
-        bootbox.alert('{% trans "The field" %}' + " " +
-                      '{% trans "Title" %}' + " " +
-                      '{% trans "is required" %}' + '.');
-        return false;
-    }
+
+function override_popup() {
+    var msg = "{% trans "The query already exists." %}";
+    msg += " " + "{% trans "Do you want to overwrite it?" %}";
+    var dialog = bootbox.confirm(msg, function(result) {
+        return result;
+    });
+}
+
+function post_form(pk) {
+    var new_input = '<input id="id_pk" name="pk" type="hidden" value="'
+                    + pk + '"/>';
+    $('#frm').append(new_input);
+    serialized_form = $('#frm').serialize();
+
     url="/query_editor_save_done/";
     $.ajax({ // create an AJAX call...
-        data: $('#frm').serialize(), // get the form data
+        data: serialized_form, // get the form data
         type: $('#frm').attr('method'), // GET or POST
         url: url, // the file to call
         success: function(response) { // on success..
@@ -82,5 +88,32 @@ function submit_form() {
 	    }
     });
 }
+
+function submit_form() {
+    var url="/query_editor_save_check/";
+    var serialized_form = $('#frm').serialize();
+    var pk = $.ajax({ // create an AJAX call...
+        data: serialized_form, // get the form data
+        type: "POST",
+        url: url,
+        async: false
+    }).responseText;
+
+    if (pk != "-1") {
+       //result = override_popup();
+       var msg = "{% trans "The query already exists." %}";
+       msg += " " + "{% trans "Do you want to overwrite it?" %}";
+       var dialog = bootbox.confirm(msg, function(result) {
+           if (result) {
+              post_form(pk);
+           }
+       });
+    }
+    else {
+       post_form(pk);
+    }
+
+}
+
 </script>
 </body>

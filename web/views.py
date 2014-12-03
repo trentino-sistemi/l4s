@@ -29,6 +29,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 from django.views.generic.edit import CreateView
+from django.core.exceptions import ObjectDoesNotExist
 from l4s.settings import EXPLORER_PERMISSION_CHANGE, \
     EXPLORER_RECENT_QUERY_COUNT, \
     EXPLORER_CONNECTION_NAME, \
@@ -1310,12 +1311,43 @@ def query_editor_save_done(request):
     context = RequestContext(request)
     form = CreateQueryEditorForm(request.POST)
     if form.is_valid():
-        form.save()
+        pk = request.REQUEST.get('pk')
+        print "'%s'" % pk
+        if pk == "-1":
+            form.save()
+        else:
+            pk_int = ast.literal_eval(pk)
+            query = Query.objects.get(pk=pk_int)
+            form = CreateQueryEditorForm(request.POST, instance=query)
+            form.save()
+
         return HttpResponse('<script type="text/javascript">'
                             "$('#popup').modal('hide');"
                             '</script>')
+
     context['form'] = form
     return render_to_response("l4s/query_editor_save.html", context)
+
+
+def query_editor_save_check(request):
+    """
+    Check that if exists a query
+    with the same name for the same user.
+    It return the public key of the query found or -1 if it is not found.
+
+    :param request: Django request.
+    :return: pk in HttpResponse.
+    """
+
+    title = request.REQUEST.get('title')
+    author = request.REQUEST.get('created_by')
+    try:
+        query = Query.objects.get(title=title, created_by=author)
+        pk = query.pk
+    except ObjectDoesNotExist:
+        pk = -1
+
+    return HttpResponse(pk)
 
 
 def query_editor_save(request):
