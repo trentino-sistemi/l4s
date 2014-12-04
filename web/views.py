@@ -34,7 +34,7 @@ from l4s.settings import EXPLORER_PERMISSION_CHANGE, \
     EXPLORER_RECENT_QUERY_COUNT, \
     EXPLORER_CONNECTION_NAME, \
     EXPLORER_PERMISSION_VIEW, \
-    LEGEND
+    LEGEND, DL_ART
 from web.models import Metadata, ManualRequest, OntologyFileModel
 from web.forms import QueryForm, \
     UserChangeForm, \
@@ -1287,6 +1287,7 @@ def query_editor_view(request):
     context['include_code'] = include_code
     context['ref_periods'] = ",".join(ref_periods.values())
     context['legend'] = LEGEND
+    context['dl_art'] = DL_ART
 
     column_description = build_description_column_dict(table_name,
                                                        table_schema)

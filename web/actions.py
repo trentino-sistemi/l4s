@@ -28,7 +28,7 @@ from tempfile import NamedTemporaryFile
 from pandas import ExcelWriter
 from web.pyjstat import to_json_stat
 from web.utils import unpivot, has_data_frame_multi_level_columns
-from l4s.settings import LEGEND
+from l4s.settings import LEGEND, DL_ART
 import pandas as pd
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
@@ -145,12 +145,13 @@ def generate_report_action_xls(df):
                                   description,
                                   head_cell)
 
-        new_sheet.write(line_num + 2, 0, LEGEND, body_cell)
+        legend = "%s (%s)" % (LEGEND, DL_ART)
+        new_sheet.write(line_num + 2, 0, legend, body_cell)
         new_sheet.write_merge(line_num + 2,
                               line_num + 2,
                               0,
                               1,
-                              LEGEND,
+                              legend,
                               body_cell)
         line_num += 2
 
@@ -308,7 +309,7 @@ def generate_report_action_xlsx(df):
 
         line_num += 3
         cell = new_sheet.cell(row=line_num, column=1)
-        cell.value = LEGEND
+        cell.value = "%s (%s)" % (LEGEND, DL_ART)
         cell.style = body_style
 
         new_sheet.merge_cells(start_row=line_num,
