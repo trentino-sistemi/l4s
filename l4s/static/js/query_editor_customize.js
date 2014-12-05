@@ -92,10 +92,7 @@ function get_lis(id) {
     return output.join(",");
 }
 
-function get_aggregations() {
-    col_el = document.getElementById('columnFields');
-    row_el = document.getElementById('rowFields');
-    
+function get_aggregations() {  
     var radios = document.getElementsByTagName('input');
     var output = [];
     for (var i = 0; i < radios.length; i++) {
