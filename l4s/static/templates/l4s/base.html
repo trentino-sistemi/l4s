@@ -72,12 +72,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="/query_editor">
-                                    {% trans "Query Editor" %}
+                                    {% trans "Query editor" %}
                                 </a>
                             </li>
                             <li>
                                 <a href="/explorer">
-                                    {% trans "List Query" %}
+                                    {% trans "Saved queries" %}
                                 </a>
                             </li>
                             <li>
@@ -147,28 +147,28 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     </li>
                     {% if request.user.is_authenticated %}
                     <li>
-                        <a class="btn-info" href="/user_profile"
+                        <a class="btn" href="/user_profile"
                            data-position="top"
                            data-intro="{% trans " Logged user profile" %}">
                         {% trans "Profile" %}
                         </a>
                     </li>
                     <li>
-                        <a class="btn-info" href="/accounts/logout/"
+                        <a class="btn" href="/accounts/logout/"
                            data-intro="{% trans " Logout from" %} Lod4Stat">
                         {% trans "Logout" %}
                         </a>
                     </li>
                     {% else %}
                     <li>
-                        <a class="btn-info" href="/accounts/login/"
+                        <a class="btn" href="/accounts/login/"
                            data-position="top"
                            data-intro="{% trans " Login with user and password to" %} Lod4Stat">
                         {% trans "Login" %}
                         </a>
                     </li>
                     <li>
-                        <a class="btn-info" href="/accounts/signup/"
+                        <a class="btn" href="/accounts/signup/"
                            data-intro="{% trans " Signup to" %} Lod4Stat">
                         {% trans "Sign Up" %}
                         </a>

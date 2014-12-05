@@ -42,7 +42,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 data-position="left"
                 class="form-control"
                 data-intro="{% trans " Filter list of tables by topics; push 'Search' button to filter tables" %}">
-        <option value="0">{% trans "All topics" %}</option>
+        <option value="0">{% trans "All topics available" %}</option>
         {% for topic in topics %}
         {% if topic == selected_topic %}
         <option value="{{ topic }}" selected>
