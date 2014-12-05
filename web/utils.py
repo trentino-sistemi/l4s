@@ -779,15 +779,18 @@ def remove_code_from_data_frame(df):
     return df
 
 
-def is_to_be_sorted_by_description(table, column):
+def is_to_be_sorted_by_description(foreign_keys, column):
     """
     Is the column to be sorted by description?
 
-    :param table: Table name.
+    :param foreign_keys: Foreign keys.
     :param column: Column name.
     :return: Boolean.
     """
-    val = get_key_column_value(table, column, "order_by")
+    f = foreign_keys[column]
+    f_table = f[0]
+    f_column = f[1]
+    val = get_key_column_value(f_table, f_column, "order_by")
     if val is not None and val == "description":
         return False
     return True
@@ -841,7 +844,8 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                     alias = dest_column
                 alias = "%s" % alias
                 alias = alias.strip()
-                sort_by_code = is_to_be_sorted_by_description(table, field)
+                sort_by_code = is_to_be_sorted_by_description(fk_hash[table],
+                                                              field)
                 if include_code or sort_by_code:
                     desc_query += "%s.%s " % (main_table, field)
                     code_name = "%s %s" % (CODE, alias)
