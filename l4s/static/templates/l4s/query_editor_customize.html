@@ -50,7 +50,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </tr>
     <tr>
 
-        <td style="background-color:#a1284c" class="pvtAxisContainer pvtUnused pvtHorizList ui-sortable drag_ul"
+        <td style="background-color:#bcdef0" class="pvtAxisContainer pvtUnused pvtHorizList ui-sortable drag_ul"
             id="unselectedFields">
             {% for field in fields %}
             {% if not field in obs_values %}
@@ -146,11 +146,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <table border="1" class="table">
     <tr>
         <td></td>
-        <th style="color:#ffffff; background-color:#a1284c">{% trans "Column" %}</th>
+        <th style="color:#375a7f; background-color:#cacaca">{% trans "Column" %}</th>
     </tr>
     <tr>
-        <th style="color:#ffffff; background-color:#a1284c">{% trans "Row" %}</th>
-        <td style="background-color:#a1284c" class="pvtAxisContainer pvtHorizList pvtCols ui-sortable drag_ul"
+        <th style="color:#375a7f; background-color:#cacaca">{% trans "Row" %}</th>
+        <td style="background-color:#bcdef0" class="pvtAxisContainer pvtHorizList pvtCols ui-sortable drag_ul"
             id="columnFields">
             {% for f in columns %}
             {% with columns|lookup:f as field %}
@@ -227,7 +227,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </td>
     </tr>
     <tr style="height:200px">
-        <td style="width:80;background-color:#a1284c" valign="top"
+        <td style="width:80;background-color:#bcdef0" valign="top"
             class="pvtAxisContainer pvtRows ui-sortable drag_ul"
             id="rowFields">
             {% for f in rows %}
@@ -304,7 +304,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% endfor %}
         </td>
         <td>
-            <table style="width:100%;height:200;background-color:#a1284cmarine" border="1" class="table">
+            <table style="width:100%;height:200;background-color:#a1284" border="1" class="table">
                 <th>{% trans "Data" %}</th>
                 <tr>
                     <td style="width:150px;height:100%" valign="top"

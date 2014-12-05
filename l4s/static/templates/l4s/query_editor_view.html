@@ -53,20 +53,16 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 </div>
 <h3>{{ title }}</h3>
 <div style="overflow: auto; max-heigth: 100%;" id="overflow_wrapper">
-    <center>
-        <table border="1" class="dataframe table table-striped">
+        <table style="width:auto" class="table">
             {% for agg in agg_col %}
-            <thead>
             <tr>
                 <th colspan="2">{{ agg_col|lookup:agg|lookup:"title" }}</th>
             </tr>
-            </thead>
             {% endfor %}
             {% for sel in sel_tab %}
-            <thead>
             <tr>
-                <th>{{ sel }}</th>
-                <th>
+                <td>{{ sel }}</td>
+                <td>
                     {% if sel_tab|lookup:sel|length > 1 %}
                     {{ sel_tab|lookup:sel|length }} {% trans "values" %}:
                     {% endif %}
@@ -80,12 +76,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <div id="more" class="collapse">{% for s in sel_tab|lookup:sel|slice:"9:" %}{{s}}, {% endfor %}</div>
                     {% else %}{% if not forloop.last %},{% endif %}{% endif %}
                     {% endfor %}
-                </th>
+                </td>
             </tr>
-            </thead>
             {% endfor %}
         </table>
-    </center>
      <h5>{{ legend }} (<a href="http://en.istat.it/dlgs322.pdf">{{dl_art}}</a>)</h5>
 {% if error %}
 <div class="alert alert-danger">
