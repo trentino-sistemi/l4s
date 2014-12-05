@@ -367,7 +367,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <script>
 $(document).ready(function(){
     initToken();
-    //console.log($('a[data-toggle="tab"]:first').tab('show'))
     $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
         //save the latest tab; use cookies if you like 'em better:
         localStorage.setItem('lastTab', $(this).attr('href'));
@@ -376,6 +375,9 @@ $(document).ready(function(){
     public = "{{public}}";
     if (public == "true") {
         $('a[data-toggle="tab"]:first').tab('show');
+    }
+    else if (public == "false") {
+        $('a[href=#my_queries]').tab('show');
     }
     else {
         //go to the latest tab, if it exists:

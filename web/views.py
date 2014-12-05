@@ -1354,7 +1354,12 @@ def query_editor_save_done(request):
             form = CreateQueryEditorForm(request.POST, instance=query)
             form.save()
 
+        link = '/explorer?public=false'
+        here = unicode(_("here"))
         body = unicode(_("The query has been saved")).replace('\'','\\\'')
+        body += '.<br>'
+        body += unicode(_("In order to see the saved queries click"))
+        body += ' <a href="%s">%s</a>' % (link, here)
         http_response = '<script type="text/javascript">'
         http_response += "$('#popup').modal('hide');"
         http_response += "bootbox.alert('%s');" % body
