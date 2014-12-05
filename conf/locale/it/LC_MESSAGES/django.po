@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-05 16:20+0100\n"
-"PO-Revision-Date: 2014-12-05 16:20+0100\n"
+"POT-Creation-Date: 2014-12-05 16:56+0100\n"
+"PO-Revision-Date: 2014-12-05 16:56+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -1315,6 +1315,10 @@ msgstr "su una delle colonne della tabella"
 #: web/views.py:1319
 msgid "Can not display the requested content"
 msgstr "Impossibile mostrare il contenuto richiesto"
+
+#: web/views.py:1357
+msgid "The query has been saved"
+msgstr "L'interrogazione è stata salvata"
 
 #~ msgid "Preview"
 #~ msgstr "Anteprima"

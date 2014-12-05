@@ -1354,9 +1354,13 @@ def query_editor_save_done(request):
             form = CreateQueryEditorForm(request.POST, instance=query)
             form.save()
 
-        return HttpResponse('<script type="text/javascript">'
-                            "$('#popup').modal('hide');"
-                            '</script>')
+        body = unicode(_("The query has been saved")).replace('\'','\\\'')
+        http_response = '<script type="text/javascript">'
+        http_response += "$('#popup').modal('hide');"
+        http_response += "bootbox.alert('%s');" % body
+        http_response += '</script>'
+
+        return HttpResponse(http_response)
 
     context['form'] = form
     return render_to_response("l4s/query_editor_save.html", context)
