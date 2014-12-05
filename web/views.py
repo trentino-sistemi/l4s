@@ -1201,7 +1201,7 @@ def query_editor_view(request):
     aggregation = request.REQUEST.get('aggregate', "")
     aggregation_ids = []
     if aggregation is not None and aggregation != "":
-        aggregation_ids = [x for x in aggregation.split(',')]
+        aggregation_ids = [ast.literal_eval(x) for x in aggregation.split(',')]
 
     values = dict()
     table_schema = get_table_schema(table_name)
@@ -1296,6 +1296,7 @@ def query_editor_view(request):
                                            values,
                                            filters,
                                            aggregation_ids,
+                                           aggregations,
                                            agg_values,
                                            agg_filters,
                                            cols,

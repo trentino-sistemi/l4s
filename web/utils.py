@@ -651,7 +651,7 @@ def build_query(table_name,
     obs_fields = []
 
     for agg in aggregation_ids:
-        annotation += "%s %s\n" % (AGGREGATION_TOKEN, agg)
+        annotation += "%s %d\n" % (AGGREGATION_TOKEN, agg)
 
     position = 0
     for obs_value in obs_values:
@@ -1764,7 +1764,7 @@ def build_queries_to_tables_mapping(queries):
     """
     ret = dict()
     for query in queries:
-        m = re.findall ( r'--JOIN\ (.+?)\.', query.sql, re.DOTALL)
+        m = re.findall(r'%s\ (.+?)\.' % JOIN_TOKEN, query.sql, re.DOTALL)
         table_list = list(set(m))
         if len(table_list) != 0:
             ret[query.pk] = list(set(m))[0]
@@ -2356,38 +2356,39 @@ def get_all_aggregations(table_name):
     """
     agg = dict()
     agg_values = dict()
+    fks = build_foreign_keys(table_name)
+    for col in fks:
+        tup = fks[col]
+        ref_tab = tup[0]
+        ref_col = tup[1]
+        query = "SELECT b.id, b.table_name, b.column_name, "
+        query += "d.table_name, d.column_name \n"
+        query += "FROM web_metadata b \n"
+        query += "JOIN web_metadata d ON( \n"
+        query += "b.key='%s' \n" % LOCATED_IN_AREA
+        query += "and b.table_name='%s' \n" % ref_tab
+        query += "and b.column_name = '%s' \n" % ref_col
+        query += "and d.key = '%s' \n" % CONCEPT
+        query += "and d.value = b.value \n"
+        query += ")"
+        rows = execute_query_on_django_db(query)
 
-    query = "SELECT b.id, b.table_name, b.column_name, "
-    query += "d.table_name, d.column_name \n"
-    query += "FROM web_metadata b \n"
-    query += "JOIN web_metadata d ON( \n"
-    query += "b.key='%s' \n" % LOCATED_IN_AREA
-    query += "and b.table_name='%s' \n" % table_name
-    query += "and d.column_name != 'NULL' \n"
-    query += "and d.key = '%s' \n" % CONCEPT
-    query += "and d.value = b.value \n"
-    query += ")"
-
-    rows = execute_query_on_django_db(query)
-    if not rows is None:
-        for row in rows:
-            pk = row[0]
-            table_name = row[1]
-            column_name = row[2]
-            ref_tab = row[3]
-            ref_col = row[4]
-            src_description = get_column_description(table_name, column_name)
-            if src_description is None or src_description == "":
-                src_description = column_name
-
-            ref_description = get_column_description(ref_tab, ref_col)
-            if ref_description is None or ref_description == "":
-                ref_description = ref_col
-            if not src_description in agg:
-                agg[src_description] = dict()
-            agg[src_description][pk] = ref_description
-            vals = get_all_field_values(ref_tab, ref_col, None)
-            agg_values[pk] = vals
+        if not rows is None:
+            for row in rows:
+                pk = row[0]
+                ref_tab = row[3]
+                ref_col = row[4]
+                src_description = get_column_description(table_name, col)
+                if src_description is None or src_description == "":
+                    src_description = col
+                ref_description = get_column_description(ref_tab, ref_col)
+                if ref_description is None or ref_description == "":
+                    ref_description = ref_col
+                if not src_description in agg:
+                    agg[src_description] = dict()
+                agg[src_description][pk] = ref_description
+                vals = get_all_field_values(ref_tab, ref_col, None)
+                agg_values[pk] = vals
 
     metadata_list = Metadata.objects.filter(table_name=table_name,
                                             key=CLASS)
@@ -2613,25 +2614,26 @@ def build_agg_summarize_filters(target_col_desc,
     return ret
 
 
-def build_aggregation_title(agg_id):
+def build_aggregation_title(agg_id, aggregations):
     """
     Get aggregation title.
 
     :param agg_id: Aggregation metadata id.
+    :param aggregations: All aggregations
     :return: Title.
     """
     group_by = unicode(_("group by"))
-    metadata = Metadata.objects.get(id=agg_id)
-    if metadata.key == LOCATED_IN_AREA:
-        src_col_desc, target_col_desc = get_aggregation_descriptions(agg_id)
-    else:
-        table_name = metadata.table_name
-        column_name = metadata.column_name
-        src_col_desc = get_column_description(table_name, column_name)
-        target_col_desc = metadata.value.split('AS')[1]
-    title = "%s %s " % (src_col_desc, group_by)
-    title += "%s" % target_col_desc.lower()
-    return title, src_col_desc, target_col_desc
+
+    for agg in aggregations:
+        val = aggregations[agg]
+        if agg_id in val:
+            src_col_desc = agg
+            target_col_desc = val[agg_id]
+            title = "%s %s " % (src_col_desc, group_by)
+            title += "%s" % target_col_desc.lower()
+            return title, src_col_desc, target_col_desc
+
+    return "", "", ""
 
 
 def build_all_filter(column_description,
@@ -2662,10 +2664,10 @@ def build_all_filter(column_description,
     ret = {}
     for a, a_id in enumerate(aggregation_ids):
         target_col_desc = agg_col_desc[a_id]['description']
-        i_id = ast.literal_eval(a_id)
+        u_id = unicode(a_id)
         summarize_agg_filters = build_agg_summarize_filters(target_col_desc,
-                                                            agg_values[i_id],
-                                                            agg_filters[a_id])
+                                                            agg_values[a_id],
+                                                            agg_filters[u_id])
         ret.update(summarize_agg_filters)
 
     summarize_filters = build_summarize_filters(column_description,
@@ -2682,6 +2684,7 @@ def build_query_summary(column_description,
                         values,
                         filters,
                         aggregation_ids,
+                        aggregations,
                         agg_values,
                         agg_filters,
                         columns_names,
@@ -2697,6 +2700,7 @@ def build_query_summary(column_description,
     :param values: All values for each field.
     :param filters:  Filter on query.
     :param aggregation_ids: List of identifiers for aggregations.
+    :param aggregations: All the availbale aggregations.
     :param agg_values: All values for aggregated fields.
     :param agg_filters Filter on aggregated fields.
     :param index_names:: Field used ad columns
@@ -2707,8 +2711,9 @@ def build_query_summary(column_description,
 
     agg_col_desc = dict()
     for a, agg_id in enumerate(aggregation_ids):
-        build_aggregation_title(agg_id)
-        agg_title, src_desc, agg_desc = build_aggregation_title(agg_id)
+        agg_title, src_desc, agg_desc = build_aggregation_title(agg_id,
+                                                                aggregations)
+
         val = dict()
         val['title'] = agg_title
         val['description'] = agg_desc
