@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-05 15:47+0100\n"
-"PO-Revision-Date: 2014-12-05 15:48+0100\n"
+"POT-Creation-Date: 2014-12-05 16:20+0100\n"
+"PO-Revision-Date: 2014-12-05 16:20+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -207,14 +207,14 @@ msgid " Search"
 msgstr "Cerca"
 
 #: l4s/static/templates/explorer/base.html:34
-#: l4s/static/templates/explorer/query_list.html:71
+#: l4s/static/templates/explorer/query_list.html:70
 msgid "Public Queries"
 msgstr "Interrogazioni pubbliche"
 
 #: l4s/static/templates/explorer/base.html:38
 #: l4s/static/templates/explorer/query.html:74
-#: l4s/static/templates/explorer/query_list.html:105
-#: l4s/static/templates/explorer/query_list.html:244
+#: l4s/static/templates/explorer/query_list.html:104
+#: l4s/static/templates/explorer/query_list.html:243
 #: l4s/static/templates/explorer/recent_queries.html:47
 #: l4s/static/templates/l4s/ontology.html:34
 #: l4s/static/templates/l4s/source_table_list.html:33
@@ -229,10 +229,12 @@ msgid "Delete"
 msgstr "Cancella"
 
 #: l4s/static/templates/explorer/preview_pane.html:28
-msgid "Preview"
-msgstr "Anteprima"
+#: l4s/static/templates/l4s/query_editor_view.html:83
+msgid "This is a preview"
+msgstr "Questa è una anteprima"
 
 #: l4s/static/templates/explorer/preview_pane.html:28
+#: l4s/static/templates/l4s/query_editor_view.html:83
 msgid "in order to get the full result set click on 'Export' and choose a format."
 msgstr "per scaricare  il risultato completo vai su 'Esporta' e scegli un formato."
 
@@ -243,14 +245,14 @@ msgid "Saved queries"
 msgstr "Interrogazioni salvate"
 
 #: l4s/static/templates/explorer/query.html:48
-#: l4s/static/templates/explorer/query_list.html:215
-#: l4s/static/templates/explorer/query_list.html:220
+#: l4s/static/templates/explorer/query_list.html:214
+#: l4s/static/templates/explorer/query_list.html:219
 msgid "New query"
 msgstr "Nuova interrogazione"
 
 #: l4s/static/templates/explorer/query.html:72
-#: l4s/static/templates/explorer/query_list.html:103
-#: l4s/static/templates/explorer/query_list.html:242
+#: l4s/static/templates/explorer/query_list.html:102
+#: l4s/static/templates/explorer/query_list.html:241
 msgid "Query name"
 msgstr "Nome interrogazione"
 
@@ -305,15 +307,15 @@ msgstr "Esegui"
 
 #: l4s/static/templates/explorer/query.html:215
 #: l4s/static/templates/l4s/open_data.html:39
-#: l4s/static/templates/l4s/query_editor_view.html:96
+#: l4s/static/templates/l4s/query_editor_view.html:97
 msgid "Export"
 msgstr "Esporta"
 
 #: l4s/static/templates/explorer/query.html:234
 #: l4s/static/templates/explorer/query.html:238
 #: l4s/static/templates/explorer/query.html:241
-#: l4s/static/templates/l4s/query_editor_view.html:125
-#: l4s/static/templates/l4s/query_editor_view.html:130
+#: l4s/static/templates/l4s/query_editor_view.html:126
+#: l4s/static/templates/l4s/query_editor_view.html:131
 msgid "Save"
 msgstr "Salva"
 
@@ -328,16 +330,16 @@ msgstr "Accedi per poter usare questa funzione"
 #: l4s/static/templates/l4s/manual_request.html:41
 #: l4s/static/templates/l4s/manual_request_view.html:29
 #: l4s/static/templates/l4s/manual_request_view.html:36
-#: l4s/static/templates/l4s/query_editor_view.html:127
-#: l4s/static/templates/l4s/query_editor_view.html:131
+#: l4s/static/templates/l4s/query_editor_view.html:128
 #: l4s/static/templates/l4s/query_editor_view.html:132
-#: l4s/static/templates/l4s/query_editor_view.html:193
+#: l4s/static/templates/l4s/query_editor_view.html:133
+#: l4s/static/templates/l4s/query_editor_view.html:194
 msgid "Manual request"
 msgstr "Richiesta manuale"
 
 #: l4s/static/templates/explorer/query.html:253
-#: l4s/static/templates/l4s/query_editor_view.html:130
-#: l4s/static/templates/l4s/query_editor_view.html:132
+#: l4s/static/templates/l4s/query_editor_view.html:131
+#: l4s/static/templates/l4s/query_editor_view.html:133
 msgid "Log in or register now to use this feature"
 msgstr "Accedi o registrati per poter usare questa funzione"
 
@@ -408,115 +410,115 @@ msgstr "Ricerca libera..."
 msgid "Search"
 msgstr "Cerca"
 
-#: l4s/static/templates/explorer/query_list.html:70
+#: l4s/static/templates/explorer/query_list.html:69
 msgid "Public queries; you can see, execute and copy query build by other users"
 msgstr "Interrogazioni pubbliche; puoi vedere , eseguire e copiare interrogazioni create da altri utenti"
 
-#: l4s/static/templates/explorer/query_list.html:75
+#: l4s/static/templates/explorer/query_list.html:74
 msgid "Your personal queries"
 msgstr "Lista delle tue interrogazioni personali"
 
-#: l4s/static/templates/explorer/query_list.html:76
+#: l4s/static/templates/explorer/query_list.html:75
 msgid "My Queries"
 msgstr "Interrogazioni personali"
 
-#: l4s/static/templates/explorer/query_list.html:87
-#: l4s/static/templates/explorer/query_list.html:89
-#: l4s/static/templates/explorer/query_list.html:226
-#: l4s/static/templates/explorer/query_list.html:228
+#: l4s/static/templates/explorer/query_list.html:86
+#: l4s/static/templates/explorer/query_list.html:88
+#: l4s/static/templates/explorer/query_list.html:225
+#: l4s/static/templates/explorer/query_list.html:227
 msgid "Topic"
 msgstr "Argomento"
 
-#: l4s/static/templates/explorer/query_list.html:88
-#: l4s/static/templates/explorer/query_list.html:227
+#: l4s/static/templates/explorer/query_list.html:87
+#: l4s/static/templates/explorer/query_list.html:226
 msgid "Sort queries for topic"
 msgstr "Ordina le interrogazioni per argomento"
 
-#: l4s/static/templates/explorer/query_list.html:95
-#: l4s/static/templates/explorer/query_list.html:234
+#: l4s/static/templates/explorer/query_list.html:94
+#: l4s/static/templates/explorer/query_list.html:233
 msgid "Query id"
 msgstr "Identificativo"
 
-#: l4s/static/templates/explorer/query_list.html:96
-#: l4s/static/templates/explorer/query_list.html:235
+#: l4s/static/templates/explorer/query_list.html:95
+#: l4s/static/templates/explorer/query_list.html:234
 msgid "Sort queries for id"
 msgstr "Ordina le interrogazioni per numero identificativo"
 
-#: l4s/static/templates/explorer/query_list.html:97
-#: l4s/static/templates/explorer/query_list.html:236
+#: l4s/static/templates/explorer/query_list.html:96
+#: l4s/static/templates/explorer/query_list.html:235
 msgid "Id"
 msgstr "Id"
 
-#: l4s/static/templates/explorer/query_list.html:104
-#: l4s/static/templates/explorer/query_list.html:243
+#: l4s/static/templates/explorer/query_list.html:103
+#: l4s/static/templates/explorer/query_list.html:242
 msgid "Sort queries in alphabetical order by name"
 msgstr "Ordina le interrogazioni per nome in ordine alfabetico"
 
-#: l4s/static/templates/explorer/query_list.html:111
-#: l4s/static/templates/explorer/query_list.html:250
+#: l4s/static/templates/explorer/query_list.html:110
+#: l4s/static/templates/explorer/query_list.html:249
 msgid "Query creation date"
 msgstr "Data di creazione dell'interrogazione"
 
-#: l4s/static/templates/explorer/query_list.html:112
-#: l4s/static/templates/explorer/query_list.html:251
+#: l4s/static/templates/explorer/query_list.html:111
+#: l4s/static/templates/explorer/query_list.html:250
 msgid "Sort queries by date (most recent first)"
 msgstr "Ordina le interrogazioni per data (le più recenti per prime)"
 
-#: l4s/static/templates/explorer/query_list.html:113
-#: l4s/static/templates/explorer/query_list.html:252
+#: l4s/static/templates/explorer/query_list.html:112
+#: l4s/static/templates/explorer/query_list.html:251
 msgid "Creation date"
 msgstr "Data di creazione"
 
-#: l4s/static/templates/explorer/query_list.html:119
+#: l4s/static/templates/explorer/query_list.html:118
 msgid "Query actions; you can import query in your query list and delete it"
 msgstr "Azioni sull'interrogazione; puoi importarla nella lista delle tue interrogazioni personali o cancellarla"
 
-#: l4s/static/templates/explorer/query_list.html:119
-#: l4s/static/templates/explorer/query_list.html:260
+#: l4s/static/templates/explorer/query_list.html:118
+#: l4s/static/templates/explorer/query_list.html:259
 #: l4s/static/templates/l4s/metadata.html:45
 #: l4s/static/templates/l4s/ontology.html:35
 msgid "Actions"
 msgstr "Azioni"
 
-#: l4s/static/templates/explorer/query_list.html:178
-#: l4s/static/templates/explorer/query_list.html:330
+#: l4s/static/templates/explorer/query_list.html:177
+#: l4s/static/templates/explorer/query_list.html:329
 msgid "Delete query"
 msgstr "Cancella interrogazione"
 
-#: l4s/static/templates/explorer/query_list.html:187
+#: l4s/static/templates/explorer/query_list.html:186
 msgid "Copy query in your query list"
 msgstr "Copia l'interrogazione nelle tue interrogazioni personali"
 
-#: l4s/static/templates/explorer/query_list.html:204
-#: l4s/static/templates/explorer/query_list.html:345
+#: l4s/static/templates/explorer/query_list.html:203
+#: l4s/static/templates/explorer/query_list.html:344
 msgid "No queries found for selected criteria"
 msgstr "Non sono state trovate interrogazioni che corrispondono ai tuoi criteri di ricerca"
 
-#: l4s/static/templates/explorer/query_list.html:214
+#: l4s/static/templates/explorer/query_list.html:213
 msgid "Create a new query"
 msgstr "Crea una nuova interrogazione"
 
-#: l4s/static/templates/explorer/query_list.html:259
+#: l4s/static/templates/explorer/query_list.html:258
 msgid "Query visibility; open eye means that others can see your query"
 msgstr "Visibilità dell'interrogazione; l'occhio aperto significa che gli altri possono vedere la tua interrogazione"
 
-#: l4s/static/templates/explorer/query_list.html:259
+#: l4s/static/templates/explorer/query_list.html:258
 msgid "Visibility"
 msgstr "Visibilità"
 
-#: l4s/static/templates/explorer/query_list.html:260
+#: l4s/static/templates/explorer/query_list.html:259
 msgid "Query actions; you can delete it clicking on trash"
 msgstr "Azioni sull'interrogazione; puoi cancellarlo cliccando sul cestino"
 
-#: l4s/static/templates/explorer/query_list.html:351
+#: l4s/static/templates/explorer/query_list.html:350
 msgid "You can see some public queries only!"
 msgstr "Puoi vedere solo le interrogazioni pubbliche!"
 
-#: l4s/static/templates/explorer/query_list.html:354
+#: l4s/static/templates/explorer/query_list.html:353
 msgid "In order to edit new queries you need to register."
 msgstr "Per comporre nuove interrogazioni è necessario registrarsi."
 
-#: l4s/static/templates/explorer/query_list.html:358
+#: l4s/static/templates/explorer/query_list.html:357
 msgid "Register now"
 msgstr "Registrati adesso"
 
@@ -917,15 +919,15 @@ msgid "values"
 msgstr "valori"
 
 #: l4s/static/templates/l4s/query_editor_view.html:75
-#: l4s/static/templates/l4s/query_editor_view.html:247
+#: l4s/static/templates/l4s/query_editor_view.html:248
 msgid "See more"
 msgstr "Vedi più dettagli"
 
-#: l4s/static/templates/l4s/query_editor_view.html:91
+#: l4s/static/templates/l4s/query_editor_view.html:92
 msgid "Customize"
 msgstr "Personalizza"
 
-#: l4s/static/templates/l4s/query_editor_view.html:247
+#: l4s/static/templates/l4s/query_editor_view.html:248
 msgid "See less"
 msgstr "Vedi meno dettagli"
 
@@ -1313,6 +1315,9 @@ msgstr "su una delle colonne della tabella"
 #: web/views.py:1319
 msgid "Can not display the requested content"
 msgstr "Impossibile mostrare il contenuto richiesto"
+
+#~ msgid "Preview"
+#~ msgstr "Anteprima"
 
 #~ msgid "Query Editor"
 #~ msgstr "Gestore interrogazioni"
