@@ -226,7 +226,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                      <a title="{% trans "Sort queries for topic" %}"
                         href="/explorer?order_by=topic">{% trans "Topic" %}
                      </a>
-                     <a id="topic" href="/explorer?order_by=topic">
+                     <a id="topic_private" href="/explorer?order_by=topic">
                         <span class="caret"></span>
                      </a>
                 </th>
@@ -393,9 +393,9 @@ $(document).ready(function(){
     }
 
     order_by = "{{ order_by }}";
-    if (order_by == "None" || order_by == "-created_at") {
-        var pub_elem = document.getElementById('created_at');
-        var priv_elem = document.getElementById('created_at_private');
+    if (order_by == "None") {
+        var pub_elem = document.getElementById('topic');
+        var priv_elem = document.getElementById('topic_private');
     }
     else {
         var pub_elem = document.getElementById(order_by);

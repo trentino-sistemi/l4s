@@ -958,21 +958,17 @@ def query_list(request):
         if topic != 999:
             queries_to_topics[pk] = topic
 
-    criteria = "None"
     order_by = request.GET.get('order_by')
-    if not order_by is None and order_by != "":
-        criteria = order_by
-        if criteria == "topic":
-            tab_top = sorted(queries_to_topics.items(), key=lambda x: x[1])
-            query_pks = [z[0] for z in tab_top]
-            objects = []
-            for pk in query_pks:
-                query = Query.objects.get(pk=pk)
-                objects.append(query)
-        else:
-            objects = objects.order_by(criteria)
+    if order_by is None or order_by == "topic" :
+        print "Eccc"
+        tab_top = sorted(queries_to_topics.items(), key=lambda x: x[1])
+        query_pks = [z[0] for z in tab_top]
+        objects = []
+        for pk in query_pks:
+            query = Query.objects.get(pk=pk)
+            objects.append(query)
     else:
-        objects = objects.order_by('-created_at')
+        objects = objects.order_by(order_by)
 
     topic_mapping = build_topics_decoder_dict()
     icons = build_topic_icons()
@@ -982,7 +978,7 @@ def query_list(request):
     context['icons'] = icons
     context['request'] = request
     context['can_change'] = EXPLORER_PERMISSION_CHANGE(request.user)
-    context['order_by'] = criteria
+    context['order_by'] = order_by
     context['public'] = public
     context['tables'] = queries_to_topics
     context['topics'] = topic_mapping
