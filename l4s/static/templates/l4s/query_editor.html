@@ -75,7 +75,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <h4>{% trans "Choose a topic" %}
     </h4>
     {% for topic in topics %}
-    {% if topic in topics_counter %}
+    {% if topic in topics_counter and topic in icons %}
     <tr>
         <td width="100px">
             <a title="{{ topics|lookup:topic }}"
@@ -101,8 +101,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <h4>{% trans "Choose a dataset" %}
     </h4>
     {% for table in table_list %}
-    <tr>
+
         {% if topic != 0 %}
+        {% if topic in icons %}
+        <tr>
         <td width="100px">
             <a title="{{ topics|lookup:topic }}"
                href="/query_editor?topic={{ topic }}">
@@ -111,9 +113,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                      height="80px"/>
             </a>
         </td>
+        <td>
+            <a href=javascript:open_query("{{ table }}")>{{ table_description|lookup:table }}</a></p>
+        </td>
+        </tr>
+        {% endif %}
         {% else %}
         {% if table in topic_dict %}
         {% with topic_dict|lookup:table as inntopic %}
+        {% if inntopic in icons %}
         <td width="100px">
             <a title="{{ topics|lookup:inntopic }}"
                href="/query_editor?topic={{ inntopic }}">
@@ -122,13 +130,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                      height="80px"/>
             </a>
         </td>
-        {% endwith %}
-        {% endif %}
-        {% endif %}
         <td>
             <a href=javascript:open_query("{{ table }}")>{{ table_description|lookup:table }}</a></p>
         </td>
-    </tr>
+        </tr>
+        {% endif %}
+        {% endwith %}
+        {% endif %}
+        {% endif %}
     {% endfor %}
     {% endif %}
 </table>
