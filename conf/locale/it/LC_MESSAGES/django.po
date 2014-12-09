@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-05 17:10+0100\n"
-"PO-Revision-Date: 2014-12-05 17:10+0100\n"
+"POT-Creation-Date: 2014-12-09 11:28+0100\n"
+"PO-Revision-Date: 2014-12-09 11:29+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -229,12 +229,12 @@ msgid "Delete"
 msgstr "Cancella"
 
 #: l4s/static/templates/explorer/preview_pane.html:28
-#: l4s/static/templates/l4s/query_editor_view.html:83
+#: l4s/static/templates/l4s/query_editor_view.html:87
 msgid "This is a preview"
 msgstr "Questa è una anteprima"
 
 #: l4s/static/templates/explorer/preview_pane.html:28
-#: l4s/static/templates/l4s/query_editor_view.html:83
+#: l4s/static/templates/l4s/query_editor_view.html:87
 msgid "in order to get the full result set click on 'Export' and choose a format."
 msgstr "per scaricare  il risultato completo vai su 'Esporta' e scegli un formato."
 
@@ -307,15 +307,14 @@ msgstr "Esegui"
 
 #: l4s/static/templates/explorer/query.html:215
 #: l4s/static/templates/l4s/open_data.html:39
-#: l4s/static/templates/l4s/query_editor_view.html:97
+#: l4s/static/templates/l4s/query_editor_view.html:107
 msgid "Export"
 msgstr "Esporta"
 
 #: l4s/static/templates/explorer/query.html:234
 #: l4s/static/templates/explorer/query.html:238
 #: l4s/static/templates/explorer/query.html:241
-#: l4s/static/templates/l4s/query_editor_view.html:126
-#: l4s/static/templates/l4s/query_editor_view.html:131
+#: l4s/static/templates/l4s/query_editor_view.html:139
 msgid "Save"
 msgstr "Salva"
 
@@ -330,16 +329,15 @@ msgstr "Accedi per poter usare questa funzione"
 #: l4s/static/templates/l4s/manual_request.html:41
 #: l4s/static/templates/l4s/manual_request_view.html:29
 #: l4s/static/templates/l4s/manual_request_view.html:36
-#: l4s/static/templates/l4s/query_editor_view.html:128
-#: l4s/static/templates/l4s/query_editor_view.html:132
-#: l4s/static/templates/l4s/query_editor_view.html:133
-#: l4s/static/templates/l4s/query_editor_view.html:194
+#: l4s/static/templates/l4s/query_editor_view.html:144
+#: l4s/static/templates/l4s/query_editor_view.html:154
+#: l4s/static/templates/l4s/query_editor_view.html:219
 msgid "Manual request"
 msgstr "Richiesta manuale"
 
 #: l4s/static/templates/explorer/query.html:253
-#: l4s/static/templates/l4s/query_editor_view.html:131
-#: l4s/static/templates/l4s/query_editor_view.html:133
+#: l4s/static/templates/l4s/query_editor_view.html:150
+#: l4s/static/templates/l4s/query_editor_view.html:155
 msgid "Log in or register now to use this feature"
 msgstr "Accedi o registrati per poter usare questa funzione"
 
@@ -481,7 +479,7 @@ msgid "Actions"
 msgstr "Azioni"
 
 #: l4s/static/templates/explorer/query_list.html:177
-#: l4s/static/templates/explorer/query_list.html:329
+#: l4s/static/templates/explorer/query_list.html:330
 msgid "Delete query"
 msgstr "Cancella interrogazione"
 
@@ -490,7 +488,7 @@ msgid "Copy query in your query list"
 msgstr "Copia l'interrogazione nelle tue interrogazioni personali"
 
 #: l4s/static/templates/explorer/query_list.html:203
-#: l4s/static/templates/explorer/query_list.html:344
+#: l4s/static/templates/explorer/query_list.html:346
 msgid "No queries found for selected criteria"
 msgstr "Non sono state trovate interrogazioni che corrispondono ai tuoi criteri di ricerca"
 
@@ -510,15 +508,15 @@ msgstr "Visibilità"
 msgid "Query actions; you can delete it clicking on trash"
 msgstr "Azioni sull'interrogazione; puoi cancellarlo cliccando sul cestino"
 
-#: l4s/static/templates/explorer/query_list.html:350
+#: l4s/static/templates/explorer/query_list.html:352
 msgid "You can see some public queries only!"
 msgstr "Puoi vedere solo le interrogazioni pubbliche!"
 
-#: l4s/static/templates/explorer/query_list.html:353
+#: l4s/static/templates/explorer/query_list.html:355
 msgid "In order to edit new queries you need to register."
 msgstr "Per comporre nuove interrogazioni è necessario registrarsi."
 
-#: l4s/static/templates/explorer/query_list.html:357
+#: l4s/static/templates/explorer/query_list.html:359
 msgid "Register now"
 msgstr "Registrati adesso"
 
@@ -914,20 +912,56 @@ msgstr "L'interrogazione esiste già."
 msgid "Do you want to overwrite it?"
 msgstr "Vuoi sovrascriverla?"
 
-#: l4s/static/templates/l4s/query_editor_view.html:67
+#: l4s/static/templates/l4s/query_editor_view.html:54
+msgid "Query title"
+msgstr "Nome dell'interrogazione"
+
+#: l4s/static/templates/l4s/query_editor_view.html:57
+msgid "Query summary"
+msgstr "Tabella riassuntiva"
+
+#: l4s/static/templates/l4s/query_editor_view.html:71
 msgid "values"
 msgstr "valori"
 
-#: l4s/static/templates/l4s/query_editor_view.html:75
-#: l4s/static/templates/l4s/query_editor_view.html:248
+#: l4s/static/templates/l4s/query_editor_view.html:79
+#: l4s/static/templates/l4s/query_editor_view.html:273
 msgid "See more"
 msgstr "Vedi più dettagli"
 
-#: l4s/static/templates/l4s/query_editor_view.html:92
+#: l4s/static/templates/l4s/query_editor_view.html:95
+#: l4s/static/templates/l4s/query_editor_view.html:96
+msgid "Allow to choose fields, perform aggregations and filter result set"
+msgstr "Permette di scegliere i campi da visualizzare, i criteri con cui raggruppare i valori dei campi e i valori che si vogliono selezionare"
+
+#: l4s/static/templates/l4s/query_editor_view.html:99
 msgid "Customize"
 msgstr "Personalizza"
 
-#: l4s/static/templates/l4s/query_editor_view.html:248
+#: l4s/static/templates/l4s/query_editor_view.html:101
+#: l4s/static/templates/l4s/query_editor_view.html:102
+msgid "Export query result set in various formats"
+msgstr "Esporta il risultato dell'interrogazione in vari formati"
+
+#: l4s/static/templates/l4s/query_editor_view.html:135
+#: l4s/static/templates/l4s/query_editor_view.html:136
+#: l4s/static/templates/l4s/query_editor_view.html:146
+#: l4s/static/templates/l4s/query_editor_view.html:147
+msgid "Save query in your personal queries"
+msgstr "Salva l'interrogazione nelle tue interrogazioni personali"
+
+#: l4s/static/templates/l4s/query_editor_view.html:140
+#: l4s/static/templates/l4s/query_editor_view.html:141
+#: l4s/static/templates/l4s/query_editor_view.html:151
+#: l4s/static/templates/l4s/query_editor_view.html:152
+msgid "Fill out a form to submit manual request for statistics"
+msgstr "Compila un modulo per formulare richieste di dati statistici che saranno processate da un operatore"
+
+#: l4s/static/templates/l4s/query_editor_view.html:159
+msgid "Result set preview"
+msgstr "Anteprima del risultato dell'interrogazione"
+
+#: l4s/static/templates/l4s/query_editor_view.html:273
 msgid "See less"
 msgstr "Vedi meno dettagli"
 
@@ -1304,27 +1338,27 @@ msgstr "L'interrogazione non può essere salvata perchè incorretta."
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
 
-#: web/views.py:1231
+#: web/views.py:1227
 msgid "Please add the metadata 'obsValue'"
 msgstr "Per favore aggiungi il metadato 'obsValue'"
 
-#: web/views.py:1232
+#: web/views.py:1228
 msgid "on one of the columns of the table"
 msgstr "su una delle colonne della tabella"
 
-#: web/views.py:1319
+#: web/views.py:1315
 msgid "Can not display the requested content"
 msgstr "Impossibile mostrare il contenuto richiesto"
 
-#: web/views.py:1358
+#: web/views.py:1354
 msgid "here"
 msgstr "qui"
 
-#: web/views.py:1359
+#: web/views.py:1355
 msgid "The query has been saved"
 msgstr "L'interrogazione è stata salvata"
 
-#: web/views.py:1360
+#: web/views.py:1357
 msgid "In order to see the saved queries click"
 msgstr "Per vedere the interrogazioni salvate clicca"
 
@@ -1380,9 +1414,6 @@ msgstr "Per vedere the interrogazioni salvate clicca"
 #~ msgid "Add Query"
 #~ msgstr "Aggiungi interrogazione"
 
-#~ msgid "Query title"
-#~ msgstr "Nome dell'interrogazione"
-
 #~ msgid " Manual request"
 #~ msgstr "Richiesta manuale"
 
@@ -1403,9 +1434,6 @@ msgstr "Per vedere the interrogazioni salvate clicca"
 
 #~ msgid "Can't execute an empty query"
 #~ msgstr "Non posso eseguire una interrogazione vuota"
-
-#~ msgid "Query saved"
-#~ msgstr "Interrogazione salvata"
 
 #~ msgid "without the application of statistical secret algorithm"
 #~ msgstr "senza applicare l'algoritmo per il segreto statistico"

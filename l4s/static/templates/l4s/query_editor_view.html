@@ -51,9 +51,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </li>
     </ul>
 </div>
-<h3>{{ title }}</h3>
+<h3 data-intro="{% trans "Query title" %}"
+    data-position="data-position="right"">{{ title }}</h3>
 <div style="overflow: auto; max-heigth: 100%;" id="overflow_wrapper">
-        <table style="width:auto" class="table">
+        <table data-intro="{% trans "Query summary" %}"
+               data-position="right"
+               style="width:auto"
+               class="table">
             {% for agg in agg_col %}
             <tr>
                 <th colspan="2">{{ agg_col|lookup:agg|lookup:"title" }}</th>
@@ -88,10 +92,16 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 </div>
 {% else %}
  <div class="btn-group">
-     <button class="btn btn-default"
+     <button title="{% trans "Allow to choose fields, perform aggregations and filter result set" %}"
+             data-intro="{% trans "Allow to choose fields, perform aggregations and filter result set" %}"
+             data-position="top"
+             class="btn btn-default"
              onclick="OpenCustomizePopup();">{% trans "Customize" %}</button>
      <div class="btn-group">
-         <button type="button"
+         <button title="{% trans "Export query result set in various formats" %}"
+                 data-intro="{% trans "Export query result set in various formats" %}"
+                 data-position="bottom"
+                 type="button"
                  class="btn btn-default dropdown-toggle"
                  data-toggle="dropdown">
              {% trans "Export" %}
@@ -122,19 +132,34 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
          </ul>
      </div>
 {% if request.user.is_authenticated %}
-<button class="btn btn-default"
+<button title="{% trans "Save query in your personal queries" %}"
+        data-intro="{% trans "Save query in your personal queries" %}"
+        data-position="top"
+        class="btn btn-default"
         onclick="OpenSavePopup();">{% trans "Save" %}</button>
-<button class="btn btn-default"
+<button title="{% trans "Fill out a form to submit manual request for statistics" %}"
+        data-intro="{% trans "Fill out a form to submit manual request for statistics" %}"
+        data-position="bottom"
+        class="btn btn-default"
         onclick="OpenManualrequestPopup();">{% trans "Manual request" %}</button>
 {% else %}
-<button class="btn btn-default"
-        onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Save" %}</button>
-<button class="btn btn-default" value="{% trans "Manual request" %}"
-        onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'>{% trans "Manual request" %}</button>
+<button title="{% trans "Save query in your personal queries" %}"
+        data-intro="{% trans "Save query in your personal queries" %}"
+        data-position="top"
+        class="btn btn-default"
+        onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'</button>
+<button title="{% trans "Fill out a form to submit manual request for statistics" %}"
+        data-intro="{% trans "Fill out a form to submit manual request for statistics" %}"
+        data-position="bottom"
+        class="btn btn-default" value="{% trans "Manual request" %}"
+        onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'</button>
 {% endif %}
 </div>
 {% if dataframe %}
-<div style="overflow: auto; max-heigth: 100%;" id="dataframe">
+<div data-intro="{% trans "Result set preview" %}"
+     data-position="data-position="right""
+     style="overflow: auto; max-heigth: 100%;"
+     id="dataframe">
     <center>
     {{ dataframe|safe }}
     </center>
