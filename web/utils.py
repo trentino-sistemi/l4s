@@ -2854,7 +2854,6 @@ def load_data_frame(request):
                                                    [],
                                                    False,
                                                    True)
-            print query.sql
             head, data, duration, err = query.headers_and_data()
             return pd.DataFrame(data, columns=head)
     df = pd.read_pickle(store_name)
