@@ -113,7 +113,7 @@ def generate_report_action_xls(df):
         body_cell = easyxf(body_cfg)
 
         ast_cfg = 'font: colour blue;'
-        ast_cfg += 'alignment: horizontal right, wrap true;'
+        ast_cfg += 'alignment: vertical top, horizontal right, wrap true;'
         ast_cell = easyxf(ast_cfg)
 
         new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
@@ -165,7 +165,7 @@ def generate_report_action_xls(df):
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
-                column_len = int(round(arial10.fit_width(value, False)))
+                column_len = int(arial10.fit_width(value, False))
                 if isinstance(value, unicode):
                     if value.isdigit():
                         value = ast.literal_eval(value)
@@ -176,6 +176,8 @@ def generate_report_action_xls(df):
                             new_sheet.write(rows+k, index, value, ast_cell)
                         else:
                             new_sheet.write(rows+k, index, value, body_cell)
+                else:
+                    new_sheet.write(rows+k, index, value, body_cell)
                 if column_len > max_widths[index]:
                     max_widths[index] = column_len
 
@@ -320,9 +322,10 @@ def generate_report_action_xlsx(df):
         k = 1 + line_num
         max_widths = dict()
 
+        default_width = 10
         for r, row in enumerate(sheet.iter_rows()):
             for c, cell in enumerate(row):
-                max_widths[c] = 7
+                max_widths[c] = default_width
             break
 
         # Copy rows from existing sheet.
@@ -342,7 +345,7 @@ def generate_report_action_xlsx(df):
                 else:
                     cell.style = body_style
                 cell.value = value
-                r_size = round(arial10.fit_width(str(value), False) / 256)
+                r_size = arial10.fit_width(str(value), False) / 256
                 column_len = int(r_size)
                 if r >= 1 and column_len > max_widths[c]:
                         max_widths[c] = column_len
@@ -352,7 +355,7 @@ def generate_report_action_xlsx(df):
             new_sheet.column_dimensions[column_letter].width = max_widths[i]
 
         sheet_rows = len(new_sheet.rows)
-        k = k + sheet_rows + 1
+        k = k + sheet_rows - 1
         if settings.DEBUG:
             stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
         else:
@@ -360,7 +363,7 @@ def generate_report_action_xlsx(df):
 
         stat_img = Image(stat_bitmap)
         stat_img.drawing.left = 0
-        stat_img.drawing.top = k * 19
+        stat_img.drawing.top = k * 20
 
         #new_cell = new_sheet.cell(row=k, column=1)
         #stat_img.anchor(new_cell)
