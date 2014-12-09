@@ -2853,7 +2853,7 @@ def load_data_frame(request):
                                                    st.cols,
                                                    [],
                                                    False,
-                                                   False)
+                                                   True)
             print query.sql
             head, data, duration, err = query.headers_and_data()
             return pd.DataFrame(data, columns=head)
