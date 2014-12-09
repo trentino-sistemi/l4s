@@ -100,16 +100,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% endif %}
                 {% endfor %}
                 {% trans "Select" %}
-                    <button type="button"
-                            class="btn btn-default"
-                            onclick="checkByParent('select_{{field}}', true)">
+                    <div class="'btn-group">
+                        <button type="button"
+                                class="btn btn-default"
+                                onclick="checkByParent('select_{{field}}', true)">
                             {% trans "All" %}
-                    </button>
-                    <button type="button"
-                            class="btn btn-default"
-                            onclick="checkByParent('select_{{field}}', false)">
+                        </button>
+                        <button type="button"
+                                class="btn btn-default"
+                                onclick="checkByParent('select_{{field}}', false)">
                             {% trans "None" %}
-                    </button>
+                        </button>
+                    </div>
                     <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
@@ -198,16 +200,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% endif %}
                 {% endfor %}
                 {% trans "Select" %}
-                    <button type="button"
-                            class="btn btn-default"
-                            onclick="checkByParent('select_{{field}}', true)">
+                    <div class="'btn-group">
+                        <button type="button"
+                                class="btn btn-default"
+                                onclick="checkByParent('select_{{field}}', true)">
                             {% trans "All" %}
-                    </button>
-                    <button type="button"
-                            class="btn btn-default"
-                            onclick="checkByParent('select_{{field}}', false)">
+                        </button>
+                        <button type="button"
+                                class="btn btn-default"
+                                onclick="checkByParent('select_{{field}}', false)">
                             {% trans "None" %}
-                    </button>
+                        </button>
+                    </div>
                     <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
@@ -276,16 +280,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% endif %}
                 {% endfor %}
                 {% trans "Select" %}
-                    <button type="button"
-                            class="btn btn-default"
-                            onclick="checkByParent('select_{{field}}', true)">
+                    <div class="'btn-group">
+                        <button type="button"
+                                class="btn btn-default"
+                                onclick="checkByParent('select_{{field}}', true)">
                             {% trans "All" %}
-                    </button>
-                    <button type="button"
-                            class="btn btn-default"
-                            onclick="checkByParent('select_{{field}}', false)">
+                        </button>
+                        <button type="button"
+                                class="btn btn-default"
+                                onclick="checkByParent('select_{{field}}', false)">
                             {% trans "None" %}
-                    </button>
+                        </button>
+                    </div>
                     <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
