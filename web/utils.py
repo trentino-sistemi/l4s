@@ -2848,7 +2848,7 @@ def load_data_frame(request):
         query_id = request.REQUEST.get('id')
         query = Query.objects.get(id=query_id)
         if query.open_data:
-            st = detect_special_columns(query)
+            st = detect_special_columns(query.sql)
             query.sql, h = build_description_query(query.sql,
                                                    st.cols,
                                                    [],
