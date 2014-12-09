@@ -319,6 +319,21 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         <!-- The data values -->
                         {% for field in fields %}
                         {% if field in obs_values %}
+                        {% if obs_values|length == 1 %}
+                        {% with obs_values.0 as field %}
+                        <li>
+                           <input type="checkbox" disabled="disabled"
+                                   id="obs_{{ field }}"
+                                   {% if field in selected_obs_values %}
+                                   checked="checked"
+                                   {% endif %}/>
+                            <span class="pvtAttr btn btn-default dropdown-toggle">
+                                {{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
+                                <span style="display:None">{{ field }}</span>
+                            </span>
+                         </li>
+                        {% endwith %}
+                        {% else %}
                         <li>
                            <input type="checkbox"
                                    id="obs_{{ field }}"
@@ -330,6 +345,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                 <span style="display:None">{{ field }}</span>
                             </span>
                          </li>
+                        {% endif %}
                         {% endif %}
                         {% endfor %}
                     </td>
