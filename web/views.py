@@ -80,7 +80,8 @@ from web.utils import get_variable_dictionary, \
     store_data_frame, \
     list_ref_period, \
     all_hidden_fields, \
-    order_tables_by_descriptions,\
+    order_tables_by_descriptions, \
+    order_tables_by_topic_and_descriptions, \
     build_topic_keywords,\
     build_topic_icons,\
     found_column_position, \
@@ -1455,6 +1456,7 @@ def query_editor(request):
 
     if topic_id == 0:
         context['topics_counter'] = build_topics_counter_dict(tables)
+        tables = order_tables_by_topic_and_descriptions(tables)
         topic_dict = build_topics_dict(tables)
     else:
         tables = filter_tables_by_topic(topic_id, tables, None)

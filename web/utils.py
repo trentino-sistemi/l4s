@@ -116,16 +116,53 @@ def order_tables_by_descriptions(tables):
         return ret_tables
 
     tables_str = "'" + "','".join(tables) + "'"
-    query = "SELECT table_name, value from %s " % METADATA
-    query += "WHERE column_name ='NULL' "
-    query += "and key='%s' " % DESCRIPTION
-    query += "and table_name IN (%s)" % tables_str
+    query = "SELECT table_name, value from %s \n" % METADATA
+    query += "WHERE column_name ='NULL' \n"
+    query += "and key='%s' \n" % DESCRIPTION
+    query += "and table_name IN (%s) \n" % tables_str
     query += "ORDER BY value;"
+
     rows = execute_query_on_django_db(query)
     if rows is not None:
         for row in rows:
             table = row[0]
             ret_tables.append(table)
+    return ret_tables
+
+
+def order_tables_by_topic_and_descriptions(tables):
+    """
+    Order tables by topic and descriptions.
+
+    :param tables: List of table names.
+    :return: A dictionary with descriptions.
+    """
+    ret_tables = []
+    if tables is None or len(tables) == 0:
+        return ret_tables
+    
+    tables_str = "'" + "','".join(tables) + "'"
+    query = "SELECT b.argomento, a.nome from tabelle a \n"
+    query += "JOIN argomenti_tabelle b \n"
+    query += "ON (b.id = a.id)"
+    query += "and a.nome IN (%s) \n" % tables_str
+    query += "ORDER BY b.argomento"
+
+    old_arg = None
+    rows = execute_query_on_main_db(query)
+    arg_tables = []
+    for r, row in enumerate(rows):
+        curr_arg = row[0]
+        table_name = row[1]
+        if not old_arg is None and (
+                old_arg != curr_arg or r == len(rows) - 1):
+            # order set and append it
+            ord_tables = order_tables_by_descriptions(arg_tables)
+            ret_tables.extend(ord_tables)
+            arg_tables = []
+        arg_tables.append(table_name)
+        old_arg = curr_arg
+
     return ret_tables
 
 
