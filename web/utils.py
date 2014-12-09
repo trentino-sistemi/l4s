@@ -137,10 +137,10 @@ def order_tables_by_topic_and_descriptions(tables):
     :param tables: List of table names.
     :return: A dictionary with descriptions.
     """
+    if tables is None or len(tables) < 2:
+        return tables
+
     ret_tables = []
-    if tables is None or len(tables) == 0:
-        return ret_tables
-    
     tables_str = "'" + "','".join(tables) + "'"
     query = "SELECT b.argomento, a.nome from tabelle a \n"
     query += "JOIN argomenti_tabelle b \n"
