@@ -265,6 +265,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% if object.created_by == request.user.email %}
             {% if object.id in tables %}
             {% with tables|lookup:object.id as topic %}
+            {% if topic in icons %}
             {% if selected_topic == 0 or topic == selected_topic %}
             <tr>
                 <td width="100px">
@@ -332,6 +333,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </td>
                 {% endif %}
             </tr>
+            {% endif %}
             {% endif %}
             {% endwith %}
             {% endif %}
