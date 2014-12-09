@@ -960,7 +960,6 @@ def query_list(request):
 
     order_by = request.GET.get('order_by')
     if order_by is None or order_by == "topic" :
-        print "Eccc"
         tab_top = sorted(queries_to_topics.items(), key=lambda x: x[1])
         query_pks = [z[0] for z in tab_top]
         objects = []

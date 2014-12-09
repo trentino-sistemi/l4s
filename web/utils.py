@@ -2848,11 +2848,13 @@ def load_data_frame(request):
         query_id = request.REQUEST.get('id')
         query = Query.objects.get(id=query_id)
         if query.open_data:
+            st = detect_special_columns(query)
             query.sql, h = build_description_query(query.sql,
-                                                   [],
+                                                   st.cols,
                                                    [],
                                                    False,
                                                    False)
+            print query.sql
             head, data, duration, err = query.headers_and_data()
             return pd.DataFrame(data, columns=head)
     df = pd.read_pickle(store_name)
