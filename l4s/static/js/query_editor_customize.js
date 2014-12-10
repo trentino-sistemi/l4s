@@ -224,10 +224,18 @@ function addHiddenInput(form, id, value) {
     form.appendChild(hiddenField);
 }
 
-function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_columns, no_values, too_many) {
-	rows = get_lis('rowFields');
-    if (rows == "") {
-        bootbox.alert(no_rows);
+function submit_popup (obs_values,
+                       values,
+                       agg_values,
+                       table_name,
+                       no_rows,
+                       no_columns,
+                       no_values,
+                       too_many) {
+						   
+    selected_obs = create_obs_selection(obs_values);
+    if (selected_obs == "") {
+        bootbox.alert(no_values);
         return;
     }
     cols = get_lis('columnFields');
@@ -235,7 +243,11 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
         bootbox.alert(no_columns);
         return;
     }
-    
+	rows = get_lis('rowFields');
+    if (rows == "") {
+        bootbox.alert(no_rows);
+        return;
+    }
     selection = create_selection(values, too_many);
     if (selection == null) {
         return
@@ -243,9 +255,7 @@ function submit_popup (obs_values, values, agg_values, table_name, no_rows, no_c
     spinner = $('#wrap').spin("modal");
     
     filter_value = JSON.stringify(selection);
-    selected_obs = create_obs_selection(obs_values);
-    
-    selected_obs_values = selected_obs .join(",")
+    selected_obs_values = selected_obs.join(",")
     sel_aggregations = get_aggregations();
     agg_selection = create_agg_selection(agg_values);
     agg_selection_value = JSON.stringify(agg_selection);
