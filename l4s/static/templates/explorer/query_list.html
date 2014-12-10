@@ -29,61 +29,76 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <li>{% trans "Saved queries" %}</li>
     </ul>
 </div>
-<div class="col-lg-3 nav navbar-nav navbar-right">
-    <form method="GET">
-
-        <select name='topic'
-                data-position="left"
-                class="form-control"
-                data-intro="{% trans " Filter list of tables by topics; push 'Search' button to filter tables" %}">
-        <option value="0">{% trans "All topics available" %}</option>
-        {% for topic in topics %}
-        {% if topic == selected_topic %}
-        <option value="{{ topic }}" selected>
-            {{ topics|lookup:topic }}
-        </option>
-        {% else %}
-        <option value="{{ topic }}">
-            {{ topics|lookup:topic }}
-        </option>
-        {% endif %}
-        {% endfor %}
-        </select>
-        <div data-position="right"
-             class="input-group"
-             data-intro="{% trans " Filter list of tables by name and description; push 'Search' button to filter tables" %}">
-             <input type="text"
-                    placeholder="{% trans "Free text search..." %}"
-                    class="form-control"
-                    name="search"
-                    value="{{ request.GET.search }}">
-             <span class="input-group-btn">
-                 <button class="btn btn-default" type="submit">{% trans "Search" %}</button>
-            </span>
-         </div>
-     </form>
-</div>
+<table width="100%">
+    <tr>
+        <td>
+            <div class="col-lg-3 nav navbar-nav navbar-right">
+                <form method="GET">
+                    <select name='topic'
+                            data-position="left"
+                            class="form-control"
+                            data-intro="{% trans "Filter list of tables by
+                            topics; push 'Search' button to filter tables" %}">
+                        <option value="0">
+                        {% trans "All topics available" %}
+                        </option>
+                        {% for topic in topics %}
+                        {% if topic == selected_topic %}
+                        <option value="{{ topic }}" selected>
+                        {{ topics|lookup:topic }}
+                        </option>
+                        {% else %}
+                        <option value="{{ topic }}">
+                        {{ topics|lookup:topic }}
+                        </option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <div data-position="right"
+                         class="input-group"
+                         data-intro="{% trans "Filter list of tables by name and description; push 'Search' button to filter tables" %}">
+                        <input type="text"
+                               placeholder="{% trans "Free text search..." %}"
+                               class="form-control"
+                               name="search"
+                               value="{{ request.GET.search }}"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default"
+                                    type="submit">{% trans "Search" %}
+                            </button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </td>
+    </tr>
+</table>
+<br><br>
 
 <ul id="myTab" class="nav nav-tabs">
     <li class="active" id="li_public_queries">
-        <a title="{% trans "Public queries; you can see, execute and copy query build by other users" %}" href="#public_queries" data-toggle="tab">
-            {% trans "Public Queries" %}
+        <a title="{% trans "Public queries; you can see, execute and copy query build by other users" %}"
+           href="#public_queries"
+           data-toggle="tab">
+           {% trans "Public queries" %}
         </a>
     </li>
     <li  id="li_my_queries">
-        <a title="{% trans "Your personal queries" %}" href="#my_queries" data-toggle="tab">
-            {% trans "My Queries" %}
+        <a title="{% trans "Your personal queries" %}"
+           href="#my_queries"
+           data-toggle="tab">
+           {% trans "My queries" %}
         </a>
     </li>
 </ul>
 
 <div id="myTabContent" class="tab-content">
     <div class="tab-pane fade in active" id="public_queries">
-        {% if object_list|length > 0 %}
+        {% if queries|length > 0 %}
         <table class="table table-striped">
             <thead>
             <tr>
-                 <th width="120" data-intro="{% trans "Topic" %}">
+                <th width="120" data-intro="{% trans "Topic" %}">
                      <a title="{% trans "Sort queries for topic" %}"
                         href="/explorer?order_by=topic">{% trans "Topic" %}
                      </a>
@@ -119,12 +134,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </tr>
             </thead>
             <tbody>
-
-            {% for object in object_list %}
-            {% if object.is_public %}
-            {% if object.id in tables %}
-            {% with tables|lookup:object.id as topic %}
-            {% if selected_topic == 0 or topic == selected_topic %}
+            {% for query in queries %}
+            {% if query.is_public %}
+            {% if query.id in tables %}
+            {% with tables|lookup:query.id as topic %}
             <tr>
                 <td width="100px">
                     <a title="{{ topics|lookup:topic }}"
@@ -135,45 +148,45 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     </a>
                 </td>
                 <td>
-                    {% if object.query_editor %}
-                    <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
-                                                      "{{ object.columns|escapejs }}",
-                                                      "{{ object.rows|escapejs }}",
-                                                      "{{ object.obs_values|escapejs }}",
-                                                      "{{ object.include_code }}",
-                                                      "{{ object.aggregations|escapejs }}",
-                                                      "{{ object.filters | escapejs }}",
-                                                      "{{ object.agg_filters|escapejs }}" )'
+                    {% if query.query_editor %}
+                    <a href="#" onclick='query_editor("{{ query.table|escapejs }}",
+                                                      "{{ query.columns|escapejs }}",
+                                                      "{{ query.rows|escapejs }}",
+                                                      "{{ query.obs_values|escapejs }}",
+                                                      "{{ query.include_code }}",
+                                                      "{{ query.aggregations|escapejs }}",
+                                                      "{{ query.filters | escapejs }}",
+                                                      "{{ query.agg_filters|escapejs }}" )'
                     {% else %}
-                    <a href="{{ object.id }}/"
+                    <a href="{{ query.id }}/"
                     {% endif %}
-                    {% if object.description and object.description.strip != "" %}
-                       title="{{ object.description.strip }}"
-                    {% endif %}>{{ object.id }}
+                    {% if query.description and query.description.strip != "" %}
+                       title="{{ query.description.strip }}"
+                    {% endif %}>{{ query.id }}
                     </a>
                 </td>
                 <td>
-                    {% if object.query_editor %}
-                    <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
-                                                      "{{ object.columns|escapejs }}",
-                                                      "{{ object.rows|escapejs }}",
-                                                      "{{ object.obs_values|escapejs }}",
-                                                      "{{ object.include_code }}",
-                                                      "{{ object.aggregations|escapejs }}",
-                                                      "{{ object.filters | escapejs }}",
-                                                      "{{ object.agg_filters|escapejs }}" )'
+                    {% if query.query_editor %}
+                    <a href="#" onclick='query_editor("{{ query.table|escapejs }}",
+                                                      "{{ query.columns|escapejs }}",
+                                                      "{{ query.rows|escapejs }}",
+                                                      "{{ query.obs_values|escapejs }}",
+                                                      "{{ query.include_code }}",
+                                                      "{{ query.aggregations|escapejs }}",
+                                                      "{{ query.filters | escapejs }}",
+                                                      "{{ query.agg_filters|escapejs }}" )'
                     {% else %}
-                    <a href="{{ object.id }}/"
+                    <a href="{{ query.id }}/"
                     {% endif %}
-                    {% if object.description and object.description.strip != "" %}
-                       title="{{ object.description.strip }}"
-                    {% endif %}>{{ object }}
+                    {% if query.description and query.description.strip != "" %}
+                       title="{{ query.description.strip }}"
+                    {% endif %}>{{ query }}
                     </a>
                 </td>
-                <td>{{ object.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
-                {% if can_change and object.created_by == request.user.email %}
+                <td>{{ query.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
+                {% if can_change and query.created_by == request.user.email %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
-                    <a href="{{ object.id }}/delete"
+                    <a href="{{ query.id }}/delete"
                        title="{% trans "Delete query" %}">
                        <i class="glyphicon glyphicon-trash"
                           style="font-size: 18px;">
@@ -182,7 +195,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </td>
                 {% else %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
-                    <a href="/explorer/copy/?id={{ object.id }}"
+                    <a href="/explorer/copy/?id={{ query.id }}"
                        title="{% trans "Copy query in your query list" %}">
                        <i class="glyphicon glyphicon-import"
                           style="font-size: 18px;">
@@ -191,7 +204,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </td>
                 {% endif %}
             </tr>
-            {% endif %}
             {% endwith %}
             {% endif %}
             {% endif %}
@@ -199,14 +211,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </tbody>
         </table>
         {% else %}
+        <br>
+        <br>
         <div class="alert alert-warning">
             {% trans "No queries found for selected criteria" %}
         </div>
+        <br>
         {% endif %}
     </div>
     <div class="tab-pane fade" id="my_queries">
         {% if request.user.is_authenticated %}
-        {% if object_list|length > 0 %}
+        {% if queries|length > 0 %}
         {% if request.user.is_staff %}
         <input type="button"
                class="btn btn-default"
@@ -222,7 +237,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <table class="table table-striped">
             <thead>
             <tr>
-                <th width="120"data-intro="{% trans "Topic" %}">
+                <th width="120"
+                    data-intro="{% trans "Topic" %}">
                      <a title="{% trans "Sort queries for topic" %}"
                         href="/explorer?order_by=topic">{% trans "Topic" %}
                      </a>
@@ -261,12 +277,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </tr>
             </thead>
             <tbody>
-            {% for object in object_list %}
-            {% if object.created_by == request.user.email %}
-            {% if object.id in tables %}
-            {% with tables|lookup:object.id as topic %}
+            {% for query in queries %}
+            {% if query.created_by == request.user.email %}
+            {% if query.id in tables %}
+            {% with tables|lookup:query.id as topic %}
             {% if topic in icons %}
-            {% if selected_topic == 0 or topic == selected_topic %}
             <tr>
                 <td width="100px">
                     <a title="{{ topics|lookup:topic }}"
@@ -277,44 +292,44 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     </a>
                 </td>
                 <td>
-                    {% if object.query_editor %}
-                    <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
-                                                      "{{ object.columns|escapejs }}",
-                                                      "{{ object.rows|escapejs }}",
-                                                      "{{ object.obs_values|escapejs }}",
-                                                      "{{ object.include_code }}",
-                                                      "{{ object.aggregations|escapejs }}",
-                                                      "{{ object.filters | escapejs }}",
-                                                      "{{ object.agg_filters|escapejs }}" )'
+                    {% if query.query_editor %}
+                    <a href="#" onclick='query_editor("{{ query.table|escapejs }}",
+                                                      "{{ query.columns|escapejs }}",
+                                                      "{{ query.rows|escapejs }}",
+                                                      "{{ query.obs_values|escapejs }}",
+                                                      "{{ query.include_code }}",
+                                                      "{{ query.aggregations|escapejs }}",
+                                                      "{{ query.filters | escapejs }}",
+                                                      "{{ query.agg_filters|escapejs }}" )'
                     {% else %}
-                    <a href="{{ object.id }}/"
+                    <a href="{{ query.id }}/"
                     {% endif %}
-                    {% if object.description and object.description.strip != "" %}
-                       title="{{ object.description.strip }}"
-                    {% endif %}>{{ object.id }}
+                    {% if query.description and query.description.strip != "" %}
+                       title="{{ query.description.strip }}"
+                    {% endif %}>{{ query.id }}
                     </a>
                 </td>
                 <td>
-                    {% if object.query_editor %}
-                    <a href="#" onclick='query_editor("{{ object.table|escapejs }}",
-                                                      "{{ object.columns|escapejs }}",
-                                                      "{{ object.rows|escapejs }}",
-                                                      "{{ object.obs_values|escapejs }}",
-                                                      "{{ object.include_code }}",
-                                                      "{{ object.aggregations|escapejs }}",
-                                                      "{{ object.filters | escapejs }}",
-                                                      "{{ object.agg_filters|escapejs }}" )'
+                    {% if query.query_editor %}
+                    <a href="#" onclick='query_editor("{{ query.table|escapejs }}",
+                                                      "{{ query.columns|escapejs }}",
+                                                      "{{ query.rows|escapejs }}",
+                                                      "{{ query.obs_values|escapejs }}",
+                                                      "{{ query.include_code }}",
+                                                      "{{ query.aggregations|escapejs }}",
+                                                      "{{ query.filters | escapejs }}",
+                                                      "{{ query.agg_filters|escapejs }}" )'
                     {% else %}
-                    <a href="{{ object.id }}/"
+                    <a href="{{ query.id }}/"
                     {% endif %}
-                    {% if object.description and object.description.strip != "" %}
-                       title="{{ object.description.strip }}"
-                    {% endif %}>{{ object }}
+                    {% if query.description and query.description.strip != "" %}
+                       title="{{ query.description.strip }}"
+                    {% endif %}>{{ query }}
                     </a>
                 </td>
-                <td>{{ object.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
-                {% if object.created_by == request.user.email %}
-                {% if can_change and object.is_public %}
+                <td>{{ query.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
+                {% if query.created_by == request.user.email %}
+                {% if can_change and query.is_public %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
                     <i class="glyphicon glyphicon-eye-open"
                        style="font-size: 18px;"></i></a>
@@ -326,14 +341,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </td>
                 {% endif %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
-                    <a href="{{ object.id }}/delete"
+                    <a href="{{ query.id }}/delete"
                        title="{% trans "Delete query" %}">
                         <i class="glyphicon glyphicon-trash"
                            style="font-size: 18px;"></i></a>
                 </td>
                 {% endif %}
             </tr>
-            {% endif %}
             {% endif %}
             {% endwith %}
             {% endif %}
@@ -342,9 +356,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </tbody>
         </table>
         {% else %}
+        <br>
+        <br>
         <div class="alert alert-warning">
             {% trans "No queries found for selected criteria" %}
         </div>
+        <br>
         {% endif %}
         {% else %}
         <div class="hero-unit">
@@ -366,14 +383,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
 <script type="text/javascript" src="/static/js/spin.min.js"></script>
+<script type="text/javascript" src="/static/js/query_editor.js"></script>
 <script>
-$(document).ready(function(){
-    initToken();
+function showTab() {
     $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
         //save the latest tab; use cookies if you like 'em better:
         localStorage.setItem('lastTab', $(this).attr('href'));
     });
-
     public = "{{public}}";
     if (public == "true") {
         $('a[data-toggle="tab"]:first').tab('show');
@@ -393,7 +409,8 @@ $(document).ready(function(){
             $('a[data-toggle="tab"]:first').tab('show');
         }
     }
-
+}
+function addOrderChevronDown() {
     order_by = "{{ order_by }}";
     if (order_by == "None") {
         var pub_elem = document.getElementById('topic');
@@ -410,46 +427,12 @@ $(document).ready(function(){
     if (priv_elem != null) {
         priv_elem.innerHTML = s;
     }
-})
-function query_editor(table,
-                      columns,
-                      rows,
-                      obs_values,
-                      include_code,
-                      aggregations,
-                      filters,
-                      agg_filters) {
-    spinner = $('#wrap').spin("modal");
-    include_code_value = "false"
-    if (include_code=='True') {
-       include_code_value = "true"
-    }
-
-    url="/query_editor_view/"
-    data = { 'table': table,
-             'columns': columns,
-             'rows': rows,
-             'selected_obs_values': obs_values,
-             'aggregate': aggregations,
-             'filters': filters,
-             'agg_filters': agg_filters,
-             'debug': "False",
-             'include_code': include_code_value,
-              };
-    $.ajax({
-		url: url,
-        type: "POST",
-        data: data,
-        success: function(response) {
-            document.write(response);
-            document.close();
-	    },
-        error: function(xhr, status) {
-            close_spinner(spinner, "modal");
-			bootbox.alert(xhr.responseText);
-		}
-    });
 }
+$(document).ready(function(){
+    initToken();
+    showTab();
+    addOrderChevronDown();
+})
 </script>
 {% endblock %}
 

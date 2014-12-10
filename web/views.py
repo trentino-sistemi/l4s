@@ -87,7 +87,7 @@ from web.utils import get_variable_dictionary, \
     found_column_position, \
     exclude_invisible_tables, \
     all_visible_tables,\
-    build_queries_to_tables_mapping
+    order_queries_by_topics
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -97,7 +97,8 @@ from web.topics import build_topics_decoder_dict, \
     build_topics_counter_dict, \
     get_topic_description, \
     get_topic_id,\
-    build_topics_dict
+    build_topics_dict, \
+    build_queries_to_topics_mapping
 from explorer.views import ExplorerContextMixin, \
     view_permission, \
     reverse_lazy
@@ -938,42 +939,32 @@ def query_list(request):
     public = request.GET.get('public', '')
     topic = request.GET.get('topic')
 
-    if topic is not None and topic != "":
+    if not topic is None and topic != "":
         selected_topic = ast.literal_eval(topic)
     else:
         # Topic 0 means that all the topics will be displayed.
         selected_topic = 0
 
-    objects = (Query.objects.filter(created_by=request.user) |
+    queries = (Query.objects.filter(created_by=request.user) |
                Query.objects.filter(is_public='true'))
     if search:
-        objects = objects & (Query.objects.filter(title__icontains=search) |
+        queries = queries & (Query.objects.filter(title__icontains=search) |
                              Query.objects.filter(
                                  description__icontains=search))
 
-    query_to_tables = build_queries_to_tables_mapping(objects)
-    queries_to_topics = dict()
-    for pk in query_to_tables:
-        table_name = query_to_tables[pk]
-        topic = get_topic_id(table_name)
-        if topic != 999:
-            queries_to_topics[pk] = topic
+    queries_to_topics = build_queries_to_topics_mapping(queries,
+                                                        selected_topic)
 
     order_by = request.GET.get('order_by')
-    if order_by is None or order_by == "topic" :
-        tab_top = sorted(queries_to_topics.items(), key=lambda x: x[1])
-        query_pks = [z[0] for z in tab_top]
-        objects = []
-        for pk in query_pks:
-            query = Query.objects.get(pk=pk)
-            objects.append(query)
+    if order_by is None or order_by == "topic":
+        queries = order_queries_by_topics(queries_to_topics.items())
     else:
-        objects = objects.order_by(order_by)
+        queries = queries.order_by(order_by)
 
     topic_mapping = build_topics_decoder_dict()
     icons = build_topic_icons()
 
-    context = Context({'object_list': objects})
+    context = Context({'queries': queries})
     context['selected_topic'] = selected_topic
     context['icons'] = icons
     context['request'] = request
@@ -1352,7 +1343,7 @@ def query_editor_save_done(request):
 
         link = '/explorer?public=false'
         here = unicode(_("here"))
-        body = unicode(_("The query has been saved")).replace('\'','\\\'')
+        body = unicode(_("The query has been saved")).replace('\'', '\\\'')
         body += '.<br>'
         body += unicode(_("In order to see the saved queries click"))
         body += ' <a href="%s">%s</a>' % (link, here)
@@ -1468,6 +1459,14 @@ def query_editor(request):
     keywords = build_topic_keywords()
     icons = build_topic_icons()
 
+    queries = Query.objects.filter(is_public='true')
+    if search:
+        queries = queries & (Query.objects.filter(title__icontains=search) |
+                             Query.objects.filter(
+                                 description__icontains=search))
+    queries_to_topics = build_queries_to_topics_mapping(queries, topic_id)
+    queries = order_queries_by_topics(queries_to_topics.items())
+
     context['topic'] = topic_id
     context['topics'] = topic_mapping
     context['table_list'] = tables
@@ -1477,6 +1476,8 @@ def query_editor(request):
     context['selected_topic'] = topic_id
     context['keywords'] = keywords
     context['icons'] = icons
+    context['queries_to_topics'] = queries_to_topics
+    context['queries'] = queries
 
     return render_to_response("l4s/query_editor.html", context)
 

@@ -18,7 +18,8 @@
 """
 Routines for topics..
 """
-from web.utils import execute_query_on_main_db
+from web.utils import execute_query_on_main_db,\
+    build_queries_to_tables_mapping
 
 
 def filter_tables_by_topic(topic_id, tables, order):
@@ -29,12 +30,10 @@ def filter_tables_by_topic(topic_id, tables, order):
     :param tables: List of tables.
     :return: Tables that belong to topic.
     """
-    tables_str = ""
-    for t, table in enumerate(tables):
-        if t != 0:
-            tables_str += ","
-        tables_str += "'%s'" % table
+    if tables is None or len(tables) == 0:
+        return tables
 
+    tables_str = "'" + "','".join(tables) + "'"
     query = "SELECT a.nome from tabelle a join argomenti_tabelle b \n"
     query += "on (b.id = a.id) "
     query += "WHERE b.argomento=%d " % topic_id
@@ -111,8 +110,8 @@ def execute_topics_query():
 
 def build_topics_counter_dict(tables):
     """
-    Build a dictionary with key topic_id and value the number of table belong
-    to the topic.
+    Build a dictionary with key topic_id and value the number of table
+    belong to the topic.
 
     :return: Dictionary with key the topic id
              and as value the number of items in topic.
@@ -148,7 +147,34 @@ def build_topics_decoder_dict():
     return topics_dict
 
 
+def build_queries_to_topics_mapping(queries, desired_topic):
+    """
+    Take in input a list of Query model and return a dictionary
+    with key the query id and as value the topics.
+    If desired_topic is zero then build the mapping for all topics
+    else build the mapping for the desired topic.
+
+    :param queries:
+    :return: Query to topic mapping dictionary.
+    """
+
+    query_to_tables_mapping = build_queries_to_tables_mapping(queries)
+    queries_to_topics = dict()
+    for pk in query_to_tables_mapping:
+        table_name = query_to_tables_mapping[pk]
+        topic = get_topic_id(table_name)
+        if topic != 999 and (desired_topic == 0 or topic == desired_topic):
+            queries_to_topics[pk] = topic
+    return queries_to_topics
+
+
 def build_topics_dict(tables):
+    """
+    Build a dictionary with key table name and as value topic.
+
+    :param tables:
+    :return:
+    """
     ret = dict()
     tables_s = "'" + "','".join(tables) + "'"
     query = "SELECT a.nome, b.argomento from tabelle \n"

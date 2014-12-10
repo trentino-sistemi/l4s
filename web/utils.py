@@ -166,6 +166,22 @@ def order_tables_by_topic_and_descriptions(tables):
     return ret_tables
 
 
+def order_queries_by_topics(queries):
+    """
+    Order queries by topics (with trismegisto).
+
+    :param queries:
+    :return:
+    """
+    ordered_queries = []
+    tab_top = sorted(queries, key=lambda x: x[1])
+    query_pks = [z[0] for z in tab_top]
+    for pk in query_pks:
+        query = Query.objects.get(pk=pk)
+        ordered_queries.append(query)
+    return ordered_queries
+
+
 def execute_query_on_main_db(query):
     """
     Execute a query on the main database.
@@ -673,6 +689,7 @@ def build_query(table_name,
     cols and rows.
     REGARDS: The query is flat this return the query and the column list to
              used in pivot
+
     :param table_name: The table name.
     :param columns: Columns involved in the query
     :param rows: Rows involved in the query
@@ -1801,7 +1818,7 @@ def build_queries_to_tables_mapping(queries):
     Build a dictionary with key the query pk and as value the table name used.
 
     :param queries: Query model list.
-    :return:
+    :return: Queries to tables mapping dictionary.
     """
     ret = dict()
     for query in queries:

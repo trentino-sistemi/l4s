@@ -35,47 +35,136 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </li>
     </ul>
 </div>
-<div class="col-lg-4 nav navbar-nav navbar-right">
-    <form method="GET">
-
-        <select name='topic'
-                data-position="left"
-                class="form-control"
-                data-intro="{% trans " Filter list of tables by topics; push 'Search' button to filter tables" %}">
-        <option value="0">{% trans "All topics available" %}</option>
+<table width="100%">
+    <tr>
+        <td>
+            <div class="col-lg-4 nav navbar-nav navbar-right">
+                <form method="GET">
+                    <select name='topic'
+                            data-position="left"
+                            class="form-control"
+                            data-intro="{% trans "Filter list of tables by topics; push 'Search' button to filter tables" %}">
+                        <option value="0">{% trans "All topics available" %}
+                        </option>
+                        {% for topic in topics %}
+                        {% if topic == selected_topic %}
+                        <option value="{{ topic }}" selected>
+                        {{ topics|lookup:topic }}
+                        </option>
+                        {% else %}
+                        <option value="{{ topic }}">
+                        {{ topics|lookup:topic }}
+                        </option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <div data-position="bottom"
+                         class="input-group"
+                         data-intro="{% trans "Filter list of tables by name and description; push 'Search' button to filter tables" %}">
+                        <input type="text"
+                               placeholder="{% trans "Free text search..." %}"
+                               class="form-control"
+                               name="search"
+                               value="{{ request.GET.search }}"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit">{% trans "Search" %}
+                            </button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </td>
+    </tr>
+</table>
+{% if topic == 0 and search == "" %}
+    <br>
+    <br>
+    <h4>{% trans "Choose a topic" %}</h4>
+    <br>
+{% else %}
+    {% if queries|length > 0 %}
+    <br>
+    <br>
+    <h4>{% trans "Public queries" %}</h4>
+    <br>
+    <table data-position="bottom"
+           data-intro="{% trans "Public queries" %}"
+           class="table table-striped"
+           id="query_list">
+        <tbody>
+        {% if topic == 0 and search == "" %}
         {% for topic in topics %}
-        {% if topic == selected_topic %}
-        <option value="{{ topic }}" selected>
-            {{ topics|lookup:topic }}
-        </option>
-        {% else %}
-        <option value="{{ topic }}">
-            {{ topics|lookup:topic }}
-        </option>
+        {% if topic in topics_counter and topic in icons %}
+        <tr>
+            <td width="100px">
+                <a title="{{ topics|lookup:topic }}"
+                   href="/query_editor?topic={{ topic }}">
+                    <img align="left"
+                         src="/static/img/topics/{{ icons|lookup:topic }}"
+                         height="80px"/>
+                </a>
+            </td>
+            <td>
+                <p><a href="/query_editor?topic={{ topic }}">{{ topics|lookup:topic }}</a> ({{ topics_counter|lookup:topic }} dataset)</p>
+                <p>
+                    {% for keyword in keywords|lookup:topic %}
+                    {{ keyword }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+            </td>
+        </tr>
         {% endif %}
         {% endfor %}
-        </select>
-        <div data-position="bottom"
-             class="input-group"
-             data-intro="{% trans " Filter list of tables by name and description; push 'Search' button to filter tables" %}">
-             <input type="text"
-                    placeholder="{% trans "Free text search..." %}"
-                    class="form-control"
-                    name="search"
-                    value="{{ request.GET.search }}">
-             <span class="input-group-btn">
-                 <button class="btn btn-default" type="submit">{% trans "Search" %}</button>
-            </span>
-         </div>
-     </form>
-</div>
+        </tbody>
+        {% else %}
+        {% for query in queries %}
+        {% if query.id in queries_to_topics %}
+        {% with queries_to_topics|lookup:query.id as topic %}
+        <tr>
+            <td width="100px">
+                <a title="{{ topics|lookup:topic }}"
+                   href="/query_editor?topic={{ topic }}">
+                    <img align="left"
+                         src="/static/img/topics/{{ icons|lookup:topic }}"
+                         height="80px"/>
+                </a>
+            </td>
+
+            <td>
+                {% if query.query_editor %}
+                <a href="#" onclick='query_editor("{{ query.table|escapejs }}",
+                                                  "{{ query.columns|escapejs }}",
+                                                  "{{ query.rows|escapejs }}",
+                                                  "{{ query.obs_values|escapejs }}",
+                                                  "{{ query.include_code }}",
+                                                  "{{ query.aggregations|escapejs }}",
+                                                  "{{ query.filters | escapejs }}",
+                                                  "{{ query.agg_filters|escapejs }}" )'
+                {% else %}
+                <a href="/explorer/{{ query.id }}/"
+                {% endif %}
+                {% if query.description and query.description.strip != "" %}
+                title="{{ query.description.strip }}"
+                {% endif %}>{{ query }}
+                </a>
+            </td>
+        </tr>
+        {% endwith %}
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+    </table>
+    {% endif %}
+    <br>
+    <br>
+    <h4>{% trans "Dataset" %}</h4>
+    <br>
+{% endif %}
 <table data-position="bottom"
        data-intro="Dataset"
        class="table table-striped" id="table_list">
     <tbody>
     {% if topic == 0 and search == "" %}
-    <h4>{% trans "Choose a topic" %}
-    </h4>
     {% for topic in topics %}
     {% if topic in topics_counter and topic in icons %}
     <tr>
@@ -100,8 +189,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% endfor %}
     </tbody>
     {% else %}
-    <h4>{% trans "Choose a dataset" %}
-    </h4>
+    {% if table_list|length > 0 %}
     {% for table in table_list %}
 
         {% if topic != 0 %}
@@ -141,15 +229,27 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         {% endif %}
         {% endif %}
     {% endfor %}
+        {% else %}
+        <div class="alert alert-warning">
+        {% trans "No dataset found for selected criteria" %}
+        </div>
+        <br>
+        {% endif %}
     {% endif %}
 </table>
+<script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
 <script type="text/javascript" src="/static/js/spin.min.js"></script>
+<script type="text/javascript" src="/static/js/query_editor.js"></script>
 <script>
 function open_query(table) {
    url="/query_editor_view?table=" + table
    $('#table_list').spin("modal");
    location.href=url
 }
+$(document).ready(function(){
+    initToken();
+})
 </script>
 {% endblock %}
 
