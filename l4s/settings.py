@@ -43,6 +43,7 @@ TEMPLATE_DEBUG = True
 SENDER = "SSPAT"
 SENDER_NAME = "Servizio Statistica: Provincia Autonoma di Trento"
 
+
 ALLOWED_HOSTS = []
 
 AUTHENTICATION_BACKENDS = (
@@ -51,6 +52,9 @@ AUTHENTICATION_BACKENDS = (
     # `allauth` specific authentication methods, such as login by e-mail
     "allauth.account.auth_backends.AuthenticationBackend"
 )
+
+LOGIN_URL = '/accounts/login'
+LOGIN_REDIRECT_URL = '/'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
@@ -108,8 +112,6 @@ LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
 
-#LOGIN_REDIRECT_URL = '/'
-
 # Email settings for sending accout activation mails
 DEFAULT_FROM_EMAIL = 'l4s@example.com'
 EMAIL_USE_TLS = True
@@ -122,16 +124,16 @@ ROOT_URLCONF = 'l4s.urls'
 
 WSGI_APPLICATION = 'l4s.wsgi.application'
 
-LOGIN_REDIRECT_URL = '/'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 EXPLORER_CONNECTION_NAME = 'lod4stat'
-EXPLORER_PERMISSION_VIEW = lambda u: True
-EXPLORER_PERMISSION_CHANGE = lambda u: u.is_staff
+EXPLORER_PERMISSION_VIEW = True
+EXPLORER_PERMISSION_CHANGE = True
 EXPLORER_RECENT_QUERY_COUNT = 10
 EXPLORER_DEFAULT_ROWS = 20
 EXPLORER_DEFAULT_COLS = 10
+EXPLORER_LOGIN_URL = LOGIN_URL
 
 # Subject to discriminate column that contains descriptions.
 DESCRIPTION_SUBJECT = 'http://it.dbpedia.org/data/Descrizione'

@@ -136,26 +136,30 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
              data-intro="{% trans "Save query in your personal queries" %}"
              data-position="top"
              class="btn btn-default"
-             onclick="OpenSavePopup();">{% trans "Save" %}
+             onclick="OpenSavePopup();">
+     {% trans "Save" %}
      </button>
      <button title="{% trans "Fill out a form to submit manual request for statistics" %}"
-        data-intro="{% trans "Fill out a form to submit manual request for statistics" %}"
-        data-position="bottom"
-        class="btn btn-default"
-        onclick="OpenManualrequestPopup();">{% trans "Manual request" %}
+             data-intro="{% trans "Fill out a form to submit manual request for statistics" %}"
+             data-position="bottom"
+             class="btn btn-default"
+             onclick="OpenManualrequestPopup();">
+     {% trans "Manual request" %}
      </button>
 {% else %}
      <button title="{% trans "Save query in your personal queries" %}"
              data-intro="{% trans "Save query in your personal queries" %}"
              data-position="top"
              class="btn btn-default"
-             onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'
+             onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'>
+     {% trans "Save" %}
      </button>
      <button title="{% trans "Fill out a form to submit manual request for statistics" %}"
              data-intro="{% trans "Fill out a form to submit manual request for statistics" %}"
              data-position="bottom"
-             class="btn btn-default" value="{% trans "Manual request" %}"
-             onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'
+             class="btn btn-default"
+             onclick='bootbox.alert("{% trans "Log in or register now to use this feature" %}");'>
+     {% trans "Manual request" %}
      </button>
 {% endif %}
 </div>

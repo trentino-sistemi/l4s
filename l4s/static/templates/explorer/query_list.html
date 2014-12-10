@@ -184,7 +184,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     </a>
                 </td>
                 <td>{{ query.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
-                {% if can_change and query.created_by == request.user.email %}
+                {% if query.created_by == request.user.email %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
                     <a href="{{ query.id }}/delete"
                        title="{% trans "Delete query" %}">
@@ -270,7 +270,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         <span class="caret"></span>
                      </a>
                 </th>
-                {% if can_change %}
+                {% if query.created_by == request.user.email %}
                 <th data-intro="{% trans "Query visibility; open eye means that others can see your query"  %}">{% trans "Visibility" %}</th>
                 <th data-intro="{% trans "Query actions; you can delete it clicking on trash" %}">{% trans "Actions" %}</th>
                 {% endif %}
@@ -329,7 +329,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </td>
                 <td>{{ query.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
                 {% if query.created_by == request.user.email %}
-                {% if can_change and query.is_public %}
+                {% if query.is_public %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
                     <i class="glyphicon glyphicon-eye-open"
                        style="font-size: 18px;"></i></a>

@@ -30,10 +30,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 from django.views.generic.edit import CreateView
 from django.core.exceptions import ObjectDoesNotExist
-from l4s.settings import EXPLORER_PERMISSION_CHANGE, \
-    EXPLORER_RECENT_QUERY_COUNT, \
+from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
     EXPLORER_CONNECTION_NAME, \
-    EXPLORER_PERMISSION_VIEW, \
     LEGEND, DL_ART
 from web.models import Metadata, ManualRequest, OntologyFileModel
 from web.forms import QueryForm, \
@@ -410,11 +408,6 @@ class QueryView(ExplorerContextMixin, View):
         if not pivot_column is None and pivot_column != "":
             pivot_cols = [ast.literal_eval(x) for x in pivot_column.split(',')]
 
-        if not EXPLORER_PERMISSION_VIEW(request.user):
-            return HttpResponseRedirect(
-                reverse_lazy('query_detail', kwargs={'query_id': query_id})
-            )
-
         query = get_object_or_404(Query, pk=query_id)
         url = '/explorer/%d/' % query.pk
         message = None
@@ -511,7 +504,6 @@ class QueryView(ExplorerContextMixin, View):
         return query, form
 
 
-@view_permission
 def query_download_csv(request):
     """
     Download query in CSV format.
@@ -851,7 +843,7 @@ def source_table_list(request):
     return render_to_response("l4s/source_table_list.html", context)
 
 
-@login_required
+@user_passes_test(lambda u: u.is_staff)
 def table_list(request):
     """
     List the tables in the main database.
@@ -894,7 +886,7 @@ def table_list(request):
     return render_to_response("l4s/table_list.html", context)
 
 
-@login_required
+@user_passes_test(lambda u: u.is_staff)
 def table(request):
     """
     Request to view a table structure.
@@ -968,7 +960,6 @@ def query_list(request):
     context['selected_topic'] = selected_topic
     context['icons'] = icons
     context['request'] = request
-    context['can_change'] = EXPLORER_PERMISSION_CHANGE(request.user)
     context['order_by'] = order_by
     context['public'] = public
     context['tables'] = queries_to_topics
@@ -996,12 +987,11 @@ def recent_queries(request):
     recent = recent[:EXPLORER_RECENT_QUERY_COUNT]
     context = Context({'object_list': objects})
     context['request'] = request
-    context['can_change'] = EXPLORER_PERMISSION_CHANGE(request.user)
     context['recent_queries'] = recent
     return render_to_response("explorer/recent_queries.html", context)
 
 
-@login_required
+@login_required()
 def query_copy(request):
     """
     Copy public query in the query of logged  user.
@@ -1322,6 +1312,7 @@ def query_editor_view(request):
     return render_to_response("l4s/query_editor_view.html", context)
 
 
+@login_required()
 def query_editor_save_done(request):
     """
     Shown after that the user save a query with editor.
@@ -1358,6 +1349,7 @@ def query_editor_save_done(request):
     return render_to_response("l4s/query_editor_save.html", context)
 
 
+@login_required()
 def query_editor_save_check(request):
     """
     Check that if exists a query
@@ -1379,6 +1371,7 @@ def query_editor_save_check(request):
     return HttpResponse(pk)
 
 
+@login_required()
 def query_editor_save(request):
     """
     Query editor save.
@@ -1567,6 +1560,7 @@ def manual_request_accepted(request):
     return render_to_response("l4s/manual_request_accepted.html", context)
 
 
+@login_required()
 def manual_request_save(request):
     """
     Save manual request.

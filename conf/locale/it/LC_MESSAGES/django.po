@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-10 12:49+0100\n"
-"PO-Revision-Date: 2014-12-10 12:50+0100\n"
+"POT-Creation-Date: 2014-12-10 13:37+0100\n"
+"PO-Revision-Date: 2014-12-10 13:37+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -311,11 +311,14 @@ msgid "Export"
 msgstr "Esporta"
 
 #: l4s/static/templates/explorer/query.html:234
-#: l4s/static/templates/explorer/query.html:238
-#: l4s/static/templates/explorer/query.html:241
 #: l4s/static/templates/l4s/query_editor_view.html:139
 msgid "Save"
 msgstr "Salva"
+
+#: l4s/static/templates/explorer/query.html:238
+#: l4s/static/templates/explorer/query.html:241
+msgid "Copy"
+msgstr "Copia"
 
 #: l4s/static/templates/explorer/query.html:241
 msgid "Log in to use this feature"
