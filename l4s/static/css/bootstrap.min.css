@@ -1281,13 +1281,12 @@ th {
 .table {
   width: 100%;
   margin-bottom: 20px;
-  border-color: #ffffff;
+  border-color: transparent;
 }
 .table tbody > tr > th {
-border: 1px solid #FFFFFFF;
+border: 1px solid #ffffff;
 }
 .table thead > tr > th,
-
 .table tfoot > tr > th,
 .table thead > tr > td,
 .table tbody > tr > td,
@@ -1299,7 +1298,7 @@ border: 1px solid #FFFFFFF;
 }
 .table thead > tr > th {
   vertical-align: bottom;
-  border: 1px solid #FFFFFF;
+  border: 1px solid #ffffff;
   background-color: #dedede;
 }
 .table caption + thead tr:first-child th,
@@ -1322,7 +1321,7 @@ border: 1px solid #FFFFFFF;
 .table-condensed thead > tr > td,
 .table-condensed tbody > tr > td,
 .table-condensed tfoot > tr > td {
-  padding: 3px;
+  padding: 1px;
 }
 .table-bordered {
   border: 1px solid #1F556F;
