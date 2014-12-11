@@ -1276,25 +1276,30 @@ table {
 }
 th {
   text-align: left;
+  background-color: #cacaca;
 }
 .table {
   width: 100%;
   margin-bottom: 20px;
+  border-color: #ffffff;
+}
+.table tbody > tr > th {
+border: 1px solid #FFFFFFF;
 }
 .table thead > tr > th,
-.table tbody > tr > th,
+
 .table tfoot > tr > th,
 .table thead > tr > td,
 .table tbody > tr > td,
 .table tfoot > tr > td {
-  padding: 8px;
+  padding: 6px;
   line-height: 1.428571429;
   vertical-align: top;
-  border-top: 1px solid #1F556F;
+  border: 1px solid #cacaca;
 }
 .table thead > tr > th {
   vertical-align: bottom;
-  border-bottom: 1px solid #1F556F;
+  border: 1px solid #FFFFFF;
   background-color: #cacaca;
 }
 .table caption + thead tr:first-child th,
@@ -1306,7 +1311,7 @@ th {
   border-top: 0;
 }
 .table tbody + tbody {
-  border-top: 2px solid #1F556F;
+  border: 1px solid #1F556F;
 }
 .table .table {
   background-color: #ffffff;
@@ -1317,7 +1322,7 @@ th {
 .table-condensed thead > tr > td,
 .table-condensed tbody > tr > td,
 .table-condensed tfoot > tr > td {
-  padding: 5px;
+  padding: 3px;
 }
 .table-bordered {
   border: 1px solid #1F556F;
@@ -1334,8 +1339,7 @@ th {
 .table-bordered > thead > tr > td {
   border-bottom-width: 1px;
 }
-.table-striped > tbody > tr:nth-child(odd) > td,
-.table-striped > tbody > tr:nth-child(odd) > th {
+.table-striped > tbody > tr:nth-child(odd) > td{
  background-color: #bcdef0;
 }
 .table-hover > tbody > tr:hover > td,
