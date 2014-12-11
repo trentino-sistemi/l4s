@@ -1286,6 +1286,9 @@ th {
 .table tbody > tr > th {
 border: 1px solid #ffffff;
 }
+.dataframe tbody > tr > td {
+  text-align: right;
+}
 .table thead > tr > th,
 .table tfoot > tr > th,
 .table thead > tr > td,
