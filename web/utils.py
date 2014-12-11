@@ -2535,7 +2535,7 @@ def drop_total_column(data_frame):
     else:
         last_col = col
     if last_col != TOTAL:
-        return
+        return data_frame
     data_frame = data_frame.drop(col, axis=1)
 
     return data_frame
@@ -2549,11 +2549,14 @@ def drop_total_row(data_frame):
     :return: Data frame.
     """
     try:
-        data_frame.sortlevel(inplace=True)
         index = data_frame.index.get_loc(TOTAL)
         data_frame = data_frame.drop(data_frame.index[index], axis=0)
     except (KeyError, TypeError):
-        pass
+        index = data_frame.index[len(data_frame.index)-1]
+        first_index_part = index
+        if first_index_part != TOTAL:
+            return data_frame
+        data_frame = data_frame.drop(index, axis=0)
 
     return data_frame
 
