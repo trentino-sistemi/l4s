@@ -2529,13 +2529,14 @@ def drop_total_column(data_frame):
     :param data_frame:
     :return: Data frame.
     """
-
-    try:
-        data_frame.sortlevel(inplace=True)
-        index = data_frame.columns.get_loc(TOTAL)
-        data_frame = data_frame.drop(data_frame.columns[index], axis=1)
-    except (KeyError, TypeError):
-        pass
+    col = data_frame.columns[len(data_frame.columns)-1]
+    if isinstance(col, tuple):
+        last_col = col[len(col)-1]
+    else:
+        last_col = col
+    if last_col != TOTAL:
+        return
+    data_frame = data_frame.drop(col, axis=1)
 
     return data_frame
 

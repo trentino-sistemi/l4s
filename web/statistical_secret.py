@@ -380,7 +380,7 @@ def row_secondary_suppression(data,
                     levels_list.remove("")
                 if l == 0:
                     start = 0
-                    end = len(data_frame.index.levels[l]) - 1
+                    end = len(data_frame.columns.levels[l]) - 1
                     levels_contents.append(levels_list[start:end])
                 else:
                     levels_contents.append(levels_list)
@@ -489,7 +489,7 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
                     levels_list.remove("")
                 if l == 0:
                     start = 0
-                    end = len(data_frame.index.levels[l])-1
+                    end = len(data_frame.columns.levels[l])-1
                     levels_contents.append(levels_list[start:end])
                 else:
                     levels_contents.append(levels_list)
