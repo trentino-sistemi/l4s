@@ -66,7 +66,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% for sel in sel_tab %}
             <tr>
                 <td>{{ sel }}</td>
-                <td>
+                <td><i>
                     {% if sel_tab|lookup:sel|length > 1 %}
                     {{ sel_tab|lookup:sel|length }} {% trans "values" %}:
                     {% endif %}
@@ -79,7 +79,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                        href="javascript:void(0)">{% trans "See more" %}</a>
                     <div id="more" class="collapse">{% for s in sel_tab|lookup:sel|slice:"9:" %}{{s}}, {% endfor %}</div>
                     {% else %}{% if not forloop.last %},{% endif %}{% endif %}
-                    {% endfor %}
+                    {% endfor %}</i>
                 </td>
             </tr>
             {% endfor %}
