@@ -22,6 +22,24 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load i18n %}
 
 {% block l4s_container %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>
+            <li>
+                <a href="/table_list/">{% trans "Join Metadata"%}</a>
+            </li>
+            <li>
+                <a href="/table/metadata/?table={{ table_name }}">{% trans "Table" %} '{{ table_name }}'</a>
+            </li>
+            {% if column_name != "NULL" %}
+            <li>
+                <a href="/table/metadata/?table={{ table_name }};column={{column_name}}">{% trans "column " %} '{{ column_name }}'</a>
+            </li>
+            {% endif %}
+            <li>{% trans " Add metadata" %}</li>
+        </li>
+    </ul>
+</div>
 <h3>
     {% trans "Edit new metadata" %} {%trans "for table" %} '{{table_name}}'
     {% if column_name != "NULL" %}
@@ -31,7 +49,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <form method="POST" action=".">
     {% csrf_token %}
     <table class="table table-striped">{{ form.as_table }}</table>
-    <p></p>
-    <input type="submit" value="{% trans "Submit" %}" />
+    <center>
+    {% if column_name != "NULL" %}
+    <a href="/table/metadata/?table={{ table_name }};column={{column_name}}"><input type="button" class="btn btn-default" value="{% trans "Cancel" %}"/></a>
+    {% else %}
+    <a href="/table/metadata/?table={{ table_name }}"><button class="btn btn-default">{% trans "Cancel" %}</button></a>
+    {% endif %}
+    <input class="btn btn-default" type="submit" value="{% trans "Submit" %}" />
+    </center>
 </form>
 {% endblock %}

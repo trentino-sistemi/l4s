@@ -53,12 +53,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <p></p>
 </form>
     <p align="center">
+        <button class="btn btn-default" onclick="$('#popup').modal('hide');">
+            {% trans "Cancel" %}
+        </button>
         <button class="btn btn-default"
                 onclick="submit_form()">
             {% trans "Submit" %}
-        </button>
-        <button class="btn btn-default" onclick="$('#popup').modal('hide');">
-            {% trans "Cancel" %}
         </button>
     </p>
 </div>
