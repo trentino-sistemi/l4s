@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from rdflib import Graph, URIRef, Literal, BNode, Namespace, term
-from rdflib.namespace import RDF, FOAF
+from rdflib.namespace import RDF
 from utils import get_metadata_on_column, \
     get_subject_table,\
     get_data_from_data_frame,\
