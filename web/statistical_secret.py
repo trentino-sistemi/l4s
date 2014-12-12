@@ -1138,7 +1138,7 @@ def secondary_row_suppression_constraint(data,
                     levels_list.remove("")
                 if l == 0:
                     start = 0
-                    end = len(data_frame.index.levels[l])-1
+                    end = len(data_frame.columns.levels[l])-1
                     levels_contents.append(levels_list[start:end])
                 else:
                     levels_contents.append(levels_list)
