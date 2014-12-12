@@ -383,6 +383,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="/static/js/spin.min.js"></script>
 <script type="text/javascript" src="/static/js/query_editor.js"></script>
 <script>
+
 function showTab() {
     $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
         //save the latest tab; use cookies if you like 'em better:
@@ -408,6 +409,7 @@ function showTab() {
         }
     }
 }
+
 function addOrderChevronDown() {
     order_by = "{{ order_by }}";
     if (order_by == "None") {

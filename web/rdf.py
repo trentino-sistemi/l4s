@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import string
-from rdflib import Graph,URIRef, Literal, BNode, Namespace, term
+from rdflib import Graph, URIRef, Literal, BNode, Namespace, term
 from rdflib.namespace import RDF, FOAF
 from utils import get_metadata_on_column, \
     get_subject_table,\

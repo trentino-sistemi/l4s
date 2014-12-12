@@ -98,8 +98,7 @@ from web.topics import build_topics_decoder_dict, \
     build_topics_dict, \
     build_queries_to_topics_mapping
 from explorer.views import ExplorerContextMixin, \
-    view_permission, \
-    reverse_lazy
+    view_permission
 from explorer.models import Query
 from explorer.utils import url_get_rows
 from web.actions import generate_report_action_csv, \

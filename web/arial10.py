@@ -184,4 +184,4 @@ def fit_height(data, bold=False):
         units = 290
     if bold:
         units *= 1.1
-    return int(units)
+    return round(units)

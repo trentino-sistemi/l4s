@@ -37,3 +37,6 @@ numpy==1.9.1
 
 # To export images in excel 2007.
 Pillow==2.6.1
+
+# Python 2 and 3 compatibility library
+six==1.8.0

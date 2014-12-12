@@ -29,21 +29,20 @@ from pandas import ExcelWriter
 from web.pyjstat import to_json_stat
 from web.utils import unpivot, has_data_frame_multi_level_columns
 from l4s.settings import LEGEND, DL_ART
-import pandas as pd
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
-from xlwt import easyxf, add_palette_colour, Alignment, XFStyle
-from openpyxl.styles import Style, Fill, Color, PatternFill, Font
+from xlwt import easyxf, add_palette_colour
+from openpyxl.styles import Style, Color, PatternFill, Font
 from openpyxl.styles import Alignment as OAlignment
 from openpyxl import Workbook as OWorkbook
 from openpyxl import load_workbook
 from openpyxl.drawing import Image
-
 from openpyxl.cell import get_column_letter
 from l4s import settings
 import arial10
 import StringIO
 import ast
+import six
 
 
 def generate_report_action_csv(df):
@@ -165,7 +164,7 @@ def generate_report_action_xls(df):
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
-                column_len = int(arial10.fit_width(value, False))
+                column_len = arial10.fit_width(value, False)
                 if isinstance(value, unicode):
                     if value.isdigit():
                         value = ast.literal_eval(value)
@@ -183,7 +182,7 @@ def generate_report_action_xls(df):
 
         # Adjust column width.
         for col in max_widths:
-            new_sheet.col(col).width = (max_widths[col] + 1)
+            new_sheet.col(col).width = round(max_widths[col]).__int__() + 1
             new_sheet.col(col)
 
         k = k + sheet_rows + 1
@@ -335,7 +334,7 @@ def generate_report_action_xlsx(df):
                 if value is None:
                     continue
                 cell = new_sheet.cell(row=r + k + 1, column=c + 1)
-                if not isinstance(value, (int, long, float, complex)):
+                if isinstance(value, six.string_types):
                     value = value.strip()
                     value = value.encode('utf-8')
                     if value.startswith("*") or value.isdigit():
@@ -345,8 +344,8 @@ def generate_report_action_xlsx(df):
                 else:
                     cell.style = body_style
                 cell.value = value
-                r_size = arial10.fit_width(str(value), False) / 256
-                column_len = int(r_size)
+                r_size = arial10.fit_width(str(value), False) / 255
+                column_len = round(r_size)
                 if r >= 1 and column_len > max_widths[c]:
                         max_widths[c] = column_len
 
@@ -363,7 +362,7 @@ def generate_report_action_xlsx(df):
 
         stat_img = Image(stat_bitmap)
         stat_img.drawing.left = 0
-        stat_img.drawing.top = k * 20
+        stat_img.drawing.top = k * 19
 
         #new_cell = new_sheet.cell(row=k, column=1)
         #stat_img.anchor(new_cell)
