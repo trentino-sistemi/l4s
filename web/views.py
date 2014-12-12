@@ -257,6 +257,7 @@ def query_viewmodel_get(request,
                            'query': query,
                            'form': form})
 
+
 class CreateQueryView(ExplorerContextMixin, CreateView):
     def dispatch(self, *args, **kwargs):
         return super(CreateQueryView, self).dispatch(*args, **kwargs)
