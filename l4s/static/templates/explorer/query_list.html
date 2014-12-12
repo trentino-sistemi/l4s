@@ -429,7 +429,7 @@ function addOrderChevronDown() {
 
 function deleteQuery(id, name) {
     var msg = "{% trans "Are you sure you want to delete the query with name" %}";
-    msg += " '" + name + " '";
+    msg += " '" + name + "'?";
     var dialog = bootbox.confirm(msg, function(result) {
         if (result) {
             window.location.href = id + "/delete";

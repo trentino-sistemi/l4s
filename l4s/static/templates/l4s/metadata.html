@@ -58,7 +58,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             <a href="/table/metadata/edit/?id={{ metadata.id }}">
                 <i class="glyphicon glyphicon-edit" style="font-size: 18px;"></i>
             </a>
-            <a href="/table/metadata/delete/?id={{ metadata.id }}">
+            <a href="#" onclick='deleteMetadata("{{ metadata.id }}",
+                                                "{{ metadata.key }}",
+                                                "{{ metadata.value }}");'>
                 <i class="glyphicon glyphicon-trash" style="font-size: 18px;"></i>
             </a>
         </td>
@@ -66,4 +68,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% endfor %}
     </tbody>
 </table>
+<script>
+
+function deleteMetadata(id, key, value) {
+    var msg = "{% trans "Are you sure you want to delete the metadata with" %}";
+    msg += " " + "{% trans "key" %}" + " '" + key + "' " + "{% trans "and" %}";
+    msg += " " + "{% trans "value" %}" + " '" + value + "'?";
+    var dialog = bootbox.confirm(msg, function(result) {
+        if (result) {
+            window.location.href = "/table/metadata/delete/?id=" + id;
+       }
+    });
+}
+
+</script>
 {% endblock %}
