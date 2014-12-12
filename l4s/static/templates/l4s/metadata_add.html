@@ -29,11 +29,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 <a href="/table_list/">{% trans "Join Metadata"%}</a>
             </li>
             <li>
-                <a href="/table/metadata/?table={{ table_name }}">{% trans "Table" %} '{{ table_name }}'</a>
+                <a href="/table/?name={{ table_name }}">
+                    {% trans "Table" %} '{{ table_name }}'
+                </a>
             </li>
             {% if column_name != "NULL" %}
             <li>
-                <a href="/table/metadata/?table={{ table_name }};column={{column_name}}">{% trans "column " %} '{{ column_name }}'</a>
+                <a href="/table/metadata/?table={{ table_name }};column={{column_name}}">
+                    {% trans "column " %} '{{ column_name }}'
+                </a>
             </li>
             {% endif %}
             <li>{% trans " Add metadata" %}</li>
@@ -50,12 +54,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% csrf_token %}
     <table class="table table-striped">{{ form.as_table }}</table>
     <center>
-    {% if column_name != "NULL" %}
-    <a href="/table/metadata/?table={{ table_name }};column={{column_name}}"><input type="button" class="btn btn-default" value="{% trans "Cancel" %}"/></a>
-    {% else %}
-    <a href="/table/metadata/?table={{ table_name }}"><button class="btn btn-default">{% trans "Cancel" %}</button></a>
-    {% endif %}
-    <input class="btn btn-default" type="submit" value="{% trans "Submit" %}" />
+        <a href="/table/metadata/?table={{ table_name }};column={{column_name}}">
+            <input type="button" class="btn btn-default" value="{% trans "Cancel" %}"/>
+        </a>
+        <input type="submit" class="btn btn-default" value="{% trans "Submit" %}" />
     </center>
 </form>
 {% endblock %}
