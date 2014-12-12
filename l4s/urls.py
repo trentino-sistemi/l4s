@@ -213,6 +213,10 @@ urlpatterns = patterns('',
                        url(r'^explorer/$',
                            'web.views.query_list',
                            name='query_list'),
+                       # Override explorer delete.
+                       url(r'(?P<pk>\d+)/delete$',
+                           'web.views.delete_query',
+                           name='query_delete'),
                        # Django explorer urls.
                        url(r'^explorer/',
                            include('explorer.urls')),

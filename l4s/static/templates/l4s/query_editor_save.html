@@ -61,14 +61,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 </p>
 <script>
 
-function override_popup() {
-    var msg = "{% trans "The query already exists." %}";
-    msg += " " + "{% trans "Do you want to overwrite it?" %}";
-    var dialog = bootbox.confirm(msg, function(result) {
-        return result;
-    });
-}
-
 function post_form(pk) {
     var new_input = '<input id="id_pk" name="pk" type="hidden" value="'
                     + pk + '"/>';
@@ -100,7 +92,6 @@ function submit_form() {
     }).responseText;
 
     if (pk != "-1") {
-       //result = override_popup();
        var msg = "{% trans "The query already exists." %}";
        msg += " " + "{% trans "Do you want to overwrite it?" %}";
        var dialog = bootbox.confirm(msg, function(result) {

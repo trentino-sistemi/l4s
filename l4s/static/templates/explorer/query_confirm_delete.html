@@ -26,8 +26,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <div class="alert alert-info">
             {% trans "Are you sure you want to delete the query with name" %} "{{ object.title }}" ?
         </div>
-        <div>
-            <input type="submit" value="{% trans "Delete Query" %}" class="btn btn-default" />
-        </div>
+        <center>
+            <div>
+                <a href="/explorer">
+                    <input type="button" class="btn btn-default" value="{% trans " Cancel" %}"/>
+                </a>
+                <input type="submit" value="{% trans " Submit" %}" class="btn btn-default" />
+            </div>
+        </center>
     </form>
 {%  endblock %}

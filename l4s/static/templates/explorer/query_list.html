@@ -186,7 +186,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 <td>{{ query.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
                 {% if query.created_by == request.user.email %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
-                    <a href="{{ query.id }}/delete"
+                    <a href="#" onclick='deleteQuery("{{ query.id }}", "{{ query.title }}");'
                        title="{% trans "Delete query" %}">
                        <i class="glyphicon glyphicon-trash"
                           style="font-size: 18px;">
@@ -270,10 +270,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         <span class="caret"></span>
                      </a>
                 </th>
-                {% if query.created_by == request.user.email %}
                 <th data-intro="{% trans "Query visibility; open eye means that others can see your query"  %}">{% trans "Visibility" %}</th>
                 <th data-intro="{% trans "Query actions; you can delete it clicking on trash" %}">{% trans "Actions" %}</th>
-                {% endif %}
             </tr>
             </thead>
             <tbody>
@@ -341,7 +339,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </td>
                 {% endif %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
-                    <a href="{{ query.id }}/delete"
+                     <a href="#" onclick='deleteQuery("{{ query.id }}", "{{ query.title }}");'
                        title="{% trans "Delete query" %}">
                         <i class="glyphicon glyphicon-trash"
                            style="font-size: 18px;"></i></a>
@@ -428,11 +426,23 @@ function addOrderChevronDown() {
         priv_elem.innerHTML = s;
     }
 }
+
+function deleteQuery(id, name) {
+    var msg = "{% trans "Are you sure you want to delete the query with name" %}";
+    msg += " '" + name + " '";
+    var dialog = bootbox.confirm(msg, function(result) {
+        if (result) {
+            window.location.href = id + "/delete";
+       }
+    });
+}
+
 $(document).ready(function(){
     initToken();
     showTab();
     addOrderChevronDown();
 })
+
 </script>
 {% endblock %}
 

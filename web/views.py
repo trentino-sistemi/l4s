@@ -257,7 +257,6 @@ def query_viewmodel_get(request,
                            'query': query,
                            'form': form})
 
-
 class CreateQueryView(ExplorerContextMixin, CreateView):
     def dispatch(self, *args, **kwargs):
         return super(CreateQueryView, self).dispatch(*args, **kwargs)
@@ -613,6 +612,21 @@ def empty_table(request):
     table_name = request.GET.get('table')
     if not table_name is None and table_name != "":
         delete_all(table_name)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required()
+def delete_query(request, pk):
+    """
+    Delete query with requested pk.
+
+    :param request: Django request.
+    :param pk: The query public key.
+    :return: The request response.
+    """
+    query = Query.objects.get(pk=pk)
+    if request.user.email == query.created_by:
+        query.delete()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
