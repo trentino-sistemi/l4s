@@ -1911,7 +1911,7 @@ def build_queries_to_tables_mapping(queries):
     """
     ret = dict()
     for query in queries:
-        m = re.findall(r'%s\ (.+?)\.' % JOIN_TOKEN, query.sql, re.DOTALL)
+        m = re.findall(r'%s (.+?)\.' % JOIN_TOKEN, query.sql, re.DOTALL)
         table_list = list(set(m))
         if len(table_list) != 0:
             ret[query.pk] = list(set(m))[0]
@@ -2969,11 +2969,10 @@ def generate_storage_id():
     return storage_id
 
 
-def get_session_filename(request):
+def get_session_filename():
     """
     Get a temporary filename associated to the request.
 
-    :param request: Http request.
     :return: Session file name.
     """
     session_id = str(generate_storage_id())
@@ -3007,14 +3006,13 @@ def load_data_frame(request):
     return df
 
 
-def store_data_frame(request, df):
+def store_data_frame(df):
     """
-    Store in a temporary file associated to the request the dataframe.
+    Store in a temporary file associated to the request the Data frame.
 
-    :param request: Http request.
     :param df: Data frame.
     """
-    store_name = get_session_filename(request)
+    store_name = get_session_filename()
     if os.path.exists(store_name):
         os.remove(store_name)
     df.to_pickle(store_name)

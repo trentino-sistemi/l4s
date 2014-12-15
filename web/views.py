@@ -218,7 +218,7 @@ def execute_query_viewmodel(request,
                 warn = warn_n
 
         if df is not None:
-            store = store_data_frame(request, df)
+            store = store_data_frame(df)
             html = data_frame_to_html(df, False, pivot)
 
     return RequestContext(request,
@@ -827,7 +827,8 @@ def no_implemented(request):
     :param request: Django request.
     :return: The request response.
     """
-    return render_to_response('l4s/no_implemented.html')
+    context = RequestContext(request)
+    return render_to_response('l4s/no_implemented.html', context)
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -875,35 +876,35 @@ def usage_report(request):
     context = RequestContext(request)
     year_s = request.GET.get('year')
     if not year_s is None:
-        selected_year = ast.literal_eval(year_s)
+        sel_year = ast.literal_eval(year_s)
     else:
-        selected_year = date.today().year
+        sel_year = date.today().year
 
     month_s = request.GET.get('month')
     if not month_s is None:
-        selected_month = ast.literal_eval(month_s)
+        sel_month = ast.literal_eval(month_s)
     else:
-        selected_month = None
+        sel_month = None
 
     years = saved_data_years()
     months = [[m, mon.title()] for m, mon in enumerate(calendar.month_name)]
     months[0][0] = None
     months[0][1] = ALL
 
-    if selected_month is None:
+    if sel_month is None:
         selected_month_name = ALL
     else:
-        selected_month_name = months[selected_month][1]
+        selected_month_name = months[sel_month][1]
 
-    queries = saved_queries_grouped_by_user_type(selected_year, selected_month)
-    manual_requests = saved_manual_requests_grouped_by_user_type(selected_year,
-                                                                 selected_month)
+    queries = saved_queries_grouped_by_user_type(sel_year, sel_month)
+    manual_requests = saved_manual_requests_grouped_by_user_type(sel_year,
+                                                                 sel_month)
     context['queries'] = queries
     context['manual_requests'] = manual_requests
     context['years'] = years
     context['months'] = months
-    context['selected_year'] = selected_year
-    context['selected_month'] = selected_month
+    context['selected_year'] = sel_year
+    context['selected_month'] = sel_month
     context['selected_month_name'] = selected_month_name
     return render_to_response("l4s/usage_report.html", context)
 
@@ -1366,7 +1367,7 @@ def query_editor_view(request):
 
         return render_to_response("l4s/query_editor_view.html", context)
 
-    store = store_data_frame(request, df)
+    store = store_data_frame(df)
     html = data_frame_to_html(df, visible, pivot)
 
     url = '/query_editor_view/?table=%s' % table_name
