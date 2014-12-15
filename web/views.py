@@ -89,7 +89,8 @@ from web.utils import get_variable_dictionary, \
     saved_queries_grouped_by_user_type,\
     saved_manual_requests_grouped_by_user_type,\
     saved_data_years, \
-    MissingMetadataException
+    MissingMetadataException,\
+    build_foreign_keys
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -964,10 +965,14 @@ def table(request):
     table_schema = get_table_schema(table_name)
     column_description = build_description_column_dict(table_name,
                                                        table_schema)
+
+    fks = build_foreign_keys(table_name)
     context = Context({'table_schema': table_schema})
     context['table_name'] = table_name
     context['request'] = request
     context['column_description'] = column_description
+    context['fks'] = fks
+    print fks
     return render_to_response("l4s/table.html", context)
 
 

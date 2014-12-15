@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-15 14:22+0100\n"
-"PO-Revision-Date: 2014-12-15 14:19+0100\n"
+"POT-Creation-Date: 2014-12-15 16:51+0100\n"
+"PO-Revision-Date: 2014-12-15 16:51+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -855,13 +855,13 @@ msgstr "Sei sicuro di voler cancellare il metadato con"
 msgid "key"
 msgstr "chiave"
 
-#: l4s/static/templates/l4s/metadata.html:75 web/utils.py:811
-#: web/utils.py:2905
+#: l4s/static/templates/l4s/metadata.html:75 web/utils.py:575
+#: web/utils.py:2922
 msgid "and"
 msgstr "e"
 
 #: l4s/static/templates/l4s/metadata.html:76 web/models.py:102
-#: web/utils.py:812
+#: web/utils.py:576
 msgid "value"
 msgstr "valore"
 
@@ -927,7 +927,7 @@ msgstr "Seleziona"
 
 #: l4s/static/templates/l4s/query_editor_customize.html:107
 #: l4s/static/templates/l4s/query_editor_customize.html:207
-#: l4s/static/templates/l4s/query_editor_customize.html:287 web/utils.py:73
+#: l4s/static/templates/l4s/query_editor_customize.html:287 web/utils.py:74
 msgid "All"
 msgstr "Tutti"
 
@@ -1054,6 +1054,10 @@ msgstr "Lista delle tabelle nella base di dati origine"
 #: l4s/static/templates/l4s/table.html:42
 msgid "Column name"
 msgstr "Nome colonna"
+
+#: l4s/static/templates/l4s/table.html:44
+msgid "Foreign key"
+msgstr "Chiavi esterne"
 
 #: l4s/static/templates/l4s/table_list.html:41
 msgid "All topics"
@@ -1291,7 +1295,7 @@ msgstr ""
 "Alcuni valori sono stati asteriscati per preservare il segreto statistico"
 
 #: web/statistical_secret.py:141 web/statistical_secret.py:156
-#: web/views.py:1283
+#: web/utils.py:646
 msgid "I can not pivot the table"
 msgstr "Non è possibile pivotare la tabella"
 
@@ -1304,7 +1308,7 @@ msgid "All objects passed were None"
 msgstr "Il risultato contiene solo valori nulli"
 
 #: web/statistical_secret.py:167 web/statistical_secret.py:1028
-#: web/utils.py:72
+#: web/utils.py:73
 msgid "Total"
 msgstr "Totale"
 
@@ -1317,133 +1321,124 @@ msgid "Can not pivot the table; missing rows!"
 msgstr ""
 "Non è possibile pivotare la tabella; lascia uno o più valori per le righe!"
 
-#: web/utils.py:71
+#: web/utils.py:72
 msgid "Code"
 msgstr "Codice"
 
-#: web/utils.py:809
+#: web/utils.py:573
 msgid "Please add the metadata "
 msgstr "Per favore aggiungi il metadato"
 
-#: web/utils.py:810
+#: web/utils.py:574
 msgid "with key"
 msgstr "con chiave"
 
-#: web/utils.py:813
-#, fuzzy
-msgid " on one of the columns of the table "
+#: web/utils.py:577
+msgid "on one of the columns of the table"
 msgstr "su una delle colonne della tabella"
 
-#: web/utils.py:1461
+#: web/utils.py:1478
 msgid "You can aggregate for a single criterion for each column only."
 msgstr "Puoi aggregare solo per un singolo criterio per ciascuna colonna."
 
-#: web/utils.py:1462
+#: web/utils.py:1479
 msgid "You have selected more than one aggregation on column"
 msgstr "Hai selezionato più di una aggregazione sulla colonna"
 
-#: web/utils.py:1465
+#: web/utils.py:1482
 msgid "with description"
 msgstr "con descrizione"
 
-#: web/utils.py:1853
+#: web/utils.py:1870
 msgid "The statistical service"
 msgstr "Il Servizio Statistica"
 
-#: web/utils.py:1854
+#: web/utils.py:1871
 msgid "is handling"
 msgstr "ha preso in carico"
 
-#: web/utils.py:1855
+#: web/utils.py:1872
 msgid "the request"
 msgstr "la richiesta"
 
-#: web/utils.py:1856
+#: web/utils.py:1873
 msgid "with subject"
 msgstr "con oggetto"
 
-#: web/utils.py:1858
+#: web/utils.py:1875
 msgid "Your request will be dispatched as soon as possible"
 msgstr ""
 "La richiesta verrà evasa al più presto compatibilmente con l'attività del "
 "Servizio"
 
-#: web/utils.py:1876 web/utils.py:1878
+#: web/utils.py:1893 web/utils.py:1895
 msgid "new manual request"
 msgstr "Nuova richiesta manuale"
 
-#: web/utils.py:1877
+#: web/utils.py:1894
 msgid "with id"
 msgstr "con il codice"
 
-#: web/utils.py:2091
+#: web/utils.py:2108
 msgid "Invalid syntax: "
 msgstr "Sintassi non corretta:"
 
-#: web/utils.py:2092
+#: web/utils.py:2109
 msgid "Usage"
 msgstr "Utilizzo"
 
-#: web/utils.py:2096
+#: web/utils.py:2113
 msgid "Invalid Token "
 msgstr "Carattere non corretto"
 
-#: web/utils.py:2097
+#: web/utils.py:2114
 msgid " expected token is "
 msgstr "carattere atteso"
 
-#: web/utils.py:2760
+#: web/utils.py:2777
 msgid "group by"
 msgstr "raggruppato per"
 
-#: web/utils.py:2886
+#: web/utils.py:2903
 msgid "Selected values"
 msgstr "Valori selezionati"
 
-#: web/utils.py:2904
+#: web/utils.py:2921
 msgid "for"
 msgstr "per"
 
-#: web/views.py:158
+#: web/views.py:160
 msgid "No --JOIN statements specified in SQL"
 msgstr "Non hai specificato le istruzioni --JOIN  in SQL"
 
-#: web/views.py:159
+#: web/views.py:161
 msgid "the table is shown as-is"
 msgstr "la tabella è mostrata così com'è"
 
-#: web/views.py:160
+#: web/views.py:162
 msgid "without preserving statistical secret"
 msgstr "senza preservare il segreto statistico"
 
-#: web/views.py:199
+#: web/views.py:201
 msgid "Can not give you the result set"
 msgstr "Non è possibile  mostrare il risultato"
 
-#: web/views.py:200
+#: web/views.py:202
 msgid "in order to preserve the statistical secret"
 msgstr "per preservare il segreto statistico"
 
-#: web/views.py:201
+#: web/views.py:203
 msgid "please chose a pivot and push the Apply button"
 msgstr ""
 "per favore scegli come costruire la tabella pivot e premi il bottone Applica"
 
-#: web/views.py:311 web/views.py:427
+#: web/views.py:313 web/views.py:429
 msgid "The Query could not be saved because the data didn't validate."
 msgstr "L'interrogazione non può essere salvata perchè incorretta."
 
-#: web/views.py:326 web/views.py:451
+#: web/views.py:328 web/views.py:453
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
-
-#: web/views.py:1278
-msgid "Please add the metadata 'obsValue'"
-msgstr "Per favore aggiungi il metadato 'obsValue'"
-
-#: web/views.py:1279
-msgid "on one of the columns of the table"
-msgstr "su una delle colonne della tabella"
 
 #: web/views.py:1370
 msgid "Can not display the requested content"
@@ -1460,6 +1455,13 @@ msgstr "L'interrogazione è stata salvata"
 #: web/views.py:1413
 msgid "In order to see the saved queries click"
 msgstr "Per vedere the interrogazioni salvate clicca"
+
+#, fuzzy
+#~ msgid " on one of the columns of the table "
+#~ msgstr "su una delle colonne della tabella"
+
+#~ msgid "Please add the metadata 'obsValue'"
+#~ msgstr "Per favore aggiungi il metadato 'obsValue'"
 
 #, fuzzy
 #~ msgid " to the description column on table "
