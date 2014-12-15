@@ -1,0 +1,137 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+
+{% block l4s_container %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>
+            {% trans "Usage report" %}
+        </li>
+    </ul>
+</div>
+<table data-intro="{% trans " Report summary" %}"
+       data-position="right"
+       style="width:auto"
+       class="table">
+    <tr>
+        <th colspan="2">{% trans "Report summary" %}</th>
+    </tr>
+    <tr>
+        <td>{% trans "Year" %}</td>
+        <td><i>
+            {{ selected_year }}
+        </i>
+        </td>
+    </tr>
+    <tr>
+        <td>{% trans "Month" %}</td>
+        <td><i>
+            {{ selected_month_name }}
+        </i>
+        </td>
+    </tr>
+</table>
+
+<h4>{% trans "Number of saved queries for user types" %}</h4>
+<br>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>{% trans "User type" %}</th>
+        <th>{% trans "Saved queries" %}</th>
+    </tr>
+    </thead>
+    {% for query in queries %}
+    <tr>
+        <td>{{query.0}}</td>
+        <td>{{query.1}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br><br>
+<h4>{% trans "Number of manual requests for user types" %}</h4>
+<br>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>{% trans "User type" %}</th>
+        <th>{% trans "Saved queries" %}</th>
+    </tr>
+    </thead>
+    {% for manual_request in manual_requests %}
+    <tr>
+        <td>{{manual_request.0}}</td>
+        <td>{{manual_request.1}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br><br>
+<h4>{% trans "Select date" %}</h4>
+<br>
+<form method="GET" action=".">
+    <table>
+        <tr>
+            <td>
+                {% trans "Year" %}
+            </td>
+            <td>
+
+                <div class="form-group">
+                    <div >
+                        <select name='year'
+                                class="form-control">
+                            {% for year in years %}
+                            <option value="{{ year }}"> {{ year }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {% trans "Month" %}
+            </td>
+            <td>
+                <div>
+                    <select name='month'
+                            class="form-control">
+                    {% for month in months %}
+                            <option value="{{ month.0 }}"> {{ month.1 }}
+                            </option>
+                    {% endfor %}
+                    </select>
+                </div>
+             </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="btn btn-default"
+                        type="submit"> {% trans "Submit" %}
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+{% endblock %}
