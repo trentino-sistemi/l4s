@@ -804,6 +804,7 @@ def find_desc_column(table_name):
     if not rows is None:
         for row in rows:
             return row[0]
+    raise Exception('No description column for table %s' % table_name)
     return ""
 
 
