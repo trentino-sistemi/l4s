@@ -28,40 +28,49 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <li>{% trans "Join Metadata"%}</li>
     </ul>
 </div>
-<div class="col-lg-4 nav navbar-nav navbar-right">
-    <form method="GET">
+<table width="100%">
+    <tr>
+        <td>
+            <div class="col-lg-4 nav navbar-nav navbar-right">
+                <form method="GET">
 
-        <select name='topic'
-                data-position="left"
-                class="form-control"
-                data-intro="{% trans " Filter list of tables by topics; push 'Search' button to filter tables" %}">
-        <option value="0">{% trans "All topics" %}</option>
-        {% for topic in topics %}
-        {% if topic == selected_topic %}
-        <option value="{{ topic }}" selected>
-            {{ topics|lookup:topic }}
-        </option>
-        {% else %}
-        <option value="{{ topic }}">
-            {{ topics|lookup:topic }}
-        </option>
-        {% endif %}
-        {% endfor %}
-        </select>
-        <div data-position="right"
-             class="input-group"
-             data-intro="{% trans " Filter list of tables by name and description; push 'Search' button to filter tables" %}">
-             <input type="text"
-                    placeholder="{% trans "Free text search..." %}"
-                    class="form-control"
-                    name="search"
-                    value="{{ request.GET.search }}">
-             <span class="input-group-btn">
-                 <button class="btn btn-default" type="submit">{% trans "Search" %}</button>
-            </span>
-         </div>
-     </form>
-</div>
+                    <select name='topic'
+                            data-position="left"
+                            class="form-control"
+                            data-intro="{% trans "Filter list of tables by topics; push 'Search' button to filter tables" %}">
+                    <option value="0">{% trans "All topics" %}</option>
+                    {% for topic in topics %}
+                    {% if topic == selected_topic %}
+                    <option value="{{ topic }}" selected>
+                        {{ topics|lookup:topic }}
+                    </option>
+                    {% else %}
+                    <option value="{{ topic }}">
+                        {{ topics|lookup:topic }}
+                    </option>
+                    {% endif %}
+                    {% endfor %}
+                    </select>
+                    <div data-position="bottom"
+                         class="input-group"
+                         data-intro="{% trans "Filter list of tables by name and description; push 'Search' button to filter tables" %}">
+                        <input type="text"
+                               placeholder="{% trans "Free text search..." %}"
+                               class="form-control"
+                               name="search"
+                               value="{{ request.GET.search }}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default"
+                                    type="submit">{% trans "Search" %}
+                            </button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </td>
+    </tr>
+</table>
+<br><br>
 {% if table_list|length > 0 %}
 <table class="table table-striped">
     <thead>
