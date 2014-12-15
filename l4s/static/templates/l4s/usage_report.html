@@ -29,29 +29,59 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </li>
     </ul>
 </div>
-<table data-intro="{% trans " Report summary" %}"
-       data-position="right"
-       style="width:auto"
-       class="table">
-    <tr>
-        <th colspan="2">{% trans "Report summary" %}</th>
-    </tr>
-    <tr>
-        <td>{% trans "Year" %}</td>
-        <td><i>
-            {{ selected_year }}
-        </i>
-        </td>
-    </tr>
-    <tr>
-        <td>{% trans "Month" %}</td>
-        <td><i>
-            {{ selected_month_name }}
-        </i>
-        </td>
-    </tr>
-</table>
-
+<h4>{% trans "Select date" %}</h4>
+<br>
+<form method="GET" action=".">
+    <table class="table table-striped">
+        <tr>
+            <td>
+                {% trans "Year" %}
+            </td>
+            <td>
+                <div class="form-group">
+                    <div>
+                        <select name='year'
+                                class="form-control">
+                            {% for year in years %}
+                            <option value="{{ year }}"
+                             {% if year == selected_year %}
+                                    selected
+                             {% endif %}> {{ year }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {% trans "Month" %}
+            </td>
+            <td>
+                <div>
+                    <select name='month'
+                            class="form-control">
+                        {% for month in months %}
+                        <option value="{{ month.0 }}"
+                        {% if month.0 == selected_month %}
+                                    selected
+                        {% endif %}>{{ month.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <p align="center">
+        <button class="btn btn-default"
+                type="submit"> {% trans "Submit" %}
+        </button>
+    </p>
+</form>
+<br>
+<br>
 <h4>{% trans "Number of saved queries for user types" %}</h4>
 <br>
 <table class="table table-striped">
@@ -75,7 +105,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     <thead>
     <tr>
         <th>{% trans "User type" %}</th>
-        <th>{% trans "Saved queries" %}</th>
+        <th>{% trans "Manual requests" %}</th>
     </tr>
     </thead>
     {% for manual_request in manual_requests %}
@@ -85,53 +115,4 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </tr>
     {% endfor %}
 </table>
-<br><br>
-<h4>{% trans "Select date" %}</h4>
-<br>
-<form method="GET" action=".">
-    <table>
-        <tr>
-            <td>
-                {% trans "Year" %}
-            </td>
-            <td>
-
-                <div class="form-group">
-                    <div >
-                        <select name='year'
-                                class="form-control">
-                            {% for year in years %}
-                            <option value="{{ year }}"> {{ year }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {% trans "Month" %}
-            </td>
-            <td>
-                <div>
-                    <select name='month'
-                            class="form-control">
-                    {% for month in months %}
-                            <option value="{{ month.0 }}"> {{ month.1 }}
-                            </option>
-                    {% endfor %}
-                    </select>
-                </div>
-             </td>
-        </tr>
-        <tr>
-            <td>
-                <button class="btn btn-default"
-                        type="submit"> {% trans "Submit" %}
-                </button>
-            </td>
-        </tr>
-    </table>
-</form>
 {% endblock %}
