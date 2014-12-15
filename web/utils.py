@@ -40,6 +40,7 @@ import pandas as pd
 import uuid
 from collections import OrderedDict
 import ast
+import six
 
 
 METADATA = 'web_metadata'
@@ -578,7 +579,13 @@ def choose_default_axis(table_name, ref_periods, hidden_fields):
 
     obs_values = all_obs_value_column(table_name, table_schema)
     if len(obs_values) < 1:
-        return -1, -1
+        error = unicode(_("Please add the metadata "))
+        error += " " + unicode(_("with key")) + " '" + MEASURE + "' "
+        error += unicode(_("and")) + " "
+        error += unicode(_("value")) + " '" + OBS_VALUE + "' "
+        error += unicode(_("on one of the columns of the table"))
+        error += " '" + table_name + "'"
+        raise Exception(error)
 
     for index in obs_values:
         neglected_index.append(index)
@@ -622,6 +629,11 @@ def choose_default_axis(table_name, ref_periods, hidden_fields):
                                           neglected_index)
     if not column_name is None:
         rows.append(column_name)
+
+    if len(cols) == 0 or len(rows) == 0:
+        error = _("I can not pivot the table")
+        error = "%s '%s'" % (unicode(error), table_name)
+        raise Exception(error)
 
     return cols, rows
 
@@ -806,8 +818,13 @@ def find_desc_column(table_name):
     if not rows is None:
         for row in rows:
             return row[0]
-    raise Exception('No description column for table %s' % table_name)
-    return ""
+    error = unicode(_("Please add the metadata "))
+    error += " " + unicode(_("with key")) + " '" + SAME_AS + "' "
+    error += unicode(_("and")) + " "
+    error += unicode(_("value")) + " '" + DESCRIPTION + "' "
+    error += unicode(_("on one of the columns of the table"))
+    error += " '" + table_name + "'"
+    raise Exception(error)
 
 
 def remove_code_from_data_frame(df):
@@ -3056,9 +3073,9 @@ def to_utf8(v):
     """
     if v is None:
         return "*"
-    if isinstance(v, (int, long, float, complex)):
-        return v
-    return v.encode('utf-8')
+    if isinstance(v, six.string_types):
+        return v.encode('utf-8')
+    return v
 
 
 def data_frame_to_html(df, visible, pivot):

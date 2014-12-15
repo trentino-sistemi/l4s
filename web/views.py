@@ -1257,7 +1257,12 @@ def query_editor_view(request):
     for f, field in enumerate(table_schema):
         column_name = field.name
         if not column_name in obs_values:
-            vals = get_all_field_values(table_name, column_name, None)
+            try:
+                vals = get_all_field_values(table_name, column_name, None)
+            except Exception, e:
+                context['error'] = "%s" % (unicode(e.message))
+                return render_to_response("l4s/query_editor_view.html",
+                                          context)
             values[column_name] = vals
 
     ref_periods = list_ref_period(table_name, table_schema)
@@ -1265,23 +1270,16 @@ def query_editor_view(request):
 
     filters = dict()
     if len(rows) + len(cols) == 0:
-        cols, rows = choose_default_axis(table_name,
-                                         ref_periods,
-                                         hidden_fields)
+        try:
+            cols, rows = choose_default_axis(table_name,
+                                             ref_periods,
+                                             hidden_fields)
+        except Exception, e:
+            context['error'] = "%s" % (unicode(e.message))
+            return render_to_response("l4s/query_editor_view.html",
+                                      context)
 
-        if cols == -1:
-            add = unicode(_("Please add the metadata 'obsValue'"))
-            choose = unicode(_("on one of the columns of the table"))
-            context['error'] = "%s %s '%s'" % (add, choose, table_name)
-            return render_to_response("l4s/query_editor_view.html", context)
-        elif len(cols) == 0 or len(rows) == 0:
-            error = _("I can not pivot the table")
-            context['error'] = "%s '%s'" % (unicode(error), table_name)
-            return render_to_response("l4s/query_editor_view.html", context)
-
-
-        elif len(cols) > 1:
-
+        if len(cols) > 1:
             if cols[0] in ref_periods.values():
                 for val in values:
                     if val == cols[0]:
