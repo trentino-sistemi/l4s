@@ -561,6 +561,24 @@ def get_all_field_values(table_name, column_name, select):
     return ret
 
 
+class MissingMetadataException(Exception):
+    def __init__(self, key, value, table):
+        """
+        Override exception init for the custom exception.
+
+        :param key: Missing metadata key
+        :param value: Missing key value.
+        :param table: Table where is missing the metadata.
+        """
+        error = unicode(_("Please add the metadata "))
+        error += " " + unicode(_("with key")) + " '" + key + "' "
+        error += unicode(_("and")) + " "
+        error += unicode(_("value")) + " '" + value + "' "
+        error += unicode(_("on one of the columns of the table"))
+        error += " '" + table + "'"
+        self.message = error
+
+
 def choose_default_axis(table_name, ref_periods, hidden_fields):
     """
     Choose default axis to be selected in a table if the user don't specify
@@ -579,13 +597,7 @@ def choose_default_axis(table_name, ref_periods, hidden_fields):
 
     obs_values = all_obs_value_column(table_name, table_schema)
     if len(obs_values) < 1:
-        error = unicode(_("Please add the metadata "))
-        error += " " + unicode(_("with key")) + " '" + MEASURE + "' "
-        error += unicode(_("and")) + " "
-        error += unicode(_("value")) + " '" + OBS_VALUE + "' "
-        error += unicode(_("on one of the columns of the table"))
-        error += " '" + table_name + "'"
-        raise Exception(error)
+        raise MissingMetadataException(MEASURE, OBS_VALUE, table_name)
 
     for index in obs_values:
         neglected_index.append(index)
@@ -818,13 +830,7 @@ def find_desc_column(table_name):
     if not rows is None:
         for row in rows:
             return row[0]
-    error = unicode(_("Please add the metadata "))
-    error += " " + unicode(_("with key")) + " '" + SAME_AS + "' "
-    error += unicode(_("and")) + " "
-    error += unicode(_("value")) + " '" + DESCRIPTION + "' "
-    error += unicode(_("on one of the columns of the table"))
-    error += " '" + table_name + "'"
-    raise Exception(error)
+    raise MissingMetadataException(SAME_AS, DESCRIPTION, table_name)
 
 
 def remove_code_from_data_frame(df):

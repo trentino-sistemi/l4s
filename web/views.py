@@ -88,7 +88,8 @@ from web.utils import get_variable_dictionary, \
     order_queries_by_topics, \
     saved_queries_grouped_by_user_type,\
     saved_manual_requests_grouped_by_user_type,\
-    saved_data_years
+    saved_data_years, \
+    MissingMetadataException
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1259,7 +1260,7 @@ def query_editor_view(request):
         if not column_name in obs_values:
             try:
                 vals = get_all_field_values(table_name, column_name, None)
-            except Exception, e:
+            except MissingMetadataException, e:
                 context['error'] = "%s" % (unicode(e.message))
                 return render_to_response("l4s/query_editor_view.html",
                                           context)
@@ -1274,7 +1275,7 @@ def query_editor_view(request):
             cols, rows = choose_default_axis(table_name,
                                              ref_periods,
                                              hidden_fields)
-        except Exception, e:
+        except MissingMetadataException, e:
             context['error'] = "%s" % (unicode(e.message))
             return render_to_response("l4s/query_editor_view.html",
                                       context)
