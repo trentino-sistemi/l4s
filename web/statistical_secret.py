@@ -1557,8 +1557,8 @@ def headers_and_data(query,
         return df, data, warn, err
 
     if err is None:
-        if len(old_head) < 3 and len(st.secret) + len(st.constr) + len(
-                st.sec_ref) == 1 and len(st.thresh) == 1:
+        if len(old_head) < 3 and len(st.secret) + len(st.constraint) + len(
+                st.secret_ref) == 1 and len(st.threshold) == 1:
             data, head, df = apply_stat_secret_plain(old_head,
                                                      data,
                                                      st.cols,

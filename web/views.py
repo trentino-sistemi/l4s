@@ -1268,12 +1268,17 @@ def query_editor_view(request):
         cols, rows = choose_default_axis(table_name,
                                          ref_periods,
                                          hidden_fields)
+
         if cols == -1:
             add = unicode(_("Please add the metadata 'obsValue'"))
             choose = unicode(_("on one of the columns of the table"))
             context['error'] = "%s %s '%s'" % (add, choose, table_name)
-
             return render_to_response("l4s/query_editor_view.html", context)
+        elif len(cols) == 0 or len(rows) == 0:
+            error = _("I can not pivot the table")
+            context['error'] = "%s '%s'" % (unicode(error), table_name)
+            return render_to_response("l4s/query_editor_view.html", context)
+
 
         elif len(cols) > 1:
 

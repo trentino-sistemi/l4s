@@ -595,14 +595,16 @@ def choose_default_axis(table_name, ref_periods, hidden_fields):
         index, column_name = min_distinct_values_column(table_name,
                                                         table_schema,
                                                         neglected_index)
-        neglected_index.append(index)
-        cols.append(column_name)
+        if not column_name is None:
+            neglected_index.append(index)
+            cols.append(column_name)
 
     if column_name is None:
         index, column_name = first_column(table_schema,
                                           neglected_index)
-        neglected_index.append(index)
-        cols.append(column_name)
+        if not column_name is None:
+            neglected_index.append(index)
+            cols.append(column_name)
 
     index, column_name = first_secret_column(table_name,
                                              table_schema,
@@ -618,8 +620,8 @@ def choose_default_axis(table_name, ref_periods, hidden_fields):
     if column_name is None:
         index, column_name = first_column(table_schema,
                                           neglected_index)
-
-    rows.append(column_name)
+    if not column_name is None:
+        rows.append(column_name)
 
     return cols, rows
 
@@ -1332,8 +1334,8 @@ def unpivot(df):
     Take a pivot table and unpivot it preserving the column number.
     This is useful to have a plain table from a pivoted one.
 
-    :param df: Pandas Dataframe.
-    :return: Unpivoted Pandas data frame.
+    :param df: Pandas Data frame.
+    :return: Un-pivoted Pandas data frame.
     """
     cols = []
     for c, col in enumerate(df.columns.names):
