@@ -43,6 +43,10 @@ import ast
 
 
 METADATA = 'web_metadata'
+USER_TYPE = 'web_usertype'
+QUERY = 'explorer_query'
+USER = 'web_user'
+MANUAL_REQUEST = 'web_manualrequest'
 LOCATED_IN_AREA = "http://dbpedia.org/ontology/locatedInArea"
 CLASS = "http://www.w3.org/2000/01/rdf-schema#Class"
 DIMENSION = 'http://purl.org/linked-data/cube#dimension'
@@ -981,6 +985,65 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                         desc_query += "%s" % desc_column
 
     return desc_query, query_header
+
+
+def saved_data_years():
+    """
+    Get the years in descendant order of saved data
+    (queries and manual requests)
+
+    :return: rows
+    """
+    query = "SELECT DISTINCT "
+    query += "cast(extract('year' from request_date) as int) y \n"
+    query += "FROM %s \n" % MANUAL_REQUEST
+    query += "UNION \n"
+    query += "SELECT DISTINCT "
+    query += "cast(extract('year' from created_at) as int) y \n"
+    query += "FROM %s \n" % QUERY
+    query += "ORDER BY y DESC"
+    rows = execute_query_on_django_db(query)
+    return [row[0] for row in rows]
+
+
+def saved_queries_grouped_by_user_type(year, month):
+    """
+    Return the number of saved queries grouped by user type.
+
+    :return: list of tuples <user_type, occurrences>
+    """
+
+    query = "SELECT UT.name, count(UT.name) \n"
+    query += "FROM %s EQ join %s U \n" % (QUERY, USER)
+    query += "ON (U.email = EQ.created_by) \n"
+    query += "JOIN %s UT ON (UT.id = U.user_type_id) \n" % USER_TYPE
+    query += "WHERE extract('year' from EQ.created_at) = '%d' \n" % year
+    if not month is None:
+        query += "AND extract('month' from EQ.created_at) = '%d' \n" % month
+    query += "GROUP BY UT.name \n"
+    query += "ORDER BY count(UT.name) DESC "
+
+    rows = execute_query_on_django_db(query)
+    return rows
+
+
+def saved_manual_requests_grouped_by_user_type(year, month):
+    """
+    Return the number of manual requests grouped by user type.
+
+    :return: list of tuples <user_type, occurrences>
+    """
+    query = "SELECT UT.name, count(UT.name) \n"
+    query += "FROM %s MR join %s U \n" % (MANUAL_REQUEST, USER)
+    query += "ON (U.id = MR.inquirer_id) \n"
+    query += "JOIN %s UT ON (UT.id = U.user_type_id) \n" % USER_TYPE
+    query += "WHERE extract('year' from MR.request_date) = '%d' \n" % year
+    if not month is None:
+        query += "AND extract('month' from MR.request_date) = '%d' \n" % month
+    query += "GROUP BY UT.name \n"
+    query += "ORDER BY count(UT.name) DESC "
+    rows = execute_query_on_django_db(query)
+    return rows
 
 
 def build_constraint_query(constraints,

@@ -23,10 +23,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load dictionary_extras %}
 
 {% block l4s_container %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>
+            {% trans "Synchronize" %}
+        </li>
+    </ul>
+</div>
 <div class="container"
      data-position="left"
      data-intro="{% trans " List of source database tables" %}">
-    <h3>{% trans "List of source database tables" %}</h3>
+    <h4>{% trans "List of source database tables" %}</h4>
     <table class="table table-striped">
         <thead>
         <tr>
@@ -36,10 +43,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </thead>
         <tbody>
         {% for table in table_list %}
+        {% if table in table_description_dict %}
         <tr>
             <td>{{ table }}</td>
             <td>{{ table_description_dict|lookup:table }}</td>
         </tr>
+        {% endif %}
         {% endfor %}
         </tbody>
     </table>

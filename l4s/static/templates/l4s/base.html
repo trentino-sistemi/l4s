@@ -104,24 +104,28 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             {% endif %}
                         </ul>
                     </li>
-                    {% if request.user.is_staff %}
-                    <li>
-                        <a href="/table_list">
-                            {% trans "Join Metadata"%}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/test_table">
-                            {% trans "Test"%}
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% if request.user.is_superuser %}
+                    {% if request.user.is_staff or request.user.is_superuser %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle"
                            data-toggle="dropdown">{% trans "Administer" %}<b
                                 class="caret"></b></a>
                         <ul class="dropdown-menu">
+                            <li>
+                                <a href="/table_list">
+                                    {% trans "Join Metadata" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/usage_report">
+                                    {% trans "Usage report" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/test_table">
+                                    {% trans "Test" %}
+                                </a>
+                            </li>
+                            {% if request.user.is_superuser %}
                             <li>
                                 <a href="/admin">{% trans "Admin Site" %}</a>
                             </li>
@@ -133,6 +137,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                     {% trans "Load ontology" %}
                                 </a>
                             </li>
+                            {% endif %}
                         </ul>
                     </li>
                     {% endif %}

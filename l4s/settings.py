@@ -27,7 +27,10 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import locale
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+locale.setlocale(locale.LC_ALL, '')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -225,6 +228,7 @@ CONTENT_TYPES = ['application/rdf+xml']
 
 LEGEND = "* = dato coperto da segreto statistico"
 DL_ART = "art. 9 D.L. 322/89"
+
 
 # Only defined in settings_local.py.
 LOCAL_APPS = ()

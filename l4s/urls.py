@@ -29,6 +29,10 @@ urlpatterns = patterns('',
                        url(r'^open_data/',
                            'web.views.open_data',
                            name='open_data'),
+                       #Url for usage report.
+                       url(r'^usage_report/',
+                           'web.views.usage_report',
+                           name='usage_report'),
                        #Url for query editor customize.
                        url(r'^query_editor_customize/$',
                            'web.views.query_editor_customize',

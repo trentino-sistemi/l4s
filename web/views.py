@@ -85,7 +85,10 @@ from web.utils import get_variable_dictionary, \
     found_column_position, \
     exclude_invisible_tables, \
     all_visible_tables,\
-    order_queries_by_topics
+    order_queries_by_topics, \
+    saved_queries_grouped_by_user_type,\
+    saved_manual_requests_grouped_by_user_type,\
+    saved_data_years
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -115,6 +118,9 @@ from django.utils import translation
 import json
 from collections import OrderedDict
 import ast
+from datetime import date
+import calendar
+from utils import ALL
 
 
 def execute_query_viewmodel(request,
@@ -855,6 +861,50 @@ def source_table_list(request):
     context['table_description_dict'] = table_description_dict
     context['topics'] = build_topics_decoder_dict()
     return render_to_response("l4s/source_table_list.html", context)
+
+
+@user_passes_test(lambda u: u.is_staff)
+def usage_report(request):
+    """
+    View usage report.
+
+    :param request: Django request.
+    :return: The Django request response.
+    """
+    context = RequestContext(request)
+    year_s = request.GET.get('year')
+    if not year_s is None:
+        selected_year = ast.literal_eval(year_s)
+    else:
+        selected_year = date.today().year
+
+    month_s = request.GET.get('month')
+    if not month_s is None:
+        selected_month = ast.literal_eval(month_s)
+    else:
+        selected_month = None
+
+    years = saved_data_years()
+    months = [[m, mon.title()] for m, mon in enumerate(calendar.month_name)]
+    months[0][0] = None
+    months[0][1] = ALL
+
+    if selected_month is None:
+        selected_month_name = ALL
+    else:
+        selected_month_name = months[selected_month][1]
+
+    queries = saved_queries_grouped_by_user_type(selected_year, selected_month)
+    manual_requests = saved_manual_requests_grouped_by_user_type(selected_year,
+                                                                 selected_month)
+    context['queries'] = queries
+    context['manual_requests'] = manual_requests
+    context['years'] = years
+    context['months'] = months
+    context['selected_year'] = selected_year
+    context['selected_month'] = selected_month
+    context['selected_month_name'] = selected_month_name
+    return render_to_response("l4s/usage_report.html", context)
 
 
 @user_passes_test(lambda u: u.is_staff)

@@ -22,8 +22,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% load i18n %}
 
 {% block l4s_container %}
-<h3>{% trans "Ontology files" %}
-</h3>
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>
+            {% trans "Load ontology" %}
+        </li>
+    </ul>
+</div>
 <input type="button"
        class="btn btn-default"
        value="{% trans " Add ontology" %}"
