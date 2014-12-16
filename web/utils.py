@@ -34,10 +34,8 @@ import re
 from l4s.settings import EXPLORER_DEFAULT_ROWS,\
     EXPLORER_DEFAULT_COLS,\
     DESCRIPTION_SUBJECT
-import tempfile
-import os
+
 import pandas as pd
-import uuid
 from collections import OrderedDict
 import ast
 import six
@@ -2957,66 +2955,6 @@ def build_query_title(column_description, obs_values, agg_col, cols, rows):
             title += ", " + desc.lower()
 
     return title
-
-
-def generate_storage_id():
-    """
-    Get a new storage id.
-
-    :return: Id fo build storage.
-    """
-    storage_id = "%d" % uuid.uuid4()
-    return storage_id
-
-
-def get_session_filename():
-    """
-    Get a temporary filename associated to the request.
-
-    :return: Session file name.
-    """
-    session_id = str(generate_storage_id())
-    sys_temp = tempfile.gettempdir()
-    store_name = "%s.pkl" % session_id
-    store_name = os.path.join(sys_temp, store_name)
-    return store_name
-
-
-def load_data_frame(request):
-    """
-    Load the data frame from the file associated to the request.
-
-    :param request: Http request.
-    :return: Data frame.
-    """
-    store_name = request.REQUEST.get('store', '')
-    if store_name is "":
-        query_id = request.REQUEST.get('id')
-        query = Query.objects.get(id=query_id)
-        if query.open_data:
-            st = detect_special_columns(query.sql)
-            query.sql, h = build_description_query(query.sql,
-                                                   st.cols,
-                                                   [],
-                                                   False,
-                                                   True)
-            head, data, duration, err = query.headers_and_data()
-            return pd.DataFrame(data, columns=head)
-    df = pd.read_pickle(store_name)
-    return df
-
-
-def store_data_frame(df):
-    """
-    Store in a temporary file associated to the request the Data frame.
-
-    :param df: Data frame.
-    """
-    store_name = get_session_filename()
-    if os.path.exists(store_name):
-        os.remove(store_name)
-    df.to_pickle(store_name)
-    return store_name
 
 
 def get_data_frame_first_index(data_frame):

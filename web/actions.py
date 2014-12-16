@@ -27,7 +27,9 @@ from sdmx import sdmx_report
 from tempfile import NamedTemporaryFile
 from pandas import ExcelWriter
 from web.pyjstat import to_json_stat
-from web.utils import unpivot, has_data_frame_multi_level_columns
+from web.utils import unpivot,\
+    has_data_frame_multi_level_columns
+from web.statistical_secret import load_data_frame
 from l4s.settings import LEGEND, DL_ART
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
@@ -45,10 +47,10 @@ import ast
 import six
 
 
-def generate_report_action_csv(df):
+def generate_report_action_csv(request):
     """
     Generate CSV file from SQL query.
-    :param df: Pandas data frame
+    :param request: Django request.
     """
     def generate_report(title):
         """
@@ -57,6 +59,7 @@ def generate_report_action_csv(df):
         :param title: The query title.
         :return: Response with CSV attachment.
         """
+        df = load_data_frame(request)
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
         extension = 'csv'
@@ -75,11 +78,11 @@ def generate_report_action_csv(df):
     return generate_report
 
 
-def generate_report_action_xls(df):
+def generate_report_action_xls(request):
     """
     Generate Excel 1997 file from SQL query.
 
-    :param df: Pandas data frame.
+    :param request: Django request.
     :return: Response with Excel 1997 attachment.
     """
 
@@ -200,7 +203,7 @@ def generate_report_action_xls(df):
         :param description: Query description.
         :return: Response with Excel 1997 attachment.
         """
-
+        df = load_data_frame(request)
         # Limit the columns to the maximum allowed in Excel 97.
         max_length = 255
         index_len = len(df.index.names)
@@ -234,11 +237,11 @@ def generate_report_action_xls(df):
     return generate_report
 
 
-def generate_report_action_xlsx(df):
+def generate_report_action_xlsx(request):
     """
     Generate Excel 2007 file from SQL query.
 
-    :param df: Pandas data frame.
+    :param request: Django request.
     :return: Response with Excel 2007 attachment.
     """
 
@@ -381,6 +384,8 @@ def generate_report_action_xlsx(df):
         engine = "openpyxl"
         encoding = 'utf-8'
 
+        df = load_data_frame(request)
+
         # Add content and return response
         f = NamedTemporaryFile(suffix=extension)
         ew = ExcelWriter(f.name, engine=engine, options={'encoding': encoding})
@@ -406,11 +411,11 @@ def generate_report_action_xlsx(df):
     return generate_report
 
 
-def generate_report_action_sdmx(df):
+def generate_report_action_sdmx(request):
     """
      Generate SDMX file from SQL query.
 
-    :param df: Pandas data frame.
+    :param request: Django request.
     :return: Response with SDMX attachment.
     """
 
@@ -422,7 +427,7 @@ def generate_report_action_sdmx(df):
         :param sql: The query sql.
         :return: Response with Sdmx attachment.
         """
-
+        df = load_data_frame(request)
         multi_index = has_data_frame_multi_level_columns(df)
         if multi_index:
             int_df = unpivot(df)
@@ -444,11 +449,11 @@ def generate_report_action_sdmx(df):
     return generate_report
 
 
-def generate_report_action_json_stat(df):
+def generate_report_action_json_stat(request):
     """
     Generate JSON-stat file from SQL query.
 
-    :param df: Pandas data frame.
+    :param request: Django request.
     :return: Response with CSV attachment.
     """
     def generate_report(title):
@@ -457,6 +462,7 @@ def generate_report_action_json_stat(df):
 
         :return: Response with JSON-stat attachment.
         """
+        df = load_data_frame(request)
         multi_index = has_data_frame_multi_level_columns(df)
         if multi_index:
             int_df = unpivot(df)
@@ -487,10 +493,11 @@ def generate_report_action_json_stat(df):
     return generate_report
 
 
-def generate_report_action_rdf(df):
+def generate_report_action_rdf(request):
     """
     Generate RDF file from SQL query.
 
+    :param request: Django request.
     :return: Response with RDF attachment.
     """
 
@@ -503,6 +510,7 @@ def generate_report_action_rdf(df):
         :param sql: Query sql.
         :return: Response with RDF attachment.
         """
+        df = load_data_frame(request)
         multi_index = has_data_frame_multi_level_columns(df)
         if multi_index:
             int_df = unpivot(df)
@@ -527,11 +535,11 @@ def generate_report_action_rdf(df):
     return generate_report
 
 
-def generate_report_action_turtle(df):
+def generate_report_action_turtle(request):
     """
     Generate TURTLE file from SQL query.
 
-    :param df: Pandas data frame.
+    :param request: Django request.
     :return: Response with TURTLE attachment.
     """
 
@@ -544,7 +552,7 @@ def generate_report_action_turtle(df):
         :param sql: Query sql.
         :return: Response with Turtle attachment.
         """
-
+        df = load_data_frame(request)
         multi_index = has_data_frame_multi_level_columns(df)
         if multi_index:
             int_df = unpivot(df)

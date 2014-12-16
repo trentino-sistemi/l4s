@@ -21,8 +21,7 @@
 function download(url, data, method, token){
 	//url and data options required
     if( url && data ){
-		//data can be string of parameters or array/object
-        //data = typeof data == 'string' ? data : jQuery.param(data);
+        //data can be string of parameters
         //split params into form inputs
         var inputs = '';
         jQuery.each(data.split('&'), function(){

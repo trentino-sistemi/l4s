@@ -39,6 +39,12 @@ from web.utils import execute_query_on_main_db, \
     contains_ref_period
 import itertools
 from utils import to_utf8
+from explorer.models import Query
+import tempfile
+import os
+import json
+import uuid
+import ast
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
@@ -1534,6 +1540,10 @@ def headers_and_data(query,
     df = None
     st = detect_special_columns(query.sql)
 
+    if pivot_cols is None:
+        # If it is not specified then use the standard one.
+        pivot_cols = st.pivot
+
     if len(aggregation) > 0:
         query.sql, err = build_aggregation_query(query.sql,
                                                  st.cols,
@@ -1580,6 +1590,7 @@ def headers_and_data(query,
                                                               aggregation,
                                                               debug,
                                                               visible)
+
     if not df is None:
         if not include_code:
             # Fix all columns before drop the codes.
@@ -1593,3 +1604,98 @@ def headers_and_data(query,
             df = drop_total_row(df)
 
     return df, data, warn, err
+
+
+def generate_storage_id():
+    """
+    Get a new storage id.
+
+    :return: Id fo build storage.
+    """
+    storage_id = "%d" % uuid.uuid4()
+    return storage_id
+
+
+def get_session_filename():
+    """
+    Get a temporary filename associated to the request.
+
+    :return: Session file name.
+    """
+    session_id = str(generate_storage_id())
+    sys_temp = tempfile.gettempdir()
+    store_name = "%s.pkl" % session_id
+    store_name = os.path.join(sys_temp, store_name)
+    return store_name
+
+
+def load_data_frame(request):
+    """
+    Load the data frame from the file associated to the request.
+
+    :param request: Http request.
+    :return: Data frame.
+    """
+    store_name = request.REQUEST.get('store', '')
+    if store_name is "":
+        query_id = request.REQUEST.get('id')
+        query = Query.objects.get(id=query_id)
+        if query.open_data:
+            st = detect_special_columns(query.sql)
+            query.sql, h = build_description_query(query.sql,
+                                                   st.cols,
+                                                   [],
+                                                   False,
+                                                   True)
+            head, data, duration, err = query.headers_and_data()
+            df = pd.DataFrame(data, columns=head)
+            return df
+        else:
+            filters = request.REQUEST.get('filters')
+            if filters is None and query.query_editor:
+                filters = json.loads(query.filters)
+            agg_filters = request.REQUEST.get('agg_filters')
+            if agg_filters is None and query.query_editor:
+                agg_filters = json.loads(query.agg_filters)
+            pivot_s = request.REQUEST.get('agg_filters')
+            if not pivot_s is None:
+                pivot_cols = [x for x in pivot_s.split(',')]
+            else:
+                # Preform standard pivot.
+                pivot_cols = None
+            aggregation = request.REQUEST.get('aggregate', "")
+            if query.query_editor and \
+                    (aggregation is None or aggregation == ""):
+                aggregation = query.aggregations
+
+            aggregation_ids = []
+            if aggregation is not None and aggregation != "":
+                aggregation_ids = [ast.literal_eval(x) for x in
+                                   aggregation.split(',')]
+
+            df, data, warn, err = headers_and_data(query,
+                                                   filters,
+                                                   aggregation_ids,
+                                                   agg_filters,
+                                                   pivot_cols,
+                                                   False,
+                                                   True,
+                                                   False,
+                                                   False)
+            return df
+    df = pd.read_pickle(store_name)
+    return df
+
+
+def store_data_frame(df):
+    """
+    Store in a temporary file associated to the request the Data frame.
+
+    :param df: Data frame.
+    """
+    store_name = get_session_filename()
+    if os.path.exists(store_name):
+        os.remove(store_name)
+    df.to_pickle(store_name)
+    return store_name
+

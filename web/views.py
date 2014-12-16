@@ -74,8 +74,6 @@ from web.utils import get_variable_dictionary, \
     build_query_title, \
     build_query_summary, \
     build_query_desc, \
-    load_data_frame, \
-    store_data_frame, \
     list_ref_period, \
     all_hidden_fields, \
     order_tables_by_descriptions, \
@@ -94,7 +92,8 @@ from web.utils import get_variable_dictionary, \
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
-    headers_and_data
+    headers_and_data, \
+    store_data_frame
 from web.topics import build_topics_decoder_dict, \
     filter_tables_by_topic, \
     build_topics_counter_dict, \
@@ -518,8 +517,7 @@ def query_download_csv(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_data_frame(request)
-    fn = generate_report_action_csv(df)
+    fn = generate_report_action_csv(request)
     title = request.REQUEST.get('title')
     return fn(title)
 
@@ -531,8 +529,7 @@ def query_download_xls(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_data_frame(request)
-    fn = generate_report_action_xls(df)
+    fn = generate_report_action_xls(request)
     title = request.REQUEST.get('title')
     description = request.REQUEST.get('description')
     return fn(title, description)
@@ -545,8 +542,7 @@ def query_download_xlsx(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_data_frame(request)
-    fn = generate_report_action_xlsx(df)
+    fn = generate_report_action_xlsx(request)
     title = request.REQUEST.get('title')
     description = request.REQUEST.get('description')
     return fn(title, description)
@@ -559,9 +555,8 @@ def query_download_json_stat(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_data_frame(request)
     title = request.REQUEST.get('title')
-    fn = generate_report_action_json_stat(df)
+    fn = generate_report_action_json_stat(request)
     return fn(title)
 
 
@@ -572,9 +567,8 @@ def query_download_sdmx(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_data_frame(request)
     title = request.REQUEST.get('title')
-    fn = generate_report_action_sdmx(df)
+    fn = generate_report_action_sdmx(request)
     sql = request.REQUEST.get('sql')
     return fn(title, sql)
 
@@ -586,11 +580,10 @@ def query_download_rdf(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_data_frame(request)
     title = request.REQUEST.get('title')
     sql = request.REQUEST.get('sql')
     description = request.REQUEST.get('description')
-    fn = generate_report_action_rdf(df)
+    fn = generate_report_action_rdf(request)
     return fn(title, description, sql)
 
 
@@ -601,11 +594,10 @@ def query_download_turtle(request):
     :param request: Django request.
     :return: The request response.
     """
-    df = load_data_frame(request)
     title = request.REQUEST.get('title')
     sql = request.REQUEST.get('sql')
     description = request.REQUEST.get('description')
-    fn = generate_report_action_turtle(df)
+    fn = generate_report_action_turtle(request)
     return fn(title, description, sql)
 
 
