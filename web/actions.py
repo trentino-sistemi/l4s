@@ -22,6 +22,7 @@ Actions for l4s project.
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from explorer.models import Query
 from rdf import rdf_report
 from sdmx import sdmx_report
 from tempfile import NamedTemporaryFile
@@ -60,7 +61,6 @@ def generate_report_action_csv(request):
         :return: Response with CSV attachment.
         """
         df = load_data_frame(request)
-
         title = title.strip().encode("UTF-8").replace(" ", '_')
         extension = 'csv'
         separator = ';'
@@ -574,3 +574,23 @@ def generate_report_action_turtle(request):
         return response
 
     return generate_report
+
+
+def query_title(request):
+    """
+    Get query title for the request.
+    If it is specified in request then use it else try to take it from query
+    title. If something go wrong use a fix string.
+
+    :param request: Django request.
+    :return: title
+    """
+    title = request.REQUEST.get('title')
+    if title is None:
+        query_id = request.REQUEST.get('id')
+        try:
+            query = Query.objects.get(id=query_id)
+            title = query.title
+        except:
+            title = 'result'
+    return title

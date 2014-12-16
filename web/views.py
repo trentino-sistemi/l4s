@@ -105,7 +105,8 @@ from explorer.views import ExplorerContextMixin, \
     view_permission
 from explorer.models import Query
 from explorer.utils import url_get_rows
-from web.actions import generate_report_action_csv, \
+from web.actions import query_title,\
+    generate_report_action_csv, \
     generate_report_action_xls, \
     generate_report_action_xlsx, \
     generate_report_action_sdmx,\
@@ -518,7 +519,7 @@ def query_download_csv(request):
     :return: The request response.
     """
     fn = generate_report_action_csv(request)
-    title = request.REQUEST.get('title')
+    title = query_title(request)
     return fn(title)
 
 
@@ -530,7 +531,7 @@ def query_download_xls(request):
     :return: The request response.
     """
     fn = generate_report_action_xls(request)
-    title = request.REQUEST.get('title')
+    title = query_title(request)
     description = request.REQUEST.get('description')
     return fn(title, description)
 
@@ -543,7 +544,7 @@ def query_download_xlsx(request):
     :return: The request response.
     """
     fn = generate_report_action_xlsx(request)
-    title = request.REQUEST.get('title')
+    title = query_title(request)
     description = request.REQUEST.get('description')
     return fn(title, description)
 
@@ -555,7 +556,7 @@ def query_download_json_stat(request):
     :param request: Django request.
     :return: The request response.
     """
-    title = request.REQUEST.get('title')
+    title = query_title(request)
     fn = generate_report_action_json_stat(request)
     return fn(title)
 
@@ -567,7 +568,7 @@ def query_download_sdmx(request):
     :param request: Django request.
     :return: The request response.
     """
-    title = request.REQUEST.get('title')
+    title = query_title(request)
     fn = generate_report_action_sdmx(request)
     sql = request.REQUEST.get('sql')
     return fn(title, sql)
@@ -580,7 +581,7 @@ def query_download_rdf(request):
     :param request: Django request.
     :return: The request response.
     """
-    title = request.REQUEST.get('title')
+    title = query_title(request)
     sql = request.REQUEST.get('sql')
     description = request.REQUEST.get('description')
     fn = generate_report_action_rdf(request)
@@ -594,7 +595,7 @@ def query_download_turtle(request):
     :param request: Django request.
     :return: The request response.
     """
-    title = request.REQUEST.get('title')
+    title = query_title(request)
     sql = request.REQUEST.get('sql')
     description = request.REQUEST.get('description')
     fn = generate_report_action_turtle(request)
