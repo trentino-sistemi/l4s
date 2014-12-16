@@ -1651,18 +1651,17 @@ def load_data_frame(request):
             df = pd.DataFrame(data, columns=head)
             return df
         else:
+            if not query.is_public:
+                return None
             filters = request.REQUEST.get('filters')
             if filters is None and query.query_editor:
                 filters = json.loads(query.filters)
             agg_filters = request.REQUEST.get('agg_filters')
             if agg_filters is None and query.query_editor:
                 agg_filters = json.loads(query.agg_filters)
-            pivot_s = request.REQUEST.get('agg_filters')
-            if not pivot_s is None:
-                pivot_cols = [x for x in pivot_s.split(',')]
-            else:
-                # Preform standard pivot.
-                pivot_cols = None
+
+            # Preform standard pivot.
+            pivot_cols = None
             aggregation = request.REQUEST.get('aggregate', "")
             if query.query_editor and \
                     (aggregation is None or aggregation == ""):
@@ -1672,6 +1671,7 @@ def load_data_frame(request):
             if aggregation is not None and aggregation != "":
                 aggregation_ids = [ast.literal_eval(x) for x in
                                    aggregation.split(',')]
+
 
             df, data, warn, err = headers_and_data(query,
                                                    filters,
