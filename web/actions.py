@@ -148,11 +148,12 @@ def generate_report_action_xls(request):
                                   head_cell)
 
         legend = "%s (%s)" % (LEGEND, DL_ART)
+        legend_cells = 4
         new_sheet.write(line_num + 2, 0, legend, body_cell)
         new_sheet.write_merge(line_num + 2,
                               line_num + 2,
                               0,
-                              1,
+                              legend_cells,
                               legend,
                               body_cell)
         line_num += 2
@@ -315,11 +316,11 @@ def generate_report_action_xlsx(request):
         cell = new_sheet.cell(row=line_num, column=1)
         cell.value = "%s (%s)" % (LEGEND, DL_ART)
         cell.style = body_style
-
+        legend_cells = 4
         new_sheet.merge_cells(start_row=line_num,
                               start_column=1,
                               end_row=line_num,
-                              end_column=5)
+                              end_column=legend_cells + 1)
 
         k = 1 + line_num
         max_widths = dict()
@@ -578,7 +579,7 @@ def generate_report_action_turtle(request):
 
 def query_title(request):
     """
-    Get query title for the request.
+    Get query title for the response.
     If it is specified in request then use it else try to take it from query
     title. If something go wrong use a fix string.
 
@@ -594,3 +595,41 @@ def query_title(request):
         except:
             title = 'result'
     return title
+
+
+def query_description(request):
+    """
+    Get query title for the response.
+    If it is specified in request then use it else try to take it from query
+    title. If something go wrong use empty string.
+
+    :param request:
+    """
+    description = request.REQUEST.get('description')
+    if description is None:
+        query_id = request.REQUEST.get('id')
+        try:
+            query = Query.objects.get(id=query_id)
+            description = query.description
+        except:
+            description = ''
+    return description
+
+
+def query_sql(request):
+    """
+    Get sql query for the response.
+    If it is specified in request then use it else try to take it from query
+    title. If something go wrong use empty string.
+
+    :param request:
+    """
+    sql = request.REQUEST.get('sql')
+    if sql is None:
+        query_id = request.REQUEST.get('id')
+        try:
+            query = Query.objects.get(id=query_id)
+            sql = query.sql
+        except:
+            sql = ''
+    return sql

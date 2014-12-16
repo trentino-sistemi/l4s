@@ -106,6 +106,8 @@ from explorer.views import ExplorerContextMixin, \
 from explorer.models import Query
 from explorer.utils import url_get_rows
 from web.actions import query_title,\
+    query_description,\
+    query_sql, \
     generate_report_action_csv, \
     generate_report_action_xls, \
     generate_report_action_xlsx, \
@@ -532,7 +534,8 @@ def query_download_xls(request):
     """
     fn = generate_report_action_xls(request)
     title = query_title(request)
-    description = request.REQUEST.get('description')
+    description = query_description(request)
+
     return fn(title, description)
 
 
@@ -545,7 +548,7 @@ def query_download_xlsx(request):
     """
     fn = generate_report_action_xlsx(request)
     title = query_title(request)
-    description = request.REQUEST.get('description')
+    description = query_description(request)
     return fn(title, description)
 
 
@@ -570,7 +573,7 @@ def query_download_sdmx(request):
     """
     title = query_title(request)
     fn = generate_report_action_sdmx(request)
-    sql = request.REQUEST.get('sql')
+    sql = query_sql(request)
     return fn(title, sql)
 
 
@@ -582,8 +585,8 @@ def query_download_rdf(request):
     :return: The request response.
     """
     title = query_title(request)
-    sql = request.REQUEST.get('sql')
-    description = request.REQUEST.get('description')
+    sql = query_sql(request)
+    description = query_description(request)
     fn = generate_report_action_rdf(request)
     return fn(title, description, sql)
 
@@ -596,8 +599,8 @@ def query_download_turtle(request):
     :return: The request response.
     """
     title = query_title(request)
-    sql = request.REQUEST.get('sql')
-    description = request.REQUEST.get('description')
+    sql = query_sql(request)
+    description = query_description(request)
     fn = generate_report_action_turtle(request)
     return fn(title, description, sql)
 
