@@ -1,5 +1,5 @@
 body {
-    background-color: gainsboro;
+    background-color: #ffffff;
 }
 a {
     text-decoration: none;
@@ -7,12 +7,13 @@ a {
 input[type='password'],
 input[type='text'],
 input[type='email'] {
-    width: 86%;
+    width: 98%;
     border-radius:4px;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     padding: 2px 4px;
     margin: 6px;
+    background: rgba(255,255,255,.35);
 }
 .logged-in {
     background: gainsboro url("/static/img/background.png") no-repeat center 80px;
@@ -29,12 +30,13 @@ input[type='email'] {
     font-size:  14px;
 }
 select{
-    width: 86%;
+    width: 98%;
     border-radius:4px;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     padding: 2px 4px;
     margin: 6px;
+    background: rgba(255,255,255,.35);
 }
 .inset {
     padding: 30px;

@@ -78,39 +78,61 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         {% csrf_token %}
         <table>
             <tr>
-                {{ form.email }}
-                <span style="color:red;"
-                      class="required">*</span> {{ form.email.errors }}
+                <td>{{ form.email }}</td>
+                <td>
+                    <span style="color:red;"
+                          class="required">*</span>
+                </td>
             </tr>
+            <tr>{{ form.email.errors }}</tr>
             <tr>
-                {{ form.first_name }}
-                <span style="color:red;"
-                      class="required">*</span> {{ form.first_name.errors }}
+                <td>{{ form.first_name }}</td>
+                <td>
+                    <span style="color:red;"
+                          class="required">*</span>
+                </td>
             </tr>
+            <tr>{{ form.first_name.errors }}</tr>
             <tr>
-                {{ form.last_name}}
-                <span style="color:red;"
-                      class="required">*</span> {{ form.last_name.errors }}
+                <td>{{ form.last_name}}</td>
+                <td>
+                    <span style="color:red;"
+                          class="required">*</span>
+                </td>
             </tr>
+            <tr>{{ form.last_name.errors }}</tr>
             <tr>
+                <td>
                 {{ form.phone_number }}
-                <span> </span> {{ form.phone_number.errors }}
+                </td>
+                <td>
+                </td>
             </tr>
+            <tr>{{ form.phone_number.errors }}</tr>
             <tr>
-                {{ form.user_type }}
-                <span style="color:red;"
-                      class="required">*</span> {{ form.user_type.errors }}
+                <td>{{ form.user_type }}</td>
+                <td>
+                    <span style="color:red;"
+                          class="required">*</span>
+                </td>
             </tr>
+            <tr>{{ form.user_type.errors }}</tr>
             <tr>
-                {{ form.password1 }}
-                <span style="color:red;"
-                      class="required">*</span> {{ form.password1.errors }}
+                <td>{{ form.password1 }}</td>
+                <td>
+                    <span style="color:red;"
+                          class="required">*</span>
+                </td>
             </tr>
+            <tr>{{ form.password1.errors }}</tr>
             <tr>
-                {{ form.password2 }}
-                <span style="color:red;"
-                      class="required">*</span> {{ form.password2.errors }}
+                <td>{{ form.password2 }}</td>
+                <td>
+                    <span style="color:red;"
+                          class="required">*</span>
+                </td>
             </tr>
+            <tr>{{ form.password2.errors }}</tr>
             <tr>
                 {{ form.non_field_errors }}
             </tr>
