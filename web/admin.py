@@ -19,12 +19,12 @@
 Django admin for l4s project.
 """
 from django.db import models
+from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as _UserAdmin
 from web.forms import UserChangeForm, \
     UserCreationForm, \
     UserTypeForm
 from web.models import User, Test3, Test4, Test5
-from django.contrib import admin
 
 
 class UserAdmin(_UserAdmin):

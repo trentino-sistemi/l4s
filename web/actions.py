@@ -24,6 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.exceptions import ObjectDoesNotExist
 from explorer.models import Query
+from l4s import settings
 from rdf import rdf_report
 from sdmx import sdmx_report
 from tempfile import NamedTemporaryFile
@@ -32,7 +33,6 @@ from web.pyjstat import to_json_stat
 from web.utils import unpivot,\
     has_data_frame_multi_level_columns
 from web.statistical_secret import load_data_frame
-from l4s.settings import LEGEND, DL_ART
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
 from xlwt import easyxf, add_palette_colour
@@ -42,7 +42,6 @@ from openpyxl import Workbook as OWorkbook
 from openpyxl import load_workbook
 from openpyxl.drawing import Image
 from openpyxl.cell import get_column_letter
-from l4s import settings
 import arial10
 import StringIO
 import ast
@@ -53,7 +52,7 @@ def new_xlwt_colored_workbook():
     """
     Get an Xlwt Workbook with the custom colors.
 
-    :return: xlwt.Woorkbook
+    :return: xlwt Woorkbook
     """
     new_workbook = XWorkbook(encoding="UTF-8")
     new_workbook.set_colour_RGB(0x21, 139, 31, 63)
@@ -160,7 +159,7 @@ def generate_report_action_xls(request):
                                   description,
                                   head_cell)
 
-        legend = "%s (%s)" % (LEGEND, DL_ART)
+        legend = "%s (%s)" % (settings.LEGEND, settings.DL_ART)
         legend_cells = 4
         new_sheet.write(line_num + 2, 0, legend, body_cell)
         new_sheet.write_merge(line_num + 2,
@@ -327,7 +326,7 @@ def generate_report_action_xlsx(request):
 
         line_num += 3
         cell = new_sheet.cell(row=line_num, column=1)
-        cell.value = "%s (%s)" % (LEGEND, DL_ART)
+        cell.value = "%s (%s)" % (settings.LEGEND, settings.DL_ART)
         cell.style = body_style
         legend_cells = 4
         new_sheet.merge_cells(start_row=line_num,

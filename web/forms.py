@@ -21,17 +21,17 @@ Django forms for l4s project.
 
 
 from django import forms
+from django.forms import ModelForm, Field, ValidationError
+from django.core.validators import MaxLengthValidator
 from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm as _UserCreationForm
-from web.models import UserType, Metadata, ManualRequest
 from django.utils.translation import ugettext_lazy as _
+from explorer.models import Query
+from l4s.settings import CONTENT_TYPES
+from web.models import UserType, Metadata, ManualRequest
 from web.topics import build_topics_choice
 from web.territorial_levels import build_territorial_levels_choice
-from l4s.settings import CONTENT_TYPES
-from django.forms import ModelForm, Field, ValidationError
-from explorer.models import Query
-from django.core.validators import MaxLengthValidator
 
 
 class CreateQueryEditorForm(ModelForm):

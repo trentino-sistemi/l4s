@@ -22,17 +22,25 @@ Django views for l4s project.
 from copy import deepcopy
 from django.db import connections
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response, \
-    get_object_or_404, redirect
 from django.template import RequestContext, Context
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 from django.views.generic.edit import CreateView
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import translation
+from django.shortcuts import render_to_response, \
+    get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required, \
+    user_passes_test
 from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
     EXPLORER_CONNECTION_NAME, \
     LEGEND, DL_ART
+from explorer.models import Query
+from explorer.utils import url_get_rows
+from explorer.views import ExplorerContextMixin, \
+    view_permission
+from web.exceptions import MissingMetadataException
 from web.models import Metadata, ManualRequest, OntologyFileModel
 from web.forms import QueryForm, \
     UserChangeForm, \
@@ -87,7 +95,6 @@ from web.utils import get_variable_dictionary, \
     saved_queries_grouped_by_user_type,\
     saved_manual_requests_grouped_by_user_type,\
     saved_data_years, \
-    MissingMetadataException,\
     build_foreign_keys
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
@@ -101,10 +108,6 @@ from web.topics import build_topics_decoder_dict, \
     get_topic_id,\
     build_topics_dict, \
     build_queries_to_topics_mapping
-from explorer.views import ExplorerContextMixin, \
-    view_permission
-from explorer.models import Query
-from explorer.utils import url_get_rows
 from web.actions import query_title,\
     query_description,\
     query_sql, \
@@ -117,15 +120,12 @@ from web.actions import query_title,\
     generate_report_action_json_stat,\
     generate_usage_report_action_xls
 from datetime import datetime
-from django.contrib.auth.decorators import login_required, \
-    user_passes_test
-from django.utils import translation
-import json
 from collections import OrderedDict
-import ast
 from datetime import date
-import calendar
 from utils import ALL
+import json
+import ast
+import calendar
 
 
 def execute_query_viewmodel(request,

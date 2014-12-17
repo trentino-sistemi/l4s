@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import StringIO
-import sdmx_message as sdmx
-import time
-from datetime import datetime
 from l4s.settings import SENDER, LANGUAGE_CODE, SENDER_NAME
 from web.utils import get_metadata_on_column,\
     get_data_from_data_frame,\
     get_column_description,\
     column_position_in_dataframe,\
     add_xml_header
+from datetime import datetime
+import sdmx_message as sdmx
+import StringIO
+import time
 
 
 class Item(object):

@@ -19,8 +19,6 @@
 Routines to preserve statistical secret.
 """
 from django.utils.translation import ugettext_lazy as _
-import pandas as pd
-import numpy as np
 from web.utils import execute_query_on_main_db, \
     build_constraint_query, \
     build_aggregation_query, \
@@ -37,14 +35,16 @@ from web.utils import execute_query_on_main_db, \
     has_data_frame_multi_level_index, \
     remove_code_from_data_frame, \
     contains_ref_period
-import itertools
 from utils import to_utf8
 from explorer.models import Query
+import itertools
 import tempfile
 import os
 import json
 import uuid
 import ast
+import pandas as pd
+import numpy as np
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
@@ -1671,7 +1671,6 @@ def load_data_frame(request):
             if aggregation is not None and aggregation != "":
                 aggregation_ids = [ast.literal_eval(x) for x in
                                    aggregation.split(',')]
-
 
             df, data, warn, err = headers_and_data(query,
                                                    filters,

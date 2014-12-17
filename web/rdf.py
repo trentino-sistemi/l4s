@@ -17,7 +17,7 @@
 
 from rdflib import Graph, URIRef, Literal, BNode, Namespace, term
 from rdflib.namespace import RDF
-from utils import get_metadata_on_column, \
+from web.utils import get_metadata_on_column, \
     get_subject_table,\
     get_data_from_data_frame,\
     to_utf8,\

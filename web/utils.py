@@ -20,23 +20,22 @@ Utils for l4s project.
 """
 
 from django.db import connections, connection
+from django.core.mail import send_mail
+from django.contrib.sites.models import Site
 from django.utils.translation import ugettext as _
-from l4s.settings import DEFAULT_FROM_EMAIL, \
-    EXPLORER_CONNECTION_NAME
 from web.models import Metadata
+from web.models import User
+from web.exceptions import MissingMetadataException
 from explorer.utils import url_get_params
 from explorer.models import Query
-from django.core.mail import send_mail
-from web.models import User
-from django.contrib.sites.models import Site
-import random
-import re
+from collections import OrderedDict
 from l4s.settings import EXPLORER_DEFAULT_ROWS,\
     EXPLORER_DEFAULT_COLS,\
-    DESCRIPTION_SUBJECT
-
+    DESCRIPTION_SUBJECT, DEFAULT_FROM_EMAIL, \
+    EXPLORER_CONNECTION_NAME
+import random
+import re
 import pandas as pd
-from collections import OrderedDict
 import ast
 import six
 
@@ -557,24 +556,6 @@ def get_all_field_values(table_name, column_name, select):
             ret.append(row)
 
     return ret
-
-
-class MissingMetadataException(Exception):
-    def __init__(self, key, value, table):
-        """
-        Override exception init for the custom exception.
-
-        :param key: Missing metadata key
-        :param value: Missing key value.
-        :param table: Table where is missing the metadata.
-        """
-        error = unicode(_("Please add the metadata "))
-        error += " " + unicode(_("with key")) + " '" + key + "' "
-        error += unicode(_("and")) + " "
-        error += unicode(_("value")) + " '" + value + "' "
-        error += unicode(_("on one of the columns of the table"))
-        error += " '" + table + "'"
-        self.message = error
 
 
 def choose_default_axis(table_name, ref_periods, hidden_fields):
