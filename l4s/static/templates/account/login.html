@@ -27,8 +27,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
-    <div class="inset" style="width:500px;height:227px">
-        <p><b>{% trans "Sign In" %}</b></p>
+    <div class="inset" style="width:500px;height:220px">
+        <h4><span style="color:red;">{% trans "Sign In" %}</span></h4>
         <form class="login" method="POST" action="{% url 'account_login' %}">
           {% csrf_token %}
             {{ form.non_field_errors }}

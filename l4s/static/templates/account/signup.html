@@ -64,19 +64,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </div>
   </div>
 </div>
-<div class="inset" style="width:500px;height:500px">
+<div class="inset" style="width:600px;height:540px">
     <form class="signup"
           id="signup_form"
           method="post"
           action="{% url 'account_signup' %}"
           onsubmit="return validate_form()">
-        <p><b>{% trans "Sign Up" %}</b></p>
+        <h4><span style="color:red;">{% trans "Sign Up" %}</span></h4>
         <p>{% trans "All fields marked with an asterisk" %} (<span style="color:red;"
                                                                    class="required">*</span>)
             {% trans "are required" %}
         </p>
         {% csrf_token %}
-        <table>
+        <table align="center">
             <tr>
                 <td>{{ form.email }}</td>
                 <td>
@@ -165,6 +165,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </td>
             </tr>
         </table>
+        <br>
         {% if redirect_field_value %}
         <input type="hidden"
                name="{{ redirect_field_name }}"
