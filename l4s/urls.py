@@ -186,6 +186,10 @@ urlpatterns = patterns('',
                        url(r'^legal_notes',
                            'web.views.legal_notes',
                            name='legal_notes'),
+                       # Url to show privacy policy.
+                       url(r'^privacy_policy',
+                           'web.views.privacy_policy',
+                           name='privacy_policy'),
                        # Url to show credits.
                        url(r'^credits',
                            'web.views.show_credits',

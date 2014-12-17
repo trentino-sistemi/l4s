@@ -1116,6 +1116,17 @@ def legal_notes(request):
     return render_to_response("l4s/legal_notes.html", context)
 
 
+def privacy_policy(request):
+    """
+    Show privacy policy.
+
+    :param request: Django request.
+    :return: The Django request response.
+    """
+    context = RequestContext(request)
+    return render_to_response("l4s/privacy_policy.html", context)
+
+
 def query_editor_customize(request):
     """
     Customize the default query in editor.

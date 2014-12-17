@@ -119,6 +119,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             <tr>
                 <td>
                     <input type="checkbox"
+                           onClick="show_privacy_policy(true);"
+                           id="accept_privacy_policy"/>
+                    <label class="control-label ">
+                        {% trans "I have read the" %}
+                        <a href="#"
+                           onclick="show_privacy_policy(false);">
+                           {% trans "privacy policy" %}</a>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="checkbox"
                            onClick="show_license(true);"
                            id="accept_license"/>
                     <label class="control-label ">
@@ -156,13 +169,19 @@ new_text  = "{% trans "Password (again)" %}";
 pub_elem.placeholder = new_text;
 
 function validate_form() {
-  var radio = document.getElementById('accept_license');
-  if (radio.checked) {
-      return true;
+  var accept_license = document.getElementById('accept_license');
+  if (!accept_license.checked) {
+      var error = '{% trans "Accept the license agreement in order to continue" %}';
+      bootbox.alert(error);
+      return false;
   }
-  var error = '{% trans "Accept the license agreement in order to continue" %}';
-  bootbox.alert(error);
-  return false;
+  var accept_privacy_policy = document.getElementById('accept_privacy_policy');
+  if (!accept_privacy_policy.checked) {
+      var error = '{% trans "Read the privacy policy in order to continue" %}';
+      bootbox.alert(error);
+      return false;
+  }
+  return true;
 }
 
 function show_license(check) {
@@ -207,5 +226,47 @@ function show_license(check) {
 	    }
     });
 }
+
+function show_privacy_policy(check) {
+    var radio = document.getElementById('accept_privacy_policy');
+    if (check) {
+       if (! radio.checked) {
+          return;
+       }
+    }
+    url= '/privacy_policy';
+    $.ajax({
+		url: url,
+        type: "GET",
+        success: function(response) {
+            var body = response
+            var confirm = "{% trans "I have read" %}";
+            var cancel = "{% trans "I haven't read" %}";
+            bootbox.dialog({
+                message: body,
+                buttons: {
+                    success: {
+                        label: confirm,
+                        className: "btn-danger",
+                        callback: function() {
+                            radio.checked = true;
+                        }
+                    },
+                    danger: {
+                        label: cancel,
+                        className: "btn-success",
+                        callback: function() {
+                            radio.checked = false;
+                        }
+                    }
+                }
+            });
+	    },
+        error: function(xhr, status) {
+            bootbox.alert(xhr.responseText);
+	    }
+    });
+}
+
 </script>
 {% endblock %}

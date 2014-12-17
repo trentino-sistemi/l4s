@@ -26,16 +26,32 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/static/js/jquery-ui.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-    <script type="text/javascript" src="/static/js/spin.min.js"></script>
-    <script type="text/javascript" src="/static/js/bootbox.min.js"></script>
-    <script type="text/javascript" src="/static/js/bootbox.conf.js"></script>
-    <link href="/static/css/drag_and_drop.css" rel="stylesheet">
-    <script type="text/javascript" src="/static/js/query_editor_customize.js"></script>
-    <script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
+    <meta http-equiv="X-UA-Compatible"
+          content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <script src="/static/js/jquery-ui.js">
+    </script>
+    <script type="text/javascript"
+            src="/static/js/jquery.cookie.js">
+    </script>
+    <script type="text/javascript"
+            src="/static/js/spin.min.js">
+    </script>
+    <script type="text/javascript"
+            src="/static/js/bootbox.min.js">
+    </script>
+    <script type="text/javascript"
+            src="/static/js/bootbox.conf.js">
+    </script>
+    <link href="/static/css/drag_and_drop.css"
+          rel="stylesheet">
+    <script type="text/javascript"
+            src="/static/js/query_editor_customize.js">
+    </script>
+    <script type="text/javascript"
+            src="/static/js/ajax_csfrtoken.js">
+    </script>
     <script>
     $(document).ready(function(){
         initToken();
@@ -50,7 +66,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </tr>
     <tr>
 
-        <td style="background-color:#bcdef0" class="pvtAxisContainer pvtUnused pvtHorizList ui-sortable drag_ul"
+        <td style="background-color:#bcdef0"
+            class="pvtAxisContainer pvtUnused pvtHorizList ui-sortable drag_ul"
             id="unselectedFields">
             {% for field in fields %}
             {% if not field in obs_values %}
@@ -61,7 +78,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 <span id="{{ field }}"
                       name = "{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
                       class="pvtAttr btn btn-default dropdown-toggle"
-                      data-toggle="dropdown">{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
+                      data-toggle="dropdown">
+                {{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
                       <span style="display:None">{{ field }}</span>
                       <span class="caret"></span>
                 </span>
@@ -72,7 +90,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% trans "Show" %} 
                     <div class="radio" id="radio_{{field}}">
                         <label>
-                            <input onclick="handleRadio(this, '{{ field }}', '{{ values|lookup:field|jsonify|escapejs }}', false, true);"
+                            <input onclick="handleRadio(this,
+                                                        '{{ field }}',
+                                                        '{{ values|lookup:field|jsonify|escapejs }}',
+                                                        false,
+                                                        true);"
                                    type="radio"
                                    name="unused"
                                    checked="checked"
@@ -84,7 +106,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% for ag in aggregations|lookup:agg %}
                     <div class="radio" id="radio_agg_{{ag}}">
                         <label>
-                            <input onclick="handleRadio(this, '{{ field }}', '{{ agg_values|lookup:ag|jsonify|escapejs }}', true, true);"
+                            <input onclick="handleRadio(this,
+                                                        '{{ field }}',
+                                                        '{{ agg_values|lookup:ag|jsonify|escapejs }}',
+                                                        true,
+                                                        true);"
                                    type="radio"
                                    name="unused"
                                    id="{{ ag }}"
@@ -103,16 +129,20 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <div class="'btn-group">
                         <button type="button"
                                 class="btn btn-default"
-                                onclick="checkByParent('select_{{field}}', true)">
+                                onclick="checkByParent('select_{{field}}',
+                                                        true);">
                             {% trans "All" %}
                         </button>
                         <button type="button"
                                 class="btn btn-default"
-                                onclick="checkByParent('select_{{field}}', false)">
+                                onclick="checkByParent('select_{{field}}',
+                                                        false);">
                             {% trans "None" %}
                         </button>
                     </div>
-                    <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
+                    <div id="select_{{field}}"
+                         name="select_{{field}}"
+                         class="radio_container">
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
                                name="input_{{ field }}"
@@ -134,25 +164,34 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </tr>
 </table>
 <table>
-<tr>
-<td>
-<div id="legend" style="BACKGROUND-COLOR: #5bc0de; BORDER: #1F556F thin solid; HEIGHT: 20px; WIDTH: 20px"></div>
-</td>
-<td>
-{% trans "The values ​​of the fields of this color can be grouped" %}
-</td>
-</tr>
+    <tr>
+        <td>
+            <div id="legend"
+                 style="BACKGROUND-COLOR: #5bc0de;
+                        BORDER: #1F556F thin solid;
+                        HEIGHT: 20px;
+                        WIDTH: 20px">
+            </div>
+        </td>
+        <td>
+            {% trans "The values ​​of the fields of this color can be grouped" %}
+        </td>
+    </tr>
 </table>
 <br>
 
 <table border="1" class="table">
     <tr>
         <td></td>
-        <th style="color:#375a7f; background-color:#cacaca">{% trans "Column" %}</th>
+        <th style="color:#375a7f;
+                   background-color:#cacaca">{% trans "Column" %}
+        </th>
     </tr>
     <tr>
-        <th style="color:#375a7f; background-color:#cacaca">{% trans "Row" %}</th>
-        <td style="background-color:#bcdef0" class="pvtAxisContainer pvtHorizList pvtCols ui-sortable drag_ul"
+        <th style="color:#375a7f; background-color:#cacaca">{% trans "Row" %}
+        </th>
+        <td style="background-color:#bcdef0"
+            class="pvtAxisContainer pvtHorizList pvtCols ui-sortable drag_ul"
             id="columnFields">
             {% for f in columns %}
             {% with columns|lookup:f as field %}
@@ -172,7 +211,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% trans "Show" %} 
                     <div class="radio" id="radio_{{columns|lookup:f }}">
                         <label>
-                            <input onclick="handleRadio(this, '{{ field  }}', '{{ values|lookup:field|jsonify|escapejs }}', false, true);"
+                            <input onclick="handleRadio(this,
+                                                        '{{ field  }}',
+                                                        '{{ values|lookup:field|jsonify|escapejs }}',
+                                                        false,
+                                                        true);"
                                    type="radio"
                                    name="columns"
                                    checked="checked"
@@ -184,7 +227,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% for ag in aggregations|lookup:agg %}
                     <div class="radio" id="radio_agg_{{ag}}">
                         <label>
-                            <input onclick="handleRadio(this, '{{ field }}', '{{ agg_values|lookup:ag|jsonify|escapejs }}', true, true);"
+                            <input onclick="handleRadio(this,
+                                                        '{{ field }}',
+                                                        '{{ agg_values|lookup:ag|jsonify|escapejs }}',
+                                                        true,
+                                                        true);"
                                    type="radio"
                                    name="columns"
                                    id="{{ ag }}"
@@ -203,16 +250,20 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <div class="'btn-group">
                         <button type="button"
                                 class="btn btn-default"
-                                onclick="checkByParent('select_{{field}}', true)">
+                                onclick="checkByParent('select_{{field}}',
+                                                       true);">
                             {% trans "All" %}
                         </button>
                         <button type="button"
                                 class="btn btn-default"
-                                onclick="checkByParent('select_{{field}}', false)">
+                                onclick="checkByParent('select_{{field}}',
+                                                       false);">
                             {% trans "None" %}
                         </button>
                     </div>
-                    <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
+                    <div id="select_{{field}}"
+                         name="select_{{field}}"
+                         class="radio_container">
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
                                {% if field in ref_periods %}
@@ -231,7 +282,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </td>
     </tr>
     <tr style="height:200px">
-        <td style="width:80;background-color:#bcdef0" valign="top"
+        <td style="width:80;background-color:#bcdef0"
+            valign="top"
             class="pvtAxisContainer pvtRows ui-sortable drag_ul"
             id="rowFields">
             {% for f in rows %}
@@ -252,7 +304,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% trans "Show" %} 
                     <div class="radio" id="radio_{{field}}">
                         <label>
-                            <input onclick="handleRadio(this, '{{ field }}', '{{ values|lookup:field|jsonify|escapejs }}', false, true);"
+                            <input onclick="handleRadio(this,
+                                                        '{{ field }}',
+                                                        '{{ values|lookup:field|jsonify|escapejs }}',
+                                                        false,
+                                                        true);"
                                    type="radio"
                                    name="rows"
                                    checked="checked"
@@ -262,9 +318,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         </label>
                     </div>
                     {% for ag in aggregations|lookup:agg %}
-                    <div class="radio" id="radio_agg_{{ag}}">
+                    <div class="radio"
+                         id="radio_agg_{{ag}}">
                         <label>
-                            <input onclick="handleRadio(this, '{{ field }}', '{{ agg_values|lookup:ag|jsonify|escapejs }}', true, true);"
+                            <input onclick="handleRadio(this,
+                                                        '{{ field }}',
+                                                        '{{ agg_values|lookup:ag|jsonify|escapejs }}',
+                                                        true,
+                                                        true);"
                                    type="radio"
                                    name="rows"
                                    id="{{ ag }}"
@@ -283,16 +344,20 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <div class="'btn-group">
                         <button type="button"
                                 class="btn btn-default"
-                                onclick="checkByParent('select_{{field}}', true)">
+                                onclick="checkByParent('select_{{field}}',
+                                                       true);">
                             {% trans "All" %}
                         </button>
                         <button type="button"
                                 class="btn btn-default"
-                                onclick="checkByParent('select_{{field}}', false)">
+                                onclick="checkByParent('select_{{field}}',
+                                                       false);">
                             {% trans "None" %}
                         </button>
                     </div>
-                    <div id="select_{{field}}"  name="select_{{field}}" class="radio_container">
+                    <div id="select_{{field}}"
+                         name="select_{{field}}"
+                         class="radio_container">
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
                                {% if field.1 in ref_periods %}
@@ -310,10 +375,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% endfor %}
         </td>
         <td>
-            <table style="width:100%;height:200;background-color:#a1284" border="1" class="table">
+            <table style="width:100%;height:200;background-color:#a1284"
+                   border="1"
+                   class="table">
                 <th>{% trans "Data" %}</th>
                 <tr>
-                    <td style="width:150px;height:100%" valign="top"
+                    <td style="width:150px;height:100%"
+                        valign="top"
                         class="pvtAxisContainer"
                         id="valueFields">
                         <!-- The data values -->
@@ -322,11 +390,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         {% if obs_values|length == 1 %}
                         {% with obs_values.0 as field %}
                         <li>
-                           <input type="checkbox" disabled="disabled"
-                                   id="obs_{{ field }}"
-                                   {% if field in selected_obs_values %}
-                                   checked="checked"
-                                   {% endif %}/>
+                           <input type="checkbox"
+                                  disabled="disabled"
+                                  id="obs_{{ field }}"
+                                  {% if field in selected_obs_values %}
+                                  checked="checked"
+                                  {% endif %}/>
                             <span class="pvtAttr btn btn-default dropdown-toggle">
                                 {{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}
                                 <span style="display:None">{{ field }}</span>
