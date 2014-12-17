@@ -633,3 +633,109 @@ def query_sql(request):
         except:
             sql = ''
     return sql
+
+
+def generate_usage_report_action_xls(request):
+
+    def generate_report():
+        import json
+
+        extension = 'xls'
+        f = NamedTemporaryFile(suffix=extension)
+
+        content_type = 'application/vnd.ms-excel'
+        # Setup response
+        queries_s = request.REQUEST.get('queries')
+        queries = eval( "[%s]" % queries_s )[0]
+        manual_request_s = request.REQUEST.get('manual_requests')
+        manual_requests =  eval( "[%s]" % manual_request_s )[0]
+        new_workbook = XWorkbook(encoding="UTF-8")
+        new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
+        new_workbook.set_colour_RGB(0x21, 139, 31, 63)
+        new_workbook.set_colour_RGB(0x22, 255, 255, 255)
+        new_workbook.set_colour_RGB(0x23, 31, 85, 111)
+        add_palette_colour("custom_colour", 0x21)
+        add_palette_colour("white", 0x22)
+        add_palette_colour("blue", 0x23)
+        head_cfg = 'pattern: pattern solid, fore_colour custom_colour;'
+        head_cfg += 'font: colour white, bold True;'
+        head_cfg += 'alignment: horizontal left, vertical top, wrap true;'
+        head_cell = easyxf(head_cfg)
+        header_len = 2
+        title =  unicode(_('Usage report'))
+
+        body_cfg = 'font: colour blue;'
+        body_cfg += 'alignment: vertical top, wrap true;'
+        body_cell = easyxf(body_cfg)
+
+        new_sheet.write(0, 0, title, head_cell)
+        new_sheet.write_merge(0, 0, 0, header_len -1, title, head_cell)
+
+        max_widths = dict()
+        default_width = 10
+        for col in range(2):
+            max_widths[col] = default_width
+
+        start = 3
+        title = unicode(_("User type"))
+        new_sheet.write(start, 0, title, head_cell)
+        column_len = arial10.fit_width(title, False)
+        max_widths[0] = column_len
+        title = unicode(_("Saved queries"))
+        new_sheet.write(start, 1, title, head_cell)
+        column_len = arial10.fit_width(title, False)
+        max_widths[1] = column_len
+        start = start + 1
+
+        for q, query in enumerate(queries):
+            new_sheet.write(q + start, 0, query[0], body_cell)
+            column_len = arial10.fit_width(query[0], False)
+            if column_len > max_widths[0]:
+                max_widths[0] = column_len
+            new_sheet.write(q + start, 1, query[1], body_cell)
+
+        start = start + q + 3
+        title = unicode(_("User type"))
+        new_sheet.write(start, 0, title, head_cell)
+        column_len = arial10.fit_width(title, False)
+        max_widths[0] = column_len
+        title = unicode(_("Manual requests"))
+        new_sheet.write(start, 1, title, head_cell)
+        column_len = arial10.fit_width(title, False)
+        max_widths[1] = column_len
+
+        start = start + 1
+
+        for q, query in enumerate(manual_requests):
+            new_sheet.write(q + start, 0, query[0], body_cell)
+            new_sheet.write(q + start, 1, query[1], body_cell)
+            column_len = arial10.fit_width(query[0], False)
+            if column_len > max_widths[0]:
+                max_widths[0] = column_len
+            new_sheet.write(q + start, 1, query[1], body_cell)
+
+        # Adjust column width.
+        for col in max_widths:
+            new_sheet.col(col).width = round(max_widths[col]).__int__() + 1
+
+        start = start + q + 3
+        if settings.DEBUG:
+            stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
+        else:
+            stat_bitmap = static('/img/testata_Statistica.bmp')
+        new_sheet.insert_bitmap(stat_bitmap, start, 0)
+
+        new_workbook.save(f.name)
+
+        title = title.strip().encode("UTF-8").replace(" ", '_')
+        filename = '%s.%s' % (title, extension)
+
+        data = f.read()
+        response = HttpResponse(data)
+        response["Content-Type"] = content_type
+        response['Content-Transfer-Encoding'] = 'binary'
+        response[
+            'Content-Disposition'] = 'attachment; filename="%s"' % filename
+        return response
+
+    return generate_report

@@ -114,7 +114,8 @@ from web.actions import query_title,\
     generate_report_action_sdmx,\
     generate_report_action_rdf, \
     generate_report_action_turtle, \
-    generate_report_action_json_stat
+    generate_report_action_json_stat,\
+    generate_usage_report_action_xls
 from datetime import datetime
 from django.contrib.auth.decorators import login_required, \
     user_passes_test
@@ -860,6 +861,12 @@ def source_table_list(request):
     context['table_description_dict'] = table_description_dict
     context['topics'] = build_topics_decoder_dict()
     return render_to_response("l4s/source_table_list.html", context)
+
+
+@user_passes_test(lambda u: u.is_staff)
+def usage_report_download_xls(request):
+    fn = generate_usage_report_action_xls(request)
+    return fn()
 
 
 @user_passes_test(lambda u: u.is_staff)

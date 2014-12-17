@@ -29,6 +29,10 @@ urlpatterns = patterns('',
                        url(r'^open_data/',
                            'web.views.open_data',
                            name='open_data'),
+                      # Url to download usage report in excel 97 format.
+                       url(r'^usage_report/download_xls',
+                           'web.views.usage_report_download_xls',
+                           name='usage_report_download_xls'),
                        #Url for usage report.
                        url(r'^usage_report/',
                            'web.views.usage_report',
