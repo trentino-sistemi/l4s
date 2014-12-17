@@ -43,9 +43,10 @@ from openpyxl import load_workbook
 from openpyxl.drawing import Image
 from openpyxl.cell import get_column_letter
 import arial10
-import StringIO
 import ast
 import six
+import calendar
+import StringIO
 
 
 def new_xlwt_colored_workbook():
@@ -666,8 +667,14 @@ def generate_usage_report_action_xls(request):
         head_cfg += 'font: colour white, bold True;'
         head_cfg += 'alignment: horizontal left, vertical top, wrap true;'
         head_cell = easyxf(head_cfg)
-        header_len = 2
+        header_len = 5
         title = unicode(_('Usage report'))
+        year = request.REQUEST.get('year')
+        month = request.REQUEST.get('month')
+        title += " " + unicode(_('Year')) + " " + year
+        if month != "None":
+            month_name = calendar.month_name[ast.literal_eval(month)]
+            title += ", " + unicode(_('Month')).lower() + " " + month_name
 
         body_cfg = 'font: colour blue;'
         body_cfg += 'alignment: vertical top, wrap true;'
@@ -675,6 +682,7 @@ def generate_usage_report_action_xls(request):
 
         new_sheet.write(0, 0, title, head_cell)
         new_sheet.write_merge(0, 0, 0, header_len - 1, title, head_cell)
+
 
         max_widths = dict()
         default_width = 10
