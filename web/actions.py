@@ -22,6 +22,7 @@ Actions for l4s project.
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.core.exceptions import ObjectDoesNotExist
 from explorer.models import Query
 from rdf import rdf_report
 from sdmx import sdmx_report
@@ -46,6 +47,22 @@ import arial10
 import StringIO
 import ast
 import six
+
+
+def new_xlwt_colored_workbook():
+    """
+    Get an Xlwt Workbook with the custom colors.
+
+    :return: xlwt.Woorkbook
+    """
+    new_workbook = XWorkbook(encoding="UTF-8")
+    new_workbook.set_colour_RGB(0x21, 139, 31, 63)
+    new_workbook.set_colour_RGB(0x22, 255, 255, 255)
+    new_workbook.set_colour_RGB(0x23, 31, 85, 111)
+    add_palette_colour("custom_colour", 0x21)
+    add_palette_colour("white", 0x22)
+    add_palette_colour("blue", 0x23)
+    return new_workbook
 
 
 def generate_report_action_csv(request):
@@ -98,13 +115,9 @@ def generate_report_action_xls(request):
         sheet = workbook.sheet_by_index(0)
         header_len = 12
         sheet_rows = sheet.nrows
-        new_workbook = XWorkbook(encoding="UTF-8")
-        new_workbook.set_colour_RGB(0x21, 139, 31, 63)
-        new_workbook.set_colour_RGB(0x22, 255, 255, 255)
-        new_workbook.set_colour_RGB(0x23, 31, 85, 111)
-        add_palette_colour("custom_colour", 0x21)
-        add_palette_colour("white", 0x22)
-        add_palette_colour("blue", 0x23)
+
+        new_workbook = new_xlwt_colored_workbook()
+
         head_cfg = 'pattern: pattern solid, fore_colour custom_colour;'
         head_cfg += 'font: colour white, bold True;'
         head_cfg += 'alignment: horizontal left, vertical top, wrap true;'
@@ -592,7 +605,7 @@ def query_title(request):
         try:
             query = Query.objects.get(id=query_id)
             title = query.title
-        except:
+        except ObjectDoesNotExist:
             title = 'result'
     return title
 
@@ -611,7 +624,7 @@ def query_description(request):
         try:
             query = Query.objects.get(id=query_id)
             description = query.description
-        except:
+        except ObjectDoesNotExist:
             description = ''
     return description
 
@@ -630,7 +643,7 @@ def query_sql(request):
         try:
             query = Query.objects.get(id=query_id)
             sql = query.sql
-        except:
+        except ObjectDoesNotExist:
             sql = ''
     return sql
 
@@ -638,38 +651,31 @@ def query_sql(request):
 def generate_usage_report_action_xls(request):
 
     def generate_report():
-        import json
-
         extension = 'xls'
         f = NamedTemporaryFile(suffix=extension)
 
         content_type = 'application/vnd.ms-excel'
         # Setup response
         queries_s = request.REQUEST.get('queries')
-        queries = eval( "[%s]" % queries_s )[0]
+        queries = eval("[%s]" % queries_s)[0]
         manual_request_s = request.REQUEST.get('manual_requests')
-        manual_requests =  eval( "[%s]" % manual_request_s )[0]
-        new_workbook = XWorkbook(encoding="UTF-8")
+        manual_requests = eval("[%s]" % manual_request_s)[0]
+        new_workbook = new_xlwt_colored_workbook()
+
         new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
-        new_workbook.set_colour_RGB(0x21, 139, 31, 63)
-        new_workbook.set_colour_RGB(0x22, 255, 255, 255)
-        new_workbook.set_colour_RGB(0x23, 31, 85, 111)
-        add_palette_colour("custom_colour", 0x21)
-        add_palette_colour("white", 0x22)
-        add_palette_colour("blue", 0x23)
         head_cfg = 'pattern: pattern solid, fore_colour custom_colour;'
         head_cfg += 'font: colour white, bold True;'
         head_cfg += 'alignment: horizontal left, vertical top, wrap true;'
         head_cell = easyxf(head_cfg)
         header_len = 2
-        title =  unicode(_('Usage report'))
+        title = unicode(_('Usage report'))
 
         body_cfg = 'font: colour blue;'
         body_cfg += 'alignment: vertical top, wrap true;'
         body_cell = easyxf(body_cfg)
 
         new_sheet.write(0, 0, title, head_cell)
-        new_sheet.write_merge(0, 0, 0, header_len -1, title, head_cell)
+        new_sheet.write_merge(0, 0, 0, header_len - 1, title, head_cell)
 
         max_widths = dict()
         default_width = 10
@@ -687,6 +693,7 @@ def generate_usage_report_action_xls(request):
         max_widths[1] = column_len
         start = start + 1
 
+        q = 0
         for q, query in enumerate(queries):
             new_sheet.write(q + start, 0, query[0], body_cell)
             column_len = arial10.fit_width(query[0], False)
