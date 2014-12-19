@@ -18,6 +18,7 @@
 """
 Routines to preserve statistical secret.
 """
+
 from django.utils.translation import ugettext_lazy as _
 from web.utils import execute_query_on_main_db, \
     build_constraint_query, \

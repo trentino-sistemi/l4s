@@ -16,8 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Routines for topics..
+Routines for topics.
 """
+
 from web.utils import execute_query_on_main_db,\
     build_queries_to_tables_mapping
 

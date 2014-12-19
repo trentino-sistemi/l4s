@@ -793,7 +793,7 @@ def extract_header(sql):
     return header, clean_sql
 
 
-def find_desc_column(table_name):
+def find_table_description_column(table_name):
     """
     Get the column name with description.
 
@@ -901,7 +901,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
             dest_table = fk[0]
             if is_decoder_table(dest_table):
                 dest_column = fk[1]
-                desc_column = find_desc_column(dest_table)
+                desc_column = find_table_description_column(dest_table)
                 alias = get_column_description(table, field)
                 if alias is None:
                     alias = dest_column
@@ -983,7 +983,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 fk = foreign_keys[field]
                 dest_table = fk[0]
                 if is_decoder_table(dest_table):
-                    desc_column = find_desc_column(dest_table)
+                    desc_column = find_table_description_column(dest_table)
                     if order:
                         alias_t = "%s_%s" % (dest_table, field)
                         desc_query += "ORDER BY %s." % alias_t

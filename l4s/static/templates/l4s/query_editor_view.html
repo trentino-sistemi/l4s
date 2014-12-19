@@ -372,7 +372,8 @@ $(".download_json_stat_button").click(function(e) {
     e.preventDefault();
     store = "{{ store }}";
     title = "{{ title.strip }}";
-    params = "store=" + store + "&title=" +  title
+    sql = "{{ sql|escapejs }}"
+    params = "store=" + store + "&title=" +  title + "&sql=" + sql
     download('/download_json_stat',
              params,
              'POST', "{% csrf_token %}");

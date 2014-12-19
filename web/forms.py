@@ -19,7 +19,6 @@
 Django forms for l4s project.
 """
 
-
 from django import forms
 from django.forms import ModelForm, Field, ValidationError
 from django.core.validators import MaxLengthValidator

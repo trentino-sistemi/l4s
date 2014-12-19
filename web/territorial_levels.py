@@ -18,6 +18,7 @@
 """
 Routines for territorial levels..
 """
+
 from web.models import TerritorialLevel
 
 

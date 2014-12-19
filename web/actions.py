@@ -30,6 +30,7 @@ from sdmx import sdmx_report
 from tempfile import NamedTemporaryFile
 from pandas import ExcelWriter
 from web.pyjstat import to_json_stat
+from web.reconcilation import reconciles_data_frame
 from web.utils import unpivot,\
     has_data_frame_multi_level_columns
 from web.statistical_secret import load_data_frame
@@ -477,6 +478,9 @@ def generate_report_action_json_stat(request):
         :return: Response with JSON-stat attachment.
         """
         df = load_data_frame(request)
+        sql = query_sql(request)
+        #df = reconciles_data_frame(df, sql)
+
         multi_index = has_data_frame_multi_level_columns(df)
         if multi_index:
             int_df = unpivot(df)
@@ -484,6 +488,9 @@ def generate_report_action_json_stat(request):
         else:
             int_df = df
             value = df.columns[len(df.columns)-1]
+
+
+        int_df = reconciles_data_frame(int_df, sql)
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
         extension = 'json'
@@ -682,7 +689,6 @@ def generate_usage_report_action_xls(request):
 
         new_sheet.write(0, 0, title, head_cell)
         new_sheet.write_merge(0, 0, 0, header_len - 1, title, head_cell)
-
 
         max_widths = dict()
         default_width = 10
