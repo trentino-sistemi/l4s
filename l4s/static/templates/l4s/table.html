@@ -58,7 +58,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <td>
         {% if field.name in fks %}
             {% with fks|lookup:field.name as fkvalue %}
-            <a href="/table/metadata/?table={{ fkvalue.0 }}">{{fkvalue.0}}</a>.<a
+            <a href="/table/?name={{ fkvalue.0 }}">{{fkvalue.0}}</a>.<a
                 href="/table/metadata/?table={{ fkvalue.0 }};column={{fkvalue.1}}">{{fkvalue.1}}
             </a>
             {% endwith %}
