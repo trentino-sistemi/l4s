@@ -72,6 +72,7 @@ def reconciles_data_frame(df, sql):
         table = value['table']
         column_desc = get_column_description(table, column)
         if not column_desc in df.columns:
+            # It is not used in the query.
             continue
         if not table in fks_t:
             fks = build_foreign_keys(table)
@@ -82,9 +83,10 @@ def reconciles_data_frame(df, sql):
             fk = fks[column]
             code_to_url = build_code_to_url_mapping(fk)
             if len(code_to_url) != 0:
+                # It contains some reconciliation rows.
+                code_to_url_col[column_desc] = code_to_url
                 desc_to_code = build_desc_to_code_mapping(fk)
                 desc_to_code_col[column_desc] = desc_to_code
-                code_to_url_col[column_desc] = code_to_url
 
     for n, col_name in enumerate(df.columns):
         if col_name is None or col_name not in code_to_url_col:
@@ -92,12 +94,12 @@ def reconciles_data_frame(df, sql):
 
         code_to_url = code_to_url_col[col_name]
         desc_to_code = desc_to_code_col[col_name]
+        c_position = df.columns.get_loc(col_name)
 
         values = df[col_name]
         for v, value in enumerate(values):
             if value in desc_to_code:
                 code = desc_to_code[value]
-                c_position = df.columns.get_loc(col_name)
                 url = code_to_url[code]
                 df.iloc[v, c_position] = url
 
