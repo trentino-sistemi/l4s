@@ -489,9 +489,7 @@ def generate_report_action_json_stat(request):
             int_df = df
             value = df.columns[len(df.columns)-1]
 
-
         int_df = reconciles_data_frame(int_df, sql)
-
         title = title.strip().encode("UTF-8").replace(" ", '_')
         extension = 'json'
         filename = '%s.%s' % (title, extension)
@@ -667,6 +665,11 @@ def generate_usage_report_action_xls(request):
         queries = eval("[%s]" % queries_s)[0]
         manual_request_s = request.REQUEST.get('manual_requests')
         manual_requests = eval("[%s]" % manual_request_s)[0]
+        run_queries_auth_s = request.REQUEST.get('run_queries_auth')
+        run_queries_auth = eval("[%s]" % run_queries_auth_s)[0]
+        run_queries_anon_s = request.REQUEST.get('run_queries_anon')
+        run_queries_anon = eval("[%s]" % run_queries_anon_s)[0]
+
         new_workbook = new_xlwt_colored_workbook()
 
         new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
@@ -696,14 +699,21 @@ def generate_usage_report_action_xls(request):
             max_widths[col] = default_width
 
         start = 3
+        title = unicode(_("Number of saved queries for user types"))
+        new_sheet.write(start, 0, title, head_cell)
+        new_sheet.write_merge(start, start, 0, 1, title, head_cell)
+        start = start + 1
+
         title = unicode(_("User type"))
         new_sheet.write(start, 0, title, head_cell)
         column_len = arial10.fit_width(title, False)
-        max_widths[0] = column_len
+        if column_len > max_widths[0]:
+            max_widths[0] = column_len
         title = unicode(_("Saved queries"))
         new_sheet.write(start, 1, title, head_cell)
         column_len = arial10.fit_width(title, False)
-        max_widths[1] = column_len
+        if column_len > max_widths[1]:
+            max_widths[1] = column_len
         start = start + 1
 
         q = 0
@@ -715,14 +725,21 @@ def generate_usage_report_action_xls(request):
             new_sheet.write(q + start, 1, query[1], body_cell)
 
         start = start + q + 3
+        title = unicode(_("Number of manual requests for user types"))
+        new_sheet.write(start, 0, title, head_cell)
+        new_sheet.write_merge(start, start, 0, 1, title, head_cell)
+        start = start + 1
+
         title = unicode(_("User type"))
         new_sheet.write(start, 0, title, head_cell)
         column_len = arial10.fit_width(title, False)
-        max_widths[0] = column_len
+        if column_len > max_widths[0]:
+            max_widths[0] = column_len
         title = unicode(_("Manual requests"))
         new_sheet.write(start, 1, title, head_cell)
         column_len = arial10.fit_width(title, False)
-        max_widths[1] = column_len
+        if column_len > max_widths[1]:
+            max_widths[1] = column_len
 
         start = start + 1
 
@@ -733,6 +750,58 @@ def generate_usage_report_action_xls(request):
             if column_len > max_widths[0]:
                 max_widths[0] = column_len
             new_sheet.write(q + start, 1, query[1], body_cell)
+
+        start = start + q + 3
+        title = _("Number of executed queries for user types (logged users)")
+        title = unicode(title)
+        new_sheet.write(start, 0, title, head_cell)
+        new_sheet.write_merge(start, start, 0, 1, title, head_cell)
+        start = start + 1
+
+        title = unicode(_("User type"))
+        new_sheet.write(start, 0, title, head_cell)
+        title = unicode(_("Run queries"))
+        new_sheet.write(start, 1, title, head_cell)
+        column_len = arial10.fit_width(title, False)
+        if column_len > max_widths[1]:
+            max_widths[1] = column_len
+
+        start = start + 1
+
+        for q, query in enumerate(run_queries_auth):
+            new_sheet.write(q + start, 0, query[0], body_cell)
+            new_sheet.write(q + start, 1, query[1], body_cell)
+            column_len = arial10.fit_width(query[0], False)
+            if column_len > max_widths[0]:
+                max_widths[0] = column_len
+            new_sheet.write(q + start, 1, query[1], body_cell)
+
+
+        start = start + q + 3
+        title = unicode(_("Number of executed queries (anonymous users)"))
+        new_sheet.write(start, 0, title, head_cell)
+        new_sheet.write_merge(start, start, 0, 1, title, head_cell)
+        start = start + 1
+        title = unicode(_("Run queries"))
+        new_sheet.write(start, 0, title, head_cell)
+        new_sheet.write_merge(start, start, 0, 1, title, head_cell)
+        column_len = arial10.fit_width(title, False)
+        if column_len > max_widths[0]:
+            max_widths[0] = column_len
+
+        start = start + 1
+
+        for q, query in enumerate(run_queries_anon):
+            new_sheet.write(q + start, 0, query[0], body_cell)
+            new_sheet.write_merge(q + start,
+                                  q + start,
+                                  0,
+                                  1,
+                                  query[0],
+                                  body_cell)
+            column_len = arial10.fit_width(str(query[0]), False)
+            if column_len > max_widths[0]:
+                max_widths[0] = column_len
 
         # Adjust column width.
         for col in max_widths:

@@ -95,7 +95,9 @@ from web.utils import get_variable_dictionary, \
     saved_queries_grouped_by_user_type,\
     saved_manual_requests_grouped_by_user_type,\
     saved_data_years, \
-    build_foreign_keys
+    build_foreign_keys, \
+    run_queries_auth, \
+    run_queries_anon
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -119,9 +121,8 @@ from web.actions import query_title,\
     generate_report_action_turtle, \
     generate_report_action_json_stat,\
     generate_usage_report_action_xls
-from datetime import datetime
+from datetime import datetime, date
 from collections import OrderedDict
-from datetime import date
 from utils import ALL
 import json
 import ast
@@ -903,8 +904,13 @@ def usage_report(request):
     queries = saved_queries_grouped_by_user_type(sel_year, sel_month)
     manual_requests = saved_manual_requests_grouped_by_user_type(sel_year,
                                                                  sel_month)
+    run_queries_au = run_queries_auth(sel_year, sel_month)
+    run_queries_an = run_queries_anon(sel_year, sel_month)
+
     context['queries'] = queries
     context['manual_requests'] = manual_requests
+    context['run_queries_auth'] = run_queries_au
+    context['run_queries_anon'] = run_queries_an
     context['years'] = years
     context['months'] = months
     context['selected_year'] = sel_year
@@ -1324,7 +1330,8 @@ def query_editor_view(request):
                              values)
 
     query = Query(title=table_name, sql=sql)
-    df, data, warn, err = headers_and_data(query,
+    df, data, warn, err = headers_and_data(request.user,
+                                           query,
                                            filters,
                                            aggregation_ids,
                                            agg_filters,

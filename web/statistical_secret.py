@@ -36,6 +36,7 @@ from web.utils import execute_query_on_main_db, \
     has_data_frame_multi_level_index, \
     remove_code_from_data_frame, \
     contains_ref_period
+from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
 import itertools
@@ -1512,7 +1513,8 @@ def apply_stat_secret(headers,
     return data, headers, data_frame, warn, err
 
 
-def headers_and_data(query,
+def headers_and_data(user,
+                     query,
                      filters,
                      aggregation,
                      agg_filters,
@@ -1525,6 +1527,7 @@ def headers_and_data(query,
     Execute query, get headers, data, duration, error
     and filter result set to preserve the statistical secret.
 
+    :param user: User that perform the request.
     :param query: Explorer query.
     :param filters: Filters used in the query.
     :param agg_filters: Filters used in aggregation.
@@ -1537,6 +1540,15 @@ def headers_and_data(query,
     :param include_descriptions: Force to include code.
     :param visible: View all data without put asterisks.
     """
+
+    if user.is_authenticated():
+       id = user.pk
+    else:
+       id = -1
+
+    log = ExecutedQueryLog.create(query.title, id)
+    log.save()
+
     warn = None
     df = None
     st = detect_special_columns(query.sql)
@@ -1673,7 +1685,8 @@ def load_data_frame(request):
                 aggregation_ids = [ast.literal_eval(x) for x in
                                    aggregation.split(',')]
 
-            df, data, warn, err = headers_and_data(query,
+            df, data, warn, err = headers_and_data(request.user,
+                                                   query,
                                                    filters,
                                                    aggregation_ids,
                                                    agg_filters,

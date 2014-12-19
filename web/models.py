@@ -26,6 +26,7 @@ from django.utils.http import urlquote
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
+from datetime import datetime
 
 
 class Test3(models.Model):
@@ -100,6 +101,22 @@ class Metadata(models.Model):
     column_name = models.CharField(_('column name'), max_length=30, null=True)
     key = models.CharField(_('key'), max_length=256, blank=False)
     value = models.CharField(_('value'), max_length=256, blank=False)
+
+
+class ExecutedQueryLog(models.Model):
+    """
+    Metadata to log queries.
+    """
+    query_title = models.CharField(_('Title'), max_length=255)
+    executed_by = models.IntegerField()
+    executed_at = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def create(cls, query_title, executed_by):
+        log = cls(query_title=query_title,
+                  executed_by=executed_by,
+                  executed_at=datetime.now())
+        return log
 
 
 class Reconciliation(models.Model):

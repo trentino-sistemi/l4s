@@ -44,6 +44,7 @@ METADATA = 'web_metadata'
 USER_TYPE = 'web_usertype'
 QUERY = 'explorer_query'
 USER = 'web_user'
+LOG = 'web_executedquerylog'
 MANUAL_REQUEST = 'web_manualrequest'
 LOCATED_IN_AREA = "http://dbpedia.org/ontology/locatedInArea"
 CLASS = "http://www.w3.org/2000/01/rdf-schema#Class"
@@ -1032,10 +1033,51 @@ def saved_queries_grouped_by_user_type(year, month):
     return rows
 
 
+def run_queries_auth(year, month):
+    """
+    Get the number of executed queries from authenticated users.
+
+    :param year: Year
+    :param month: Month
+    :return: rows
+    """
+    query = "SELECT UT.name, count(UT.name) \n"
+    query += "FROM %s EQ join %s U \n" % (LOG, USER)
+    query += "ON (EQ.executed_by<>-1 AND U.id = EQ.executed_by) \n"
+    query += "JOIN %s UT ON (UT.id = U.user_type_id) \n" % USER_TYPE
+    query += "WHERE extract('year' from EQ.executed_at) = '%d' \n" % year
+    if not month is None:
+        query += "AND extract('month' from EQ.executed_at) = '%d' \n" % month
+    query += "GROUP BY UT.name \n"
+    query += "ORDER BY count(UT.name) DESC "
+    rows = execute_query_on_django_db(query)
+    return rows
+
+
+def run_queries_anon(year, month):
+    """
+    Get the number of executed queries from authenticated users.
+
+    :param year: Year
+    :param month: Month
+    :return: rows
+    """
+    query = "SELECT  count(*) \n"
+    query += "FROM %s \n" % LOG
+    query += "WHERE executed_by=-1 AND "
+    query += "extract('year' from executed_at) = '%d' \n" % year
+    if not month is None:
+        query += "AND extract('month' from executed_at) = '%d' \n" % month
+    rows = execute_query_on_django_db(query)
+    return rows
+
+
 def saved_manual_requests_grouped_by_user_type(year, month):
     """
     Return the number of manual requests grouped by user type.
 
+    :param year: Year.
+    :param month: Month.
     :return: list of tuples <user_type, occurrences>
     """
     query = "SELECT UT.name, count(UT.name) \n"
