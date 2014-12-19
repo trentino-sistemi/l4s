@@ -29,6 +29,12 @@ RECONCILIATION = 'web_reconciliation'
 
 
 def build_code_to_url_mapping(fk):
+    """
+     Build an hash table with key code and reconciled url as value.
+
+    :param fk: Foreign key.
+    :return: Dictionary <code, url>.
+    """
     code_to_url = dict()
     ref_table = fk[0]
     ref_column = fk[1]
@@ -45,6 +51,12 @@ def build_code_to_url_mapping(fk):
 
 
 def build_desc_to_code_mapping(fk):
+    """
+    Build an hash table with key description and code as value.
+
+    :param fk:  Foreign key.
+    :return: Dictionary <description, code>.
+    """
     ret = dict()
     table = fk[0]
     code_column = fk[1]
@@ -61,6 +73,14 @@ def build_desc_to_code_mapping(fk):
 
 
 def reconciles_data_frame(df, sql):
+    """
+    Reconciles data frame using url instead of descriptions.
+    REGARDS: Now this function works only on un-pivoted, plain data frame.
+
+    :param df: Data frame.
+    :param sql: The query sql code.
+    :return: Reconciled Data frame.
+    """
     st = detect_special_columns(sql)
     fks_t = dict()
     code_to_url_col = dict()
