@@ -97,7 +97,8 @@ from web.utils import get_variable_dictionary, \
     saved_data_years, \
     build_foreign_keys, \
     run_queries_auth, \
-    run_queries_anon
+    run_queries_anon,\
+    located_in_area_value_to_column
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -771,9 +772,12 @@ def table_view_metadata(request):
         metadata_list = Metadata.objects.filter(table_name=table_name,
                                                 column_name=column_name)
         context['column_name'] = column_name
+        aggregations = located_in_area_value_to_column(metadata_list)
     else:
+        aggregations = dict()
         metadata_list = Metadata.objects.filter(table_name=table_name)
     context['metadata_list'] = metadata_list
+    context['aggregations'] = aggregations
     context['request'] = request
     return render_to_response('l4s/metadata.html', context)
 

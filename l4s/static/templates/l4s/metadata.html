@@ -20,6 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {% extends "explorer/base.html" %}
 {% load i18n %}
+{% load dictionary_extras %}
 
 {% block l4s_container %}
 <div class="col-sm-12">
@@ -53,7 +54,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% for metadata in metadata_list %}
     <tr>
         <td>{{ metadata.key }}</td>
-        <td>{{ metadata.value }}</td>
+        <td>
+            {% if metadata.value in aggregations %}
+            {% with aggregations|lookup:metadata.value as ref %}
+            <a href="/table/metadata/?table={{ ref.0 }};column={{ ref.1 }}">
+                {{ metadata.value }}
+            </a>
+            {% endwith %}
+            {% else %}
+            {{ metadata.value }}
+            {% endif %}
+        </td>
         <td>
             <a href="/table/metadata/edit/?id={{ metadata.id }}">
                 <i class="glyphicon glyphicon-edit" style="font-size: 18px;"></i>

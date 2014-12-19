@@ -2448,6 +2448,26 @@ def located_in_area(table, column, value):
     return None, None
 
 
+def located_in_area_value_to_column(metadata_list):
+    """
+    Return hashtable with key the value of LOCATED_IN_AREA key
+    and value the column table referenced by link.
+
+    :param metadata_list:
+    :return: <value,[table,column]>
+    """
+    ret = dict()
+    metadata_list = metadata_list.filter(key=LOCATED_IN_AREA)
+    for metadata in metadata_list:
+        value = metadata.value
+        table = metadata.table_name
+        column = metadata.column_name
+        ref_table, ref_column = located_in_area(table, column, value)
+        ret[value] = [ref_table, ref_column]
+
+    return ret
+
+
 def get_dimensions(table, column):
     """
     Get dimension of table column name.
