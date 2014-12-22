@@ -1337,16 +1337,6 @@ def add_secret_ref(secret_ref, table_name, column_name):
     return secret_ref
 
 
-def get_data_from_data_frame(df):
-    """
-    Extract a data matrix from a pandas data frame.
-
-    :param df: Pandas data frame.
-    :return: List of tuples representing the data in table.
-    """
-    return [x for x in df.to_records(index=False)]
-
-
 def change_query(model_instance, pivot_cols, aggregation_ids):
     """
     Take the sql field of Query model form and remove all

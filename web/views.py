@@ -191,12 +191,12 @@ def execute_query_viewmodel(request,
     if error is None:
         if len(old_head) < 3 and len(st.secret) + len(st.constraint) + len(
                 st.secret_ref) == 1 and len(st.threshold) == 1:
-            data, head, df = apply_stat_secret_plain(old_head,
-                                                     data,
-                                                     st.cols,
-                                                     st.threshold,
-                                                     st.constraint,
-                                                     debug)
+            head, df = apply_stat_secret_plain(old_head,
+                                               data,
+                                               st.cols,
+                                               st.threshold,
+                                               st.constraint,
+                                               debug)
         # Check id I can give the full result set.
         elif (len(st.secret) + len(st.constraint) + len(st.secret_ref) != 0) \
                 and (pivot is None or len(pivot) == 0):

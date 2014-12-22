@@ -19,7 +19,6 @@ from rdflib import Graph, URIRef, Literal, BNode, Namespace, term
 from rdflib.namespace import RDF
 from web.utils import get_metadata_on_column, \
     get_subject_table,\
-    get_data_from_data_frame,\
     to_utf8,\
     get_column_description,\
     column_position_in_dataframe,\
@@ -192,20 +191,20 @@ def add_slice_triples(g, subject_t_ref, data_frame, col_dict):
     return g
 
 
-def add_observations_triples(g, data, table_name, slice_t_ref,
+def add_observations_triples(g, data_frame, table_name, slice_t_ref,
                              col_dict):
     """
     Add to the graph the list of triples representing the observations.
 
     :param g: Rdflib graph.
-    :param data: The data set.
+    :param data_frame: The data frame.
     :param table_name: The table name.
     :param slice_t_ref: The slice reference.
     :param col_dict: The column dictionary.
     :return: The Rdflib Graph enriched with the observations triples.
     """
     desc = "http://purl.org/dc/terms/description"
-    for r, row in enumerate(data):
+    for r in range(0, len(data_frame.index.values) - 1):
         oss_ref = term.URIRef(my_ns["dataset-%s#o%s" % (table_name, r)])
         g.add((slice_t_ref, observation_ref, oss_ref))
         for c in col_dict:
@@ -214,7 +213,7 @@ def add_observations_triples(g, data, table_name, slice_t_ref,
                 if item.get_t_predicate().strip() != desc:
                     dest = item.get_t_object()
                     if '#' in dest:
-                        val = row[c]
+                        val = data_frame.iloc[r, c]
                         value = "%s" % val
                         value = value.strip()
                         if not value.startswith('*'):
@@ -263,7 +262,6 @@ def rdf_report(sql,
     :return: The serialized Rdf.
     """
     g = Graph()
-    data = get_data_from_data_frame(data_frame)
     title = title.decode('utf-8')
     dataset = "dataset-%s" % title
     subject_t_ref = term.URIRef(my_ns[dataset])
@@ -276,7 +274,7 @@ def rdf_report(sql,
     g = add_slice_triples(g, subject_t_ref,
                           data_frame, col_dict)
     g = add_observations_triples(g,
-                                 data,
+                                 data_frame,
                                  title,
                                  slice_t_ref,
                                  col_dict)
