@@ -35,7 +35,8 @@ from web.utils import execute_query_on_main_db, \
     has_data_frame_multi_level_columns, \
     has_data_frame_multi_level_index, \
     remove_code_from_data_frame, \
-    contains_ref_period
+    contains_ref_period,\
+    TOTAL
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -1134,42 +1135,19 @@ def secondary_row_suppression_constraint(data,
         data_frame.sortlevel(inplace=True)
 
     if not has_data_frame_multi_level_columns(data_frame):
-        col_tuples = []
-        for col in data_frame.columns:
-            col_tuples.append(col)
+        col_tuples = [item for item in data_frame.columns.values if
+                      (item != TOTAL)]
     else:
-        levels_contents = []
-        for l, levels in enumerate(data_frame.columns.levels):
-            if l < len(data_frame.columns.levels):
-                levels_list = data_frame.columns.levels[l].tolist()
-                if "" in levels_list:
-                    levels_list.remove("")
-                if l == 0:
-                    start = 0
-                    end = len(data_frame.columns.levels[l])-1
-                    levels_contents.append(levels_list[start:end])
-                else:
-                    levels_contents.append(levels_list)
-        col_tuples = list(itertools.product(*levels_contents))
+        col_tuples = [item[0:len(item)-1] for item in data_frame.columns.values if
+                        (item[0] != TOTAL)]
 
     if has_data_frame_multi_level_index(data_frame):
-        levels_contents = []
-        for l, levels in enumerate(data_frame.index.levels):
-            if l < len(data_frame.index.levels):
-                levels_list = data_frame.index.levels[l].tolist()
-                if "" in levels_list:
-                    levels_list.remove("")
-                if l == 0:
-                    start = 0
-                    end = len(data_frame.index.levels[l])-1
-                    levels_contents.append(levels_list[start:end])
-                else:
-                    levels_contents.append(levels_list)
-        index_tuples = list(itertools.product(*levels_contents))
+        index_tuples = [item for item in data_frame.index.values if
+                        (item[0] != TOTAL)]
+
     else:
-        index_tuples = []
-        for index in data_frame.index:
-            index_tuples.append(index)
+        col_tuples = [item for item in data_frame.index.values if
+                      (item != TOTAL)]
 
     for rt, row_tup in enumerate(index_tuples):
             try:
@@ -1177,6 +1155,7 @@ def secondary_row_suppression_constraint(data,
             except (KeyError, TypeError):
                 continue
             src_row = data[row_index]
+
             for ct, col_tup in enumerate(col_tuples):
                 try:
                     column_index = data_frame.columns.get_loc(col_tuples[ct])
@@ -1250,7 +1229,6 @@ def secondary_col_suppression_constraint(data,
     Performs secondary suppression on columns following the secondary metadata
     rule on table.
 
-    :param data: Data.
     :param data_frame: Data frame.
     :param pivot_columns: Pivot columns.
     :param rows: Rows.
