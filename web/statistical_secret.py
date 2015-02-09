@@ -178,7 +178,7 @@ def pivot(data, headers, columns, rows, value):
     pivot_df.rename(index={'All': total}, inplace=True)
     data = get_data_from_data_frame(pivot_df)
 
-    return pivot_df, None
+    return data, pivot_df, None
 
 
 def get_threshold_from_dict(threshold_columns_dict, col):
@@ -1092,7 +1092,8 @@ def apply_stat_secret_plain(headers,
     return data, headers, df
 
 
-def secondary_row_suppression_constraint(data_frame,
+def secondary_row_suppression_constraint(data,
+                                         data_frame,
                                          pivot_columns,
                                          rows,
                                          col_dict,
@@ -1118,7 +1119,7 @@ def secondary_row_suppression_constraint(data_frame,
                                               filters)
 
     if query is None:
-        return data_frame, asterisk_global_count
+        return data, asterisk_global_count
 
     st = detect_special_columns(query)
     query, new_header = build_description_query(query,
@@ -1153,7 +1154,7 @@ def secondary_row_suppression_constraint(data_frame,
                 row_index = data_frame.index.get_loc(index_tuples[rt])
             except (KeyError, TypeError):
                 continue
-            src_row = data_frame.ix[row_index]
+            src_row = data[row_index]
 
             for ct, col_tup in enumerate(col_tuples):
                 try:
@@ -1212,10 +1213,11 @@ def secondary_row_suppression_constraint(data_frame,
                                 break
                             sel_column += 1
 
-    return data_frame, asterisk_global_count
+    return data, asterisk_global_count
 
 
-def secondary_col_suppression_constraint(data_frame,
+def secondary_col_suppression_constraint(data,
+                                         data_frame,
                                          pivot_columns,
                                          rows,
                                          col_dict,
@@ -1247,14 +1249,14 @@ def secondary_col_suppression_constraint(data_frame,
             column_tuple_list.append(column_tuple)
 
     if len(column_tuple_list) == 0:
-        return data_frame, asterisk_global_count
+        return data, asterisk_global_count
 
     query, new_header = build_secondary_query(secondary,
                                               col_dict,
                                               filters)
 
     if query is None:
-        return data_frame, asterisk_global_count
+        return data, asterisk_global_count
 
     st = detect_special_columns(query)
     query, new_header = build_description_query(query,
@@ -1299,7 +1301,7 @@ def secondary_col_suppression_constraint(data_frame,
                 sel_row = start_row
                 asterisked = False
                 while sel_row != stop_row:
-                    src_row = data_frame.iloc[sel_row]
+                    src_row = data[sel_row]
                     cell = str(src_row[column_index])
                     if not cell.startswith(ASTERISK):
                         src_row[column_index] = ASTERISK
@@ -1312,7 +1314,39 @@ def secondary_col_suppression_constraint(data_frame,
                 if asterisked:
                     break
 
-    return data_frame, asterisk_global_count
+    data_frame = data_frame_from_tuples(data_frame, data)
+
+    df = data_frame.replace("\*.*", "*", regex=True)
+    res = df[df == ASTERISK].count()[0:len(df.columns)-1]
+    column_tuple_list = []
+    for r, re in enumerate(res):
+        if re == len(obs_values):
+            column_tuple = res.index[r]
+            column_tuple_list.append(column_tuple)
+
+    for column_tuple in column_tuple_list:
+        try:
+            column_index = data_frame.columns.get_loc(column_tuple)
+        except (KeyError, TypeError):
+            continue
+        min_index = None
+        min_value = None
+        for r, row in enumerate(data):
+            cell = str(row[column_index])
+            if not cell.startswith(ASTERISK):
+                if min_value is None or row[column_index] < min_value:
+                    min_index = r
+                min_value = data[min_index][column_index]
+
+        for o, obs_value in enumerate(obs_values):
+            cell = data[min_index + o][column_index]
+            data[min_index + o][column_index] = ASTERISK
+            if debug:
+                data[min_index + o][column_index] += ASTERISK
+                data[min_index + o][column_index] += 'C(' + cell + ")"
+                asterisk_global_count += 1
+
+    return data, asterisk_global_count
 
 
 def apply_stat_secret(headers,
@@ -1345,7 +1379,7 @@ def apply_stat_secret(headers,
     :param debug: If active show debug info on asterisked cells.
     :param visible: View all data without put asterisks.
                     In this case it apply pivot only if required.
-    :return: headers, data_frame, warn, err.
+    :return: data, headers, data_frame, warn, err.
     """
     warn = None
     err = None
@@ -1363,7 +1397,7 @@ def apply_stat_secret(headers,
 
         if len(pivot_values) == 0:
             err = _("Can not pivot the table; missing numerosity!")
-            return headers, None, warn, err
+            return data, headers, None, warn, err
 
         rows = []
         for k in col_dict:
@@ -1374,22 +1408,22 @@ def apply_stat_secret(headers,
 
         if len(rows) == 0:
             err = _("Can not pivot the table; missing rows!")
-            return headers, None, warn, err
+            return rows, headers, None, warn, err
 
-        data_frame, err = pivot(data,
-                                headers,
-                                pivot_cols,
-                                rows,
-                                pivot_values)
+        data, data_frame, err = pivot(data,
+                                      headers,
+                                      pivot_cols,
+                                      rows,
+                                      pivot_values)
         if err:
-            return headers, None, warn, err
+            return rows, headers, None, warn, err
 
         if len(obs_vals) > 1:
             data_frame = data_frame.stack(0)
             data = get_data_from_data_frame(data_frame)
 
         if visible and not debug:
-            return headers, data_frame, warn, err
+            return data, headers, data_frame, warn, err
 
         data = apply_constraint_pivot(data,
                                       data_frame,
@@ -1401,19 +1435,23 @@ def apply_stat_secret(headers,
                                       aggregation,
                                       debug)
 
-        data_frame = data_frame_from_tuples(data_frame, data)
         sec = get_table_metadata_value(col_dict[0]['table'], 'secondary')
         if not sec is None and len(sec) > 0:
             tot_asterisked = 1
             while tot_asterisked > 0:
-                data_frame, ast_r = secondary_row_suppression_constraint(data_frame,
+                data_frame = data_frame_from_tuples(data_frame, data)
+                data, ast_r = secondary_row_suppression_constraint(data,
+                                                                   data_frame,
                                                                    pivot_dict,
                                                                    rows,
                                                                    col_dict,
                                                                    sec[0][0],
                                                                    filters,
                                                                    debug)
-                data_frame, ast_c = secondary_col_suppression_constraint(data_frame,
+                data_frame = data_frame_from_tuples(data_frame, data)
+
+                data, ast_c = secondary_col_suppression_constraint(data,
+                                                                   data_frame,
                                                                    pivot_dict,
                                                                    rows,
                                                                    col_dict,
@@ -1422,6 +1460,7 @@ def apply_stat_secret(headers,
                                                                    filters,
                                                                    debug)
                 tot_asterisked = ast_c + ast_r
+
         else:
             data = protect_pivoted_table(data,
                                          data_frame,
@@ -1434,21 +1473,22 @@ def apply_stat_secret(headers,
                                          col_dict,
                                          rows,
                                          debug)
-            data_frame = data_frame_from_tuples(data_frame, data)
 
-        return headers, data_frame, warn, err
+        data_frame = data_frame_from_tuples(data_frame, data)
+
+        return data, headers, data_frame, warn, err
 
     # If plain and secret does not return it.
     if len(secret_column_dict) > 0 or len(constraint_cols) > 0 or len(
             sec_ref) > 0:
-        return headers, None, warn, err
+        return None, headers, None, warn, err
 
     if len(data) > 0:
         data_frame = pd.DataFrame(data, columns=headers)
     else:
         data_frame = pd.DataFrame(columns=headers)
 
-    return headers, data_frame, warn, err
+    return data, headers, data_frame, warn, err
 
 
 def headers_and_data(user,
@@ -1529,18 +1569,18 @@ def headers_and_data(user,
         # Check id I can give the full result set.
         elif (len(st.secret) + len(st.constraint) + len(st.secret_ref) == 0) \
                 or (pivot_cols is not None and len(pivot_cols) > 0):
-            old_head, df, warn, err = apply_stat_secret(old_head,
-                                                        data,
-                                                        st.cols,
-                                                        st.pivot,
-                                                        st.secret,
-                                                        st.secret_ref,
-                                                        st.threshold,
-                                                        st.constraint,
-                                                        filters,
-                                                        aggregation,
-                                                        debug,
-                                                        visible)
+            data, old_head, df, warn, err = apply_stat_secret(old_head,
+                                                              data,
+                                                              st.cols,
+                                                              st.pivot,
+                                                              st.secret,
+                                                              st.secret_ref,
+                                                              st.threshold,
+                                                              st.constraint,
+                                                              filters,
+                                                              aggregation,
+                                                              debug,
+                                                              visible)
 
     if not df is None:
         if not include_code:
@@ -1554,7 +1594,7 @@ def headers_and_data(user,
         if contains_ref_period(st.pivot, st.cols, axis=1) or len(index) == 2:
             df = drop_total_row(df)
 
-    return df, warn, err
+    return df, data, warn, err
 
 
 def generate_storage_id():
@@ -1623,16 +1663,16 @@ def load_data_frame(request):
                 aggregation_ids = [ast.literal_eval(x) for x in
                                    aggregation.split(',')]
 
-            df, warn, err = headers_and_data(request.user,
-                                             query,
-                                             filters,
-                                             aggregation_ids,
-                                             agg_filters,
-                                             pivot_cols,
-                                             False,
-                                             True,
-                                             False,
-                                             False)
+            df, data, warn, err = headers_and_data(request.user,
+                                                   query,
+                                                   filters,
+                                                   aggregation_ids,
+                                                   agg_filters,
+                                                   pivot_cols,
+                                                   False,
+                                                   True,
+                                                   False,
+                                                   False)
             return df
     df = pd.read_pickle(store_name)
     return df

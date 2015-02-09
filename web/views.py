@@ -208,18 +208,18 @@ def execute_query_viewmodel(request,
                 pl = _("please chose a pivot and push the Apply button")
                 warn = "%s %s; %s." % (unicode(rs), unicode(pr), unicode(pl))
         else:
-            head, df, warn_n, error = apply_stat_secret(old_head,
-                                                        data,
-                                                        st.cols,
-                                                        pivot,
-                                                        st.secret,
-                                                        st.secret_ref,
-                                                        st.threshold,
-                                                        st.constraint,
-                                                        dict(),
-                                                        aggregation,
-                                                        debug,
-                                                        False)
+            data, head, df, warn_n, error = apply_stat_secret(old_head,
+                                                              data,
+                                                              st.cols,
+                                                              pivot,
+                                                              st.secret,
+                                                              st.secret_ref,
+                                                              st.threshold,
+                                                              st.constraint,
+                                                              dict(),
+                                                              aggregation,
+                                                              debug,
+                                                              False)
             if warn_n is not None and warn != "":
                 warn = warn_n
 
@@ -1334,16 +1334,16 @@ def query_editor_view(request):
                              values)
 
     query = Query(title=table_name, sql=sql)
-    df, warn, err = headers_and_data(request.user,
-                                     query,
-                                     filters,
-                                     aggregation_ids,
-                                     agg_filters,
-                                     pivot,
-                                     debug,
-                                     True,
-                                     include_code,
-                                     visible)
+    df, data, warn, err = headers_and_data(request.user,
+                                           query,
+                                           filters,
+                                           aggregation_ids,
+                                           agg_filters,
+                                           pivot,
+                                           debug,
+                                           True,
+                                           include_code,
+                                           visible)
 
     context['values'] = values
     context['obs_values'] = obs_values
