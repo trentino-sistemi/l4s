@@ -17,11 +17,12 @@
 
 from l4s.settings import SENDER, LANGUAGE_CODE, SENDER_NAME
 from web.utils import get_metadata_on_column,\
+    get_data_from_data_frame,\
     get_column_description,\
     column_position_in_dataframe,\
     add_xml_header
 from datetime import datetime
-import sdmx_message
+import sdmx_message as sdmx
 import StringIO
 import time
 
@@ -139,35 +140,36 @@ def sdmx_report(sql, data_frame=None):
     col_dict = build_column_dict(data_frame, sql)
 
     out_stream = StringIO.StringIO()
-    generic_data = sdmx_message.GenericDataType()
-    header = sdmx_message.HeaderType()
+    generic_data = sdmx.GenericDataType()
+    header = sdmx.HeaderType()
     header.set_Test(False)
     header.set_Truncated(False)
     ts = time.time()
     prepared = datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
     header.set_Prepared(prepared)
-    sender = sdmx_message.PartyType()
+    sender = sdmx.PartyType()
     sender.set_id(SENDER)
-    name = sdmx_message.TextType()
+    name = sdmx.TextType()
     name.set_lang(LANGUAGE_CODE)
     name.set_valueOf_(SENDER_NAME)
     sender.add_Name(name)
     header.add_Sender(sender)
     generic_data.set_Header(header)
-    data_set = sdmx_message.DataSetType()
+    data_set = sdmx.DataSetType()
     data_set.set_keyFamilyURI(SENDER_NAME)
-    for r in range(0, len(data_frame.index.values) - 1):
-        series = sdmx_message.SeriesType()
-        series_key = sdmx_message.SeriesKeyType()
-        obs = sdmx_message.ObsType()
+    data = get_data_from_data_frame(data_frame)
+    for r, row in enumerate(data):
+        series = sdmx.SeriesType()
+        series_key = sdmx.SeriesKeyType()
+        obs = sdmx.ObsType()
         for c in col_dict:
-            v = data_frame.iloc[r, c]
+            v = row[c]
             val = "%s" % v
-            value = sdmx_message.ValueType()
+            value = sdmx.ValueType()
             concept = get_concept(col_dict, c)
             if concept == 'obsValue':
                 if not val.startswith('*'):
-                    obs_value = sdmx_message.ObsValueType()
+                    obs_value = sdmx.ObsValueType()
                     obs_value.set_value(val)
                     obs.set_ObsValue(obs_value)
             elif concept is not None:
