@@ -1112,7 +1112,7 @@ def index(request):
 
     context = RequestContext(request)
     context['object_list'] = objects
-    return render_to_response("l4s/index.html", context)
+    return render_to_response("l4s/index_new.html", context)
 
 
 def legal_notes(request):
