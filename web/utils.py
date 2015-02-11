@@ -86,10 +86,10 @@ def get_table_by_name_or_desc(search, tables, order):
     query += "FROM web_metadata b \n"
     query += "JOIN web_metadata d \n"
     query += "ON (d.table_name = b.table_name and d.column_name = 'NULL' "
-    query += "and d.key = 'http://purl.org/dc/terms/description') \n"
-    query += "WHERE b.column_name ilike %s or " % search_s
+    query += "and upper(d.key) = 'HTTP://PURL.ORG/DC/TERMS/DESCRIPTION') \n"
+    query += "WHERE (b.column_name ilike %s or " % search_s
     query += "b.table_name ilike %s or " % search_s
-    query += "d.value ilike %s \n" % search_s
+    query += "d.value ilike %s) \n" % search_s
     if not tables is None:
         table_names = "'" + "','".join(tables) + "'"
         query += "and b.table_name IN (%s)" % table_names
@@ -410,7 +410,7 @@ def all_hidden_fields(table_name,
     """
     query = "SELECT column_name FROM web_metadata \n"
     query += "WHERE table_name='%s' and \n" % table_name
-    query += "key='visible' and value='false'"
+    query += "upper(key)='VISIBLE' and upper(value)='FALSE'"
     rows = execute_query_on_django_db(query)
     res = []
     if rows is not None:
@@ -539,13 +539,13 @@ def get_all_field_values(table_name, column_name, select):
     ret = []
     query = "--JOIN %s.%s 0\n" % (table_name, column_name)
     if select is None:
-        query += "SELECT DISTINCT %s FROM %s\n" % (column_name, table_name)
-        query += "ORDER BY %s" % column_name
+        query += "SELECT DISTINCT \"%s\" FROM %s\n" % (column_name, table_name) #quotato perche con postrgress se ci sono lettere maiuscole da errore
+        query += "ORDER BY \"%s\"" % column_name
         st = detect_special_columns(query)
         query, h = build_description_query(query, st.cols, [], True, True)
     else:
-        query += "SELECT DISTINCT %s FROM %s\n" % (select, table_name)
-        query += "ORDER BY %s" % select
+        query += "SELECT DISTINCT \"%s\" FROM %s\n" % (select, table_name)
+        query += "ORDER BY \"%s\"" % select
 
     rows = execute_query_on_main_db(query)
     for row in rows:
@@ -719,7 +719,7 @@ def build_query(table_name,
 
     position = 0
     for obs_value in obs_values:
-        sum_s = "SUM(%s) %s" % (obs_value, obs_value)
+        sum_s = "SUM(\"%s\") %s" % (obs_value, obs_value)
         obs_fields.append(sum_s)
         annotation += "%s " % JOIN_TOKEN
         annotation += "%s.%s %d\n" % (table_name, obs_value, position)
@@ -732,14 +732,14 @@ def build_query(table_name,
             annotation += "%s.%s %d\n" % (table_name, col, position)
             annotation += "%s %d\n" % (PIVOT_TOKEN, position)
             col_positions.append(position)
-            fields.append(col)
+            fields.append(" \"%s\" " % col)
             position += 1
 
     for row in rows:
         if not row is None:
             annotation += "%s " % JOIN_TOKEN
             annotation += "%s.%s %d\n" % (table_name, row, position)
-            fields.append(row)
+            fields.append(" \"%s\" " % row)
             position += 1
 
     comma_sep_fields = ", ".join(fields)
@@ -762,7 +762,7 @@ def build_query(table_name,
                     query += '\nAND'
                 else:
                     query += '\nWHERE'
-                query += " %s IN (" % field
+                query += " \"%s\" IN (" % field
                 comma_sep_vals = ", ".join(selected_vals)
                 query += "%s )" % comma_sep_vals
                 filtered = True
@@ -943,7 +943,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
             alias = field
         alias = "%s" % alias
         alias = alias.strip()
-        desc_query += "%s.%s AS \"%s\"" % (main_table, field, alias)
+        desc_query += "%s.\"%s\" AS \"%s\"" % (main_table, field, alias)
         query_header.append(alias)
         new_sql_header += "%s " % JOIN_TOKEN
         new_sql_header += "%s.%s %d \n" % (table, field, counter)
@@ -2386,7 +2386,8 @@ def all_visible_tables():
     :return: List of table names.
     """
     query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
-    query += "WHERE key='visible' and value='TRUE' "
+    query += "WHERE upper(key)='VISIBLE' and upper(value)='TRUE' order by table_name"
+
     rows = execute_query_on_django_db(query)
     ret_tables = []
     if rows is not None:
@@ -2404,7 +2405,7 @@ def exclude_invisible_tables(tables):
     """
     table_names = "'" + "','".join(tables) + "'"
     query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
-    query += "WHERE key='visible' and value='TRUE' "
+    query += "WHERE upper(key)='VISIBLE' and upper(value)='TRUE' "
     query += "and table_name IN(%s)" % table_names
     rows = execute_query_on_django_db(query)
     ret_tables = []
