@@ -1,9 +1,282 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% load url from future %}
+{% load account %}
+{% load i18n %}
+
 <!DOCTYPE html>
 <html>
-<head>
-    <title></title>
-</head>
-<body>
+    <head>
 
-</body>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lod4Stat</title>
+
+<style type="text/css">
+a {text-decoration:none;color: #254868; }
+
+.link_footer {text-decoration:none;color: white; }
+
+ul {padding: 10px; margin-left:14px }
+li {padding: 10px; margin-left:14px; color: #254868; font-family:"Helvetica";}
+
+input  {
+
+  border-top-left-radius: 0.5em;
+  border-top-right-radius: 0.5em;
+
+  border-bottom-left-radius: 0.5em;
+  border-bottom-right-radius: 0.5em;
+
+  height: 25px;
+
+  padding-left: 5px;
+  padding-right: 5px;
+
+  }
+
+button  {
+
+  border-top-left-radius: 0.5em;
+  border-top-right-radius: 0.5em;
+
+  border-bottom-left-radius: 0.5em;
+  border-bottom-right-radius: 0.5em;
+
+  height: 40px;
+  width:  70px;
+
+  }
+
+td  {
+
+  border-top-left-radius: 0.3em;
+  border-top-right-radius: 0.3em;
+
+  border-bottom-left-radius: 0.3em;
+  border-bottom-right-radius: 0.3em;
+
+
+
+  }
+
+tr {
+   background-color: rgb(238,244, 248);
+}
+
+.footer {
+
+    background-image: url('/static/img/footer.gif');
+    background-repeat: no-repeat;
+    background-position: left;
+    width:1170px;
+    height:61px;
+}
+
+</style>
+
+        <script src="/static/js/jquery.min.js"></script>
+
+        <script type="text/javascript">
+
+          var tid = setInterval(mycode, 5000);
+          var i = 1;
+
+          function mycode() {
+			i++;
+
+			if (i == 6)
+			  i = 1;
+
+			$("#immagine_grafici").fadeTo(1000,0, function() {
+              $("#immagine_grafici").attr("src","/static/img/Grafici/" + i + ".png");
+            }).fadeTo(1000,1);
+
+
+          }
+
+          function abortTimer() { // to be called when you want to stop the timer
+            clearInterval(tid);
+          }
+
+        </script>
+
+
+    </head>
+    <body bgcolor="#eef4f8">
+
+      <div align="center">
+
+        <table border="0" cellspacing="0" style="border-collapse: collapse;">
+
+          <tr>
+            <td colspan=2>
+              <a href="http://www.provincia.tn.it/">
+                <img src="/static/img/testata_Statistica.jpg" style="width:1170px;height:110px">
+              </a>
+            </td>
+          </tr>
+
+          <tr>
+
+            <td width='100%' colspan=2 bgcolor="#375A7F">
+              <font color="white" size=3 face="Helvetica">Valorizzare il patrimonio informativo della statistica al fine di aumentare la conoscenza del Trentino</font>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan=2 >&nbsp;</td>
+          </tr>
+
+          <tr height='30px'>
+            <td width='20%' bgcolor="#325A7F" style="border-bottom:1pt solid #CCCCCC;">
+              <font color="white" size="4" face="Helvetica" >
+
+                  {% if request.user.is_authenticated %}
+                    {{ request.user.email }}
+                  {% else %}
+                    &nbsp;Area utenti</font>
+                  {% endif %}
+
+
+            </td>
+            <td width='80%' rowspan=6 align='center' id="contenitore_grafici" name="contenitore_grafici">
+
+
+                <img id="immagine_grafici" name="immagine_grafici" src="/static/img/Grafici/1.png" style="width:768px;height:474px;"></img>
+             </td>
+
+			</tr>
+
+          <tr height='50px'>
+            <td width='20%'  align='center' >
+
+          {% if request.user.is_authenticated %}
+             <ul align="left">
+                 <li>
+                   <a class="btn" href="/user_profile"
+                           data-position="top"
+                           data-intro="{% trans " Logged user profile" %}">
+                        {% trans "Profile" %}
+                   </a>
+                  </li>
+                  <li>
+                    <a class="btn" href="/accounts/logout/"
+                           data-intro="{% trans " Logout from" %} Lod4Stat">
+                        {% trans "Logout" %}
+                    </a>
+                  </li>
+              </ul>
+
+          {% else %}
+           <br>
+           <form class="login" method="POST" action="{% url 'account_login' %}">
+             {% csrf_token %}
+
+              <input id="id_login" class="login-input" name="login" placeholder="Email" type="text" ><br>
+			  <br>
+              <input id="id_password" class="login-input" name="password" placeholder="Password" type="password"><br>
+              <br>
+              <button class="btn" type="submit" style="background-color: rgb(55,90,127);"><font color="white">Accedi</font></button>
+		      <button class="btn" type="button" onclick="location.href='/accounts/signup/'" style="background-color: rgb(55,90,127);"><font color="white">Registrati</font></button>
+              <br>
+              <br>
+
+            </form>
+
+          {% endif %}
+
+            </td>
+
+			</tr>
+
+
+
+          <tr height='30px'>
+            <td width='20%' bgcolor="#8B1F3F" >
+              <font color="white" size="4" face="Helvetica" >&nbsp;Accedi ai dati</font>
+            </td>
+          </tr>
+
+          <tr>
+            <td width='20%' >
+		      <ul type="disc">
+                <li><a href="/explorer/?public=false">Le tue interrogazioni</a></li>
+                <li><a href="/explorer/?public=true"><font color="#325A7F" >Interrogazioni pubbliche</font></a></li>
+                <li><a href="/query_editor/"><font color="#325A7F" >Esplora dati</font></a></li>
+		        <li><a href="/open_data/"><font color="#325A7F" >Open Data</font></a></li>
+               </ul>
+            </td>
+          </tr>
+
+
+
+
+          <tr height='30px'>
+            <td width='20%' bgcolor="#8B1F3F" style="border-bottom:1pt solid #CCCCCC;">
+              <font color="white" size="4"  face="Helvetica">&nbsp;Informazioni</font>
+            </td>
+          </tr>
+
+          <tr>
+            <td width='20%'>
+		      <ul type="disc">
+                <li><a href="/about/"><font >Il progetto</font></a></li>
+                <li><a href="Manuale_Utente_Esterno_LOD4STAT.pdf"><font >Manuale utente</font></a></li>
+                <li><font >FAQ</font></li>
+               </ul>
+            </td>
+          </tr>
+
+          <tr>
+
+            <td colspan="2">
+
+                <table  class="footer">
+                    <tr style="background-color:transparent;">
+                        <td width="90%">
+
+                        </td>
+
+                        <td width="10%">
+                            <a class="link_footer"
+                                       href="/credits">> {% trans "credits" %}</a> <br>
+                            <a class="link_footer"
+                                       href="/legal_notes">> {% trans "legal notes" %}</a>
+                        </td>
+
+                    </tr>
+
+                </table>
+
+
+            </td>
+
+          </tr>
+
+
+        </table>
+
+      </div>
+
+    </body>
 </html>

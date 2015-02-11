@@ -1112,7 +1112,7 @@ def index(request):
 
     context = RequestContext(request)
     context['object_list'] = objects
-    return render_to_response("l4s/index.html", context)
+    return render_to_response("l4s/index_new.html", context)
 
 
 def legal_notes(request):
@@ -1334,6 +1334,7 @@ def query_editor_view(request):
                              values)
 
     query = Query(title=table_name, sql=sql)
+
     df, data, warn, err = headers_and_data(request.user,
                                            query,
                                            filters,
@@ -1526,6 +1527,7 @@ def query_editor(request):
     topic_mapping = build_topics_decoder_dict()
     table_description = dict()
     tables = all_visible_tables()
+
     # Filter tables matching descriptions and table_name.
     if search:
         table_description = get_table_by_name_or_desc(search, tables, 'value')
