@@ -2379,14 +2379,18 @@ def filter_coder_table(tables):
     return coder_tables
 
 
-def all_visible_tables():
+def all_visible_tables(request):
     """
     Get the list of the tables visible in query editor.
 
     :return: List of table names.
     """
     query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
-    query += "WHERE upper(key)='VISIBLE' and upper(value)='TRUE' order by table_name"
+
+    if not request.user.is_staff:
+      query += "WHERE upper(key)='VISIBLE' and upper(value)='TRUE' \n"
+
+    query += "order by table_name"
 
     rows = execute_query_on_django_db(query)
     ret_tables = []
