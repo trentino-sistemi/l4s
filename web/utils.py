@@ -819,10 +819,14 @@ def remove_code_from_data_frame(df):
 
     :param df: Data frame.
     """
+    #print df.index.get_loc((4,'Alta Valsugana e Bersntol                         '))
+
     # Rename empty index with total index name.
     df.rename(index={u"": TOTAL}, inplace=True)
     # Rename empty columns with total column name.
     df.rename(columns={u"": TOTAL}, inplace=True)
+
+    #print df.index.get_loc((4,'Alta Valsugana e Bersntol                         '))
 
     dropped_levels = 0
     # Now I can drop the codes indices preserving totals.
@@ -831,14 +835,48 @@ def remove_code_from_data_frame(df):
             df.columns = df.columns.droplevel(level-dropped_levels)
             dropped_levels += 1
 
+    #print "ddff " , df.index.get_loc((4,'Alta Valsugana e Bersntol                         '))
+
+    #print df.index.levels
+
+    #print "df.index.lexsort_depth " , df.index.lexsort_depth
+    #print df.index.values.tolist()
+
     dropped_levels = 0
     # Now I can drop the codes columns preserving totals.
     for level, index in enumerate(df.index.names):
+
+        #print level, index
+
         if index is not None and index.startswith(CODE):
+
+            #print index
+
             desc = index[len(CODE)+1:]
+
+            #print desc
+
             if desc in df.index.names:
+
                 df.index = df.index.droplevel(level-dropped_levels)
                 dropped_levels += 1
+
+                #if has_data_frame_multi_level_index(df):  #riordina il data_freame per le righe...
+                #    df = df.sortlevel(axis=0)
+                #else:
+                #    df = df.sort_index(axis=0)
+
+                #print df.index.levels
+
+                #print "df.index.lexsort_depth " , df.index.lexsort_depth
+
+                #print df.index.values.tolist()
+
+                #print df.index.get_loc(('Alta Valsugana e Bersntol                         ',))
+
+
+
+
 
     return df
 
@@ -875,6 +913,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
     :param include_code: Force to include code.
     :return: query with descriptions.
     """
+
     query_header = []
     header, inner_sql = extract_header(query)
     new_sql_header = ""
@@ -882,6 +921,9 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
     desc_query = "SELECT "
     fk_hash = dict()
     counter = 0
+
+    #print fields
+
     for f in fields:
         if f == -1:
             continue
@@ -897,20 +939,35 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
             fk_hash[table] = foreign_keys
         else:
             foreign_keys = fk_hash[table]
+
+        #print "foreign_keys ", f, foreign_keys
+
         if field in foreign_keys:
+            #print field
             fk = foreign_keys[field]
             dest_table = fk[0]
+
             if is_decoder_table(dest_table):
+                #print dest_table
                 dest_column = fk[1]
                 desc_column = find_table_description_column(dest_table)
                 alias = get_column_description(table, field)
+
+                #print "dest_column " + dest_column
+                #print "desc_column " + desc_column
+                #print "alias " + alias
+
                 if alias is None:
                     alias = dest_column
                 alias = "%s" % alias
-                alias = alias.strip()
+                alias = alias.strip() #toglie gli spazi all'inizio e alla fine
                 sort_by_code = is_to_be_sorted_by_description(fk_hash[table],
                                                               field)
+
+                #print sort_by_code
+
                 if include_code or sort_by_code:
+                #if True:
                     desc_query += "%s.%s " % (main_table, field)
                     code_name = "%s %s" % (CODE, alias)
                     desc_query += "AS \"%s\", " % code_name
@@ -1092,10 +1149,10 @@ def saved_manual_requests_grouped_by_user_type(year, month):
     rows = execute_query_on_django_db(query)
     return rows
 
-
-def build_constraint_query(constraints,
+def build_constraint_query_test(constraints,
                            col_dict,
-                           filters):
+                           filters,
+                           aggregations):
     """
     Build ad hoc query on related table.
 
@@ -1105,16 +1162,47 @@ def build_constraint_query(constraints,
     :return: The new query applying constraints.
     """
 
+def build_constraint_query(constraints,
+                           col_dict,
+                           filters,
+                           aggregations,
+                           old_cols):
+    """
+    Build ad hoc query on related table.
+
+    :param constraints: Constraints.
+    :param col_dict: Column dictionary.
+    :param filters: Filters.
+    :return: The new query applying constraints.
+    """
+
+    #print filters
+    #print "old_cols " , old_cols
+
     table = constraints[0]['table']
     enum_column = constraints[0]['column']
+
     dest_table_description = get_table_schema(table)
+
     dest_columns = [field.name for field in dest_table_description]
 
     columns = []
-    for col in col_dict:
-        col_name = col_dict[col]['column']
+    for col in old_cols:
+
+        col_name = old_cols[col]['column']
+
         if col_name in dest_columns:
             columns.append(col_name)
+
+    """
+    for col in col_dict:
+        col_name = col_dict[col]['column']
+
+        print col_name
+
+        if col_name in dest_columns:
+            columns.append(col_name)
+    """
 
     if len(columns) == 0:
         return None, None
@@ -1122,20 +1210,25 @@ def build_constraint_query(constraints,
     header = []
     query = ""
     c = 0
-    for c, column in enumerate(columns):
+
+    for c, column in enumerate(columns):  #mette il --join all'inizio della query
         query += "%s %s.%s %d \n" % (JOIN_TOKEN, table, column, c)
     query += "%s %s.%s %d \n\n" % (JOIN_TOKEN, table, enum_column, c+1)
 
-    fields = ','.join([k for k in columns])
+    fields = ','.join([k for k in columns])  #mette il select dei campi che servono
     query += "SELECT %s, " % fields
     for col in columns:
         header.append(col)
+
     #for enum_column in enum_columns:
-    query += "SUM(%s) %s \n" % (enum_column, enum_column)
+    query += "SUM(%s) %s \n" % (enum_column, enum_column)  #mette il sum del campo che detiene il numero degli alberghi
+
     header.append(enum_column)
-    query += "FROM %s \n" % table
+    query += "FROM %s \n" % table  #aggiunge il from
     counter = 0
-    for i, k in enumerate(columns):
+
+    """
+    for i, k in enumerate(columns):  #questo non lo capisco
         src_table = col_dict[i]['table']
         if counter == 0:
             query += "WHERE "
@@ -1143,8 +1236,12 @@ def build_constraint_query(constraints,
             query += "AND "
         counter += 1
         query += "%s IN (SELECT DISTINCT %s from %s ) \n" % (k, k, src_table)
+    """
+
     for f in filters:
-        if not f in columns and f in dest_columns:
+
+        #if not f in columns and f in dest_columns:
+        if f in dest_columns:
             filter_value = filters[f]
             if len(filter_value) > 0:
                 values = ','.join(["%s" % k[0] for k in filter_value])
@@ -1154,33 +1251,116 @@ def build_constraint_query(constraints,
                     query += "AND "
                 query += " %s IN (%s)\n" % (f, values)
             counter += 1
+
     query += "GROUP BY %s \n" % fields
-    query += "HAVING "
-    for c, constraint in enumerate(constraints):
-        if c != 0:
-            query += " AND "
-        operator = constraint["operator"]
-        value = constraint["value"]
-        query += "SUM(%s)%s%s" % (enum_column, operator, value)
+
+    if len(aggregations) == 0:
+        query += "HAVING "
+
+        for c, constraint in enumerate(constraints):
+            if c != 0:
+                query += " AND "
+            operator = constraint["operator"]
+            value = constraint["value"]
+            query += "SUM(%s)%s%s" % (enum_column, operator, value)
+
     query += "\nORDER BY %s" % fields
 
     return query, header
 
+def item_constraint(constraint):
+    """
+    Take a constraint string and return a lazy structure
+    representing the item.
+
+    :param constraint: Constraint from metadata to be used to
+                       perform primary suppression.
+    :return: Item.
+    """
+    lesser_than = "<"
+    lesser_than_equals = "<="
+    greater_than = ">"
+    greater_than_equals_token = ">="
+    equals_than_token = "="
+    words = constraint.split('.')
+    table_name = words[0]
+    if lesser_than in words[1]:
+        words = words[1].split(lesser_than)
+        operator = lesser_than
+    elif greater_than in words[1]:
+        words = words[1].split(greater_than)
+        operator = greater_than
+    elif equals_than_token in words[1]:
+        words = words[1].split(equals_than_token)
+        operator = equals_than_token
+    elif lesser_than_equals in words[1]:
+        words = words[1].split(lesser_than_equals)
+        operator = lesser_than_equals
+    elif greater_than_equals_token in words[1]:
+        words = words[1].split(greater_than_equals_token)
+        operator = greater_than_equals_token
+    else:
+        return None
+    column_name = words[0]
+    value = words[1]
+    item = dict()
+    item['table'] = table_name
+    item['column'] = column_name
+    item['operator'] = operator
+    item['value'] = value
+    return item
+
+
+def build_constraint_dict(constraint_cols):
+    """
+    Build a dictionary with constraint.
+    :param constraint_cols: Columns containing some constraints.
+    """
+    constraint_dict = dict()
+    and_s = "AND"
+
+    for c in constraint_cols:
+        res = []
+        value = constraint_cols[c]
+        if and_s in value:
+            constraints = value.split(and_s)
+            for constraint in constraints:
+                item = item_constraint(constraint)
+                res.append(item)
+        else:
+            item = item_constraint(value)
+            res.append(item)
+        constraint_dict[c] = res
+
+    return constraint_dict
 
 def build_secondary_query(secondary,
                           col_dict,
-                          filters):
+                          filters,
+                          old_cols,
+                          aggregations):
     """
     Build ad hoc query on related table.
 
-    :param secondary: Constraint to be followed in ordder to apply
+    :param secondary: Constraint to be followed in order to apply
                       the secondary suppression.
     :param col_dict: Column dictionary.
     :param filters: Filters.
     :return: The new query applying constraints.
     """
+    #print "secondary " , secondary
+
     second_clause = secondary.split()[2]
     first_word = second_clause.split('>')[0]
+    second_word = second_clause.split('>')[1]
+
+    constraint_cols = dict()
+    constraint_cols[0] = second_clause
+    constraint_dict = build_constraint_dict(constraint_cols)
+    constraint_values = constraint_dict[0]
+
+    second_clause = 'SUM(' + first_word + ')>' + second_word
+
     tpc = first_word.split('.')
     table = tpc[0]
     enum_column = tpc[1]
@@ -1189,8 +1369,8 @@ def build_secondary_query(secondary,
     dest_columns = [field.name for field in dest_table_description]
 
     columns = []
-    for col in col_dict:
-        col_name = col_dict[col]['column']
+    for col in old_cols:
+        col_name = old_cols[col]['column']
         if col_name in dest_columns:
             columns.append(col_name)
 
@@ -1213,6 +1393,8 @@ def build_secondary_query(secondary,
     header.append(enum_column)
     query += "FROM %s \n" % table
     counter = 0
+
+    """
     for i, k in enumerate(columns):
         src_table = col_dict[i]['table']
         if counter == 0:
@@ -1221,6 +1403,8 @@ def build_secondary_query(secondary,
             query += "AND "
         counter += 1
         query += "%s IN (SELECT DISTINCT %s from %s ) \n" % (k, k, src_table)
+    """
+
     for f in filters:
         if f in dest_columns:
             filter_value = filters[f]
@@ -1232,13 +1416,17 @@ def build_secondary_query(secondary,
                 values = ','.join(["%s" % k[0] for k in filter_value])
                 query += " %s IN (%s)\n" % (f, values)
                 counter += 1
-    query += "AND %s\n" % second_clause
+
     query += "GROUP BY %s \n" % fields
+
+    if len(aggregations) == 0:
+        query += "HAVING %s\n" % second_clause
 
     query += "\nORDER BY %s \n" % enum_column
     query += "\nDESC "
 
-    return query, header
+
+    return constraint_values, table, enum_column, query, header
 
 
 def add_secret_column(secret_cols, index, table_name, column_name):
@@ -1269,6 +1457,7 @@ def add_constraint_column(constraint_cols, index, table_name, column_name):
     :return: The constraint column.
     """
     constraint = get_constraint(table_name, column_name)
+
     if constraint is not None:
         constraint_cols[index] = dict()
         constraint_cols[index] = constraint
@@ -1430,6 +1619,8 @@ def detect_special_columns(sql):
     """
     st = Symboltable()
 
+    #print "sql ", sql
+
     for line in sql.splitlines():
         left_stripped_line = line.lstrip(' ')
         words = left_stripped_line.split(' ')
@@ -1473,7 +1664,7 @@ def detect_special_columns(sql):
     return st
 
 
-def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold):
+def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, constraints):
     """
     Build aggregation query.
 
@@ -1508,6 +1699,7 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold):
 
     for a, aggregation in enumerate(aggregations):
         metadata = Metadata.objects.get(id=aggregation)
+
         if a != 0:
             st = detect_special_columns(sql)
             cols = st.cols
@@ -1524,18 +1716,24 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold):
                                     threshold)
         else:
             sql = build_located_in_area_query(sql, cols, metadata, agg_filters,
-                                              threshold)
+                                              threshold, constraints)
+
+    #print sql
 
     return sql, err
 
 
-def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold):
+def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, constraints):
     """
     Build query for geo spatial aggregation.
 
     :param sql: The sql text.
     :return: The new query to aggregate to an higher level.
     """
+
+    #print "threshold " , threshold
+    #print "cols " , cols
+
     ref_table, ref_column = located_in_area(metadata.table_name,
                                             metadata.column_name,
                                             metadata.value)
@@ -1598,7 +1796,22 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold):
             query += "IN (%s)" % comma_sep_ag_vals
 
     query += ")"
+
     query += "\nGROUP BY %s" % params
+
+    if len(constraints) != 0:
+        query += " HAVING "
+
+        for c, constraint in enumerate(constraints):
+            if c != 0:
+                query += " AND "
+            operator = constraint["operator"]
+            value = constraint["value"]
+            enum_column = constraint['column']
+
+            query += "SUM(%s)%s%s" % (enum_column, operator, value)
+
+
     query += "\nORDER BY %s" % params
 
     query = header + query
@@ -2387,7 +2600,7 @@ def all_visible_tables(request):
     """
     query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
 
-    if not request.user.is_staff:
+    if request.user.is_staff:
       query += "WHERE upper(key)='VISIBLE' and upper(value)='TRUE' \n"
 
     query += "order by table_name"

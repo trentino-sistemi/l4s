@@ -29,14 +29,16 @@ from web.utils import execute_query_on_main_db, \
     drop_total_column, \
     drop_total_row, \
     build_description_query, \
-    get_data_frame_first_index,\
+    get_data_frame_first_index, \
     get_table_metadata_value, \
     build_secondary_query, \
     has_data_frame_multi_level_columns, \
     has_data_frame_multi_level_index, \
     remove_code_from_data_frame, \
-    contains_ref_period,\
-    TOTAL
+    contains_ref_period, \
+    TOTAL, \
+    get_table_schema, \
+    get_column_description
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -48,12 +50,23 @@ import uuid
 import ast
 import pandas as pd
 import numpy as np
+from datetime import datetime
+import sys
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
 
 ASTERISK = '*'
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 def find_row_with_min_value(data, r_start, r_end, c):
     """
@@ -106,7 +119,7 @@ def find_row_with_min_value_exclude_zero(data, r_start, r_end, c):
     """
     cell = str(data[r_start][c])
     min_row = None
-    if not cell.startswith("*"):
+    if not cell.startswith(ASTERISK):
         if float(cell) > 0.0:
             min_row = r_start
         if r_start == r_end:
@@ -207,15 +220,26 @@ def find_column_with_min_value(row, start_index, end_index):
     :return: The column index that point to the row cell with minimum value.
     """
     min_index = None
+
+    #print "inizio ---------------"
+    #print start_index
+    #print end_index
+
     for co, column in enumerate(row[start_index:]):
+
+        #print column
+
         c = start_index + co
-        if c == len(row) - 1 or c == end_index:
+        if c == len(
+                row) - 1 or c == end_index:  # non capisco ... bastava mettere end_index nell'enumerate
             break
         val = row[c]
         if str(val).startswith(ASTERISK):
             continue
         if min_index is None or float(row[c]) < float(row[min_index]):
             min_index = c
+
+    #print "fine ---------------"
 
     return min_index
 
@@ -237,7 +261,8 @@ def find_column_with_min_value_exclude_zero(row, start_index, end_index):
         if str(val).startswith(ASTERISK):
             continue
         if float(row[c]) != 0.0 and (
-                min_index is None or float(row[c]) < float(row[min_index])):
+                        min_index is None or float(row[c]) < float(
+                        row[min_index])):
             min_index = c
 
     return min_index
@@ -270,19 +295,21 @@ def row_primary_suppression(data,
     :return: The data set after the primary suppression on rows.
     """
     for r, row in enumerate(data):
-        if r == len(data) - len(obs_values):
+        if r == len(data) - len(obs_values):  #per saltare la riga dei totali
             continue
         for c, column in enumerate(row):
-            threshold = get_threshold_from_dict(threshold_columns_dict, c)
-            if c == len(row) - 1:
+            threshold = get_threshold_from_dict(threshold_columns_dict,
+                                                c)  #estrare la soglia se c'e' altrimenti usa quella di default che e' 3
+            if c == len(row) - 1:  #per saltare la colonna dei totali
                 break
-            val = row[c]
-            if str(val).startswith(ASTERISK):
+            val = row[c]  #usare column ??????????
+            if str(val).startswith(
+                    ASTERISK):  #sara' mai vero ? e' la prima procedura che cicla su data e quindi asterischi non dovrebbero essercene
                 continue
             if is_to_be_asterisked(val, threshold):
                 row[c] = ASTERISK
                 if debug:
-                    row[c] += 'R(' + val + ")"
+                    row[c] += 'P(' + val + ")"
 
     return data
 
@@ -333,35 +360,143 @@ def column_primary_pivoted_suppression(data,
     :param debug: Debug flag.
     :return: The data set after the primary suppression on columns.
     """
-    for o, obs in enumerate(obs_values):
+
+    for o, obs in enumerate(obs_values):  #questo e' corretto non quello che c'e' sulla riga
         threshold = get_threshold_from_dict(threshold_columns_dict, obs)
 
-        for c, column in enumerate(data[0], start=0):
-            if c == len(data[0]) - 1:
+        for c, column in enumerate(data[0],
+                                   start=0):  #e' un modo buffo per ciclare sulle colonne
+            if c == len(data[0]) - 1:  #per saltare i totali di riga
                 break
             for r, row in enumerate(data):
-                if r > len(data) - len(obs_values) - 1:
+                if r > len(data) - len(
+                        obs_values) - 1:  #per saltare i totali di colonna
                     break
-                if len(obs_values) > 1 and r % len(obs_values) != obs:
+                if len(obs_values) > 1 and r % len(
+                        obs_values) != obs:  #per piu obs value ... ma non l'ho capita del tutto
                     continue
                 val = row[c]
-                if str(val).startswith(ASTERISK):
+                if str(val).startswith(
+                        ASTERISK):  # se e' gia' stato asteriscato da quella per riga
                     continue
                 if is_to_be_asterisked(val, threshold):
                     row[c] = ASTERISK
                     if debug:
-                        row[c] += 'C' + '(' + str(val) + ")"
-                if val == data[len(data)-len(obs_values)+o][c]:
-                    row[c] = ASTERISK
-                    if debug:
-                        row[c] += 'C' + '(TOT,' + str(val) + ")"
+                        row[c] += 'P' + '(' + str(val) + ")"
+
+                        #non va bene .... va fatto all'interno dello slice
+                        #if val == data[len(data)-len(obs_values)+o][c]: # se il valore e' uguale al totale di colonna ???? serve ancora questo pezzo di codice ?????? e se e' qui perche non sulla riga ?
+                        #    row[c] = ASTERISK
+                        #    if debug:
+                        #        row[c] += 'P' + '(TOT,' + str(val) + ")"
+
     return data
+
+
+def estrai_tuple_per_colonne(data_frame, slices, obs_vals):
+
+    #print has_data_frame_multi_level_columns(data_frame)
+
+    if slices:
+        if has_data_frame_multi_level_columns(data_frame):
+
+            col_tuples = data_frame.columns
+            #print "col_tuples prima " , col_tuples
+
+            slice_da_preservare_originale, slice_da_preservare = estrai_slice_da_preservare(False,data_frame.columns, obs_vals)  #procedura per estrarre lo slice piu dettagliato
+
+            #print "slice_da_preservare ", slice_da_preservare
+            #print "data_frame.columns.levels ", data_frame.columns.levels
+
+            i = 0
+            for l, levels in enumerate(data_frame.columns.levels):  # droppo i livelli maggiori dello slice da preservare
+
+                #print l, levels
+
+                if i >= slice_da_preservare:
+                    col_tuples = col_tuples.droplevel(i)
+                else:
+                    i += 1
+
+            #print "col_tuples dopo " , col_tuples
+
+            if type(col_tuples) <> pd.MultiIndex:  # se quello che e' rimasto e' diventato NON multilevel
+                #print "lllllllll"
+                # va bene che lo slice_da_preservare_originale rimanga invariato
+                lista_appoggio = []
+                appoggio = col_tuples.tolist()
+                lista_appoggio.append(appoggio)
+                col_tuples = list(itertools.product(*lista_appoggio))  #fa' il prodotto cartesiano di lista_appoggio
+
+            #print "col_tuples " , col_tuples
+
+        else:
+            slice_da_preservare_originale = 0
+            col_tuples = []
+            for c, col in enumerate(data_frame.columns):
+                col_tuples.append(col)
+
+        col_tuples = list(set(col_tuples))  #rende uniche le tuple
+
+    else:
+        slice_da_preservare_originale = 0
+        col_tuples = []
+        for c, col in enumerate(data_frame.columns):
+            col_tuples.append(col)
+
+    return slice_da_preservare_originale, col_tuples
+
+
+def estrai_tuple_per_righe(data_frame, slices, obs_vals):
+
+    if slices:
+        if has_data_frame_multi_level_index(data_frame):  #questo a differenza delle colomme potrebbe non essere multiindice es: se coninvolgo un campo che non ha decodifica
+
+            index_tuples = data_frame.index
+
+            slice_da_preservare_originale, slice_da_preservare = estrai_slice_da_preservare(True,data_frame.index, obs_vals)  #procedura per estrarre lo slice piu dettagliato
+
+            #print "slice_da_preservare_originale ", slice_da_preservare_originale
+            #print "slice_da_preservare ", slice_da_preservare
+
+            i = 0
+            for l, levels in enumerate(data_frame.index.levels):  # droppo i livelli maggiori dello slice da preservare
+                if i >= slice_da_preservare:
+                    index_tuples = index_tuples.droplevel(i)
+                else:
+                    i += 1
+
+            if type(index_tuples) <> pd.MultiIndex:  # se quello che e' rimasto e' diventato NON multilevel
+                # va bene che lo slice_da_preservare_originale rimanga invariato
+                lista_appoggio = []
+                appoggio = index_tuples.tolist()
+                lista_appoggio.append(appoggio)
+                index_tuples = list(itertools.product(*lista_appoggio))  #fa' il prodotto cartesiano di lista_appoggio
+
+                #print index_tuples
+
+        else:
+            slice_da_preservare_originale = 0
+            index_tuples = []
+            for c, index in enumerate(data_frame.index):
+                index_tuples.append(index)
+
+        index_tuples = list(set(index_tuples))  #rende uniche le tuple
+
+    else:
+        slice_da_preservare_originale = 0
+        index_tuples = []
+        for c, index in enumerate(data_frame.index):
+            index_tuples.append(index)
+
+    return slice_da_preservare_originale, index_tuples
 
 
 def row_secondary_suppression(data,
                               data_frame,
                               rows,
-                              debug):
+                              debug,
+                              obs_values):
     """
     Secondary suppression.
 
@@ -371,105 +506,239 @@ def row_secondary_suppression(data,
     :param debug:
     :return:
     """
+
+    #arrivati qui nel data_frame ho ancora i dati vergini senza asterischi della primaria, solo in data ho gli asterischi della primaria
+
     asterisk_global_count = 0
 
-    if len(rows) > 1:
-        data_frame.sortlevel(inplace=True)
+    #print datetime.now().strftime("%H:%M:%S.%f")
 
-    if not has_data_frame_multi_level_columns(data_frame):
-        col_tuples = []
-        for col in data_frame.columns:
-            col_tuples.append(col)
-    else:
-        levels_contents = []
-        for l, levels in enumerate(data_frame.columns.levels):
-            if l < len(data_frame.columns.levels) - 2:
-                levels_list = data_frame.columns.levels[l].tolist()
-                if "" in levels_list:
-                    levels_list.remove("")
-                if l == 0:
-                    start = 0
-                    end = len(data_frame.columns.levels[l]) - 1
-                    levels_contents.append(levels_list[start:end])
-                else:
-                    levels_contents.append(levels_list)
-        col_tuples = list(itertools.product(*levels_contents))
+    data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)  #riordina le colonne ....... menatona .... se c'e' il totale e campi stringa (es. comuni) su quella colonna sclera ... allora riordino ....
 
-    if has_data_frame_multi_level_index(data_frame):
-        levels_contents = []
-        for l, levels in enumerate(data_frame.index.levels):
-            if l < len(data_frame.index.levels):
-                levels_list = data_frame.index.levels[l].tolist()
-                if "" in levels_list:
-                    levels_list.remove("")
-                if l == 0:
-                    start = 0
-                    end = len(data_frame.index.levels[l]) - 1
-                    levels_contents.append(levels_list[start:end])
-                else:
-                    levels_contents.append(levels_list)
-        index_tuples = list(itertools.product(*levels_contents))
+    data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+
+    slice_da_preservare_colonne, col_tuples = estrai_tuple_per_colonne(data_frame_appoggio_colonne, True, obs_values)  #True perche devo tutelare gli slices di colonna
+
+    if has_data_frame_multi_level_index(data_frame):  #riordina il data_freame per le righe... l'if per le colonne non serve per via che sono sempre multilevel
+        data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
     else:
-        index_tuples = []
-        for c, col in enumerate(data_frame.index):
-            index_tuples.append(col)
+        data_frame_appoggio_righe = data_frame.sort_index(axis=0)
+
+    data_frame_appoggio_righe.drop(TOTAL, axis=0, inplace=True)  # e poi tolgo la label TOTALE sulle righe
+
+    slice_da_preservare_righe, index_tuples = estrai_tuple_per_righe(data_frame_appoggio_righe, False, obs_values)  #false percghe mi servono tutte le righe e non mi servono gli slices di riga
 
     for rt, row_tup in enumerate(index_tuples):
+
+        try:
+            row_index = data_frame_appoggio_righe.index.get_loc(
+                index_tuples[rt])
+        except (KeyError, TypeError):
+            continue
+
+        src_row = data[
+            row_index]  #lista delle righe con la sopressione primaria
+
+        #print row_tup
+        #print src_row
+
+        for ct, col_tup in enumerate(col_tuples):
+
+            #print col_tup
+
             try:
-                row_index = data_frame.index.get_loc(index_tuples[rt])
+                column_index = data_frame_appoggio_colonne.columns.get_loc(
+                    col_tuples[ct])
             except (KeyError, TypeError):
                 continue
 
-            src_row = data[row_index]
-            for ct, col_tup in enumerate(col_tuples):
-                try:
-                    column_index = data_frame.columns.get_loc(col_tuples[ct])
-                except (KeyError, TypeError):
-                    continue
-                if not isinstance(column_index, slice):
-                    start_col = 0
-                    stop_col = len(src_row) - 1
-                else:
-                    start_col = column_index.start
-                    stop_col = column_index.stop
-                sel_col = start_col
-                asterisk_count = 0
-                while sel_col != stop_col:
-                    if str(src_row[sel_col]).startswith(ASTERISK):
-                        asterisk_count += 1
+            #print column_index
+
+            if not isinstance(column_index,
+                              slice):  #non entra mai .... sulle colonne uno slice c'e' sempre ?????
+                start_col = 0
+                stop_col = len(src_row) - 1
+            else:
+                start_col = column_index.start
+                stop_col = column_index.stop
+
+            #print start_col
+            #print stop_col
+
+            sel_col = start_col
+            asterisk_count = 0
+
+            totale_slice = 0
+
+            while sel_col != stop_col:  #scorro per estrarre il numero degli asterischi in quel slice
+
+                #totale_slice += float(data_frame.iloc[row_index][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+
+                if str(src_row[sel_col]).startswith(ASTERISK):
+                    asterisk_count += 1
+                sel_col += 1
+
+            sel_col = start_col
+
+            if float(totale_slice) <> 0.0:
+
+                while sel_col != stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
+
+                    if not str(src_row[sel_col]).startswith(ASTERISK):
+
+                        if float(src_row[sel_col]) == totale_slice:
+                            #print "bingo"
+                            value = src_row[sel_col]
+                            src_row[sel_col] = ASTERISK
+
+                            if debug:
+                                src_row[sel_col] += ASTERISK
+                                src_row[sel_col] += 'P(' + str(
+                                    value) + ' - TOT ' + str(
+                                    totale_slice) + ")"
+
+                            asterisk_count += 1
                     sel_col += 1
-                if asterisk_count == 1:
-                    #Need to asterisk an other one.
-                    sel_column = find_column_with_min_value(src_row.tolist(),
-                                                            start_col,
-                                                            stop_col)
-                    if sel_column is None:
-                        break
+
+            if asterisk_count == 1:  # se sulla riga c'e' un asterisco solo .... ne asterisco un altro
+
+                sel_column = find_column_with_min_value(src_row.tolist(),
+                                                        start_col,
+                                                        stop_col)
+
+                if not sel_column is None:
 
                     value = src_row[sel_column]
                     src_row[sel_column] = ASTERISK
+
                     if debug:
                         src_row[sel_column] += ASTERISK
                         src_row[sel_column] += "R(%s)" % str(value)
+
                     asterisk_count += 1
                     asterisk_global_count += asterisk_count
-                    if float(value) == 0.0:
+
+                    if float(
+                            value) == 0.0:  # se ho asteriscato uno zero ne asterisco un altro
+
                         sel_column = find_column_with_min_value_exclude_zero(
                             src_row.tolist(),
                             start_col,
                             stop_col)
-                        if sel_column is None:
-                            break
-                        value = src_row[sel_column]
-                        src_row[sel_column] = ASTERISK
-                        if debug:
-                            src_row[sel_column] += ASTERISK
-                            src_row[sel_column] += "R(%s)" % str(value)
-                        asterisk_count += 1
-                        asterisk_global_count += asterisk_count
-                    break
+
+                        if not sel_column is None:
+
+                            value = src_row[sel_column]
+
+                            src_row[sel_column] = ASTERISK
+
+                            if debug:
+                                src_row[sel_column] += ASTERISK
+                                src_row[sel_column] += "R(%s)" % str(value)
+
+                            asterisk_count += 1
+                            asterisk_global_count += asterisk_count
 
     return data, asterisk_global_count
+
+
+def estrai_slice_da_preservare(righe, livello_in, obs_vals):
+
+    lista = []
+
+    slice_da_preservare = -1
+
+    for l, livello in enumerate(livello_in.levels):
+
+        #print l
+        #print livello
+
+        appoggio = livello.tolist()
+
+        lista.append(appoggio)
+
+        #print lista
+
+        lista_appoggio = list(itertools.product(*lista))
+
+        is_slice = False
+
+        #print lista_appoggio
+
+        for ct, col_tup in enumerate(lista_appoggio):
+
+            #print ct
+            #print col_tup
+
+            try:
+
+                col_index = livello_in.get_loc(col_tup)  #slice(0, 141, None)
+
+                if isinstance(col_index, slice):
+                    is_slice = True
+
+                    #print col_tup
+            except (KeyError, TypeError):
+                continue
+
+        if is_slice == True:
+            #    print str(l) + " e' uno slice "
+
+            #    print col_index.start
+            #    print col_index.stop
+
+            if l > slice_da_preservare:
+                slice_da_preservare = l
+
+                #else:
+                #    print str(l) + " non e' uno slice "
+
+    #if slice_da_preservare > 0: da capire se farlo o meno ... per le colonne non serve
+    #    slice_da_preservare -= 1
+
+    #print type(livello_in)
+    #print "------------------------------------------------------------------------------------------------slice da preservare ", slice_da_preservare
+    #print "livello_in.levels " , len(livello_in.levels)
+
+    #print bcolors.FAIL
+    #print "livello_in.levels ", livello_in.levels
+    #print "slice_da_preservareeeeeeeeeeeeeeeeee  " , slice_da_preservare
+    #print bcolors.ENDC
+
+    if righe:
+        if len(obs_vals) == 1:
+
+            slice_da_preservare_originale = slice_da_preservare
+
+            if slice_da_preservare == 0:
+                slice_da_preservare = 2  #2 perche qui arrivo solo se e' multilevel ..se e' zero vuol dire che devo tutelare tuttle le righe
+        else:
+
+            if slice_da_preservare <= 1:
+                slice_da_preservare = len(livello_in.levels)  #perche in riga ho gli obs values
+                slice_da_preservare_originale = 0
+            else:
+                slice_da_preservare_originale = slice_da_preservare
+
+    else:
+
+        if len(obs_vals) == 1:
+
+            slice_da_preservare_originale = slice_da_preservare
+
+            if slice_da_preservare == 0:
+                slice_da_preservare = 1
+        else:
+
+            slice_da_preservare_originale = slice_da_preservare
+
+            if slice_da_preservare == 0:
+                slice_da_preservare = len(livello_in.levels) - 1   # era 2 perche qui arrivo solo se e' multilevel ..se e' zero vuol dire che devo tutelare tuttle le righe
+
+    #print "slice da preservare " + str(slice_da_preservare)
+    #print lista_start
+
+    return slice_da_preservare_originale, slice_da_preservare
 
 
 def column_secondary_suppression(data, data_frame, obs_values, debug):
@@ -484,113 +753,143 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
     :param debug: If active show debug info on asterisked cells.
     :return: The data set after the secondary suppression on columns.
     """
-    asterisk_global_count = 0
-    if not has_data_frame_multi_level_columns(data_frame):
-        col_tuples = []
-        for col in data_frame.columns:
-            col_tuples.append(col)
-    else:
-        levels_contents = []
-        for l, levels in enumerate(data_frame.columns.levels):
-            if l < len(data_frame.columns.levels):
-                levels_list = data_frame.columns.levels[l].tolist()
-                if "" in levels_list:
-                    levels_list.remove("")
-                if l == 0:
-                    start = 0
-                    end = len(data_frame.columns.levels[l])-1
-                    levels_contents.append(levels_list[start:end])
-                else:
-                    levels_contents.append(levels_list)
-        col_tuples = list(itertools.product(*levels_contents))
 
-    if has_data_frame_multi_level_index(data_frame):
-        levels_contents = []
-        for l, levels in enumerate(data_frame.index.levels):
-            if l < len(data_frame.index.levels) - 1:
-                levels_list = data_frame.index.levels[l].tolist()
-                if "" in levels_list:
-                    levels_list.remove("")
-                if l == 0:
-                    start = 0
-                    end = len(data_frame.index.levels[l])-1
-                    levels_contents.append(levels_list[start:end])
-                else:
-                    levels_contents.append(levels_list)
-        index_tuples = list(itertools.product(*levels_contents))
+    #per slice multilivello proteggendo lo slice piu capillare proteggi per ereditarieta' anche gli slice superiori
+
+    asterisk_global_count = 0
+
+    data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)  #riordina le colonne ....... menatona .... se c'e' il totale e campi stringa (es. comuni) su quella colonna sclera ... allora riordino ....
+    data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+
+    slice_da_preservare_colonne, col_tuples = estrai_tuple_per_colonne(data_frame_appoggio_colonne, False, obs_values)  #false perche mi servono tutte le colonne
+
+    if has_data_frame_multi_level_index(data_frame):  #riordina il data_freame per le righe... l'if per le colonne non serve per via che sono sempre multilevel
+        data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
     else:
-        index_tuples = []
-        for c, col in enumerate(data_frame.index):
-            index_tuples.append(col)
+        data_frame_appoggio_righe = data_frame.sort_index(axis=0)
+
+    data_frame_appoggio_righe.drop(TOTAL, axis=0,inplace=True)  # e poi tolgo la label TOTALE sulle righe
+
+    slice_da_preservare_righe, index_tuples = estrai_tuple_per_righe(data_frame_appoggio_righe, True, obs_values)  #true perche mi servono gli slices .... devo tutelare gli slices di riga
 
     for ct, col_tup in enumerate(col_tuples):
+
         asterisk_count = 0
+
         try:
-            column_index = data_frame.columns.get_loc(col_tuples[ct])
+            column_index = data_frame_appoggio_colonne.columns.get_loc(col_tup)
         except (KeyError, TypeError):
             continue
+
         for rt, row_tup in enumerate(index_tuples):
-            if len(index_tuples[rt]) == 1:
+
+            #print row_tup
+
+            try:
+                row_index = data_frame_appoggio_righe.index.get_loc(row_tup)
+            except (KeyError, TypeError):
+                continue
+
+            #print "row_index " , row_index
+
+            if type(data_frame_appoggio_righe.index) <> pd.MultiIndex:  #un field solo senza codice
                 start_row = 0
-                stop_row = len(data) - len(obs_values) - 1
-                sel_row = start_row
+                stop_row = len(index_tuples)
             else:
-                try:
-                    row_index = data_frame.index.get_loc(index_tuples[rt])
-                except (KeyError, TypeError):
-                    continue
-                start_row = row_index.start
-                stop_row = row_index.stop
-                sel_row = start_row
-            if stop_row == start_row + 1:
+                if isinstance(row_index, slice):  #piu fields
+                    start_row = row_index.start
+                    stop_row = row_index.stop
+                else:  #un field solo CON codice
+                    start_row = 0
+                    stop_row = len(index_tuples)
+
+            #print "start_row ", start_row
+            #print "stop_row " , stop_row
+
+            asterisk_count = 0
+
+            sel_row = start_row
+
+            totale_slice = 0
+
+            while sel_row != stop_row:  #scorro per estrarre il numero degli asterischi in quel slice
+
+
+                #totale_slice += float(data_frame.iloc[sel_row][column_index]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+
                 src_row = data[sel_row]
-                value = src_row[column_index]
-                if not value.startswith(ASTERISK):
-                    src_row[column_index] = ASTERISK
-                    if debug:
-                        src_row[column_index] += ASTERISK
-                        src_row[column_index] += "C(%s)" % str(value)
+
+                #print sel_row , " " , src_row
+
+                if str(src_row[column_index]).startswith(ASTERISK):
                     asterisk_count += 1
-                    asterisk_global_count += asterisk_count
-            else:
-                while sel_row != stop_row:
+                sel_row += 1
+
+            sel_row = start_row
+
+            if float(totale_slice) <> 0.0:
+
+                while sel_row != stop_row:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
+
                     src_row = data[sel_row]
-                    if str(src_row[column_index]).startswith(ASTERISK):
-                        asterisk_count += 1
+
+                    if not str(src_row[column_index]).startswith(ASTERISK):
+
+                        if float(src_row[column_index]) == totale_slice:
+                            #print "bingo"
+                            value = src_row[column_index]
+                            src_row[column_index] = ASTERISK
+
+                            if debug:
+                                src_row[column_index] += ASTERISK
+                                src_row[column_index] += 'P(' + str(
+                                    value) + ' - TOT ' + str(
+                                    totale_slice) + ")"
+
+                            asterisk_count += 1
                     sel_row += 1
-                if asterisk_count == 1:
-                    min_row_index = find_row_with_min_value(data,
-                                                            start_row,
-                                                            stop_row,
-                                                            column_index)
-                    if min_row_index is None:
-                        continue
+
+            if asterisk_count == 1:
+
+                min_row_index = find_row_with_min_value(data,
+                                                        start_row,
+                                                        stop_row - 1,
+                                                        column_index)
+
+                if not min_row_index is None:
+
                     src_row = data[min_row_index]
                     value = src_row[column_index]
                     src_row[column_index] = ASTERISK
                     if debug:
                         src_row[column_index] += ASTERISK
-                        src_row[column_index] += "C(%s)" % str(value)
+                        src_row[column_index] += "C(%s)" % str(
+                            value)  # + ' ' + str(row_index) + ' ' + str(column_index) + ' ' + str(min_row_index)
                     asterisk_count += 1
                     asterisk_global_count += asterisk_count
+
                     if float(value) == 0.0:
+
                         min_row_index = find_row_with_min_value_exclude_zero(
                             data,
                             start_row,
-                            stop_row,
+                            stop_row - 1,
                             column_index)
-                        if min_row_index is None:
-                            continue
-                        src_row = data[min_row_index]
-                        value = src_row[column_index]
-                        src_row[column_index] = ASTERISK
-                        if debug:
-                            src_row[column_index] += ASTERISK
-                            src_row[column_index] += "C(%s)" % str(value)
-                        asterisk_count += 1
-                        asterisk_global_count += asterisk_count
 
-    return data, 0
+                        if not min_row_index is None:
+                            src_row = data[min_row_index]
+                            value = src_row[column_index]
+                            src_row[column_index] = ASTERISK
+                            if debug:
+                                src_row[column_index] += ASTERISK
+                                src_row[column_index] += "C(%s)" % str(
+                                    value)  # + ' ' + str(row_index) + ' ' + str(column_index)
+                            asterisk_count += 1
+                            asterisk_global_count += asterisk_count
+
+    #print asterisk_global_count
+
+    return data, asterisk_global_count  #perche ritorna 0 e non asterisk_global_count ?????
 
 
 def protect_pivoted_secret(data,
@@ -615,11 +914,13 @@ def protect_pivoted_secret(data,
                                        threshold_columns_dict,
                                        obs_values,
                                        debug)
+
     if not contains_ref_period(pivot_c, cols, axis=1):
         data = column_primary_pivoted_suppression(data,
                                                   obs_values,
                                                   threshold_columns_dict,
                                                   debug)
+
     return data
 
 
@@ -658,21 +959,36 @@ def protect_pivoted_table(data,
                                       pivot_c,
                                       cols,
                                       debug)
-
     tot_asterisked = 1
+
+    #print datetime.now().strftime("%H:%M:%S.%f")
+
+    # si potrebbe pensare di fare prima la sopressione della dimensione con minor numerosita'
+    # (es, poche righe ... faccio quella di colonna per primo)
+    # poche colonne ..... faccio prima quella di riga
+    # su dataset ristretti mette meno asterischi
+    # su dataset grandi non cambia nulla
+
 
     while tot_asterisked > 0:
         data, asterisked_r = row_secondary_suppression(data,
                                                        data_frame,
                                                        rows,
-                                                       debug)
+                                                       debug,
+                                                       obs_values)
 
         data, asterisked_c = column_secondary_suppression(data,
                                                           data_frame,
                                                           obs_values,
                                                           debug)
 
+        #print "asterisked_c ", asterisked_c, " asterisked_r ", asterisked_r
+
         tot_asterisked = asterisked_c + asterisked_r
+
+        #tot_asterisked = asterisked_c
+
+        #print datetime.now().strftime("%H:%M:%S.%f")
 
     return data
 
@@ -775,9 +1091,14 @@ def apply_constraint_pivot(data,
                            constraint_cols,
                            filters,
                            aggregation,
-                           debug):
+                           debug,
+                           obs_vals,
+                           include_code,
+                           old_cols):
     """
     Apply a constraint limit to the result set.
+
+    Nel caso del turismo fa la primaria contemplando il numero di strutture collegate
 
     :param data: List of tuples containing query result set.
     :param data_frame: pandas data frame.
@@ -788,95 +1109,205 @@ def apply_constraint_pivot(data,
     :param filters: Filters.
     :param debug: If active show debug info on asterisked cells.
     :param aggregation: Aggregation
+    :param obs_vals: Observation value
     :return: The pivoted table applying constraints.
     """
-    if len(aggregation) > 0:
-        #@TODO perform constraint grouping on aggregation.
-        return data
+
+    """
+    print "pivot_cols " , pivot_cols
+    print "rows " , rows
+    print "col_dict " , col_dict
+    print "constraint_cols " ,constraint_cols
+    print "filters " , filters
+    print "aggregation " , aggregation
+    print "debug " , debug
+    print "obs_vals " , obs_vals
+    print "include_code " , include_code
+    """
+
+    #se ce' un solo obsvalue finisce in colonna, se ce ne sono di piu finiscono in riga
+
+    if has_data_frame_multi_level_columns(
+            data_frame):  #riordina le colonne .......
+        data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)
+    else:
+        data_frame_appoggio_colonne = data_frame.sort_index(axis=1)
+
+    if len(
+            obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
+        data_frame_appoggio_colonne.drop(
+            (','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL),
+            axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+    else:
+        data_frame_appoggio_colonne.drop(TOTAL, axis=1,
+                                         inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+
+    if has_data_frame_multi_level_index(
+            data_frame):  #riordina il data_freame per le righe...
+        data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
+    else:
+        data_frame_appoggio_righe = data_frame.sort_index(axis=0)
+
+    data_frame_appoggio_righe.drop(TOTAL, axis=0,
+                                   inplace=True)  # e poi tolgo la label TOTALE sulle righe
 
     constraint_dict = build_constraint_dict(constraint_cols)
 
     for con, constraint in enumerate(constraint_dict):
+
         constraint_values = constraint_dict[constraint]
+
         enum_column = constraint_values[0]['column']
+        table = constraint_values[0]['table']
+        alias = get_column_description(table, enum_column)
+
         query, new_header = build_constraint_query(constraint_values,
                                                    col_dict,
-                                                   filters)
+                                                   filters,
+                                                   aggregation,
+                                                   old_cols)
+
+
+        #print "1 --------------------------------------------------------------------------"
+
+        #print query
 
         if query is None:
             return data
 
         st = detect_special_columns(query)
+
+        #print "-------------------------------------------------"
+        #stampa_symtobltabel(st)
+        #print "+++++++++++++++++++++++++++++++++++++++++++++++++"
+
+
+        if len(aggregation) > 0:
+
+            #torno agli elementi originali perche qui le colonne sono gia' raggruppate
+            elemento = dict()
+            elemento[0] = enum_column
+
+            dest_table_description = get_table_schema(table)
+
+            dest_columns = [field.name for field in dest_table_description]
+
+            cols = dict()
+
+            cols[0] = dict()
+            cols[0]['table'] = table
+            cols[0]['column'] = enum_column
+
+            indice = 1
+
+            for col in old_cols:
+
+                col_name = old_cols[col]['column']
+
+                if col_name in dest_columns:
+                    cols[indice] = dict()
+                    cols[indice]['table'] = table
+                    cols[indice]['column'] = old_cols[col]['column']
+                    indice += 1
+
+            query, err = build_aggregation_query(query,
+                                                 cols,
+                                                 aggregation,
+                                                 filters,
+                                                 elemento,
+                                                 constraint_values)
+            st = detect_special_columns(query)
+
+        #print "2 --------------------------------------------------------------------------"
+        #print query
+
+        #print "3 --------------------------------------------------------------------------"
+
         query, new_header = build_description_query(query,
                                                     st.cols,
                                                     pivot_cols,
                                                     False,
-                                                    False)
+                                                    include_code)
+
+
+        #print query
+        #print new_header
+
+        #print "4 --------------------------------------------------------------------------"
+        #print query
 
         dest_data = execute_query_on_main_db(query)
 
-        if len(rows) > 1:
-            data_frame.sortlevel(inplace=True)
+        for row in dest_data:  #cicla sulla query con i dati delle strutture collegate
 
-        for row in dest_data:
-            start_col = 0
-            key = []
-            for cn, co in enumerate(data_frame.columns.names):
-                if co in new_header:
-                    p_col = row[cn]
-                    key.append(to_utf8(p_col))
-                    start_col += 1
+            #print row
 
-            try:
-                if len(key) == 1:
-                    column_index = data_frame.columns.get_loc(key[0])
+            key_colonna = []
+            for cn, column_name in enumerate(
+                    data_frame_appoggio_colonne.columns.names):
+                if column_name in new_header:
+                    p_col = to_utf8(row[new_header.index(column_name)])
+                    appoggio = []
+                    appoggio.append(p_col)
+                    key_colonna.append(tuple(appoggio))
                 else:
-                    column_index = data_frame.columns.get_loc(tuple(key))
-            except (KeyError, TypeError):
-                continue
+                    key_colonna.append(
+                        tuple(data_frame_appoggio_colonne.columns.levels[cn]))
 
-            key = []
-            for c, ro in enumerate(new_header[start_col:],
-                                   start=start_col):
-                if c == len(new_header) - 1:
-                    continue
-                p_col = row[c]
-                key.append(to_utf8(p_col))
-            try:
-                if len(key) == 1:
-                    row_index = data_frame.index.get_loc(key[0])
+            col_tuples = list(itertools.product(*key_colonna))
+
+            #print "col_tuples " , col_tuples
+
+            key_riga = []
+            for cn, row_name in enumerate(
+                    data_frame_appoggio_righe.index.names):
+                if row_name in new_header:
+                    p_col = to_utf8(row[new_header.index(row_name)])
+                    appoggio = []
+                    appoggio.append(p_col)
+                    key_riga.append(tuple(appoggio))
                 else:
-                    row_index = data_frame.index.get_loc(tuple(key))
-            except (KeyError, TypeError):
-                continue
+                    key_riga.append(
+                        tuple(data_frame_appoggio_righe.index.levels[cn]))
 
-            start_row = row_index.start
-            stop_row = row_index.stop
-            sel_row = start_row
-            while sel_row != stop_row:
-                if sel_row % len(constraint_dict) == con:
-                    constraint_val = row[len(row)-1]
-                    src_row = data[sel_row]
-                    if isinstance(column_index, slice):
-                        start_col = column_index.start
-                        stop_col = column_index.stop
-                        sel_col = start_col
-                        while sel_col != stop_col:
-                            val = src_row[sel_col]
-                            src_row[sel_col] = ASTERISK
-                            if debug:
-                                src_row[sel_col] += "(%s, " % val
-                                src_row[sel_col] += "%s" % enum_column
-                                src_row[sel_col] += "=%s)" % constraint_val
-                            sel_col += 1
+            index_tuples = list(itertools.product(*key_riga))
+
+            #print "index_tuples " , index_tuples
+
+            for cn, column_name in enumerate(col_tuples):
+
+                try:
+                    if len(column_name) == 1:
+                        column_index = data_frame_appoggio_colonne.columns.get_loc(
+                            column_name[0])
                     else:
+                        column_index = data_frame_appoggio_colonne.columns.get_loc(
+                            column_name)
+                except (KeyError, TypeError):
+                    continue
+
+                for idxn, index_name in enumerate(index_tuples):
+
+                    if idxn % len(constraint_dict) == con:
+
+                        try:
+                            if len(index_name) == 1:
+                                row_index = data_frame_appoggio_righe.index.get_loc(
+                                    index_name[0])
+                            else:
+                                row_index = data_frame_appoggio_righe.index.get_loc(
+                                    index_name)
+                        except (KeyError, TypeError):
+                            continue
+
+                        constraint_val = row[new_header.index(alias)]
+                        src_row = data[row_index]
                         val = src_row[column_index]
                         src_row[column_index] = ASTERISK
                         if debug:
                             src_row[column_index] += "(%s, " % val
                             src_row[column_index] += "%s" % enum_column
                             src_row[column_index] += "=%s)" % constraint_val
-                sel_row += 1
 
     return data
 
@@ -890,10 +1321,10 @@ def data_frame_from_tuples(data_frame, data):
     :return: A Pandas data frame with the data_frame schema and data.
     """
     ret = pd.DataFrame.from_records([],
-                                    columns=data_frame.columns,
-                                    index=data_frame.index)
+                                      columns=data_frame.columns,
+                                      index=data_frame.index)
     for r, row in enumerate(data):
-        if r > len(data_frame.index)-1:
+        if r > len(data_frame.index) - 1:
             continue
         index = data_frame.index[r]
         for c, o in enumerate(data_frame.columns):
@@ -905,7 +1336,8 @@ def data_frame_from_tuples(data_frame, data):
 def apply_constraint_plain(data,
                            col_dict,
                            constraint_cols,
-                           debug):
+                           debug,
+                           aggregation):
     """
     Apply a constraint limit to the result set on plain table.
 
@@ -923,7 +1355,8 @@ def apply_constraint_plain(data,
         enum_column = constraint_values[0]['column']
         query, new_header = build_constraint_query(constraint_values,
                                                    col_dict,
-                                                   dict())
+                                                   dict(),
+                                                   aggregation)
 
         st = detect_special_columns(query)
         query, h = build_description_query(query, st.cols, [], False, False)
@@ -1053,7 +1486,8 @@ def apply_stat_secret_plain(headers,
                             col_dict,
                             threshold_columns_dict,
                             constraint_cols,
-                            debug):
+                            debug,
+                            aggregation):
     """
     Take in input the full data set and the column descriptions
     and return the data set statistical secret free.
@@ -1076,7 +1510,8 @@ def apply_stat_secret_plain(headers,
     data = apply_constraint_plain(data,
                                   col_dict,
                                   constraint_cols,
-                                  debug)
+                                  debug,
+                                  aggregation)
 
     data = protect_plain_table(data,
                                threshold_columns_dict,
@@ -1099,7 +1534,11 @@ def secondary_row_suppression_constraint(data,
                                          col_dict,
                                          secondary,
                                          filters,
-                                         debug):
+                                         debug,
+                                         obs_vals,
+                                         aggregation,
+                                         old_cols,
+                                         agg_filters):
     """
     Secondary suppression on row following a constraint.
 
@@ -1113,118 +1552,260 @@ def secondary_row_suppression_constraint(data,
     :param debug: Is to be debugged?
     :return: Data, number of asterisk.
     """
+
     asterisk_global_count = 0
-    query, new_header = build_secondary_query(secondary,
-                                              col_dict,
-                                              filters)
+    constraint_values, table, enum_column, query, new_header = build_secondary_query(secondary,
+                                                                  col_dict,
+                                                                  filters,
+                                                                  old_cols,
+                                                                  aggregation)
+
+    st = detect_special_columns(query)
+
+    #print query
+    #print "new_header " , new_header
+    #print "constraint_values " , constraint_values
 
     if query is None:
         return data, asterisk_global_count
 
-    st = detect_special_columns(query)
+    alias = get_column_description(table, enum_column)
+
+    if len(aggregation) > 0:
+
+        #torno agli elementi originali perche qui le colonne sono gia' raggruppate
+        elemento = dict()
+        elemento[0] = enum_column
+
+        dest_table_description = get_table_schema(table)
+
+        dest_columns = [field.name for field in dest_table_description]
+
+        cols = dict()
+
+        cols[0] = dict()
+        cols[0]['table'] = table
+        cols[0]['column'] = enum_column
+
+        indice = 1
+
+        for col in old_cols:
+
+            col_name = old_cols[col]['column']
+
+            if col_name in dest_columns:
+                cols[indice] = dict()
+                cols[indice]['table'] = table
+                cols[indice]['column'] = old_cols[col]['column']
+                indice += 1
+
+        query, err = build_aggregation_query(query,
+                                             cols,
+                                             aggregation,
+                                             agg_filters,
+                                             elemento,
+                                             constraint_values)
+        st = detect_special_columns(query)
+
     query, new_header = build_description_query(query,
                                                 st.cols,
                                                 pivot_columns,
                                                 False,
                                                 False)
-    query += "\n ORDER BY \"%s\"" % new_header[len(new_header)-1]
+    query += "\n ORDER BY \"%s\"" % new_header[len(new_header) - 1]
+
+    #print query
+    #print "new_header " , new_header
 
     dest_data = execute_query_on_main_db(query)
 
-    if len(rows) > 1:
-        data_frame.sortlevel(inplace=True)
-
-    if not has_data_frame_multi_level_columns(data_frame):
-        col_tuples = [item for item in data_frame.columns.values if
-                      (item != TOTAL)]
+    if has_data_frame_multi_level_columns(data_frame):  #riordina le colonne .......
+        data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)
     else:
-        col_tuples = [item[0:len(item)-1] for item in data_frame.columns.values if
-                        (item[0] != TOTAL)]
+        data_frame_appoggio_colonne = data_frame.sort_index(axis=1)
 
-    if has_data_frame_multi_level_index(data_frame):
-        index_tuples = [item for item in data_frame.index.values if
-                        (item[0] != TOTAL)]
-
+    if len(obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
+        data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
     else:
-        col_tuples = [item for item in data_frame.index.values if
-                      (item != TOTAL)]
+        data_frame_appoggio_colonne.drop(TOTAL, axis=1,inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+
+    slice_da_preservare_colonne, col_tuples = estrai_tuple_per_colonne(data_frame_appoggio_colonne,True, obs_vals)  #True perche devo tutelare gli slices di colonna
+
+    if has_data_frame_multi_level_index(data_frame):  #riordina il data_freame per le righe...
+        data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
+    else:
+        data_frame_appoggio_righe = data_frame.sort_index(axis=0)
+
+    data_frame_appoggio_righe.drop(TOTAL, axis=0, inplace=True)  # e poi tolgo la label TOTALE sulle righe
+
+    slice_da_preservare_righe, index_tuples = estrai_tuple_per_righe(data_frame_appoggio_righe,False, obs_vals)  #false percghe mi servono tutte le righe e non mi servono gli slices di riga
+
+    #print index_tuples
+    #print col_tuples
 
     for rt, row_tup in enumerate(index_tuples):
+        try:
+            row_index = data_frame_appoggio_righe.index.get_loc(index_tuples[rt])
+        except (KeyError, TypeError):
+            continue
+        src_row = data[row_index]
+
+        #print "row_index " , row_index
+
+        for ct, col_tup in enumerate(col_tuples):
+
             try:
-                row_index = data_frame.index.get_loc(index_tuples[rt])
+                column_index = data_frame_appoggio_colonne.columns.get_loc(col_tuples[ct])
             except (KeyError, TypeError):
                 continue
-            src_row = data[row_index]
 
-            for ct, col_tup in enumerate(col_tuples):
-                try:
-                    column_index = data_frame.columns.get_loc(col_tuples[ct])
-                except (KeyError, TypeError):
-                    continue
-                if not isinstance(column_index, slice):
-                    start_col = 0
-                    stop_col = len(src_row) - 1
-                else:
-                    start_col = column_index.start
-                    stop_col = column_index.stop
-                sel_col = start_col
-                asterisk_count = 0
-                while sel_col != stop_col:
-                    if str(src_row[sel_col]).startswith(ASTERISK):
-                        asterisk_count += 1
-                    sel_col += 1
-                if asterisk_count == 1:
-                    # Is to be asterisked an other one.
-                    for d_r, target_row in enumerate(dest_data):
-                        if asterisk_count >= 2:
-                            break
-                        cell_col_list = []
-                        if isinstance(col_tuples[ct], slice):
-                            for i, index in enumerate(col_tuples[ct]):
-                                if dest_data[d_r][i] != col_tuples[ct][i]:
-                                    continue
-                                cell_col_list.append(dest_data[d_r][i])
-                            if len(cell_col_list) == 0:
-                                continue
-                            col_tuple = tuple(cell_col_list)
-                            try:
-                                column_index = data_frame.columns.get_loc(
-                                    col_tuple)
-                            except (KeyError, TypeError):
-                                continue
-                            start_column = column_index.start
-                            stop_column = column_index.stop
-                            sel_column = start_column
+            #print "column_index " , column_index
+
+            if not isinstance(column_index, slice):
+                start_col = 0
+                stop_col = len(src_row) - 1
+            else:
+                start_col = column_index.start
+                stop_col = column_index.stop
+
+            sel_col = start_col
+            asterisk_count = 0
+            while sel_col != stop_col:
+                if str(src_row[sel_col]).startswith(ASTERISK):
+                    asterisk_count += 1
+                sel_col += 1
+
+            sel_col = start_col
+
+            if asterisk_count == 1:
+
+                #print "asterisk_count " , asterisk_count
+
+                # Is to be asterisked an other one.
+
+                #ricavo la lista della tuple da cercare nella query di appoggio con il numero di strutture
+                cell_col_list = []
+                cell_col_value = []
+
+                #print "col_tup " , col_tup
+                #print "row_tup ", row_tup, " ", len(row_tup)
+                #print "data_frame.index.names ", data_frame.index.names
+                #print "data_frame.columns.names ", data_frame.columns.names
+                #print "new_header " , new_header
+
+                for i, index in enumerate(data_frame.index.names):
+                    if index in new_header:
+                        cell_col_list.append(new_header.index(index))
+                        if isinstance(row_tup, tuple):
+                            cell_col_value.append(row_tup[i])
                         else:
-                            start_column = 0
-                            stop_column = len(src_row) - 1
-                            sel_column = start_column
-                        while sel_column != stop_column:
-                            cell = str(src_row[sel_column])
-                            if not cell.startswith(ASTERISK):
-                                src_row[sel_column] = ASTERISK
-                                if debug:
-                                    src_row[sel_column] += ASTERISK
-                                    src_row[sel_column] += 'R(' + cell + ")"
-                                if cell != "0":
-                                    # Asterisk an other one.
-                                    asterisk_count += 1
-                                asterisk_global_count += asterisk_count
-                                break
-                            sel_column += 1
+                            cell_col_value.append(row_tup)
+
+                for i, column in enumerate(data_frame.columns.names):
+                    if i < slice_da_preservare_colonne:
+                        if column in new_header:
+                            cell_col_list.append(new_header.index(column))
+                            if isinstance(col_tup, tuple):
+                                cell_col_value.append(col_tup[i])
+                            else:
+                                cell_col_value.append(col_tup)
+
+                #print "slice_da_preservare_colonne ", slice_da_preservare_colonne
+                #print "cell_col_list ", cell_col_list
+                #print "cell_col_value ", cell_col_value
+
+                minimo = sys.maxint
+
+                for d_r, target_row in enumerate(dest_data):  #scorre la query
+
+                    elementi = 0
+                    for i, column in enumerate(cell_col_list):
+                        if to_utf8(target_row[column]) == cell_col_value[i]:
+                            elementi += 1
+
+                    if elementi == len(cell_col_list):
+
+                        if target_row[new_header.index(alias)] < minimo:
+                            minimo = target_row[new_header.index(alias)]
+
+                            #print "minimooooooo " , minimo
+
+                            indice_minimo = []
+
+                            for i, column in enumerate(data_frame.columns.names):
+                                if i >= slice_da_preservare_colonne:
+                                    if column in new_header:
+                                        #print "column ", column
+                                        indice_minimo.append(target_row[new_header.index(column)])
+
+
+                #print "minimo " , minimo
+
+                if minimo == sys.maxint:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
+
+                    while sel_col != stop_col:
+                        if not str(src_row[sel_col]).startswith(ASTERISK):
+                            cell = str(src_row[sel_col])
+                            src_row[sel_col] = ASTERISK
+
+                            if debug:
+                                src_row[sel_col] += ASTERISK
+                                src_row[sel_col] += 'R(' + cell + ","  + enum_column + " NON PRESENTE)"
+
+                            break
+
+                        sel_col += 1
+
+                else:
+                    #print "indice_minimo " , indice_minimo
+                    if isinstance(column_index, slice):
+                        #print "a"
+
+                        appoggio = []
+
+                        for q, qcolumn in enumerate(col_tup):
+                            #print qcolumn
+                            if q < slice_da_preservare_colonne:
+                                appoggio.append(qcolumn)
+
+                        colonna = tuple(appoggio)
+
+                        colonna += tuple(indice_minimo)
+                    else:
+                        #print "b"
+                        if len(indice_minimo) == 1:
+                            colonna = indice_minimo[0]
+                        else:
+                            colonna = tuple(indice_minimo)
+
+
+                    #print "colonna ", colonna
+
+                    indice_colonna = data_frame_appoggio_colonne.columns.get_loc(colonna)
+
+                    cell = str(src_row[indice_colonna])
+                    src_row[indice_colonna] = ASTERISK
+                    if debug:
+                        src_row[indice_colonna] += ASTERISK
+                        src_row[indice_colonna] += 'R(' + cell + ","  + enum_column + "=" +  str(minimo) + ")"
+
+
+    #print query
 
     return data, asterisk_global_count
-
 
 def secondary_col_suppression_constraint(data,
                                          data_frame,
                                          pivot_columns,
                                          rows,
                                          col_dict,
-                                         obs_values,
+                                         obs_vals,
                                          secondary,
                                          filters,
-                                         debug):
+                                         debug,
+                                         aggregation,
+                                         old_cols,
+                                         agg_filters):
     """
     Performs secondary suppression on columns following the secondary metadata
     rule on table.
@@ -1233,120 +1814,443 @@ def secondary_col_suppression_constraint(data,
     :param pivot_columns: Pivot columns.
     :param rows: Rows.
     :param col_dict: Columns dictionary.
-    :param obs_values: Observable values.
+    :param obs_vals: Observable values.
     :param secondary: Constraint for secondary suppression.
     :param filters: Filters.
     :param debug: Is to be debugged?
     :return: data, number of asterisk.
     """
+
     asterisk_global_count = 0
-    column_tuple_list = []
-    df = data_frame.replace("\*.*", "*", regex=True)
-    res = df[df == ASTERISK].count()[0:len(df.columns)-1]
-    for r, re in enumerate(res):
-        if re == len(obs_values):
-            column_tuple = res.index[r]
-            column_tuple_list.append(column_tuple)
 
-    if len(column_tuple_list) == 0:
-        return data, asterisk_global_count
+    constraint_values, table, enum_column, query, new_header = build_secondary_query(secondary,
+                                                                  col_dict,
+                                                                  filters,
+                                                                  old_cols,
+                                                                  aggregation)
 
-    query, new_header = build_secondary_query(secondary,
-                                              col_dict,
-                                              filters)
+    st = detect_special_columns(query)
+
+    #print query
+    #print "new_header " , new_header
+    #print "constraint_values " , constraint_values
 
     if query is None:
         return data, asterisk_global_count
 
-    st = detect_special_columns(query)
+    alias = get_column_description(table, enum_column)
+
+    if len(aggregation) > 0:
+
+        #torno agli elementi originali perche qui le colonne sono gia' raggruppate
+        elemento = dict()
+        elemento[0] = enum_column
+
+        dest_table_description = get_table_schema(table)
+
+        dest_columns = [field.name for field in dest_table_description]
+
+        cols = dict()
+
+        cols[0] = dict()
+        cols[0]['table'] = table
+        cols[0]['column'] = enum_column
+
+        indice = 1
+
+        for col in old_cols:
+
+            col_name = old_cols[col]['column']
+
+            if col_name in dest_columns:
+                cols[indice] = dict()
+                cols[indice]['table'] = table
+                cols[indice]['column'] = old_cols[col]['column']
+                indice += 1
+
+        query, err = build_aggregation_query(query,
+                                             cols,
+                                             aggregation,
+                                             agg_filters,
+                                             elemento,
+                                             constraint_values)
+        st = detect_special_columns(query)
+
     query, new_header = build_description_query(query,
                                                 st.cols,
                                                 pivot_columns,
                                                 False,
                                                 False)
-    query += "\n ORDER BY \"%s\"" % new_header[len(new_header)-1]
+    query += "\n ORDER BY \"%s\"" % new_header[len(new_header) - 1]
+
+    #print query
+    #print "new_header " , new_header
+
     dest_data = execute_query_on_main_db(query)
 
-    if len(rows) > 1:
-        data_frame.sortlevel(inplace=True)
+    data_frame_appoggio = pd.DataFrame(data_frame.values.copy(), data_frame.index.copy(), data_frame.columns.copy())
 
-    start_col = 0
-    for cn, co in enumerate(data_frame.columns.names):
-        if co in new_header:
-            start_col += 1
+    data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
 
-    for column_tuple in column_tuple_list:
-        for row in dest_data:
-            found = True
-            key = []
-            for c, dest_co in enumerate(row):
-                if c < start_col:
-                    if isinstance(column_tuple, tuple):
-                        if row[c] != column_tuple[c]:
-                            found = False
+    if has_data_frame_multi_level_index(data_frame_appoggio):  #riordina il data_freame per le righe...
+        data_frame_appoggio = data_frame_appoggio.sortlevel(axis=0)
+    else:
+        data_frame_appoggio = data_frame_appoggio.sort_index(axis=0)
+
+    #print data_frame_appoggio.index.values.tolist()
+
+    data_frame_appoggio.drop(TOTAL, axis=0, inplace=True)  # e poi tolgo la label TOTALE sulle righe
+
+    #print data_frame_appoggio.index.values.tolist()
+
+    #return data, 0
+
+    if len(obs_vals) > 1:
+        slice_da_preservare = len(data_frame_appoggio.index.levels) - 2  # 2, 1 per l'obs value e uno per l'ultimo slices
+
+    #print "slice_da_preservare ", slice_da_preservare
+
+    #index_tuples = tuple(data_frame_appoggio.index.levels[slice_da_preservare-1])
+    #print index_tuples
+
+    if slice_da_preservare == 0:
+
+        start_row = 0
+        stop_row = len(data) - 1
+
+        for c, col in enumerate(data_frame_appoggio.columns):
+
+            try:
+                column_index = data_frame_appoggio.columns.get_loc(col)
+            except (KeyError, TypeError):
+                continue
+
+            #print "col " , col
+            #print "column_index " , column_index
+
+            sel_row = start_row
+            asterisk_count = 0
+
+            while sel_row != stop_row:
+                if str(data[sel_row][column_index]).startswith(ASTERISK):
+                    asterisk_count += 1
+                sel_row += 1
+
+            sel_row = start_row
+
+            if asterisk_count == len(obs_vals):
+
+                cell_col_list = []
+                cell_col_value = []
+
+                #print "new_header " , new_header
+
+                for i, column in enumerate(data_frame_appoggio.columns.names):
+                    #print "column " , column
+                    if column in new_header:
+                        cell_col_list.append(new_header.index(column))
+                        if isinstance(col, tuple):
+                            cell_col_value.append(col[i])
+                        else:
+                            cell_col_value.append(col)
+
+                #print "cell_col_list ", cell_col_list
+                #print "cell_col_value ", cell_col_value
+
+                """ in questo caso non serve
+                for i, index in enumerate(data_frame.index.names):
+                    if i < slice_da_preservare:
+                        if index in new_header:
+                            cell_col_list.append(new_header.index(index))
+                            #if isinstance(row_tup, tuple):
+                            #    cell_col_value.append(row_tup[i])
+                            #else:
+                            #    cell_col_value.append(row_tup)
+
+                print "cell_col_list ", cell_col_list
+                print "cell_col_value ", cell_col_value
+                """
+
+                minimo = sys.maxint
+
+                for d_r, target_row in enumerate(dest_data):  #scorre la query
+
+                    elementi = 0
+                    for i, column in enumerate(cell_col_list):
+                        if to_utf8(target_row[column]) == cell_col_value[i]:
+                            elementi += 1
+
+                    if elementi == len(cell_col_list):
+
+                        if target_row[new_header.index(alias)] < minimo:
+                            minimo = target_row[new_header.index(alias)]
+
+                            #print "minimooooooo " , minimo
+
+                            indice_minimo = []
+
+                            for i, index in enumerate(data_frame_appoggio.index.names):
+                                if i >= slice_da_preservare:
+                                    if index in new_header:
+                                        #print "column ", column
+                                        indice_minimo.append(target_row[new_header.index(index)])
+
+                #print "minimo " , minimo
+
+                if minimo == sys.maxint:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
+
+                    while sel_row != stop_row:
+                        if not str(data[sel_row][column_index]).startswith(ASTERISK):
+
+                            #print range(1, len(obs_vals) + 1)
+                            #print len(obs_vals)
+
+                            for i in range(1, len(obs_vals) + 1):
+                                #print "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii", i
+                                asterisk_global_count += 1
+                                cell = str(data[sel_row][column_index])
+                                data[sel_row][column_index] = ASTERISK
+
+                                if debug:
+                                    data[sel_row][column_index] += ASTERISK
+                                    data[sel_row][column_index] += 'C(' + cell + ","  + enum_column + " NON PRESENTE)"
+
+                                sel_row += 1
+
                             break
-                    elif row[c] != column_tuple:
-                        found = False
-                        break
-                elif c != len(new_header)-1:
-                    key.append(to_utf8(row[c]))
-            if found:
+
+                        sel_row += 1
+                else:
+                    #print "indice_minimo " , indice_minimo
+
+                    riga = indice_minimo[0]
+
+                    lista = []
+                    lista.append([riga])
+
+                    livello = data_frame_appoggio.index.levels[len(data_frame_appoggio.index.levels) - 1]
+
+                    lista.append(livello.tolist())
+
+                    #print bcolors.FAIL
+
+                    #print "lista ", lista
+
+                    lista_appoggio = list(itertools.product(*lista))
+
+                    #print "lista_appoggio " , lista_appoggio
+
+                    for ct2, row_tup2 in enumerate(lista_appoggio):
+
+
+                        #print "row_tup2 " , row_tup2[0]
+                        #print "row_tup2 " , row_tup2[0].encode('ascii','ignore')
+                        #print data_frame_appoggio.index
+
+                        try:
+                            indice_riga = data_frame_appoggio.index.get_loc(row_tup2)
+                        except (KeyError, TypeError):
+                            continue
+
+                        #indice_riga = data_frame_appoggio.index.get_loc(tuple(appoggio))
+                        asterisk_global_count += 1
+
+                        cell = str(data[indice_riga][column_index])
+                        data[indice_riga][column_index] = ASTERISK
+                        if debug:
+                            data[indice_riga][column_index] += ASTERISK
+                            data[indice_riga][column_index] += 'C(' + cell + ","  + enum_column + "=" +  str(minimo) + ")"
+
+    else:  #else del if slice_da_preservare == 0:
+        #for c, col in enumerate(data_frame_appoggio.index.levels):
+        #    if c < slice_da_preservare:
+        #        print c, col
+
+        index_tuples = tuple(data_frame_appoggio.index.levels[slice_da_preservare-1])
+
+        index_tuples = tuple([x for x in index_tuples if x != TOTAL])
+
+        #print "index_tuples " , index_tuples
+
+        #print data_frame.index.get_loc((12,'Altipiani Cimbri                                  '))
+        #print data_frame_appoggio.index.get_loc('Altipiani Cimbri                                  ')
+
+        for ct, row_tup in enumerate(index_tuples):
+
+            #print row_tup
+
+            #print data_frame.index.get_loc(('Alta Valsugana e Bersntol                         '))
+
+            try:
+                row_index = data_frame_appoggio.index.get_loc(row_tup)  #il data_frame non posso usarlo perche li ho i codici
+            except (KeyError, TypeError):
+                continue
+
+            print bcolors.FAIL
+            print "row_tup " , row_tup
+            print "row_index " , row_index
+
+            start_row = row_index.start
+            stop_row = row_index.stop
+
+            for c, col_tup in enumerate(data_frame_appoggio.columns):
+
+
                 try:
-                    column_index = data_frame.columns.get_loc(column_tuple)
-                    row_index = data_frame.index.get_loc(tuple(key))
+                    column_index = data_frame_appoggio.columns.get_loc(col_tup)
                 except (KeyError, TypeError):
                     continue
-                start_row = row_index.start
-                stop_row = row_index.stop
+
+                print "col_tup " , col_tup
+                print "column_index " , column_index
+                print bcolors.ENDC
+
                 sel_row = start_row
-                asterisked = False
+                asterisk_count = 0
+
                 while sel_row != stop_row:
-                    src_row = data[sel_row]
-                    cell = str(src_row[column_index])
-                    if not cell.startswith(ASTERISK):
-                        src_row[column_index] = ASTERISK
-                        if debug:
-                            src_row[column_index] += ASTERISK
-                            src_row[column_index] += 'C(' + cell + ")"
-                        asterisked = True
-                        asterisk_global_count += 1
+                    if str(data[sel_row][column_index]).startswith(ASTERISK):
+                        asterisk_count += 1
                     sel_row += 1
-                if asterisked:
-                    break
 
-    data_frame = data_frame_from_tuples(data_frame, data)
+                sel_row = start_row
 
-    df = data_frame.replace("\*.*", "*", regex=True)
-    res = df[df == ASTERISK].count()[0:len(df.columns)-1]
-    column_tuple_list = []
-    for r, re in enumerate(res):
-        if re == len(obs_values):
-            column_tuple = res.index[r]
-            column_tuple_list.append(column_tuple)
+                if asterisk_count == len(obs_vals):
 
-    for column_tuple in column_tuple_list:
-        try:
-            column_index = data_frame.columns.get_loc(column_tuple)
-        except (KeyError, TypeError):
-            continue
-        min_index = None
-        min_value = None
-        for r, row in enumerate(data):
-            cell = str(row[column_index])
-            if not cell.startswith(ASTERISK):
-                if min_value is None or row[column_index] < min_value:
-                    min_index = r
-                min_value = data[min_index][column_index]
+                    print "col_tup " , col_tup
+                    print "row_tup " , row_tup
 
-        for o, obs_value in enumerate(obs_values):
-            cell = data[min_index + o][column_index]
-            data[min_index + o][column_index] = ASTERISK
-            if debug:
-                data[min_index + o][column_index] += ASTERISK
-                data[min_index + o][column_index] += 'C(' + cell + ")"
-                asterisk_global_count += 1
+                    cell_col_list = []
+                    cell_col_value = []
 
-    return data, asterisk_global_count
+                    for i, column in enumerate(data_frame_appoggio.columns.names):
+                        #print "column " , column
+                        if column in new_header:
+                            cell_col_list.append(new_header.index(column))
+                            if isinstance(col_tup, tuple):
+                                cell_col_value.append(col_tup[i])
+                            else:
+                                cell_col_value.append(col_tup)
+
+                    for i, index in enumerate(data_frame_appoggio.index.names):
+                        if i < slice_da_preservare:
+                            if index in new_header:
+                                cell_col_list.append(new_header.index(index))
+                                if isinstance(row_tup, tuple):
+                                    cell_col_value.append(row_tup[i])
+                                else:
+                                    cell_col_value.append(row_tup)
+
+                    #print "slice_da_preservare ", slice_da_preservare
+
+                    print "cell_col_list ", cell_col_list
+                    print "cell_col_value ", cell_col_value
+
+                    minimo = sys.maxint
+
+                    for d_r, target_row in enumerate(dest_data):  #scorre la query
+
+                        elementi = 0
+                        for i, column in enumerate(cell_col_list):
+                            if to_utf8(target_row[column]) == cell_col_value[i]:
+                                elementi += 1
+
+                        if elementi == len(cell_col_list):
+
+                            if target_row[new_header.index(alias)] < minimo:
+                                minimo = target_row[new_header.index(alias)]
+
+                                #print "minimooooooo " , minimo
+
+                                indice_minimo = []
+
+                                for i, index in enumerate(data_frame_appoggio.index.names):
+                                    if i >= slice_da_preservare:
+                                        if index in new_header:
+                                            #print "column ", column
+                                            indice_minimo.append(target_row[new_header.index(index)])
+
+                    print "minimo " , minimo
+                    #print "indice_minimo " , indice_minimo
+
+                    if minimo == sys.maxint:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
+
+                        while sel_row != stop_row:
+                            if not str(data[sel_row][column_index]).startswith(ASTERISK):
+
+                                #print range(1, len(obs_vals) + 1)
+                                #print len(obs_vals)
+
+                                for i in range(1, len(obs_vals) + 1):
+                                    #print "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii", i
+                                    #print "dddddddddddddddddddddd 1"
+                                    asterisk_global_count += 1
+                                    cell = str(data[sel_row][column_index])
+                                    data[sel_row][column_index] = ASTERISK
+
+                                    if debug:
+                                        data[sel_row][column_index] += ASTERISK
+                                        data[sel_row][column_index] += 'C(' + cell + ","  + enum_column + " NON PRESENTE)"
+
+                                    sel_row += 1
+
+                                break
+
+                            sel_row += 1
+
+                    else:
+                       # print "indice_minimo " , indice_minimo
+
+                        lista = []
+
+                        for i, index in enumerate(data_frame_appoggio.index.names):
+                            if i < slice_da_preservare:
+                                if index in new_header:
+                                    if isinstance(row_tup, tuple):
+                                        lista.append(row_tup[i])
+                                    else:
+                                        lista.append([row_tup])
+
+                        riga = indice_minimo[0]
+
+                        lista.append([riga])
+
+                        livello = data_frame_appoggio.index.levels[len(data_frame_appoggio.index.levels) - 1]
+
+                        lista.append(livello.tolist())
+
+                        #print "lista " , lista
+
+                        lista_appoggio = list(itertools.product(*lista))
+
+                        print "lista_appoggio " , lista_appoggio
+
+                        for ct2, row_tup2 in enumerate(lista_appoggio):
+
+                            #print row_tup2
+
+                            try:
+                                indice_riga = data_frame_appoggio.index.get_loc(row_tup2)
+                            except (KeyError, TypeError):
+                                continue
+
+                            #print row_tup2, indice_riga
+
+                            #print "dddddddddddddddddddddd 2"
+                            asterisk_global_count += 1
+
+                            cell = str(data[indice_riga][column_index])
+                            data[indice_riga][column_index] = ASTERISK
+                            if debug:
+                                data[indice_riga][column_index] += ASTERISK
+                                data[indice_riga][column_index] += 'C(' + cell + ","  + enum_column + "=" +  str(minimo) + ")"
+
+                        #print "riga ", riga
+
+    print "ciaoooooooooo ", asterisk_global_count
+    print query
+
+    return data, 0
 
 
 def apply_stat_secret(headers,
@@ -1360,7 +2264,10 @@ def apply_stat_secret(headers,
                       filters,
                       aggregation,
                       debug,
-                      visible):
+                      visible,
+                      include_code,
+                      old_cols,
+                      agg_filters):
     """
     Take in input the full data set and the column descriptions
     and return the data set statistical secret free.
@@ -1381,6 +2288,19 @@ def apply_stat_secret(headers,
                     In this case it apply pivot only if required.
     :return: data, headers, data_frame, warn, err.
     """
+
+    """
+    print "col_dict " , col_dict
+    print "pivot_dict " , pivot_dict
+    print "secret_column_dict " , secret_column_dict
+    print "sec_ref " ,sec_ref
+    print "threshold_columns_dict " , threshold_columns_dict
+    print "constraint_cols " , constraint_cols
+    print "filters " , filters
+    print "aggregation " , aggregation
+    print "include_code " , include_code
+    """
+
     warn = None
     err = None
 
@@ -1415,6 +2335,7 @@ def apply_stat_secret(headers,
                                       pivot_cols,
                                       rows,
                                       pivot_values)
+
         if err:
             return rows, headers, None, warn, err
 
@@ -1422,10 +2343,14 @@ def apply_stat_secret(headers,
             data_frame = data_frame.stack(0)
             data = get_data_from_data_frame(data_frame)
 
+        #visible = vedi tutto, se vedi tutto ritorna il dataset cosi come e' senza asterischi
+        #debug = analizza
         if visible and not debug:
             return data, headers, data_frame, warn, err
 
+        #in caso di aggregazione questa non fa nulla
         data = apply_constraint_pivot(data,
+                                      #primaria per tabelle collegate (turismo)
                                       data_frame,
                                       pivot_dict,
                                       rows,
@@ -1433,13 +2358,20 @@ def apply_stat_secret(headers,
                                       constraint_cols,
                                       filters,
                                       aggregation,
-                                      debug)
+                                      debug,
+                                      obs_vals,
+                                      include_code,
+                                      old_cols)
 
         sec = get_table_metadata_value(col_dict[0]['table'], 'secondary')
+
         if not sec is None and len(sec) > 0:
             tot_asterisked = 1
-            while tot_asterisked > 0:
+            while tot_asterisked > 0:  #secondaria per tabelle collegate (turismo)
+
+
                 data_frame = data_frame_from_tuples(data_frame, data)
+
                 data, ast_r = secondary_row_suppression_constraint(data,
                                                                    data_frame,
                                                                    pivot_dict,
@@ -1447,7 +2379,13 @@ def apply_stat_secret(headers,
                                                                    col_dict,
                                                                    sec[0][0],
                                                                    filters,
-                                                                   debug)
+                                                                   debug,
+                                                                   obs_vals,
+                                                                   aggregation,
+                                                                   old_cols,
+                                                                   agg_filters)
+
+
                 data_frame = data_frame_from_tuples(data_frame, data)
 
                 data, ast_c = secondary_col_suppression_constraint(data,
@@ -1458,11 +2396,16 @@ def apply_stat_secret(headers,
                                                                    obs_vals,
                                                                    sec[0][0],
                                                                    filters,
-                                                                   debug)
-                tot_asterisked = ast_c + ast_r
+                                                                   debug,
+                                                                   aggregation,
+                                                                   old_cols,
+                                                                   agg_filters)
+                tot_asterisked = ast_c #+ ast_r
+
 
         else:
             data = protect_pivoted_table(data,
+                                         #qui fa la primaria e la secodaria per labelle "normali"
                                          data_frame,
                                          secret_column_dict,
                                          sec_ref,
@@ -1489,6 +2432,27 @@ def apply_stat_secret(headers,
         data_frame = pd.DataFrame(columns=headers)
 
     return data, headers, data_frame, warn, err
+
+
+def stampa_symtobltabel(st):
+    print "aggregation"
+    print st.aggregation
+    print "cols"
+    print st.cols
+    print "constraint"
+    print st.constraint
+    print "decoder"
+    print st.decoder
+    print "include_descriptions"
+    print st.include_descriptions
+    print "pivot"
+    print st.pivot
+    print "secret"
+    print st.secret
+    print "secret_ref"
+    print st.secret_ref
+    print "threshold"
+    print st.threshold
 
 
 def headers_and_data(user,
@@ -1520,9 +2484,9 @@ def headers_and_data(user,
     """
 
     if user.is_authenticated():
-       id = user.pk
+        id = user.pk
     else:
-       id = -1
+        id = -1
 
     log = ExecutedQueryLog.create(query.title, id)
     log.save()
@@ -1531,18 +2495,37 @@ def headers_and_data(user,
     df = None
     st = detect_special_columns(query.sql)
 
+    #print query.sql
+    #stampa_symtobltabel(st)
+
     if pivot_cols is None:
         # If it is not specified then use the standard one.
+        # come fa' a essere vuoto se nel query editor devo per forza specificarne uno ????
         pivot_cols = st.pivot
+
+    #print "1-----"
+    #print query.sql
+    #print "1-----"
+
+    #stampa_symtobltabel(st)
+
+    old_cols = st.cols
+    #print "st.threshold ", st.threshold
 
     if len(aggregation) > 0:
         query.sql, err = build_aggregation_query(query.sql,
                                                  st.cols,
                                                  aggregation,
                                                  agg_filters,
-                                                 st.threshold)
-
+                                                 st.threshold,
+                                                 [])
         st = detect_special_columns(query.sql)
+
+    #print "agg_filters " , agg_filters
+
+    #print "2-----"
+    #print query.sql
+    #print "2-----"
 
     if include_descriptions or st.include_descriptions:
         query.sql, h = build_description_query(query.sql,
@@ -1551,6 +2534,12 @@ def headers_and_data(user,
                                                False,
                                                include_code)
         st = detect_special_columns(query.sql)
+
+    #print "3-----"
+    #print query.sql
+    #print "3-----"
+
+    #stampa_symtobltabel(st)
 
     old_head, data, duration, err = query.headers_and_data()
 
@@ -1561,12 +2550,14 @@ def headers_and_data(user,
         if len(old_head) < 3 and len(st.secret) + len(st.constraint) + len(
                 st.secret_ref) == 1 and len(st.threshold) == 1:
             data, head, df = apply_stat_secret_plain(old_head,
+                                                     #questo credo che non vada piu .... e probailmente non serve nemmeno piu
                                                      data,
                                                      st.cols,
                                                      st.threshold,
                                                      st.constraint,
-                                                     debug)
-        # Check id I can give the full result set.
+                                                     debug,
+                                                     aggregation)
+        # Check if I can give the full result set.
         elif (len(st.secret) + len(st.constraint) + len(st.secret_ref) == 0) \
                 or (pivot_cols is not None and len(pivot_cols) > 0):
             data, old_head, df, warn, err = apply_stat_secret(old_head,
@@ -1580,7 +2571,10 @@ def headers_and_data(user,
                                                               filters,
                                                               aggregation,
                                                               debug,
-                                                              visible)
+                                                              visible,
+                                                              include_code,
+                                                              old_cols,
+                                                              agg_filters)
 
     if not df is None:
         if not include_code:
@@ -1635,7 +2629,7 @@ def load_data_frame(request):
             st = detect_special_columns(query.sql)
             query.sql, h = build_description_query(query.sql,
                                                    st.cols,
-                                                   [],
+                [],
                                                    False,
                                                    True)
             head, data, duration, err = query.headers_and_data()

@@ -1325,6 +1325,8 @@ def query_editor_view(request):
         filters = json.loads(filters_s)
         agg_filters = json.loads(agg_filters_s)
 
+    #pivot indica i field che sono messi in colonna
+    #sql e' l'sql da eseguire
     sql, pivot = build_query(table_name,
                              cols,
                              rows,
@@ -1368,7 +1370,6 @@ def query_editor_view(request):
 
     column_description = build_description_column_dict(table_name,
                                                        table_schema)
-
     agg_col, sel_tab = build_query_summary(column_description,
                                            values,
                                            filters,
@@ -1526,7 +1527,7 @@ def query_editor(request):
     topic_dict = dict()
     topic_mapping = build_topics_decoder_dict()
     table_description = dict()
-    tables = all_visible_tables()
+    tables = all_visible_tables(request)
 
     # Filter tables matching descriptions and table_name.
     if search:
