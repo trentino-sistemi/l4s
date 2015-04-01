@@ -85,12 +85,11 @@ def generate_report_action_csv(request):
         filename = '%s.%s' % (title, extension)
         content_type = 'text/csv'
         out_stream = StringIO.StringIO()
-        df.to_csv(out_stream, sep=separator, index=False)
+        df.to_csv(out_stream, sep=separator, index=True)
         # Setup response
         response = HttpResponse(out_stream.getvalue())
         response["Content-Type"] = content_type
-        response[
-            'Content-Disposition'] = 'attachment; filename="%s"' % filename
+        response['Content-Disposition'] = 'attachment; filename="%s"' % filename
         return response
 
     return generate_report
