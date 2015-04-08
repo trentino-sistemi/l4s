@@ -475,9 +475,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </label>
         </td>
 
+        {% if secondary %}
         <td>
             <input type="checkbox"
-                   id="range"
+                   id="{{ secondary }}"
             {% if range %}
             checked="checked"
             {% endif %} />
@@ -485,6 +486,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% trans "Range" %}
             </label>
         </td>
+        {% endif %}
 
         {% endif %}
         <td>

@@ -98,7 +98,8 @@ from web.utils import get_variable_dictionary, \
     build_foreign_keys, \
     run_queries_auth, \
     run_queries_anon,\
-    located_in_area_value_to_column
+    located_in_area_value_to_column,\
+    get_table_metadata_value
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1159,9 +1160,10 @@ def query_editor_customize(request):
         include_code = True
 
     range = False
-    range_s = request.REQUEST.get('range')
-    if not range_s is None and range_s == 'true':
-        range = True
+    if request.user.is_staff:
+        range_s = request.REQUEST.get('range')
+        if not range_s is None and range_s == 'true':
+            range = True
 
     selected_obs_values_s = request.REQUEST.get('selected_obs_values')
     selected_obs_values = []
@@ -1260,6 +1262,13 @@ def query_editor_customize(request):
     print "hidden_fields ", hidden_fields
     print "aggregations ", aggregations
     """
+
+    sec = get_table_metadata_value(table_name, 'secondary')
+
+    if not sec is None and len(sec) > 0:
+        context['secondary'] = True
+    else:
+        context['secondary'] = False
 
     return render_to_response("l4s/query_editor_customize.html", context)
 
