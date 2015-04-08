@@ -38,7 +38,8 @@ from web.utils import execute_query_on_main_db, \
     contains_ref_period, \
     TOTAL, \
     get_table_schema, \
-    get_column_description
+    get_column_description, \
+    get_class_range
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -1094,7 +1095,8 @@ def apply_constraint_pivot(data,
                            debug,
                            obs_vals,
                            include_code,
-                           old_cols):
+                           old_cols,
+                           range):
     """
     Apply a constraint limit to the result set.
 
@@ -1303,7 +1305,12 @@ def apply_constraint_pivot(data,
                         constraint_val = row[new_header.index(alias)]
                         src_row = data[row_index]
                         val = src_row[column_index]
-                        src_row[column_index] = ASTERISK
+
+                        if range == True:
+                            src_row[column_index] = get_class_range(val)
+                        else:
+                            src_row[column_index] = ASTERISK
+
                         if debug:
                             src_row[column_index] += "(%s, " % val
                             src_row[column_index] += "%s" % enum_column
@@ -1538,7 +1545,8 @@ def secondary_row_suppression_constraint(data,
                                          obs_vals,
                                          aggregation,
                                          old_cols,
-                                         agg_filters):
+                                         agg_filters,
+                                         range):
     """
     Secondary suppression on row following a constraint.
 
@@ -1805,7 +1813,8 @@ def secondary_col_suppression_constraint(data,
                                          debug,
                                          aggregation,
                                          old_cols,
-                                         agg_filters):
+                                         agg_filters,
+                                         range):
     """
     Performs secondary suppression on columns following the secondary metadata
     rule on table.
@@ -2267,7 +2276,8 @@ def apply_stat_secret(headers,
                       visible,
                       include_code,
                       old_cols,
-                      agg_filters):
+                      agg_filters,
+                      range):
     """
     Take in input the full data set and the column descriptions
     and return the data set statistical secret free.
@@ -2348,9 +2358,7 @@ def apply_stat_secret(headers,
         if visible and not debug:
             return data, headers, data_frame, warn, err
 
-        #in caso di aggregazione questa non fa nulla
-        data = apply_constraint_pivot(data,
-                                      #primaria per tabelle collegate (turismo)
+        data = apply_constraint_pivot(data,  #primaria per tabelle collegate (turismo)
                                       data_frame,
                                       pivot_dict,
                                       rows,
@@ -2361,7 +2369,8 @@ def apply_stat_secret(headers,
                                       debug,
                                       obs_vals,
                                       include_code,
-                                      old_cols)
+                                      old_cols,
+                                      range)
 
         sec = get_table_metadata_value(col_dict[0]['table'], 'secondary')
 
@@ -2383,7 +2392,8 @@ def apply_stat_secret(headers,
                                                                    obs_vals,
                                                                    aggregation,
                                                                    old_cols,
-                                                                   agg_filters)
+                                                                   agg_filters,
+                                                                   range)
 
 
                 data_frame = data_frame_from_tuples(data_frame, data)
@@ -2399,7 +2409,8 @@ def apply_stat_secret(headers,
                                                                    debug,
                                                                    aggregation,
                                                                    old_cols,
-                                                                   agg_filters)
+                                                                   agg_filters,
+                                                                   range)
                 tot_asterisked = ast_c #+ ast_r
 
 
@@ -2464,7 +2475,8 @@ def headers_and_data(user,
                      debug,
                      include_descriptions,
                      include_code,
-                     visible):
+                     visible,
+                     range):
     """
     Execute query, get headers, data, duration, error
     and filter result set to preserve the statistical secret.
@@ -2523,9 +2535,12 @@ def headers_and_data(user,
 
     #print "agg_filters " , agg_filters
 
-    #print "2-----"
-    #print query.sql
-    #print "2-----"
+    """
+    print bcolors.OKGREEN
+    print "2-----"
+    print query.sql
+    print "2-----"
+    """
 
     if include_descriptions or st.include_descriptions:
         query.sql, h = build_description_query(query.sql,
@@ -2535,9 +2550,13 @@ def headers_and_data(user,
                                                include_code)
         st = detect_special_columns(query.sql)
 
-    #print "3-----"
-    #print query.sql
-    #print "3-----"
+    """
+    print bcolors.WARNING
+    print "3-----"
+    print query.sql
+    print "3-----"
+    print bcolors.ENDC
+    """
 
     #stampa_symtobltabel(st)
 
@@ -2574,7 +2593,8 @@ def headers_and_data(user,
                                                               visible,
                                                               include_code,
                                                               old_cols,
-                                                              agg_filters)
+                                                              agg_filters,
+                                                              range)
 
     if not df is None:
         if not include_code:

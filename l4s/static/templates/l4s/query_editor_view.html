@@ -209,6 +209,11 @@ function OpenCustomizePopup() {
     if (include_code=='True') {
        include_code_value = "true"
     }
+    range_value = "false"
+    range = '{{ range }}';
+    if (range=='True') {
+       range_value = "true"
+    }
     url = '/query_editor_customize/';
     data = { 'table': '{{ table_name|escapejs }}',
              'columns': '{{ columns|escapejs }}',
@@ -224,7 +229,10 @@ function OpenCustomizePopup() {
              'hidden_fields': '{{ hidden_fields |jsonify|escapejs }}',
              'ref_periods': '{{ ref_periods|escapejs }}',
              'include_code': include_code_value,
+             'range': range_value,
              'debug': debug_value,
+             'not_sel_aggregations': '{{ not_sel_aggregations|escapejs }}',
+             'not_agg_selection_value': '{{ not_agg_selection_value|jsonify|escapejs }}'
               };
     $.ajax({
 		url: url,

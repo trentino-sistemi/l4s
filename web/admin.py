@@ -24,7 +24,7 @@ from django.contrib.auth.admin import UserAdmin as _UserAdmin
 from web.forms import UserChangeForm, \
     UserCreationForm, \
     UserTypeForm
-from web.models import User, Test3, Test4, Test5
+from web.models import User, Test3, Test4, Test5, ClassRange
 
 
 class UserAdmin(_UserAdmin):
@@ -95,9 +95,14 @@ class Test4Admin(admin.ModelAdmin):
 class Test5Admin(admin.ModelAdmin):
     list_display = ('id1', 'id2', 'id3', 'id4', 'numerosity')
 
+class ClassRangeAdmin(admin.ModelAdmin):
+    list_display = ('class_from', 'class_to')
+
 
 admin.site.register(User, UserAdmin)
 admin.site.register(UserType)
 admin.site.register(Test3, Test3Admin)
 admin.site.register(Test4, Test4Admin)
 admin.site.register(Test5, Test5Admin)
+admin.site.register(ClassRange, ClassRangeAdmin)
+

@@ -38,6 +38,17 @@ import re
 import pandas as pd
 import ast
 import six
+from datetime import datetime
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 METADATA = 'web_metadata'
@@ -70,6 +81,29 @@ TOKENS = [DESCRIPTION_TOKEN, JOIN_TOKEN, AGGREGATION_TOKEN, PIVOT_TOKEN]
 CODE = unicode(_("Code")).encode("utf-8")
 TOTAL = unicode(_("Total")).encode("utf-8")
 ALL = unicode(_("All")).encode("utf-8")
+
+
+def get_class_range(val):
+
+    query = "select class_from, class_to \n"
+    query += "from web_classrange \n"
+    query += "where (%s between class_from and class_to) or \n" % val
+    query += "  (class_from is null and class_to >= %s) or \n" % val
+    query += "  (class_to is null and class_from <= %s) \n"  % val
+
+    rows = execute_query_on_django_db(query)
+
+    for row in rows:
+        class_from = row[0]
+        class_to = row[1]
+
+    if class_from == None:
+        return  "<" + str(class_to)
+    else:
+        if class_to == None:
+            return ">" + str(class_from)
+        else:
+            return str(class_from) + "-" + str(class_to)
 
 
 def get_table_by_name_or_desc(search, tables, order):
@@ -542,10 +576,22 @@ def get_all_field_values(table_name, column_name, select):
         query += "SELECT DISTINCT \"%s\" FROM %s\n" % (column_name, table_name) #quotato perche con postrgress se ci sono lettere maiuscole da errore
         query += "ORDER BY \"%s\"" % column_name
         st = detect_special_columns(query)
+
+        #print bcolors.WARNING
+        #print query
+
         query, h = build_description_query(query, st.cols, [], True, True)
+
+        #print bcolors.FAIL
+        #print query
+
+        #print bcolors.ENDC
+
     else:
         query += "SELECT DISTINCT \"%s\" FROM %s\n" % (select, table_name)
         query += "ORDER BY \"%s\"" % select
+
+    #print "query " , query
 
     rows = execute_query_on_main_db(query)
     for row in rows:
@@ -555,6 +601,8 @@ def get_all_field_values(table_name, column_name, select):
             ret.append(new_row)
         else:
             ret.append(row)
+
+    #print "ret " , ret
 
     return ret
 
@@ -925,6 +973,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
     #print fields
 
     for f in fields:
+        #print f
         if f == -1:
             continue
         table = fields[f]['table']
@@ -940,22 +989,24 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
         else:
             foreign_keys = fk_hash[table]
 
-        #print "foreign_keys ", f, foreign_keys
+        #print "foreign_keys ", foreign_keys
 
         if field in foreign_keys:
-            #print field
             fk = foreign_keys[field]
             dest_table = fk[0]
 
             if is_decoder_table(dest_table):
-                #print dest_table
+
                 dest_column = fk[1]
                 desc_column = find_table_description_column(dest_table)
-                alias = get_column_description(table, field)
+                alias = get_column_description(dest_table, desc_column)
 
-                #print "dest_column " + dest_column
-                #print "desc_column " + desc_column
-                #print "alias " + alias
+                """
+                print "dest_table " + dest_table
+                print "dest_column " + dest_column
+                print "desc_column " + desc_column
+                print "alias " + alias
+                """
 
                 if alias is None:
                     alias = dest_column
@@ -1046,6 +1097,8 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                         alias_t = "%s_%s" % (dest_table, field)
                         desc_query += "ORDER BY %s." % alias_t
                         desc_query += "%s" % desc_column
+
+    #print "desc_query " , desc_query
 
     return desc_query, query_header
 
@@ -1674,15 +1727,25 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
     :param threshold: Threshold.
     :return: Sql (aggregated query).
     """
+
+    #print sql
+    #print "aggregations ", aggregations
+
     err = None
     cols_s = ','.join([str(k) for k in aggregations])
+
+    #print "cols_s ", cols_s
+
     query = "SELECT table_name, column_name, count(id) FROM %s \n" % METADATA
     query += "WHERE id IN(%s) \n" % cols_s
     query += "GROUP BY table_name, column_name ORDER BY count(id) DESC "
+
+    #print "query " , query
+
     rows = execute_query_on_django_db(query)
     first_row = rows[0]
     num = first_row[2]
-    if num > 1:
+    if num > 1:  # boh .. e questo quando si verifica ?
         table_name = first_row[0]
         column_name = first_row[1]
         desc = get_column_description(table_name, column_name)
@@ -1737,6 +1800,14 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     ref_table, ref_column = located_in_area(metadata.table_name,
                                             metadata.column_name,
                                             metadata.value)
+
+    """
+    print "ref_table " , ref_table
+    print "ref_column " , ref_column
+    print "cols " , cols
+    print "agg_filters " , agg_filters
+    """
+
     query = "SELECT "
     orig_column = None
     params = ""
@@ -1784,6 +1855,9 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     query += "%s.%s" % (ref_table, orig_column)
 
     pk = str(metadata.pk)
+
+    #print "pk ", pk
+
     if pk in agg_filters:
         ag_vals = []
         agg = agg_filters[pk]
@@ -1815,6 +1889,8 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     query += "\nORDER BY %s" % params
 
     query = header + query
+
+    #print "query ", query
 
     return query
 
@@ -2215,7 +2291,7 @@ def build_description_table_dict(tables):
     return table_description_dict
 
 
-def build_description_column_dict(table_name, table_schema):
+def build_description_column_dict(table_name, table_schema, fk):
     """
     Build a dictionary <column_name, description>
     for the specified table schema.
@@ -2224,14 +2300,33 @@ def build_description_column_dict(table_name, table_schema):
     :param table_schema: Table schema.
     :return: dictionary with column description
     """
+    foreign_keys = build_foreign_keys(table_name)
+
+    #print "foreign_keys ", foreign_keys
+
     table_description_dict = dict()
     for f, field in enumerate(table_schema):
-        description = get_column_description(table_name, field.name)
+
+        nome_tabella = table_name
+        nome_campo = field.name
+
+        if fk == True:
+            if field.name in foreign_keys:
+                #print foreign_keys[field.name][0]
+                #print foreign_keys[field.name][1]
+
+                nome_tabella = foreign_keys[field.name][0]
+                #print "nome_tabella " , nome_tabella
+                nome_campo = find_table_description_column(nome_tabella)
+
+        description = get_column_description(nome_tabella, nome_campo)
+
         if description is not None:
             value = dict()
             value['name'] = field.name
             value['description'] = description
             table_description_dict[f] = value
+
     return table_description_dict
 
 
@@ -2763,10 +2858,15 @@ def get_all_aggregations(table_name):
     agg = dict()
     agg_values = dict()
     fks = build_foreign_keys(table_name)
+
+    #print "fks ", fks
+
     for col in fks:
         tup = fks[col]
+
         ref_tab = tup[0]
         ref_col = tup[1]
+
         query = "SELECT b.id, b.table_name, b.column_name, "
         query += "d.table_name, d.column_name \n"
         query += "FROM web_metadata b \n"
@@ -2777,29 +2877,88 @@ def get_all_aggregations(table_name):
         query += "and d.key = '%s' \n" % CONCEPT
         query += "and d.value = b.value \n"
         query += ")"
+
+        #print "query " , query
+
         rows = execute_query_on_django_db(query)
 
         if not rows is None:
             for row in rows:
                 pk = row[0]
+
+                ref_tab = tup[0]
+                ref_col = tup[1]
+
+                ref_col = find_table_description_column(ref_tab)
+
+                if ref_col is None or ref_col == "":
+                    src_description = col
+                else:
+                    src_description = get_column_description(ref_tab, ref_col)
+                    if src_description is None or src_description == "":
+                        src_description = ref_col
+
+                #print "src_description ", src_description
+
                 ref_tab = row[3]
                 ref_col = row[4]
-                src_description = get_column_description(table_name, col)
-                if src_description is None or src_description == "":
-                    src_description = col
-                ref_description = get_column_description(ref_tab, ref_col)
+
+                foreign_keys = build_foreign_keys(ref_tab)
+
+                #print "foreign_keys ", foreign_keys
+
+                if foreign_keys is None:
+                    ref_description = get_column_description(ref_tab, ref_col)
+                else:
+                    #print "foreign_keys ", foreign_keys
+                    for col2 in foreign_keys:
+                        if col2 == row[4]:
+                            #print "col2 ", col2
+
+                            tup2 = foreign_keys[col2]
+                            ref_tab = tup2[0]
+                            #ref_col = tup2[1]
+
+                            ref_col = find_table_description_column(ref_tab)
+                            ref_description = get_column_description(ref_tab, ref_col)
+
+                #print "ref_description ", ref_description
+
                 if ref_description is None or ref_description == "":
                     ref_description = ref_col
+
                 if not src_description in agg:
                     agg[src_description] = dict()
+
                 agg[src_description][pk] = ref_description
-                vals = get_all_field_values(ref_tab, ref_col, None)
+
+                """
+                print bcolors.OKBLUE
+                print "agg1 ", agg
+                print "ref_tab " ,ref_tab
+                print "ref_col " , ref_col
+                print "table_name " , table_name
+                print "tup[0] " , tup[0]
+                print "tup[1] " , tup[1]
+                print "row[3] " , row[3]
+                print "row[4] " , row[4]
+                print bcolors.ENDC
+                """
+
+                vals = get_all_field_values(row[3], row[4], None)
+
+                #print "vals " , vals
+
                 agg_values[pk] = vals
+
+    #print "agg1 ", agg
 
     metadata_list = Metadata.objects.filter(table_name=table_name,
                                             key=CLASS)
 
-    for m, metadata in enumerate(metadata_list):
+    #print "metadata_list " , metadata_list
+
+    for m, metadata in enumerate(metadata_list):  # tipo per ATECO dove c'e' una formula
         column_name = metadata.column_name
         src_description = get_column_description(table_name, column_name)
         if src_description is None or src_description == "":
@@ -2815,6 +2974,9 @@ def get_all_aggregations(table_name):
         vals = get_all_field_values(table_name, column_name, formula)
         pk = ast.literal_eval(metadata.pk)
         agg_values[pk] = vals
+
+    #print "table_name ", table_name
+    #print "agg2 ", agg
 
     return agg, agg_values
 
@@ -3056,7 +3218,10 @@ def build_all_filter(column_description,
                      agg_col_desc,
                      columns_names,
                      index_names,
-                     hidden_fields):
+                     hidden_fields,
+                     not_sel_aggregations_ids,
+                     not_agg_selection_value,
+                     aggregations):
     """
     Build a table with all filters.
 
@@ -3081,6 +3246,19 @@ def build_all_filter(column_description,
                                                             agg_filters[u_id])
         ret.update(summarize_agg_filters)
 
+    for a, a_id in enumerate(not_sel_aggregations_ids):
+        u_id = unicode(a_id)
+
+        agg_title, src_desc, agg_desc = build_aggregation_title(a_id,
+                                                                aggregations)
+
+        summarize_agg_filters = build_agg_summarize_filters(agg_desc,
+                                                            agg_values[a_id],
+                                                            not_agg_selection_value[u_id])
+        ret.update(summarize_agg_filters)
+
+
+
     summarize_filters = build_summarize_filters(column_description,
                                                 values,
                                                 filters,
@@ -3088,6 +3266,7 @@ def build_all_filter(column_description,
                                                 index_names,
                                                 hidden_fields)
     ret.update(summarize_filters)
+
     return ret
 
 
@@ -3100,7 +3279,9 @@ def build_query_summary(column_description,
                         agg_filters,
                         columns_names,
                         index_names,
-                        hidden_fields):
+                        hidden_fields,
+                        not_sel_aggregations_ids,
+                        not_agg_selection_value):
     """
     Build a query summary with an hash table with aggregation, description
     and target column an a table with column descriptions, selected values.
@@ -3140,7 +3321,10 @@ def build_query_summary(column_description,
                                agg_col_desc,
                                columns_names,
                                index_names,
-                               hidden_fields)
+                               hidden_fields,
+                               not_sel_aggregations_ids,
+                               not_agg_selection_value,
+                               aggregations)
 
     return agg_col_desc, sel_tab
 
@@ -3309,5 +3493,12 @@ def data_frame_to_html(df, visible, pivot):
         #html = html.replace("...", "")
     return html
 
+def save_value(nome_file, stringa):
+
+    nome_file = nome_file + ' ' + datetime.now().strftime("%H:%M:%S.%f")
+
+    f = open(nome_file, 'w')
+    f.write(stringa)
+    f.close()
 
 

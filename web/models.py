@@ -129,6 +129,14 @@ class Reconciliation(models.Model):
     url = models.CharField(max_length=512, blank=True)
 
 
+class ClassRange(models.Model):
+    """
+    Classi per l'applicazione del range
+    """
+    class_from = models.IntegerField(null=True, blank=True)
+    class_to = models.IntegerField(null=True, blank=True)
+
+
 class ManualRequest(models.Model):
     """
     Model used in order to enable the user to do a manual request to be

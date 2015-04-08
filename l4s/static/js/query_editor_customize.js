@@ -92,17 +92,34 @@ function get_lis(id) {
     return output.join(",");
 }
 
-function get_aggregations() {  
+function get_aggregations(in_riga_o_colonna) {
     var radios = document.getElementsByTagName('input');
     var output = [];
     for (var i = 0; i < radios.length; i++) {
         var name = radios[i].name;
         var type = radios[i].type;
         if (type == 'radio' && radios[i].checked) {
-            id = radios[i].id;
-            if (id != "") {
-                output.push(id);
-           }
+
+            var lista_id_parent_validi = new Array();
+
+            if (in_riga_o_colonna == true) {
+              lista_id_parent_validi.push('rowFields');
+              lista_id_parent_validi.push('columnFields');
+            }
+              else
+            {
+              lista_id_parent_validi.push('unselectedFields');
+            }
+
+            id_parent = radios[i].parentNode.parentNode.parentNode.parentNode.parentNode.getAttribute("id");
+
+            if (lista_id_parent_validi.indexOf(id_parent) != -1) {
+
+              id = radios[i].id;
+              if (id != "") {
+                  output.push(id);
+              }
+            }
        }
     }
     return output.join(",");
@@ -153,20 +170,36 @@ function create_selection(values, too_many) {
    return selection_obj;
 }
 
-function create_agg_selection(agg_values) {
+function create_agg_selection(agg_values, sel_aggregations) {
+
+    //alert("agg_values " + agg_values);
+
     var selection_obj = new Object();
     var value_hash = eval('(' + agg_values + ')');
+
+    sel_aggregations_list = sel_aggregations.split(",");
+
     for (var key in value_hash) {
-        field_obj = [];
-        selection_obj[key] = field_obj
-        field_value = value_hash[key];  
-        sel_name = "agg_input_" + key;
-        var coll = document.getElementsByName(sel_name);
-             for (var x=0; x<coll.length; x++) {
-                if (coll[x].checked) {
-                    field_obj.push(field_value[x]);
-                }
-        }     
+
+        if (sel_aggregations_list.indexOf(key) != -1) {
+
+            field_obj = [];
+            selection_obj[key] = field_obj
+            field_value = value_hash[key];
+
+            sel_name = "agg_input_" + key;
+
+            //alert("key " + key);
+            //alert("field_value " + field_value);
+            //alert("sel_name " + sel_name);
+
+            var coll = document.getElementsByName(sel_name);
+                 for (var x=0; x<coll.length; x++) {
+                    if (coll[x].checked) {
+                        field_obj.push(field_value[x]);
+                    }
+            }
+        }
     }
    return selection_obj;
 }
@@ -201,6 +234,9 @@ function select_filters(filters){
 }
 
 function select_agg_filters(filters){
+
+    //alert(filters);
+
     var filter_hash = eval('(' + filters + ')');
     for (var key in filter_hash) {
         field_values = filter_hash[key]; 
@@ -253,18 +289,40 @@ function submit_popup (obs_values,
         return
     }
     spinner = $('#wrap').spin("modal");
-    
     filter_value = JSON.stringify(selection);
     selected_obs_values = selected_obs.join(",")
-    sel_aggregations = get_aggregations();
-    agg_selection = create_agg_selection(agg_values);
+
+    //Campi aggregati in riga o colonna
+    sel_aggregations = get_aggregations(true); // questa e' ok
+    //alert("sel_aggregations " + sel_aggregations);
+
+    agg_selection = create_agg_selection(agg_values, sel_aggregations);  // questa e' ok
+    //alert("agg_selection " + agg_selection);
+
     agg_selection_value = JSON.stringify(agg_selection);
+    //alert("agg_selection_value " + agg_selection_value);
+
+    //Campi aggregati nei campi NON selezionati
+    not_sel_aggregations = get_aggregations(false); // questa e' ok
+    //alert("not_sel_aggregations " + not_sel_aggregations);
+
+    not_agg_selection = create_agg_selection(agg_values, not_sel_aggregations);  // questa e' ok
+    //alert("not_agg_selection " + not_agg_selection);
+
+    not_agg_selection_value = JSON.stringify(not_agg_selection);
+    //alert("not_agg_selection_value " + not_agg_selection_value);
+
     debug_value = "false";
     var debug = document.getElementById('debug');  
       if (debug != null && debug.checked == 1) {
         debug_value = "true";
      }
-     
+    range_value = "false";
+    var range = document.getElementById('range');
+      if (range != null && range.checked == 1) {
+        range_value = "true";
+     }
+
     visible_value = "false";
     var visible = document.getElementById('visible');  
       if (visible != null && visible.checked == 1){
@@ -277,19 +335,26 @@ function submit_popup (obs_values,
       if (include_code!=null && include_code.checked == 1) {
         include_code_value = "true";
      }
-    
     $('#popup').modal('hide');
     url="/query_editor_view/"
+
+    //alert(cols);
+    //alert(rows);
+    //alert(selected_obs_values);
+
     data = { 'table': table_name,
              'include_code': include_code_value,
-             'columns': cols,
-             'rows': rows,
-             'selected_obs_values':  selected_obs_values,
-             'aggregate': sel_aggregations,
-             'filters': filter_value,
-             'agg_filters': agg_selection_value,
+             'columns': cols,                                    //fields in colonna
+             'rows': rows,                                       //fields in riga
+             'selected_obs_values':  selected_obs_values,        //fields in obs value
+             'aggregate': sel_aggregations,                      //id delle aggregazioni di fields in riga o colonna
+             'filters': filter_value,                            // tutti i fields .... quelli raggruppati sono vuoti []
+             'agg_filters': agg_selection_value,                 //valore degli id delle aggregazioni es. (comunita di valle x , ccomunita di valle y ......)
              'debug': debug_value,
+             'range': range_value,
              'visible': visible_value,
+             'not_sel_aggregations': not_sel_aggregations,       //id delle aggregazioni di fields NON in riga o colonna
+             'not_agg_selection_value': not_agg_selection_value  ////valore degli id delle aggregazioni es. (comunita di valle x , ccomunita di valle y ......)
               };
     $.ajax({
 		url: url,

@@ -977,7 +977,8 @@ def table(request):
     table_name = request.GET.get('name', '')
     table_schema = get_table_schema(table_name)
     column_description = build_description_column_dict(table_name,
-                                                       table_schema)
+                                                       table_schema,
+                                                       False)
 
     fks = build_foreign_keys(table_name)
     context = Context({'table_schema': table_schema})
@@ -985,7 +986,7 @@ def table(request):
     context['request'] = request
     context['column_description'] = column_description
     context['fks'] = fks
-    print fks
+    #print fks
     return render_to_response("l4s/table.html", context)
 
 
@@ -1157,6 +1158,11 @@ def query_editor_customize(request):
     if not include_code_s is None and include_code_s == 'true':
         include_code = True
 
+    range = False
+    range_s = request.REQUEST.get('range')
+    if not range_s is None and range_s == 'true':
+        range = True
+
     selected_obs_values_s = request.REQUEST.get('selected_obs_values')
     selected_obs_values = []
     if not selected_obs_values_s is None and selected_obs_values != "":
@@ -1183,6 +1189,12 @@ def query_editor_customize(request):
         periods = [x for x in ref_periods.split(',')]
 
     sel_aggregation = request.REQUEST.get('aggregate')
+    not_sel_aggregations = request.REQUEST.get('not_sel_aggregations')
+
+    not_sel_aggregation_ids = []
+    if not_sel_aggregations is not None and not_sel_aggregations != "":
+        not_sel_aggregation_ids = [x for x in not_sel_aggregations.split(',')]
+
     sel_aggregation_ids = []
     if sel_aggregation is not None and sel_aggregation != "":
         sel_aggregation_ids = [x for x in sel_aggregation.split(',')]
@@ -1198,15 +1210,32 @@ def query_editor_customize(request):
     context['columns'] = cols
     context['rows'] = rows
     context['include_code'] = include_code
+    context['range'] = range
 
     values = request.REQUEST.get('values')
     agg_values = request.REQUEST.get('agg_values')
+    not_agg_selection_value = request.REQUEST.get('not_agg_selection_value')
     aggregations = request.REQUEST.get('aggregations')
     hidden_fields = request.REQUEST.get('hidden_fields')
 
     filters = request.REQUEST.get('filters')
 
     agg_filters = request.REQUEST.get('agg_filters')
+
+    """
+    print "aggregations ", aggregations
+    print "agg_values ", agg_values
+    print "filters ", filters
+    print "values ", values
+
+
+    print "sel_aggregation ", sel_aggregation_ids
+    print "agg_filters ", agg_filters
+
+
+    print "not_sel_aggregations ", not_sel_aggregation_ids
+    print "not_agg_selection_value ", not_agg_selection_value
+    """
 
     context['aggregations'] = json.loads(aggregations)
     context['sel_aggregation'] = sel_aggregation_ids
@@ -1217,7 +1246,20 @@ def query_editor_customize(request):
     context['filters'] = json.loads(filters)
     context['agg_filters'] = json.loads(agg_filters)
     context['hidden_fields'] = json.loads(hidden_fields)
+
+    context['not_sel_aggregations'] = not_sel_aggregation_ids
+    context['not_agg_selection_value'] = json.loads(not_agg_selection_value)
+
     context['ref_periods'] = periods
+
+    """
+    print "fields ", fields
+    print "obs_values ", obs_values
+    print "cols ", cols
+    print "rows ", rows
+    print "hidden_fields ", hidden_fields
+    print "aggregations ", aggregations
+    """
 
     return render_to_response("l4s/query_editor_customize.html", context)
 
@@ -1244,6 +1286,7 @@ def query_editor_view(request):
 
     filters_s = request.REQUEST.get('filters')
     agg_filters_s = request.REQUEST.get('agg_filters')
+    not_agg_selection_value_s = request.REQUEST.get('not_agg_selection_value')
 
     columns = request.REQUEST.get('columns')
     cols = []
@@ -1270,7 +1313,20 @@ def query_editor_view(request):
     if not include_code_s is None and include_code_s == 'true':
         include_code = True
 
+    range = False
+    range_s = request.REQUEST.get('range')
+    if not range_s is None and range_s == 'true':
+        range = True
+
     aggregation = request.REQUEST.get('aggregate', "")
+    not_sel_aggregations = request.REQUEST.get('not_sel_aggregations', "")
+
+    #print "aggregation " ,aggregation
+
+    not_sel_aggregations_ids = []
+    if not_sel_aggregations is not None and not_sel_aggregations != "":
+        not_sel_aggregations_ids = [ast.literal_eval(x) for x in not_sel_aggregations.split(',')]
+
     aggregation_ids = []
     if aggregation is not None and aggregation != "":
         aggregation_ids = [ast.literal_eval(x) for x in aggregation.split(',')]
@@ -1299,6 +1355,15 @@ def query_editor_view(request):
     ref_periods = list_ref_period(table_name, table_schema)
     aggregations, agg_values = get_all_aggregations(table_name)
 
+    """
+    print "--------------------------------------"
+    print "aggregations " , aggregations
+    print "agg_values ", agg_values
+    print len(rows)
+    print len(cols)
+    print "--------------------------------------"
+    """
+
     filters = dict()
     if len(rows) + len(cols) == 0:
         try:
@@ -1320,10 +1385,19 @@ def query_editor_view(request):
         else:
             filters = values
 
-        agg_filters = agg_values
+        #agg_filters = agg_values #boh ... non serve
+        agg_filters = dict()
+        #not_agg_selection_value = agg_values #boh ... non serve
+        not_agg_selection_value = dict()
     else:
         filters = json.loads(filters_s)
         agg_filters = json.loads(agg_filters_s)
+        not_agg_selection_value = json.loads(not_agg_selection_value_s)
+
+    """
+    print "filters ", filters
+    print "agg_filters ", agg_filters
+    """
 
     #pivot indica i field che sono messi in colonna
     #sql e' l'sql da eseguire
@@ -1346,31 +1420,44 @@ def query_editor_view(request):
                                            debug,
                                            True,
                                            include_code,
-                                           visible)
+                                           visible,
+                                           range)
 
     context['values'] = values
     context['obs_values'] = obs_values
     context['selected_obs_values'] = ",".join(selected_obs_values)
-    context['aggregations'] = aggregations
-    context['agg_values'] = agg_values
-    context['aggregation_ids'] = aggregation_ids
+    context['aggregations'] = aggregations # tutte le aggregazioni possibili per quella tabella ... serve per renderizzare poi il personalizza
+    context['agg_values'] = agg_values #tutti i valori delle aggregazioni per quella tabella ... serve per renderizzare poi il personalizza
+    #context['aggregation_ids'] = aggregation_ids
     context['topic'] = topic
     context['topic_id'] = topic_id
     context['hidden_fields'] = hidden_fields
     context['columns'] = ",".join(cols)
     context['rows'] = ",".join(rows)
     context['filters'] = filters
+
     context['agg_filters'] = agg_filters
     context['sel_aggregate'] = aggregation
+
     context['debug'] = debug
     context['include_code'] = include_code
+    context['range'] = range
     context['ref_periods'] = ",".join(ref_periods.values())
     context['legend'] = LEGEND
     context['dl_art'] = DL_ART
 
+    context['not_sel_aggregations'] = not_sel_aggregations
+    context['not_agg_selection_value'] = not_agg_selection_value
+
+    #print "agg_values " , agg_values
+
     column_description = build_description_column_dict(table_name,
-                                                       table_schema)
-    agg_col, sel_tab = build_query_summary(column_description,
+                                                       table_schema,
+                                                       True)
+
+
+
+    agg_col, sel_tab = build_query_summary(column_description,  #crea gli elementi per poi disegnare a video la tabellina riassuntiva
                                            values,
                                            filters,
                                            aggregation_ids,
@@ -1379,7 +1466,9 @@ def query_editor_view(request):
                                            agg_filters,
                                            cols,
                                            rows,
-                                           hidden_fields)
+                                           hidden_fields,
+                                           not_sel_aggregations_ids,
+                                           not_agg_selection_value)
 
     title = build_query_title(column_description,
                               selected_obs_values,
@@ -1405,10 +1494,60 @@ def query_editor_view(request):
     url = '/query_editor_view/?table=%s' % table_name
 
     context['column_description'] = column_description
+
     context['dataframe'] = html
     context['store'] = store
     context['sql'] = sql
     context['url'] = url
+
+    """
+    #print 'values ', context['values']
+    print 'obs_values ', context['obs_values']
+    print 'selected_obs_values ', context['selected_obs_values']
+    print 'aggregations ', context['aggregations']
+    #print 'agg_values ', context['agg_values']
+    print 'aggregation_ids ', context['aggregation_ids']
+    print 'topic ', context['topic']
+    print 'topic_id ', context['topic_id']
+    print 'hidden_fields ', context['hidden_fields']
+    print 'columns ', context['columns']
+    print 'rows ', context['rows']
+    #print 'filters ', context['filters']
+    #print 'agg_filters ', context['agg_filters']
+    print 'sel_aggregate ', context['sel_aggregate']
+    print 'debug ', context['debug']
+    print 'include_code ', context['include_code']
+    print 'range ', context['range']
+    print 'ref_periods ', context['ref_periods']
+    print 'legend ', context['legend']
+    print 'dl_art ', context['dl_art']
+
+    print 'description ', context['description']
+    print 'sel_tab ', context['sel_tab']
+    print 'agg_col ', context['agg_col']
+
+    print 'column_description ', context['column_description']
+
+    #print 'dataframe ', context['dataframe']
+    #print 'store ', context['store']
+    print 'sql ', context['sql']
+    print 'url ', context['url']
+    """
+
+    """
+    print "aggregations ", aggregations
+    print "agg_values ", agg_values
+    print "filters ", filters
+    print "values ", values
+
+
+    print "sel_aggregation ", aggregation
+    print "agg_filters ", agg_filters
+
+
+    print "not_sel_aggregations ", not_sel_aggregations
+    print "not_agg_selection_value ", not_agg_selection_value
+    """
 
     return render_to_response("l4s/query_editor_view.html", context)
 
