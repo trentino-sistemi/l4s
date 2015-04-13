@@ -1460,11 +1460,15 @@ def query_editor_view(request):
 
     #print "agg_values " , agg_values
 
+    #print "dddddddddddddd"
+
     column_description = build_description_column_dict(table_name,
                                                        table_schema,
                                                        True)
 
 
+
+    #print "eeeeeee"
 
     agg_col, sel_tab = build_query_summary(column_description,  #crea gli elementi per poi disegnare a video la tabellina riassuntiva
                                            values,
@@ -1694,10 +1698,13 @@ def query_editor(request):
         topic_dict = build_topics_dict(tables)
     else:
         tables = filter_tables_by_topic(topic_id, tables, None)
+        #print "tables1 ", tables
         tables = exclude_invisible_tables(tables)
+        #print "tables2 ", tables
         tables = order_tables_by_descriptions(tables)
         if not search:
             table_description = build_description_table_dict(tables)
+
 
     keywords = build_topic_keywords()
     icons = build_topic_icons()
@@ -1721,6 +1728,9 @@ def query_editor(request):
     context['icons'] = icons
     context['queries_to_topics'] = queries_to_topics
     context['queries'] = queries
+
+    #print "topics ", topic_mapping
+    #print "topics_counter ", context['topics_counter']
 
     return render_to_response("l4s/query_editor.html", context)
 

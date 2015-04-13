@@ -854,6 +854,9 @@ def find_table_description_column(table_name):
     query += "and table_name='%s' " % table_name
     query += "and key = '%s'" % SAME_AS
     query += "and value='%s'" % DESCRIPTION_SUBJECT
+
+    #print "find_table_description_column ", query
+
     rows = execute_query_on_django_db(query)
     if not rows is None:
         for row in rows:
@@ -2719,6 +2722,7 @@ def exclude_invisible_tables(tables):
     query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
     query += "WHERE upper(key)='VISIBLE' and upper(value)='TRUE' "
     query += "and table_name IN(%s)" % table_names
+    print "query " , query
     rows = execute_query_on_django_db(query)
     ret_tables = []
     if rows is not None:

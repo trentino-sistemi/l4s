@@ -53,6 +53,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 import sys
+import decimal
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
@@ -148,6 +149,12 @@ def find_row_with_min_value_exclude_zero(data, r_start, r_end, c):
 
     return min_row
 
+def format_value(x):
+
+    if type(x) == decimal.Decimal:
+        return round(x, 0)
+    else:
+        return x
 
 def pivot(data, headers, columns, rows, value):
     """
@@ -167,7 +174,42 @@ def pivot(data, headers, columns, rows, value):
         error = "%s: %s" % (unicode(error), unicode(e_value))
         return None, None, error
 
+    #headers = ['A', 'B', 'C', 'D', 'E', 'F']
+    #columns = ['E']
+    #rows = ['F']
+
+    #['Numero indipendenti medi', 'Numero dipendenti medi', 'Numeri addetti medi', 'Numero imprese', 'Anno', 'Comune']
+
+
     df = pd.DataFrame(data, columns=headers)
+
+    """
+    for co, column in enumerate(data):
+        print co, column
+        for co2, column2 in enumerate(column):
+            print co2, column2
+    """
+    
+    df = df.applymap(format_value) #se si mescolano obs value interi e obs value con la virgola non funziona
+
+    #print bcolors.WARNING
+
+
+    #value = ['Numero indipendenti medi', 'Numero dipendenti medi', 'Numeri addetti medi', 'Numero imprese']
+    #value = ['D', 'A']
+
+    #data = [[decimal.Decimal('696.00')]]
+
+    #print "data ", data
+    #print "headers ", headers
+    #print "columns ", columns
+    #print "rows " , rows
+    #print "value " , value
+    #print df
+
+    #print bcolors.ENDC
+
+    #print pd.show_versions(as_json=False)
 
     try:
         pivot_df = df.pivot_table(columns=columns,
@@ -184,6 +226,10 @@ def pivot(data, headers, columns, rows, value):
         error = "%s: %s" % (unicode(error), unicode(e_value))
         return None, None, error
 
+    #print bcolors.OKGREEN
+    #print pivot_df
+    #print bcolors.ENDC
+
     pivot_df = pivot_df.applymap(
         lambda a: str(a).replace(".0", "", 1).replace("nan", "0"))
 
@@ -191,6 +237,10 @@ def pivot(data, headers, columns, rows, value):
     pivot_df.rename(columns={'All': total}, inplace=True)
     pivot_df.rename(index={'All': total}, inplace=True)
     data = get_data_from_data_frame(pivot_df)
+
+    #print bcolors.OKBLUE
+    #print pivot_df
+    #print bcolors.ENDC
 
     return data, pivot_df, None
 
@@ -951,9 +1001,13 @@ def protect_pivoted_table(data,
     :return: The pivoted table preserving the statistical secret.
     """
 
+    #print "fino quiiiiiiiiiiiiiiiiiiii"
+
     if len(secret_column_dict) + len(sec_ref) + len(constraint_cols) == 0:
+        #print "A"
         return data
     else:
+        #print "B"
         data = protect_pivoted_secret(data,
                                       obs_values,
                                       threshold_columns_dict,
@@ -1127,33 +1181,39 @@ def apply_constraint_pivot(data,
     print "include_code " , include_code
     """
 
-    #se ce' un solo obsvalue finisce in colonna, se ce ne sono di piu finiscono in riga
-
-    if has_data_frame_multi_level_columns(
-            data_frame):  #riordina le colonne .......
-        data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)
-    else:
-        data_frame_appoggio_colonne = data_frame.sort_index(axis=1)
-
-    if len(
-            obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
-        data_frame_appoggio_colonne.drop(
-            (','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL),
-            axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
-    else:
-        data_frame_appoggio_colonne.drop(TOTAL, axis=1,
-                                         inplace=True)  # e poi tolgo la label TOTALE sulle colonne
-
-    if has_data_frame_multi_level_index(
-            data_frame):  #riordina il data_freame per le righe...
-        data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
-    else:
-        data_frame_appoggio_righe = data_frame.sort_index(axis=0)
-
-    data_frame_appoggio_righe.drop(TOTAL, axis=0,
-                                   inplace=True)  # e poi tolgo la label TOTALE sulle righe
-
     constraint_dict = build_constraint_dict(constraint_cols)
+
+    #print "constraint_dict ", constraint_dict
+    #print len(constraint_dict)
+
+    if (len(constraint_dict) > 0):
+
+        #se ce' un solo obsvalue finisce in colonna, se ce ne sono di piu finiscono in riga
+
+        if has_data_frame_multi_level_columns(
+                data_frame):  #riordina le colonne .......
+            data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)
+        else:
+            data_frame_appoggio_colonne = data_frame.sort_index(axis=1)
+
+        if len(
+                obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
+            data_frame_appoggio_colonne.drop(
+                (','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL),
+                axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+        else:
+            data_frame_appoggio_colonne.drop(TOTAL, axis=1,
+                                             inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+
+        if has_data_frame_multi_level_index(
+                data_frame):  #riordina il data_freame per le righe...
+            data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
+        else:
+            data_frame_appoggio_righe = data_frame.sort_index(axis=0)
+
+        data_frame_appoggio_righe.drop(TOTAL, axis=0,
+                                       inplace=True)  # e poi tolgo la label TOTALE sulle righe
+
 
     for con, constraint in enumerate(constraint_dict):
 
@@ -2095,9 +2155,9 @@ def secondary_col_suppression_constraint(data,
             except (KeyError, TypeError):
                 continue
 
-            print bcolors.FAIL
-            print "row_tup " , row_tup
-            print "row_index " , row_index
+            #print bcolors.FAIL
+            #print "row_tup " , row_tup
+            #print "row_index " , row_index
 
             start_row = row_index.start
             stop_row = row_index.stop
@@ -2110,9 +2170,9 @@ def secondary_col_suppression_constraint(data,
                 except (KeyError, TypeError):
                     continue
 
-                print "col_tup " , col_tup
-                print "column_index " , column_index
-                print bcolors.ENDC
+                #print "col_tup " , col_tup
+                #print "column_index " , column_index
+                #print bcolors.ENDC
 
                 sel_row = start_row
                 asterisk_count = 0
@@ -2126,8 +2186,8 @@ def secondary_col_suppression_constraint(data,
 
                 if asterisk_count == len(obs_vals):
 
-                    print "col_tup " , col_tup
-                    print "row_tup " , row_tup
+                    #print "col_tup " , col_tup
+                    #print "row_tup " , row_tup
 
                     cell_col_list = []
                     cell_col_value = []
@@ -2152,8 +2212,8 @@ def secondary_col_suppression_constraint(data,
 
                     #print "slice_da_preservare ", slice_da_preservare
 
-                    print "cell_col_list ", cell_col_list
-                    print "cell_col_value ", cell_col_value
+                    #print "cell_col_list ", cell_col_list
+                    #print "cell_col_value ", cell_col_value
 
                     minimo = sys.maxint
 
@@ -2179,7 +2239,7 @@ def secondary_col_suppression_constraint(data,
                                             #print "column ", column
                                             indice_minimo.append(target_row[new_header.index(index)])
 
-                    print "minimo " , minimo
+                    #print "minimo " , minimo
                     #print "indice_minimo " , indice_minimo
 
                     if minimo == sys.maxint:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
@@ -2232,7 +2292,7 @@ def secondary_col_suppression_constraint(data,
 
                         lista_appoggio = list(itertools.product(*lista))
 
-                        print "lista_appoggio " , lista_appoggio
+                        #print "lista_appoggio " , lista_appoggio
 
                         for ct2, row_tup2 in enumerate(lista_appoggio):
 
@@ -2256,8 +2316,8 @@ def secondary_col_suppression_constraint(data,
 
                         #print "riga ", riga
 
-    print "ciaoooooooooo ", asterisk_global_count
-    print query
+    #print "ciaoooooooooo ", asterisk_global_count
+    #print query
 
     return data, 0
 
@@ -2346,6 +2406,14 @@ def apply_stat_secret(headers,
                                       rows,
                                       pivot_values)
 
+        """
+        print err
+        print data
+        print data_frame
+        print "columns " , data_frame.columns
+        print "index ", data_frame.index
+        """
+
         if err:
             return rows, headers, None, warn, err
 
@@ -2428,7 +2496,10 @@ def apply_stat_secret(headers,
                                          rows,
                                          debug)
 
+        #print "aaaaaaaaaaaaaaaaaaaaaaa"
         data_frame = data_frame_from_tuples(data_frame, data)
+
+        #print "bbbbb"
 
         return data, headers, data_frame, warn, err
 
@@ -2565,9 +2636,17 @@ def headers_and_data(user,
     if len(data) == 0:
         return df, data, warn, err
 
+    """
+    print "-------------------------"
+    print err
+
+    print data
+    """
+
     if err is None:
         if len(old_head) < 3 and len(st.secret) + len(st.constraint) + len(
                 st.secret_ref) == 1 and len(st.threshold) == 1:
+            #print "bla bla bla"
             data, head, df = apply_stat_secret_plain(old_head,
                                                      #questo credo che non vada piu .... e probailmente non serve nemmeno piu
                                                      data,
@@ -2579,6 +2658,7 @@ def headers_and_data(user,
         # Check if I can give the full result set.
         elif (len(st.secret) + len(st.constraint) + len(st.secret_ref) == 0) \
                 or (pivot_cols is not None and len(pivot_cols) > 0):
+            #print "bla2 bla2 bla2"
             data, old_head, df, warn, err = apply_stat_secret(old_head,
                                                               data,
                                                               st.cols,
@@ -2607,6 +2687,8 @@ def headers_and_data(user,
         index = get_data_frame_first_index(df)
         if contains_ref_period(st.pivot, st.cols, axis=1) or len(index) == 2:
             df = drop_total_row(df)
+
+    #print "cccccccccccccc"
 
     return df, data, warn, err
 
