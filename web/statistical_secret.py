@@ -2602,9 +2602,11 @@ def headers_and_data(user,
         # come fa' a essere vuoto se nel query editor devo per forza specificarne uno ????
         pivot_cols = st.pivot
 
-    #print "1-----"
-    #print query.sql
-    #print "1-----"
+    """
+    print "1-----"
+    print query.sql
+    print "1-----"
+    """
 
     #stampa_symtobltabel(st)
 
@@ -2622,12 +2624,14 @@ def headers_and_data(user,
 
     #print "agg_filters " , agg_filters
 
+
     """
     print bcolors.OKGREEN
     print "2-----"
     print query.sql
     print "2-----"
     """
+
 
     if include_descriptions or st.include_descriptions:
         query.sql, h = build_description_query(query.sql,

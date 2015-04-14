@@ -1387,11 +1387,19 @@ def build_constraint_query(constraints,
         query += "%s IN (SELECT DISTINCT %s from %s ) \n" % (k, k, src_table)
     """
 
+    #print "dest_columns " , dest_columns
+
+
     for f in filters:
+
+        #print f
 
         #if not f in columns and f in dest_columns:
         if f in dest_columns:
             filter_value = filters[f]
+
+            #print filter_value
+
             if len(filter_value) > 0:
                 values = ','.join(["%s" % k[0] for k in filter_value])
                 if counter == 0:
@@ -1399,7 +1407,10 @@ def build_constraint_query(constraints,
                 else:
                     query += "AND "
                 query += " %s IN (%s)\n" % (f, values)
-            counter += 1
+
+                counter += 1
+
+    #print query
 
     query += "GROUP BY %s \n" % fields
 
