@@ -800,6 +800,8 @@ def build_query(table_name,
     query += '%s' % comma_sep_fields
     query += '\nFROM %s' % table_name
 
+    #print query
+
     for id in not_agg_selection_value:
 
         #print "id ", id
@@ -1854,7 +1856,7 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
             err += " " + column_name
         return sql, err
 
-    print bcolors.OKBLUE
+    #print bcolors.OKBLUE
     #print "query aggregazione prima ", sql
 
     for a, aggregation in enumerate(aggregations):
@@ -1879,9 +1881,9 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
                                               threshold, constraints)
 
 
-    print "metadata_value ", metadata_value
-    print "query aggregazione dopo ", sql
-    print bcolors.ENDC
+    #print "metadata_value ", metadata_value
+    #print "query aggregazione dopo ", sql
+    #print bcolors.ENDC
 
     return sql, err
 
@@ -2006,6 +2008,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     query = header + query
 
     #print "query ", query
+    save_value('manuel', query)
 
     return query
 
