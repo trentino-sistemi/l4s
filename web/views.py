@@ -100,7 +100,8 @@ from web.utils import get_variable_dictionary, \
     run_queries_anon,\
     located_in_area_value_to_column,\
     get_table_metadata_value,\
-    build_aggregation_title
+    build_aggregation_title,\
+    save_value
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1417,6 +1418,8 @@ def query_editor_view(request):
 
     #pivot indica i field che sono messi in colonna
     #sql e' l'sql da eseguire
+
+    save_value('manuel', "fino qui arrivo")
 
     sql, pivot = build_query(table_name,
                              cols,

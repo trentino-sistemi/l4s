@@ -1899,8 +1899,6 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     #print "threshold " , threshold
     #print "cols " , cols
 
-    save_value('manuel', query)
-    
     ref_table, ref_column = located_in_area(metadata.table_name,
                                             metadata.column_name,
                                             metadata.value)
