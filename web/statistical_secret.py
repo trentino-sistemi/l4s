@@ -189,8 +189,24 @@ def pivot(data, headers, columns, rows, value):
         for co2, column2 in enumerate(column):
             print co2, column2
     """
-    
-    df = df.applymap(format_value) #se si mescolano obs value interi e obs value con la virgola non funziona
+
+    lista = []
+
+    for a, b in enumerate(df.columns):
+        for c, d in enumerate(df.index):
+            #print  b, d
+            #print type(df[b][d])
+            if type(df[b][d]) == decimal.Decimal:
+                if not b in lista:
+                    lista.append(b)
+                #df[b][d] = np.float64(df[b][d])
+
+    #print lista
+
+    df[lista] = df[lista].astype(float)
+
+    #questa sotto arrotonda
+    #df = df.applymap(format_value) #se si mescolano obs value interi e obs value con la virgola non funziona
 
     #print bcolors.WARNING
 

@@ -741,7 +741,8 @@ def build_query(table_name,
                 obs_values,
                 aggregation_ids,
                 filters,
-                values):
+                values,
+                not_agg_selection_value):
     """
     Build a query on table that select obsValues and then the desired
     cols and rows.
@@ -798,7 +799,52 @@ def build_query(table_name,
         query += "%s, " % comma_sep_threshold_fields
     query += '%s' % comma_sep_fields
     query += '\nFROM %s' % table_name
+
+    for id in not_agg_selection_value:
+
+        #print "id ", id
+
+        query_filtri_aggregazione = "SELECT table_name, column_name, value FROM %s \n" % METADATA
+        query_filtri_aggregazione += "WHERE id IN(%s) \n" % id
+
+        #print "query_filtri_aggregazione " , query_filtri_aggregazione
+
+        rows = execute_query_on_django_db(query_filtri_aggregazione)
+        first_row = rows[0]
+
+        table_name_join = first_row[0]
+        column_name_join = first_row[1]
+        value_join = first_row[2]
+
+        ref_table, ref_column = located_in_area(table_name_join,
+                                                column_name_join,
+                                                value_join)
+
+        #print "ref_table ", ref_table
+        #print "ref_column " , ref_column
+
+        foreign_keys = build_foreign_keys(table_name)
+
+        for id_fk, column in enumerate(foreign_keys):
+
+            elements = foreign_keys[column]
+
+            #print elements
+
+            if elements[0] == table_name_join and elements[1] == column_name_join:
+                orig_column = column
+
+        field_name_join = '%s."%s" = %s."%s"' % (ref_table, column_name_join, table_name, orig_column)
+
+        query += '\njoin %s on (%s) ' % (ref_table, field_name_join)
+
+        #print id
+
+        #print not_agg_selection_value[id]
+
     filtered = False
+
+    #print "filters ", filters
 
     for field in filters:
         filter_vals = filters[field]
@@ -815,10 +861,55 @@ def build_query(table_name,
                 query += "%s )" % comma_sep_vals
                 filtered = True
 
+    for id in not_agg_selection_value:
+
+        query_filtri_aggregazione = "SELECT table_name, column_name, value FROM %s \n" % METADATA
+        query_filtri_aggregazione += "WHERE id IN(%s) \n" % id
+
+        #print "query_filtri_aggregazione " , query_filtri_aggregazione
+
+        rows = execute_query_on_django_db(query_filtri_aggregazione)
+        first_row = rows[0]
+
+        table_name_join = first_row[0]
+        column_name_join = first_row[1]
+        value_join = first_row[2]
+
+        ref_table, ref_column = located_in_area(table_name_join,
+                                                column_name_join,
+                                                value_join)
+
+        if filtered:
+            query += '\nAND'
+        else:
+            query += '\nWHERE'
+
+        ag_vals = []
+
+        for id_value, values in enumerate(not_agg_selection_value[id]):
+            #print values[0]
+            ag_vals.append(str(values[0]))
+
+        if len(ag_vals) > 0:
+            #print "ag_vals ", ag_vals
+            comma_sep_ag_vals = ", ".join(ag_vals)
+
+            #print comma_sep_ag_vals
+
+            query += '  %s."%s" ' % (ref_table, ref_column)
+            query += "IN (%s)" % comma_sep_ag_vals
+
+        filtered = True
+
+        #print not_agg_selection_value[id]
+
     if len(obs_fields) > 0:
         query += "\nGROUP BY %s" % comma_sep_fields
 
     query = "%s\n%s\n" % (annotation, query)
+
+    #print "query " , query
+
     return query, col_positions
 
 
@@ -1763,6 +1854,9 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
             err += " " + column_name
         return sql, err
 
+    print bcolors.OKBLUE
+    #print "query aggregazione prima ", sql
+
     for a, aggregation in enumerate(aggregations):
         metadata = Metadata.objects.get(id=aggregation)
 
@@ -1784,7 +1878,10 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
             sql = build_located_in_area_query(sql, cols, metadata, agg_filters,
                                               threshold, constraints)
 
-    #print sql
+
+    print "metadata_value ", metadata_value
+    print "query aggregazione dopo ", sql
+    print bcolors.ENDC
 
     return sql, err
 
@@ -1804,7 +1901,24 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
                                             metadata.column_name,
                                             metadata.value)
 
+    foreign_keys = build_foreign_keys(cols[0]['table'])
+
+    for id, column in enumerate(foreign_keys):
+
+        elements = foreign_keys[column]
+
+        #print elements
+
+        if elements[0] == metadata.table_name and elements[1] == metadata.column_name:
+            orig_column = column
+
     """
+    print "orig_column ", orig_column
+
+    print "metadata.table_name " , metadata.table_name
+    print "metadata.column_name " , metadata.column_name
+    print "metadata.value " , metadata.value
+
     print "ref_table " , ref_table
     print "ref_column " , ref_column
     print "cols " , cols
@@ -1812,7 +1926,6 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     """
 
     query = "SELECT "
-    orig_column = None
     params = ""
     new_table = metadata.table_name + "_" + ref_table
     old_header, inner_sql = extract_header(sql)
@@ -1834,8 +1947,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
             header += "%s.%s %s\n" % (table, column, c)
             continue
 
-        if column == metadata.column_name:
-            orig_column = column
+        if column == orig_column:
             query += ref_table + "." + ref_column
             header += "%s " % JOIN_TOKEN
             header += "%s.%s" % (ref_table, ref_column)
@@ -3241,6 +3353,7 @@ def build_all_filter(column_description,
     :param hidden_fields:
     :return: filters.
     """
+
     ret = {}
     for a, a_id in enumerate(aggregation_ids):
         target_col_desc = agg_col_desc[a_id]['description']
@@ -3305,6 +3418,9 @@ def build_query_summary(column_description,
     :return: Dictionary with description.
     """
 
+    #print "aggregation_ids ", aggregation_ids
+    #print "aggregations ", aggregations
+
     agg_col_desc = dict()
     for a, agg_id in enumerate(aggregation_ids):
         agg_title, src_desc, agg_desc = build_aggregation_title(agg_id,
@@ -3315,6 +3431,8 @@ def build_query_summary(column_description,
         val['description'] = agg_desc
         val['column'] = src_desc
         agg_col_desc[agg_id] = val
+
+    #print "agg_col_desc ", agg_col_desc
 
     sel_tab = build_all_filter(column_description,
                                values,

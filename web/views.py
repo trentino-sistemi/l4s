@@ -99,7 +99,8 @@ from web.utils import get_variable_dictionary, \
     run_queries_auth, \
     run_queries_anon,\
     located_in_area_value_to_column,\
-    get_table_metadata_value
+    get_table_metadata_value,\
+    build_aggregation_title
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1408,15 +1409,24 @@ def query_editor_view(request):
     print "agg_filters ", agg_filters
     """
 
+    """
+    print "not_sel_aggregations " , not_sel_aggregations
+    print "not_agg_selection_value " , not_agg_selection_value
+    print "not_sel_aggregations_ids ", not_sel_aggregations_ids
+    """
+
     #pivot indica i field che sono messi in colonna
     #sql e' l'sql da eseguire
+
     sql, pivot = build_query(table_name,
                              cols,
                              rows,
                              selected_obs_values,
                              aggregation_ids,
                              filters,
-                             values)
+                             values,
+                             not_agg_selection_value)
+
 
     query = Query(title=table_name, sql=sql)
 
