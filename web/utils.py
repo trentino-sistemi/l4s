@@ -2007,7 +2007,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
     query = header + query
 
-    #print "query ", query
+    print "query ", query
 
     return query
 

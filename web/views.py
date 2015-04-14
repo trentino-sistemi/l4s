@@ -1283,7 +1283,7 @@ def query_editor_view(request):
     :return: The request response.
     """
 
-    save_value('manuel', 'fino qui arrivo')
+    #save_value('manuel', 'fino qui arrivo')
 
     table_name = request.REQUEST.get('table')
     topic = get_topic_description(table_name)
