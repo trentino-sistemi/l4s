@@ -1282,6 +1282,9 @@ def query_editor_view(request):
     :param request: Django request.
     :return: The request response.
     """
+
+    save_value('manuel', 'fino qui arrivo')
+
     table_name = request.REQUEST.get('table')
     topic = get_topic_description(table_name)
     topic_id = get_topic_id(table_name)
@@ -1418,8 +1421,6 @@ def query_editor_view(request):
 
     #pivot indica i field che sono messi in colonna
     #sql e' l'sql da eseguire
-
-    save_value('manuel', "fino qui arrivo")
 
     sql, pivot = build_query(table_name,
                              cols,
