@@ -174,13 +174,6 @@ def pivot(data, headers, columns, rows, value):
         error = "%s: %s" % (unicode(error), unicode(e_value))
         return None, None, error
 
-    #headers = ['A', 'B', 'C', 'D', 'E', 'F']
-    #columns = ['E']
-    #rows = ['F']
-
-    #['Numero indipendenti medi', 'Numero dipendenti medi', 'Numeri addetti medi', 'Numero imprese', 'Anno', 'Comune']
-
-
     df = pd.DataFrame(data, columns=headers)
 
     """
@@ -191,16 +184,22 @@ def pivot(data, headers, columns, rows, value):
     """
 
     lista = []
+    contatore = 0
+    #print "columns ", df.columns
+    #print "index ", df.index
 
     for a, b in enumerate(df.columns):
         for c, d in enumerate(df.index):
+            contatore += 1
             #print  b, d
             #print type(df[b][d])
             if type(df[b][d]) == decimal.Decimal:
                 if not b in lista:
                     lista.append(b)
+                    break
                 #df[b][d] = np.float64(df[b][d])
 
+    #print contatore
     #print lista
 
     df[lista] = df[lista].astype(float)
@@ -227,6 +226,21 @@ def pivot(data, headers, columns, rows, value):
 
     #print pd.show_versions(as_json=False)
 
+    #print df.to_csv('manuel')
+    #value =  ['Numero iscritti AIRE maschi', 'Numero iscritti AIRE femmine', 'Numero iscritti AIRE totale', 'Popolazione iniziale maschi', 'Popolazione iniziale femmine', 'Popolazione iniziale totale', 'Numero nati maschi', 'Numero nati femmine', 'Numero nati totali', 'Numero morti maschi', 'Numero norti femmine', 'Numero morti totale', 'Numero iscritti da altri comuni maschi', 'Numerto iscritti da altri comuni femmine', 'Numero iscritti da altri comuni totale', "Numero iscritti dall'estero maschi", "Numero iscritti dall'estero femmine", "Numero iscritti dall'estero totale", 'Numero iscritti non altrove classificabili maschi', 'Numero iscritti non altrove classificabili femmine', 'Numero iscritti non altrove classificabili totale', 'Inumero icritti totale maschi', 'Numero iscritti totale femmine', 'Numero Iscritti totale', 'Numero cancellati per altri comuni maschi', 'Numero ancellati per altri comuni femmine', 'Numero cancellati per altri comuni totale', "Numero cancellati per l'estero maschi", "Numero cancellati per l'estero femmine", "Numero cancellati per l'estero totale", 'Numero cancellati per acquisizione cittadinanza italiana', 'Numero cancellati per acquisizione cittadinanza italiana', 'Numero cancellati per acquisizione cittadinanza italiana', 'Numero cancellati per irreperibilit\xc3\xa0 maschi', 'Numero cancellati per irreperibilit\xc3\xa0 femmine', 'Numero cancellati per irreperibilit\xc3\xa0 totale', 'Numero cancellati non altrove classificabili maschi', 'Numero cancellati non altrove classificabili femmine', 'Numero cancellati non altrove classificabili totale', 'Numero cancellati maschi', 'Numero cancellati femmine', 'Numero cancellati', 'Popolazione finale maschi', 'Popolazione finale femmine', 'Popolazione finale totale', 'Numero minorenni registrati maschi', 'Numero minorenni registrati femmine', 'Numero minorenni registrati totale', 'Numero stranieri maschi', 'Numero stranieri femmine', 'Numero stranieri totale', 'Numero stranieri nati in Italia maschi', 'Numero stranieri nati in Italia femmine', 'Numero stranieri nati in Italia totale', 'Numero famiglie con almeno uno straniero', 'Numero famiglie con intestatario straniero']
+
+    #value = ['Numero cancellati per acquisizione cittadinanza italiana']
+    #value = ['Numero iscritti AIRE maschi', 'Numero iscritti AIRE femmine', 'Numero iscritti AIRE totale', 'Popolazione iniziale maschi', 'Popolazione iniziale femmine', 'Popolazione iniziale totale', 'Numero nati maschi', 'Numero nati femmine', 'Numero nati totali', 'Numero morti maschi', 'Numero norti femmine', 'Numero morti totale', 'Numero iscritti da altri comuni maschi', 'Numerto iscritti da altri comuni femmine', 'Numero iscritti da altri comuni totale', "Numero iscritti dall'estero maschi", "Numero iscritti dall'estero femmine", "Numero iscritti dall'estero totale", 'Numero iscritti non altrove classificabili maschi', 'Numero iscritti non altrove classificabili femmine', 'Numero iscritti non altrove classificabili totale', 'Inumero icritti totale maschi', 'Numero iscritti totale femmine', 'Numero Iscritti totale', 'Numero cancellati per altri comuni maschi', 'Numero ancellati per altri comuni femmine', 'Numero cancellati per altri comuni totale', "Numero cancellati per l'estero maschi", "Numero cancellati per l'estero femmine", "Numero cancellati per l'estero totale"]
+
+    #'Numero cancellati per irreperibilit\xc3\xa0 maschi', 'Numero cancellati per irreperibilit\xc3\xa0 femmine', 'Numero cancellati per irreperibilit\xc3\xa0 totale',
+
+
+    """
+    print "columns " , columns
+    print "rows ", rows
+    print "value ", value
+    """
+
     try:
         pivot_df = df.pivot_table(columns=columns,
                                   index=rows,
@@ -234,6 +248,7 @@ def pivot(data, headers, columns, rows, value):
                                   margins=True,
                                   aggfunc=np.sum)
     except Exception, e:
+        #print "errore ", e
         error = _("I can not pivot the table")
         e_value = str(e)
         if e_value == "All objects passed were None":
@@ -242,9 +257,11 @@ def pivot(data, headers, columns, rows, value):
         error = "%s: %s" % (unicode(error), unicode(e_value))
         return None, None, error
 
-    #print bcolors.OKGREEN
-    #print pivot_df
-    #print bcolors.ENDC
+    """
+    print bcolors.OKGREEN
+    print pivot_df
+    print bcolors.ENDC
+    """
 
     pivot_df = pivot_df.applymap(
         lambda a: str(a).replace(".0", "", 1).replace("nan", "0"))
@@ -1890,7 +1907,7 @@ def secondary_col_suppression_constraint(data,
                                          aggregation,
                                          old_cols,
                                          agg_filters,
-                                         range):
+                                         apply_range):
     """
     Performs secondary suppression on columns following the secondary metadata
     rule on table.
@@ -2263,8 +2280,8 @@ def secondary_col_suppression_constraint(data,
                         while sel_row != stop_row:
                             if not str(data[sel_row][column_index]).startswith(ASTERISK):
 
-                                #print range(1, len(obs_vals) + 1)
                                 #print len(obs_vals)
+                                #print range(1, len(obs_vals) + 1)
 
                                 for i in range(1, len(obs_vals) + 1):
                                     #print "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii", i
