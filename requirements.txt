@@ -9,7 +9,7 @@ django-allauth==0.16.1
 django-jsonify
 
 # Sql editor.
--e git+https://github.com/pilolli/django-sql-explorer.git#egg=django_sql_explorer-dev
+-e git+https://github.com/trentino-sistemi/django-sql-explorer.git#egg=django_sql_explorer-dev
 
 # Excel 1997 xls export.
 xlwt

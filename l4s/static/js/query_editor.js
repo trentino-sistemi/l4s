@@ -29,7 +29,10 @@ function query_editor(table,
                       include_code,
                       aggregations,
                       filters,
-                      agg_filters) {
+                      agg_filters,
+                      range,
+                      not_sel_aggregations,
+                      not_agg_selection_value) {
     spinner = $('#wrap').spin("modal");
     include_code_value = "false"
     if (include_code=='True') {
@@ -46,6 +49,9 @@ function query_editor(table,
              'agg_filters': agg_filters,
              'debug': "False",
              'include_code': include_code_value,
+             'range': range,
+             'not_sel_aggregations': not_sel_aggregations,
+             'not_agg_selection_value': not_agg_selection_value
               };
     $.ajax({
 		url: url,

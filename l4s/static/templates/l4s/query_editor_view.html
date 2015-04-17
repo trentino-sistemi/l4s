@@ -268,11 +268,19 @@ function OpenManualrequestPopup() {
     });
 }
 function OpenSavePopup() {
+
     filters = "{{ filters }}";
+
     include_code_value = "false"
     include_code = '{{ include_code }}';
     if (include_code=='True') {
        include_code_value = "true"
+    }
+
+    range_value = "false"
+    range = '{{ range }}';
+    if (range=='True') {
+       range_value = "true"
     }
 
     url = '/query_editor_save/';
@@ -286,7 +294,10 @@ function OpenSavePopup() {
              'aggregations': '{{ sel_aggregate|escapejs }}',
              'filters': '{{ filters|jsonify|escapejs }}',
              'agg_filters': '{{ agg_filters|jsonify|escapejs }}',
-             'include_code': include_code_value
+             'include_code': include_code_value,
+             'range': range_value,
+             'not_sel_aggregations': '{{ not_sel_aggregations|escapejs }}',
+             'not_agg_selection_value': '{{ not_agg_selection_value|jsonify|escapejs }}'
               };
     $.ajax({
 		url: url,

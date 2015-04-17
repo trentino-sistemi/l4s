@@ -1660,6 +1660,13 @@ def query_editor_save(request):
     filters = request.REQUEST.get('filters')
     agg_filters = request.REQUEST.get('agg_filters')
     include_code = request.REQUEST.get('include_code')
+    range = request.REQUEST.get('range')
+    not_sel_aggregations = request.REQUEST.get('not_sel_aggregations')
+    not_agg_selection_value = request.REQUEST.get('not_agg_selection_value')
+
+    print "agg_filters '",agg_filters,"'"
+    print "not_agg_selection_value '",not_agg_selection_value,"'"
+
 
     form = CreateQueryEditorForm(
         initial={'sql': sql,
@@ -1674,7 +1681,10 @@ def query_editor_save(request):
                  'aggregations': aggregations,
                  'filters': filters,
                  'include_code': include_code,
-                 'agg_filters': agg_filters})
+                 'agg_filters': agg_filters,
+                 'range':range,
+                 'not_sel_aggregations':not_sel_aggregations,
+                 'not_agg_selection_value':not_agg_selection_value})
     context['form'] = form
     return render_to_response("l4s/query_editor_save.html", context)
 

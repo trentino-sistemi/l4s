@@ -3377,6 +3377,7 @@ def build_all_filter(column_description,
         ret.update(summarize_agg_filters)
 
     for a, a_id in enumerate(not_sel_aggregations_ids):
+
         u_id = unicode(a_id)
 
         agg_title, src_desc, agg_desc = build_aggregation_title(a_id,
