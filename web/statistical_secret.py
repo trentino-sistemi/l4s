@@ -39,7 +39,8 @@ from web.utils import execute_query_on_main_db, \
     TOTAL, \
     get_table_schema, \
     get_column_description, \
-    get_class_range
+    get_class_range, \
+    add_secret_field_not_selected
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -1035,6 +1036,10 @@ def protect_pivoted_table(data,
     """
 
     #print "fino quiiiiiiiiiiiiiiiiiiii"
+
+    #print "secret_column_dict ", secret_column_dict
+    #print "sec_ref ", sec_ref
+    #print "constraint_cols ", constraint_cols
 
     if len(secret_column_dict) + len(sec_ref) + len(constraint_cols) == 0:
         #print "A"
@@ -2407,6 +2412,8 @@ def apply_stat_secret(headers,
     warn = None
     err = None
 
+    #print "pivot_dict ", pivot_dict
+
     if pivot_dict is not None and len(pivot_dict) > 0:
         pivot_values = []
         pivot_cols = []
@@ -2525,9 +2532,9 @@ def apply_stat_secret(headers,
                                          #qui fa la primaria e la secodaria per labelle "normali"
                                          data_frame,
                                          secret_column_dict,
-                                         sec_ref,
+                                         sec_ref, # ??? detect_special_columns ... ma non capisco a cosa serve
                                          threshold_columns_dict,
-                                         constraint_cols,
+                                         constraint_cols, # cosa serve ??? che e' per il turismo ??? PILLO ti ammazzo
                                          obs_vals,
                                          pivot_dict,
                                          col_dict,
@@ -2542,8 +2549,7 @@ def apply_stat_secret(headers,
         return data, headers, data_frame, warn, err
 
     # If plain and secret does not return it.
-    if len(secret_column_dict) > 0 or len(constraint_cols) > 0 or len(
-            sec_ref) > 0:
+    if len(secret_column_dict) > 0 or len(constraint_cols) > 0 or len(sec_ref) > 0:
         return None, headers, None, warn, err
 
     if len(data) > 0:
@@ -2616,6 +2622,9 @@ def headers_and_data(user,
     df = None
     st = detect_special_columns(query.sql)
 
+    #print "query.sql ", query.sql
+    #stampa_symtobltabel(st)
+
     #print query.sql
     #stampa_symtobltabel(st)
 
@@ -2671,8 +2680,6 @@ def headers_and_data(user,
     print bcolors.ENDC
     """
 
-    #stampa_symtobltabel(st)
-
     old_head, data, duration, err = query.headers_and_data()
 
     if len(data) == 0:
@@ -2685,9 +2692,14 @@ def headers_and_data(user,
     print data
     """
 
+    #stampa_symtobltabel(st)
+
+    add_secret_field_not_selected(filters, st.secret, st.cols[0]['table'])
+
+    #stampa_symtobltabel(st)
+
     if err is None:
-        if len(old_head) < 3 and len(st.secret) + len(st.constraint) + len(
-                st.secret_ref) == 1 and len(st.threshold) == 1:
+        if len(old_head) < 3 and len(st.secret) + len(st.constraint) + len(st.secret_ref) == 1 and len(st.threshold) == 1:
             #print "bla bla bla"
             data, head, df = apply_stat_secret_plain(old_head,
                                                      #questo credo che non vada piu .... e probailmente non serve nemmeno piu
@@ -2698,8 +2710,7 @@ def headers_and_data(user,
                                                      debug,
                                                      aggregation)
         # Check if I can give the full result set.
-        elif (len(st.secret) + len(st.constraint) + len(st.secret_ref) == 0) \
-                or (pivot_cols is not None and len(pivot_cols) > 0):
+        elif (len(st.secret) + len(st.constraint) + len(st.secret_ref) == 0) or (pivot_cols is not None and len(pivot_cols) > 0):
             #print "bla2 bla2 bla2"
             data, old_head, df, warn, err = apply_stat_secret(old_head,
                                                               data,
@@ -2710,12 +2721,12 @@ def headers_and_data(user,
                                                               st.threshold,
                                                               st.constraint,
                                                               filters,
-                                                              aggregation,
+                                                              aggregation, # serve per le tabelle del turismo per costruire la query secondaria
                                                               debug,
                                                               visible,
                                                               include_code,
                                                               old_cols,
-                                                              agg_filters,
+                                                              agg_filters, # serve per le tabelle del turismo per costruire la query secondaria
                                                               range)
 
     if not df is None:

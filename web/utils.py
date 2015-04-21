@@ -1818,6 +1818,9 @@ def detect_special_columns(sql):
     for line in sql.splitlines():
         left_stripped_line = line.lstrip(' ')
         words = left_stripped_line.split(' ')
+
+        #print "words " , words
+
         first_word = words[0]
         if first_word == JOIN_TOKEN:
             table_and_column = words[1]
@@ -1827,7 +1830,7 @@ def detect_special_columns(sql):
                 tpc = table_and_column.split('.')
                 table_name = tpc[0]
                 column_name = tpc[1]
-                if len(words) == 2:
+                if len(words) == 2: # non capisco a cosa serve
                     add_secret_ref(st.secret_ref, table_name, column_name)
                 else:
                     index = ast.literal_eval(words[2])
@@ -1844,6 +1847,7 @@ def detect_special_columns(sql):
             else:
                 index = ast.literal_eval(words[1])
                 add_column(st.cols, index, table_name, column_name)
+
         elif first_word == PIVOT_TOKEN:
             position = ast.literal_eval(words[1])
             st.pivot.append(position)
@@ -3672,3 +3676,26 @@ def save_value(nome_file, stringa):
     f.close()
 
 
+def add_secret_field_not_selected(filters, campi_secret, nome_tabella):
+
+    #print bcolors.WARNING
+    #print campi_secret
+
+    for id, field in enumerate(filters): #aggiungo alla lista dei campi secret anche un filed non selezionato se ne e' scelto uno solo
+
+        trovato = False
+
+        for a, b in enumerate(campi_secret):
+            if field == campi_secret[b]['column']:
+                trovato = True
+
+        if trovato == False:
+            #print field
+            if len(filters[field]) == 1:
+                index = len(campi_secret)
+                add_secret_column(campi_secret,
+                                  index,
+                                  nome_tabella,
+                                  field)
+
+    #print bcolors.ENDC
