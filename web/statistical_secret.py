@@ -2433,11 +2433,16 @@ def apply_stat_secret(headers,
             err = _("Can not pivot the table; missing rows!")
             return rows, headers, None, warn, err
 
+        #print "headers " , headers
+        #print data
+
         data, data_frame, err = pivot(data,
                                       headers,
                                       pivot_cols,
                                       rows,
                                       pivot_values)
+
+        #print data_frame
 
         """
         print err
@@ -2650,7 +2655,7 @@ def headers_and_data(user,
     """
 
 
-    if include_descriptions or st.include_descriptions:
+    if include_descriptions or st.include_descriptions: # ...... sempre vero ......robe da legnare Pillo
         query.sql, h = build_description_query(query.sql,
                                                st.cols,
                                                pivot_cols,

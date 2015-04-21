@@ -572,15 +572,40 @@ def get_all_field_values(table_name, column_name, select):
     """
     ret = []
     query = "--JOIN %s.%s 0\n" % (table_name, column_name)
+
+    foreign_keys = build_foreign_keys(table_name)
+
+    #print "foreign_keys ", foreign_keys
+
     if select is None:
         query += "SELECT DISTINCT \"%s\" FROM %s\n" % (column_name, table_name) #quotato perche con postrgress se ci sono lettere maiuscole da errore
         query += "ORDER BY \"%s\"" % column_name
         st = detect_special_columns(query)
 
-        #print bcolors.WARNING
-        #print query
+        if column_name in foreign_keys:
 
-        query, h = build_description_query(query, st.cols, [], True, True)
+            fk_tab = foreign_keys[column_name][0]
+            fk_col = foreign_keys[column_name][1]
+
+            #print fk_tab
+            #print fk_col
+
+            val = get_key_column_value(fk_tab, fk_col, "order_by")
+            if val is not None and val == "description":
+                ordine = True
+            else:
+                ordine = False
+        else:
+            ordine = True
+
+        """
+        print bcolors.WARNING
+        print "ordine " , ordine
+        print bcolors.ENDC
+        """
+
+        query, h = build_description_query(query, st.cols, [], ordine, True)
+        st = detect_special_columns(query)
 
         #print bcolors.FAIL
         #print query
@@ -591,7 +616,11 @@ def get_all_field_values(table_name, column_name, select):
         query += "SELECT DISTINCT \"%s\" FROM %s\n" % (select, table_name)
         query += "ORDER BY \"%s\"" % select
 
-    #print "query " , query
+    """
+    print "table_name " , table_name
+    print "column_name " , column_name
+    print "query " , query
+    """
 
     rows = execute_query_on_main_db(query)
     for row in rows:
@@ -1066,7 +1095,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
     fk_hash = dict()
     counter = 0
 
-    #print fields
+    #print "fields ", fields
 
     for f in fields:
         #print f
@@ -1142,18 +1171,23 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 query_header.append(alias)
                 continue
 
+        #print "desc_query1 ", desc_query
+
         alias = get_column_description(table, field)
         if alias is None:
             alias = field
         alias = "%s" % alias
         alias = alias.strip()
         desc_query += "%s.\"%s\" AS \"%s\"" % (main_table, field, alias)
+        #print "desc_query2 ", desc_query
         query_header.append(alias)
         new_sql_header += "%s " % JOIN_TOKEN
         new_sql_header += "%s.%s %d \n" % (table, field, counter)
         if f in pivot_cols:
             new_sql_header += "%s %d \n" % (PIVOT_TOKEN, counter)
         counter += 1
+
+    #print "desc_query3 ", desc_query
 
     desc_query += "\nFROM\n"
     desc_query += "(\n%s\n) AS %s" % (inner_sql, main_table)

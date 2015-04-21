@@ -1355,6 +1355,8 @@ def query_editor_view(request):
         # Take all.
         selected_obs_values = obs_values
 
+    #print "table_schema ", table_schema
+
     for f, field in enumerate(table_schema):
         column_name = field.name
         if not column_name in obs_values:
@@ -1409,6 +1411,7 @@ def query_editor_view(request):
         not_agg_selection_value = json.loads(not_agg_selection_value_s)
 
     """
+    print "values ", values
     print "filters ", filters
     print "agg_filters ", agg_filters
     """
@@ -1664,8 +1667,8 @@ def query_editor_save(request):
     not_sel_aggregations = request.REQUEST.get('not_sel_aggregations')
     not_agg_selection_value = request.REQUEST.get('not_agg_selection_value')
 
-    print "agg_filters '",agg_filters,"'"
-    print "not_agg_selection_value '",not_agg_selection_value,"'"
+    #print "agg_filters '",agg_filters,"'"
+    #print "not_agg_selection_value '",not_agg_selection_value,"'"
 
 
     form = CreateQueryEditorForm(
