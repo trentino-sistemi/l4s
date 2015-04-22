@@ -1221,37 +1221,64 @@ def apply_constraint_pivot(data,
 
     constraint_dict = build_constraint_dict(constraint_cols)
 
-    #print "constraint_dict ", constraint_dict
-    #print len(constraint_dict)
+    """
+    print "constraint_dict ", constraint_dict
+    print len(constraint_dict)
+
+    print bcolors.OKBLUE
+    print "data_frame "
+    print data_frame.columns
+    print data_frame.index
+    print type(data_frame.columns)
+    print type(data_frame.index)
+    """
 
     if (len(constraint_dict) > 0):
 
         #se ce' un solo obsvalue finisce in colonna, se ce ne sono di piu finiscono in riga
 
-        if has_data_frame_multi_level_columns(
-                data_frame):  #riordina le colonne .......
+        if has_data_frame_multi_level_columns(data_frame):  #riordina le colonne .......
             data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)
         else:
             data_frame_appoggio_colonne = data_frame.sort_index(axis=1)
 
-        if len(
-                obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
-            data_frame_appoggio_colonne.drop(
-                (','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL),
-                axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
-        else:
-            data_frame_appoggio_colonne.drop(TOTAL, axis=1,
-                                             inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+        """
+        print bcolors.OKGREEN
+        print "data_frame_appoggio_colonne.columns "
+        print data_frame_appoggio_colonne.columns
+        """
 
-        if has_data_frame_multi_level_index(
-                data_frame):  #riordina il data_freame per le righe...
+        if len(obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
+            data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL),axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+        else:
+            data_frame_appoggio_colonne.drop(TOTAL, axis=1,inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+
+        """
+        print bcolors.HEADER
+        print "data_frame_appoggio_colonne.columns "
+        print data_frame_appoggio_colonne.columns
+        """
+
+        if has_data_frame_multi_level_index(data_frame):  #riordina il data_freame per le righe...
             data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
         else:
             data_frame_appoggio_righe = data_frame.sort_index(axis=0)
 
-        data_frame_appoggio_righe.drop(TOTAL, axis=0,
-                                       inplace=True)  # e poi tolgo la label TOTALE sulle righe
+        """
+        print bcolors.WARNING
+        print "data_frame_appoggio_righe.index "
+        print data_frame_appoggio_colonne.index
+        """
 
+        data_frame_appoggio_righe.drop(TOTAL, axis=0,inplace=True)  # e poi tolgo la label TOTALE sulle righe
+
+        """
+        print bcolors.FAIL
+        print "data_frame_appoggio_righe.index "
+        print data_frame_appoggio_righe.index
+        """
+
+    #print bcolors.BOLD
 
     for con, constraint in enumerate(constraint_dict):
 
@@ -1330,11 +1357,11 @@ def apply_constraint_pivot(data,
                                                     include_code)
 
 
-        #print query
-        #print new_header
-
-        #print "4 --------------------------------------------------------------------------"
-        #print query
+        """
+        print "4 --------------------------------------------------------------------------"
+        print query
+        print new_header
+        """
 
         dest_data = execute_query_on_main_db(query)
 
@@ -1343,24 +1370,21 @@ def apply_constraint_pivot(data,
             #print row
 
             key_colonna = []
-            for cn, column_name in enumerate(
-                    data_frame_appoggio_colonne.columns.names):
+            for cn, column_name in enumerate(data_frame_appoggio_colonne.columns.names):
                 if column_name in new_header:
                     p_col = to_utf8(row[new_header.index(column_name)])
                     appoggio = []
                     appoggio.append(p_col)
                     key_colonna.append(tuple(appoggio))
                 else:
-                    key_colonna.append(
-                        tuple(data_frame_appoggio_colonne.columns.levels[cn]))
+                    key_colonna.append(tuple(data_frame_appoggio_colonne.columns.levels[cn]))
 
             col_tuples = list(itertools.product(*key_colonna))
 
             #print "col_tuples " , col_tuples
 
             key_riga = []
-            for cn, row_name in enumerate(
-                    data_frame_appoggio_righe.index.names):
+            for cn, row_name in enumerate(data_frame_appoggio_righe.index.names):
                 if row_name in new_header:
                     p_col = to_utf8(row[new_header.index(row_name)])
                     appoggio = []
@@ -1378,13 +1402,13 @@ def apply_constraint_pivot(data,
 
                 try:
                     if len(column_name) == 1:
-                        column_index = data_frame_appoggio_colonne.columns.get_loc(
-                            column_name[0])
+                        column_index = data_frame_appoggio_colonne.columns.get_loc(column_name[0])
                     else:
-                        column_index = data_frame_appoggio_colonne.columns.get_loc(
-                            column_name)
+                        column_index = data_frame_appoggio_colonne.columns.get_loc(column_name)
                 except (KeyError, TypeError):
                     continue
+
+                #print column_index, " column_name " , column_name
 
                 for idxn, index_name in enumerate(index_tuples):
 
@@ -1392,13 +1416,13 @@ def apply_constraint_pivot(data,
 
                         try:
                             if len(index_name) == 1:
-                                row_index = data_frame_appoggio_righe.index.get_loc(
-                                    index_name[0])
+                                row_index = data_frame_appoggio_righe.index.get_loc(index_name[0])
                             else:
-                                row_index = data_frame_appoggio_righe.index.get_loc(
-                                    index_name)
+                                row_index = data_frame_appoggio_righe.index.get_loc(index_name)
                         except (KeyError, TypeError):
                             continue
+
+                        #print row_index, " index_name " , index_name
 
                         constraint_val = row[new_header.index(alias)]
                         src_row = data[row_index]
@@ -1721,6 +1745,7 @@ def secondary_row_suppression_constraint(data,
     query += "\n ORDER BY \"%s\"" % new_header[len(new_header) - 1]
 
     #print query
+
     #print "new_header " , new_header
 
     dest_data = execute_query_on_main_db(query)
@@ -1746,17 +1771,26 @@ def secondary_row_suppression_constraint(data,
 
     slice_da_preservare_righe, index_tuples = estrai_tuple_per_righe(data_frame_appoggio_righe,False, obs_vals)  #false percghe mi servono tutte le righe e non mi servono gli slices di riga
 
-    #print index_tuples
-    #print col_tuples
+    """
+    print "data_frame_appoggio_colonne "
+    print data_frame_appoggio_colonne
+
+    print slice_da_preservare_colonne
+    print "col_tuples " , col_tuples
+
+    print slice_da_preservare_righe
+    print "index_tuples " , index_tuples
+    """
 
     for rt, row_tup in enumerate(index_tuples):
+
         try:
             row_index = data_frame_appoggio_righe.index.get_loc(index_tuples[rt])
         except (KeyError, TypeError):
             continue
         src_row = data[row_index]
 
-        #print "row_index " , row_index
+        #print row_tup, "row_index " , row_index
 
         for ct, col_tup in enumerate(col_tuples):
 
@@ -1765,7 +1799,7 @@ def secondary_row_suppression_constraint(data,
             except (KeyError, TypeError):
                 continue
 
-            #print "column_index " , column_index
+            #print col_tup, "column_index " , column_index
 
             if not isinstance(column_index, slice):
                 start_col = 0
@@ -1785,7 +1819,11 @@ def secondary_row_suppression_constraint(data,
 
             if asterisk_count == 1:
 
-                #print "asterisk_count " , asterisk_count
+                """
+                print row_tup, "row_index " , row_index
+                print col_tup, "column_index " , column_index
+                print "asterisk_count " , asterisk_count
+                """
 
                 # Is to be asterisked an other one.
 
@@ -1866,13 +1904,18 @@ def secondary_row_suppression_constraint(data,
                     #print "indice_minimo " , indice_minimo
                     if isinstance(column_index, slice):
                         #print "a"
+                        #print "slice_da_preservare_colonne " , slice_da_preservare_colonne
 
                         appoggio = []
 
                         for q, qcolumn in enumerate(col_tup):
-                            #print qcolumn
-                            if q < slice_da_preservare_colonne:
+                            #print q, "qcolumn " , qcolumn
+
+                            if len(obs_vals) == 1:
                                 appoggio.append(qcolumn)
+                            else:
+                                if q < slice_da_preservare_colonne:
+                                    appoggio.append(qcolumn)
 
                         colonna = tuple(appoggio)
 
@@ -1927,6 +1970,8 @@ def secondary_col_suppression_constraint(data,
     :param debug: Is to be debugged?
     :return: data, number of asterisk.
     """
+
+    return data, 0
 
     asterisk_global_count = 0
 
@@ -2014,6 +2059,8 @@ def secondary_col_suppression_constraint(data,
 
     if len(obs_vals) > 1:
         slice_da_preservare = len(data_frame_appoggio.index.levels) - 2  # 2, 1 per l'obs value e uno per l'ultimo slices
+    else:
+        slice_da_preservare = len(data_frame_appoggio.index.levels) - 1  #uno per l'ultimo slices
 
     #print "slice_da_preservare ", slice_da_preservare
 
@@ -2511,6 +2558,7 @@ def apply_stat_secret(headers,
 
                 data_frame = data_frame_from_tuples(data_frame, data)
 
+                """
                 data, ast_c = secondary_col_suppression_constraint(data,
                                                                    data_frame,
                                                                    pivot_dict,
@@ -2524,7 +2572,11 @@ def apply_stat_secret(headers,
                                                                    old_cols,
                                                                    agg_filters,
                                                                    range)
+
                 tot_asterisked = ast_c #+ ast_r
+                """
+
+                tot_asterisked = ast_r #+ ast_r
 
 
         else:
