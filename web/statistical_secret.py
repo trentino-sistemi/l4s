@@ -2063,7 +2063,10 @@ def secondary_col_suppression_constraint(data,
     if len(obs_vals) > 1:
         slice_da_preservare = len(data_frame_appoggio.index.levels) - 2  # 2, 1 per l'obs value e uno per l'ultimo slices
     else:
-        slice_da_preservare = len(data_frame_appoggio.index.levels) - 1  #uno per l'ultimo slices
+        if has_data_frame_multi_level_index(data_frame_appoggio):
+            slice_da_preservare = len(data_frame_appoggio.index.levels) - 1  #uno per l'ultimo slices
+        else:
+            slice_da_preservare = 0
 
     #print "slice_da_preservare ", slice_da_preservare
 
