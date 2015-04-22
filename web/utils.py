@@ -50,7 +50,6 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-
 METADATA = 'web_metadata'
 USER_TYPE = 'web_usertype'
 QUERY = 'explorer_query'
@@ -3699,3 +3698,9 @@ def add_secret_field_not_selected(filters, campi_secret, nome_tabella):
                                   field)
 
     #print bcolors.ENDC
+
+def get_color():
+
+    colors = ('\033[95m', '\033[94m', '\033[92m','\033[93m','\033[91m','\033[0m','\033[1m','\033[4m')
+
+    return colors[random.randint(0,len(colors)-1)]

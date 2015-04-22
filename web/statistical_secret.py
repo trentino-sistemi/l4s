@@ -40,7 +40,8 @@ from web.utils import execute_query_on_main_db, \
     get_table_schema, \
     get_column_description, \
     get_class_range, \
-    add_secret_field_not_selected
+    add_secret_field_not_selected, \
+    get_color
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -55,6 +56,8 @@ import numpy as np
 from datetime import datetime
 import sys
 import decimal
+import random
+
 
 PRESERVE_STAT_SECRET_MSG = _(
     "Some value are asterisked to preserve the statistical secret")
@@ -1971,7 +1974,7 @@ def secondary_col_suppression_constraint(data,
     :return: data, number of asterisk.
     """
 
-    return data, 0
+    #return data, 0
 
     asterisk_global_count = 0
 
@@ -2353,11 +2356,16 @@ def secondary_col_suppression_constraint(data,
                             sel_row += 1
 
                     else:
-                       # print "indice_minimo " , indice_minimo
+
+                        #print colors[random.randint(0,len(colors)-1)]
+                        #print get_color()
+
+                        #print "indice_minimo " , indice_minimo
 
                         lista = []
 
                         for i, index in enumerate(data_frame_appoggio.index.names):
+                            #print "index " , index
                             if i < slice_da_preservare:
                                 if index in new_header:
                                     if isinstance(row_tup, tuple):
@@ -2365,13 +2373,15 @@ def secondary_col_suppression_constraint(data,
                                     else:
                                         lista.append([row_tup])
 
+                        #print "lista " , lista
+
                         riga = indice_minimo[0]
 
                         lista.append([riga])
 
-                        livello = data_frame_appoggio.index.levels[len(data_frame_appoggio.index.levels) - 1]
-
-                        lista.append(livello.tolist())
+                        if len(obs_vals) > 1:
+                            livello = data_frame_appoggio.index.levels[len(data_frame_appoggio.index.levels) - 1]
+                            lista.append(livello.tolist())
 
                         #print "lista " , lista
 
@@ -2558,7 +2568,6 @@ def apply_stat_secret(headers,
 
                 data_frame = data_frame_from_tuples(data_frame, data)
 
-                """
                 data, ast_c = secondary_col_suppression_constraint(data,
                                                                    data_frame,
                                                                    pivot_dict,
@@ -2573,10 +2582,7 @@ def apply_stat_secret(headers,
                                                                    agg_filters,
                                                                    range)
 
-                tot_asterisked = ast_c #+ ast_r
-                """
-
-                tot_asterisked = ast_r #+ ast_r
+                tot_asterisked = ast_c + ast_r
 
 
         else:
