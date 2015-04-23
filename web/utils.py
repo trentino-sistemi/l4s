@@ -3704,3 +3704,40 @@ def get_color():
     colors = ('\033[95m', '\033[94m', '\033[92m','\033[93m','\033[91m','\033[0m','\033[1m','\033[4m')
 
     return colors[random.randint(0,len(colors)-1)]
+
+def find_in_not_sorted_index(lista, elemento_da_cercare):
+
+    """
+    print lista.tolist()
+    print elemento_da_cercare
+    print type(elemento_da_cercare)
+
+    if type(elemento_da_cercare) == tuple:
+        print lista.tolist().index(elemento_da_cercare)
+    """
+
+    #print lista.tolist().index(elemento_da_cercare)
+    #print elemento_da_cercare
+
+    inizio = -1
+    fine = -1
+
+    if type(lista) == pd.MultiIndex:
+        if type(elemento_da_cercare) == tuple:
+            inizio = lista.tolist().index(elemento_da_cercare)
+            fine = inizio
+        else:
+            for a, b in enumerate(lista):
+                if elemento_da_cercare in b:
+
+                    #print a, b
+
+                    if inizio == -1:
+                        inizio = a
+                    fine = a
+    else:
+        if elemento_da_cercare in lista:
+            inizio = lista.tolist().index(elemento_da_cercare)
+            fine = inizio
+
+    return inizio, fine

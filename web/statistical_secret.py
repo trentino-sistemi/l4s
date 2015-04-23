@@ -41,7 +41,8 @@ from web.utils import execute_query_on_main_db, \
     get_column_description, \
     get_class_range, \
     add_secret_field_not_selected, \
-    get_color
+    get_color, \
+    find_in_not_sorted_index
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -1283,6 +1284,9 @@ def apply_constraint_pivot(data,
 
     #print bcolors.BOLD
 
+    #print "constraint_dict ", constraint_dict
+    #print len(constraint_dict)
+
     for con, constraint in enumerate(constraint_dict):
 
         constraint_values = constraint_dict[constraint]
@@ -1370,10 +1374,15 @@ def apply_constraint_pivot(data,
 
         for row in dest_data:  #cicla sulla query con i dati delle strutture collegate
 
+            #print bcolors.WARNING
             #print row
 
             key_colonna = []
             for cn, column_name in enumerate(data_frame_appoggio_colonne.columns.names):
+
+                if not column_name is None:
+                    column_name = column_name.decode('utf-8')
+
                 if column_name in new_header:
                     p_col = to_utf8(row[new_header.index(column_name)])
                     appoggio = []
@@ -1382,20 +1391,34 @@ def apply_constraint_pivot(data,
                 else:
                     key_colonna.append(tuple(data_frame_appoggio_colonne.columns.levels[cn]))
 
+            #print bcolors.HEADER
+            #print "key_colonna " , key_colonna
+
             col_tuples = list(itertools.product(*key_colonna))
 
             #print "col_tuples " , col_tuples
 
             key_riga = []
             for cn, row_name in enumerate(data_frame_appoggio_righe.index.names):
+
+                if not row_name is None:
+                    row_name = row_name.decode('utf-8')
+
+                #print "row_name" , row_name
+
                 if row_name in new_header:
+                    #print "c'e'"
                     p_col = to_utf8(row[new_header.index(row_name)])
                     appoggio = []
                     appoggio.append(p_col)
                     key_riga.append(tuple(appoggio))
                 else:
-                    key_riga.append(
-                        tuple(data_frame_appoggio_righe.index.levels[cn]))
+                    #print "non c'e'"
+                    key_riga.append(tuple(data_frame_appoggio_righe.index.levels[cn]))
+
+            #print "key_riga", key_riga
+
+            #print bcolors.ENDC
 
             index_tuples = list(itertools.product(*key_riga))
 
@@ -1425,7 +1448,9 @@ def apply_constraint_pivot(data,
                         except (KeyError, TypeError):
                             continue
 
+                        #print column_index, " column_name " , column_name
                         #print row_index, " index_name " , index_name
+
 
                         constraint_val = row[new_header.index(alias)]
                         src_row = data[row_index]
@@ -1440,6 +1465,18 @@ def apply_constraint_pivot(data,
                             src_row[column_index] += "(%s, " % val
                             src_row[column_index] += "%s" % enum_column
                             src_row[column_index] += "=%s)" % constraint_val
+
+    """
+    print bcolors.OKGREEN
+    print "new_header " , new_header
+
+    for a, b in enumerate(new_header):
+        print b
+
+    print bcolors.ENDC
+
+    print query
+    """
 
     return data
 
@@ -1703,6 +1740,8 @@ def secondary_row_suppression_constraint(data,
         return data, asterisk_global_count
 
     alias = get_column_description(table, enum_column)
+    if not alias is None:
+        alias = alias.decode('utf-8')
 
     if len(aggregation) > 0:
 
@@ -1841,6 +1880,10 @@ def secondary_row_suppression_constraint(data,
                 #print "new_header " , new_header
 
                 for i, index in enumerate(data_frame.index.names):
+
+                    if not index is None:
+                        index = index.decode('utf-8')
+
                     if index in new_header:
                         cell_col_list.append(new_header.index(index))
                         if isinstance(row_tup, tuple):
@@ -1849,6 +1892,10 @@ def secondary_row_suppression_constraint(data,
                             cell_col_value.append(row_tup)
 
                 for i, column in enumerate(data_frame.columns.names):
+
+                    if not column is None:
+                        column = column.decode('utf-8')
+
                     if i < slice_da_preservare_colonne:
                         if column in new_header:
                             cell_col_list.append(new_header.index(column))
@@ -1880,6 +1927,10 @@ def secondary_row_suppression_constraint(data,
                             indice_minimo = []
 
                             for i, column in enumerate(data_frame.columns.names):
+
+                                if not column is None:
+                                    column = column.decode('utf-8')
+
                                 if i >= slice_da_preservare_colonne:
                                     if column in new_header:
                                         #print "column ", column
@@ -1974,8 +2025,6 @@ def secondary_col_suppression_constraint(data,
     :return: data, number of asterisk.
     """
 
-    #return data, 0
-
     asterisk_global_count = 0
 
     constraint_values, table, enum_column, query, new_header = build_secondary_query(secondary,
@@ -1994,6 +2043,8 @@ def secondary_col_suppression_constraint(data,
         return data, asterisk_global_count
 
     alias = get_column_description(table, enum_column)
+    if not alias is None:
+        alias = alias.decode('utf-8')
 
     if len(aggregation) > 0:
 
@@ -2045,16 +2096,56 @@ def secondary_col_suppression_constraint(data,
 
     data_frame_appoggio = pd.DataFrame(data_frame.values.copy(), data_frame.index.copy(), data_frame.columns.copy())
 
-    data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
+    #print data_frame_appoggio.index.get_loc((4, "Alta Valsugana e Bersntol                         "))
 
+    data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
+    # dopo aver droppato i codici il lexsort_depth va a 0
+    # bisognerebbe riordinare ma non posso perche poi gli slice sarebbero tutti sfasati
+
+    #print data_frame_appoggio.index.get_loc("Alta Valsugana e Bersntol                         ")
+
+
+    """
+    print bcolors.OKGREEN
+    print data_frame.index.get_loc((4, "Alta Valsugana e Bersntol                         "))
+    print data_frame.index.levels
+    print data_frame.index.values
+
+    print "df.index.lexsort_depth " , data_frame.index.lexsort_depth
+
+    data_frame = remove_code_from_data_frame(data_frame)
+    # dopo aver droppato i codici il lexsort_depth va a 0
+    # bisognerebbe riordinare ma non posso perche poi gli slice sarebbero tutti sfasati
+
+
+    print "df.index.lexsort_depth " , data_frame.index.lexsort_depth
+
+    print bcolors.OKBLUE
+    #print data_frame.index.get_loc("Alta Valsugana e Bersntol                         ")
+    print data_frame.loc("Alta Valsugana e Bersntol                         ")
+    #print data_frame.index.get_loc((4, "Alta Valsugana e Bersntol                         "))
+    print data_frame.index.levels
+    print data_frame.index.values
+    """
+    # 23/04/2015
+    # ok, non ricordo perche serve riordinare per poi poter dropppare il totale .....
+    # a dir la verita non ricordo nemmeno perche bisogna droppare il totale....
+    # provo a commentare e vediamo il susseguirsi degli avvenimenti
+
+    """
     if has_data_frame_multi_level_index(data_frame_appoggio):  #riordina il data_freame per le righe...
         data_frame_appoggio = data_frame_appoggio.sortlevel(axis=0)
     else:
         data_frame_appoggio = data_frame_appoggio.sort_index(axis=0)
+    """
 
     #print data_frame_appoggio.index.values.tolist()
 
+    """
     data_frame_appoggio.drop(TOTAL, axis=0, inplace=True)  # e poi tolgo la label TOTALE sulle righe
+    """
+
+    #print data_frame.index.get_loc((4, "Alta Valsugana e Bersntol                         "))
 
     #print data_frame_appoggio.index.values.tolist()
 
@@ -2080,10 +2171,16 @@ def secondary_col_suppression_constraint(data,
 
         for c, col in enumerate(data_frame_appoggio.columns):
 
+            #print col
+
+            start_col, stop_col = find_in_not_sorted_index(data_frame_appoggio.columns, col)
+
+            """
             try:
                 column_index = data_frame_appoggio.columns.get_loc(col)
             except (KeyError, TypeError):
                 continue
+            """
 
             #print "col " , col
             #print "column_index " , column_index
@@ -2091,8 +2188,8 @@ def secondary_col_suppression_constraint(data,
             sel_row = start_row
             asterisk_count = 0
 
-            while sel_row != stop_row:
-                if str(data[sel_row][column_index]).startswith(ASTERISK):
+            while sel_row <= stop_row:
+                if str(data[sel_row][start_col]).startswith(ASTERISK):
                     asterisk_count += 1
                 sel_row += 1
 
@@ -2107,6 +2204,9 @@ def secondary_col_suppression_constraint(data,
 
                 for i, column in enumerate(data_frame_appoggio.columns.names):
                     #print "column " , column
+                    if not column is None:
+                        column = column.decode('utf-8')
+
                     if column in new_header:
                         cell_col_list.append(new_header.index(column))
                         if isinstance(col, tuple):
@@ -2150,6 +2250,10 @@ def secondary_col_suppression_constraint(data,
                             indice_minimo = []
 
                             for i, index in enumerate(data_frame_appoggio.index.names):
+
+                                if not index is None:
+                                    index = index.decode('utf-8')
+
                                 if i >= slice_da_preservare:
                                     if index in new_header:
                                         #print "column ", column
@@ -2159,7 +2263,7 @@ def secondary_col_suppression_constraint(data,
 
                 if minimo == sys.maxint:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
 
-                    while sel_row != stop_row:
+                    while sel_row <= stop_row:
                         if not str(data[sel_row][column_index]).startswith(ASTERISK):
 
                             #print range(1, len(obs_vals) + 1)
@@ -2207,19 +2311,23 @@ def secondary_col_suppression_constraint(data,
                         #print "row_tup2 " , row_tup2[0].encode('ascii','ignore')
                         #print data_frame_appoggio.index
 
+                        start_row2, stop_row2 =  find_in_not_sorted_index(data_frame_appoggio.index, row_tup2)
+
+                        """
                         try:
                             indice_riga = data_frame_appoggio.index.get_loc(row_tup2)
                         except (KeyError, TypeError):
                             continue
+                        """
 
                         #indice_riga = data_frame_appoggio.index.get_loc(tuple(appoggio))
                         asterisk_global_count += 1
 
-                        cell = str(data[indice_riga][column_index])
-                        data[indice_riga][column_index] = ASTERISK
+                        cell = str(data[start_row2][start_col])
+                        data[start_row2][start_col] = ASTERISK
                         if debug:
-                            data[indice_riga][column_index] += ASTERISK
-                            data[indice_riga][column_index] += 'C(' + cell + ","  + enum_column + "=" +  str(minimo) + ")"
+                            data[start_row2][start_col] += ASTERISK
+                            data[start_row2][start_col] += 'C(' + cell + ","  + enum_column + "=" +  str(minimo) + ")"
 
     else:  #else del if slice_da_preservare == 0:
         #for c, col in enumerate(data_frame_appoggio.index.levels):
@@ -2239,52 +2347,89 @@ def secondary_col_suppression_constraint(data,
 
             #print row_tup
 
+            start_row, stop_row = find_in_not_sorted_index(data_frame_appoggio.index, row_tup)
+
+            #print "start_row " , start_row
+            #print "stop_row " , stop_row
+
+
             #print data_frame.index.get_loc(('Alta Valsugana e Bersntol                         '))
 
+            """
             try:
                 row_index = data_frame_appoggio.index.get_loc(row_tup)  #il data_frame non posso usarlo perche li ho i codici
             except (KeyError, TypeError):
                 continue
+            """
 
+            #if row_tup == "Valle dei Laghi                                   ":
             #print bcolors.FAIL
             #print "row_tup " , row_tup
             #print "row_index " , row_index
 
-            start_row = row_index.start
-            stop_row = row_index.stop
+            #start_row = row_index.start
+            #stop_row = row_index.stop
 
             for c, col_tup in enumerate(data_frame_appoggio.columns):
 
+                start_col, stop_col = find_in_not_sorted_index(data_frame_appoggio.columns, col_tup)
 
+                #print "start_col " , start_col
+                #print "stop_col " , stop_col
+
+                """
                 try:
                     column_index = data_frame_appoggio.columns.get_loc(col_tup)
                 except (KeyError, TypeError):
                     continue
+                """
 
-                #print "col_tup " , col_tup
-                #print "column_index " , column_index
-                #print bcolors.ENDC
+                """
+                if row_tup == "Valle dei Laghi                                   ":
+                    print "col_tup " , col_tup
+                    print "column_index " , column_index
+                    print bcolors.ENDC
+                """
 
                 sel_row = start_row
                 asterisk_count = 0
 
-                while sel_row != stop_row:
-                    if str(data[sel_row][column_index]).startswith(ASTERISK):
+                while sel_row <= stop_row:
+                    if str(data[sel_row][start_col]).startswith(ASTERISK):
                         asterisk_count += 1
                     sel_row += 1
 
                 sel_row = start_row
 
+                """
+                if row_tup == 'Val di Fiemme                                     ':
+                    print row_tup
+                    print col_tup
+                    print start_row
+                    print stop_row
+                    print asterisk_count
+                 """
+
                 if asterisk_count == len(obs_vals):
 
-                    #print "col_tup " , col_tup
+                    #print "asterisk_count ", asterisk_count
+
+                    #print bcolors.FAIL
+
                     #print "row_tup " , row_tup
+                    #print "row_index " , row_index
+
+                    #print "col_tup " , col_tup
+                    #print "column_index " , column_index
 
                     cell_col_list = []
                     cell_col_value = []
 
                     for i, column in enumerate(data_frame_appoggio.columns.names):
                         #print "column " , column
+                        if not column is None:
+                            column = column.decode('utf-8')
+
                         if column in new_header:
                             cell_col_list.append(new_header.index(column))
                             if isinstance(col_tup, tuple):
@@ -2293,6 +2438,10 @@ def secondary_col_suppression_constraint(data,
                                 cell_col_value.append(col_tup)
 
                     for i, index in enumerate(data_frame_appoggio.index.names):
+
+                        if not index is None:
+                            index = index.decode('utf-8')
+
                         if i < slice_da_preservare:
                             if index in new_header:
                                 cell_col_list.append(new_header.index(index))
@@ -2325,6 +2474,10 @@ def secondary_col_suppression_constraint(data,
                                 indice_minimo = []
 
                                 for i, index in enumerate(data_frame_appoggio.index.names):
+
+                                    if not index is None:
+                                        index = index.decode('utf-8')
+
                                     if i >= slice_da_preservare:
                                         if index in new_header:
                                             #print "column ", column
@@ -2335,8 +2488,8 @@ def secondary_col_suppression_constraint(data,
 
                     if minimo == sys.maxint:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
 
-                        while sel_row != stop_row:
-                            if not str(data[sel_row][column_index]).startswith(ASTERISK):
+                        while sel_row <= stop_row:
+                            if not str(data[sel_row][start_col]).startswith(ASTERISK):
 
                                 #print len(obs_vals)
                                 #print range(1, len(obs_vals) + 1)
@@ -2345,12 +2498,12 @@ def secondary_col_suppression_constraint(data,
                                     #print "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii", i
                                     #print "dddddddddddddddddddddd 1"
                                     asterisk_global_count += 1
-                                    cell = str(data[sel_row][column_index])
-                                    data[sel_row][column_index] = ASTERISK
+                                    cell = str(data[sel_row][start_col])
+                                    data[sel_row][start_col] = ASTERISK
 
                                     if debug:
-                                        data[sel_row][column_index] += ASTERISK
-                                        data[sel_row][column_index] += 'C(' + cell + ","  + enum_column + " NON PRESENTE)"
+                                        data[sel_row][start_col] += ASTERISK
+                                        data[sel_row][start_col] += 'C(' + cell + ","  + enum_column + " NON PRESENTE)"
 
                                     sel_row += 1
 
@@ -2369,6 +2522,9 @@ def secondary_col_suppression_constraint(data,
 
                         for i, index in enumerate(data_frame_appoggio.index.names):
                             #print "index " , index
+                            if not index is None:
+                                index = index.decode('utf-8')
+
                             if i < slice_da_preservare:
                                 if index in new_header:
                                     if isinstance(row_tup, tuple):
@@ -2394,23 +2550,27 @@ def secondary_col_suppression_constraint(data,
 
                         for ct2, row_tup2 in enumerate(lista_appoggio):
 
-                            #print row_tup2
+                            #print "row_tup2 " , row_tup2
 
+                            start_row2, stop_row2 =  find_in_not_sorted_index(data_frame_appoggio.index, row_tup2)
+
+                            """
                             try:
                                 indice_riga = data_frame_appoggio.index.get_loc(row_tup2)
                             except (KeyError, TypeError):
                                 continue
+                            """
 
                             #print row_tup2, indice_riga
 
                             #print "dddddddddddddddddddddd 2"
                             asterisk_global_count += 1
 
-                            cell = str(data[indice_riga][column_index])
-                            data[indice_riga][column_index] = ASTERISK
+                            cell = str(data[start_row2][start_col])
+                            data[start_row2][start_col] = ASTERISK
                             if debug:
-                                data[indice_riga][column_index] += ASTERISK
-                                data[indice_riga][column_index] += 'C(' + cell + ","  + enum_column + "=" +  str(minimo) + ")"
+                                data[start_row2][start_col] += ASTERISK
+                                data[start_row2][start_col] += 'C(' + cell + ","  + enum_column + "=" +  str(minimo) + ")"
 
                         #print "riga ", riga
 
