@@ -2284,6 +2284,8 @@ def secondary_col_suppression_constraint(data,
     :return: data, number of asterisk.
     """
 
+    #return data , 0
+
     asterisk_global_count = 0
 
     constraint_values, table, enum_column, query, new_header = build_secondary_query(secondary,

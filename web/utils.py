@@ -3779,9 +3779,13 @@ def find_in_not_sorted_index(lista, elemento_da_cercare):
             #fine = inizio
         else:
             if type(elemento_da_cercare) == list:
-                elemento_da_cercare = [str(i).encode('UTF-8') for i in elemento_da_cercare]
-
                 #print "elemento_da_cercareeeee ", elemento_da_cercare
+
+                #per i comuni o le comunita' di valle con caratteri particolari non va
+                #elemento_da_cercare = [str(i).encode('UTF-8') for i in elemento_da_cercare]
+                elemento_da_cercare = [i.encode('UTF-8') for i in elemento_da_cercare if type(i) == str]
+
+                #print "quiiii"
 
                 nuova_lista = []
 
