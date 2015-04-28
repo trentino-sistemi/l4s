@@ -1410,10 +1410,12 @@ def query_editor_view(request):
         agg_filters = json.loads(agg_filters_s)
         not_agg_selection_value = json.loads(not_agg_selection_value_s)
 
+
+
     """
-    print "values ", values
     print "filters ", filters
     print "agg_filters ", agg_filters
+    print "values ", values
     """
 
     """
@@ -1486,6 +1488,9 @@ def query_editor_view(request):
 
 
     #print "eeeeeee"
+
+    #print "aggregations" , aggregations
+    #print "agg_values " , agg_values
 
     agg_col, sel_tab = build_query_summary(column_description,  #crea gli elementi per poi disegnare a video la tabellina riassuntiva
                                            values,

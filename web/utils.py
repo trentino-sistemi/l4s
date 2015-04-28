@@ -574,7 +574,12 @@ def get_all_field_values(table_name, column_name, select):
 
     foreign_keys = build_foreign_keys(table_name)
 
-    #print "foreign_keys ", foreign_keys
+    """
+    if column_name == 'ttarga':
+        print "table_name ", table_name
+        print "column_name ", column_name
+        print "foreign_keys ", foreign_keys
+    """
 
     if select is None:
         query += "SELECT DISTINCT \"%s\" FROM %s\n" % (column_name, table_name) #quotato perche con postrgress se ci sono lettere maiuscole da errore
@@ -586,8 +591,11 @@ def get_all_field_values(table_name, column_name, select):
             fk_tab = foreign_keys[column_name][0]
             fk_col = foreign_keys[column_name][1]
 
-            #print fk_tab
-            #print fk_col
+            """
+            if column_name == 'ttarga':
+                print "fk_tab" , fk_tab
+                print "fk_col " , fk_col
+            """
 
             val = get_key_column_value(fk_tab, fk_col, "order_by")
             if val is not None and val == "description":
@@ -603,13 +611,24 @@ def get_all_field_values(table_name, column_name, select):
         print bcolors.ENDC
         """
 
+        """
+        if column_name == 'ttarga':
+            print bcolors.OKBLUE
+            print query
+            print st.cols
+            print bcolors.ENDC
+        """
+
+
         query, h = build_description_query(query, st.cols, [], ordine, True)
         st = detect_special_columns(query)
 
-        #print bcolors.FAIL
-        #print query
-
-        #print bcolors.ENDC
+        """
+        if column_name == 'ttarga':
+            print bcolors.FAIL
+            print query
+            print bcolors.ENDC
+        """
 
     else:
         query += "SELECT DISTINCT \"%s\" FROM %s\n" % (select, table_name)
@@ -3705,6 +3724,22 @@ def get_color():
 
     return colors[random.randint(0,len(colors)-1)]
 
+def subtuple_index(tuples, t):
+    """
+    t = '#'.join(t)
+    for i,x in enumerate(map(lambda x: '#'.join(x), tuples)):
+        print i, x
+        if t in x: return i
+    return -1
+    """
+
+    def tuple2str(t): return ',{},'.format(','.join(t))
+    t = tuple2str(t)
+    for i,x in enumerate(map(tuple2str, tuples)):
+        #print i, x
+        if t in x: return i
+    return -1
+
 def find_in_not_sorted_index(lista, elemento_da_cercare):
 
     """
@@ -3723,19 +3758,50 @@ def find_in_not_sorted_index(lista, elemento_da_cercare):
     fine = -1
 
     if type(lista) == pd.MultiIndex:
+
+
+        #print type(elemento_da_cercare)
+        #print lista.tolist()
+
         if type(elemento_da_cercare) == tuple:
-            inizio = lista.tolist().index(elemento_da_cercare)
+
+            elemento_da_cercare = [str(i) for i in elemento_da_cercare]
+
+            nuova_lista = []
+
+            for y, a in enumerate(lista):
+                nuova_lista.append([str(i) for i in a])
+
+            inizio = subtuple_index(nuova_lista, list(elemento_da_cercare))
             fine = inizio
+
+            #inizio = lista.tolist().index(elemento_da_cercare)
+            #fine = inizio
         else:
-            for a, b in enumerate(lista):
-                if elemento_da_cercare in b:
+            if type(elemento_da_cercare) == list:
+                elemento_da_cercare = [str(i).encode('UTF-8') for i in elemento_da_cercare]
 
-                    #print a, b
+                #print "elemento_da_cercareeeee ", elemento_da_cercare
 
-                    if inizio == -1:
-                        inizio = a
-                    fine = a
+                nuova_lista = []
+
+                for y, a in enumerate(lista):
+                    nuova_lista.append([str(i) for i in a])
+
+                inizio = subtuple_index(nuova_lista, elemento_da_cercare)
+                fine = inizio
+            else:
+                for a, b in enumerate(lista):
+                    if elemento_da_cercare in b:
+
+                        #print a, b
+
+                        if inizio == -1:
+                            inizio = a
+                        fine = a
     else:
+        #print lista
+        #print elemento_da_cercare
         if elemento_da_cercare in lista:
             inizio = lista.tolist().index(elemento_da_cercare)
             fine = inizio
