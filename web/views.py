@@ -1505,6 +1505,13 @@ def query_editor_view(request):
                                            not_sel_aggregations_ids,
                                            not_agg_selection_value)
 
+    """
+    print "column_description" , column_description
+    print "agg_col", agg_col
+    print "cols", cols
+    print "rows", rows
+    """
+
     title = build_query_title(column_description,
                               selected_obs_values,
                               agg_col,

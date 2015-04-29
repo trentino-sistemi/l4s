@@ -69,11 +69,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <td style="background-color:#bcdef0"
             class="pvtAxisContainer pvtUnused pvtHorizList ui-sortable drag_ul"
             id="unselectedFields">
+
             {% for field in fields %}
             {% if not field in obs_values %}
             {% if not field in columns.values %}
             {% if not field in rows.values %}
             {% if not forloop.counter0|to_unicode in hidden_fields  %}
+
             <li class="dropdown">
                 <span id="{{ field }}"
                       name = "{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
@@ -84,6 +86,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                       <span class="caret"></span>
                 </span>
                 <span id="drop" class="dropdown-menu" role="menu">
+
                 {% for agg in aggregations %}
                 {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
                 <script>colour('{{ field }}');</script>
@@ -96,13 +99,90 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                         false,
                                                         true);"
                                    type="radio"
-                                   name="unused"
+                                   name="unused_{{field}}"
                                    checked="checked"
                                    value="{{ agg }}">
                             </input>
                             {{ agg }}
+
                         </label>
+
                     </div>
+
+                    <ul>
+                        <li id="filtro_{{ field }}" class="dropdown-submenu">
+
+                        <span
+                              name = "filtro_{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
+                              class="pvtAttr btn btn-default dropdown-toggle"
+                              data-toggle="dropdown">
+                              Filtra per
+                              <span style="display:None">filtro_{{ field }}</span>
+                              <span class="caret"></span>
+
+                        </span>
+
+                        <span id="drop" class="dropdown-menu" role="menu">
+
+                            <input onclick="handleRadioFilter(this,
+                                                              '{{ field }}',
+                                                              '',
+                                                              false,
+                                                              false);"
+                                   type="radio"
+                                   value="Niente"
+                                   name="filtro_unused_{{field}}"
+                                   checked="checked">
+                            </input>
+                            Niente
+                            <br>
+
+                            {% for agg in aggregations %}
+                            {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
+                            {% for ag in aggregations|lookup:agg %}
+                            <input onclick="handleRadioFilter(this,
+                                                              '{{ field }}',
+                                                              '{{ agg_values|lookup:ag|jsonify|escapejs }}',
+                                                              false,
+                                                              false);"
+                                   type="radio"
+                                   value="{{aggregations|lookup:agg|lookup:ag}}"
+                                   name="filtro_unused_{{field}}">
+                            </input>
+                            {{aggregations|lookup:agg|lookup:ag}}
+                            <br>
+
+                            {% endfor %}
+                            {% endif %}
+                            {% endfor %}
+
+                            <br>
+                            {% trans "Select" %}
+                            <div class="'btn-group">
+                                <button type="button"
+                                        class="btn btn-default"
+                                        onclick="checkByParent('select_filtro_{{field}}',
+                                                                true);">
+                                    {% trans "All" %}
+                                </button>
+                                <button type="button"
+                                        class="btn btn-default"
+                                        onclick="checkByParent('select_filtro_{{field}}',
+                                                                false);">
+                                    {% trans "None" %}
+                                </button>
+                            </div>
+
+                            <div id="select_filtro_{{field}}"
+                                 name="select_filtro_{{field}}"
+                                 class="radio_container">
+                            </div>
+
+                        </span>
+
+                        </li>
+                    </ul>
+
                     {% for ag in aggregations|lookup:agg %}
                     <div class="radio" id="radio_agg_{{ag}}">
                         <label>
@@ -112,7 +192,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                         true,
                                                         true);"
                                    type="radio"
-                                   name="unused"
+                                   name="unused_{{field}}"
                                    id="{{ ag }}"
                             {% if ag in not_sel_aggregations %}
                                    checked="checked"
@@ -155,11 +235,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     </div>
                 </span>
             </li>
+
             {% endif %}
             {% endif %}
             {% endif %}
             {% endif %}
             {% endfor %}
+
+
         </td>
     </tr>
 </table>
@@ -209,7 +292,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% if agg == column_description|lookup_unicode:f|lookup:"description" %}
                 <script>colour('{{ field }}');</script>
                     {% trans "Show" %} 
-                    <div class="radio" id="radio_{{columns|lookup:f }}">
+                    <div class="radio" id="radio_{{field }}">
                         <label>
                             <input onclick="handleRadio(this,
                                                         '{{ field  }}',
@@ -217,7 +300,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                         false,
                                                         true);"
                                    type="radio"
-                                   name="columns"
+                                   name="columns_{{field }}"
                                    checked="checked"
                                    value="{{ agg }}">
                             </input>
@@ -233,7 +316,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                         true,
                                                         true);"
                                    type="radio"
-                                   name="columns"
+                                   name="columns_{{field }}"
                                    id="{{ ag }}"
                             {% if ag in sel_aggregation %}
                                    checked="checked"
@@ -310,7 +393,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                         false,
                                                         true);"
                                    type="radio"
-                                   name="rows"
+                                   name="rows_{{field}}"
                                    checked="checked"
                                    value="{{ agg }}">
                             </input>
@@ -327,7 +410,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                         true,
                                                         true);"
                                    type="radio"
-                                   name="rows"
+                                   name="rows_{{field}}"
                                    id="{{ ag }}"
                             {% if ag in sel_aggregation %}
                                    checked="checked"

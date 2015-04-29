@@ -32,29 +32,35 @@ function colour(field) {
         element.setAttribute("style", "background:" + get_aggregation_color());
     }
 
-function load_selected_values(myRadio, field, values, agg){
-    var array = eval('(' + values + ')');
-    id = "select_" + field;
+function load_selected_values(prefisso, myRadio, field, values, agg){
+
+    id = prefisso + field;
     var radio = document.getElementById(id);
     var html = "";
-    for (var i = 0; i < array.length; i++) {
-        if (agg) {
-            id =  'agg_input_'  + myRadio.id +'_' + array[i][0]
-            name = 'agg_input_' + myRadio.id;
-            radio.name =  'select_input_' + myRadio.id;
-        }
-        else {
-            id =  field + '_input_' + array[i][0]
-            name = 'input_' +  field;
-        }
-        html += '<input type="checkbox" name="' +  name + '" id="' + id + '" value="' + array[i][0] + '">'
-        if (array[i].length>1) {
-            html+= array[i][1] + '<br>';
-        }
-        else {
-             html+= array[i][0] + '<br>';
+
+    if (values != '') {
+        var array = eval('(' + values + ')');
+
+        for (var i = 0; i < array.length; i++) {
+            if (agg) {
+                id =  'agg_input_'  + myRadio.id +'_' + array[i][0]
+                name = 'agg_input_' + myRadio.id;
+                radio.name =  'select_input_' + myRadio.id;
+            }
+            else {
+                id =  field + '_input_' + array[i][0]
+                name = 'input_' +  field;
+            }
+            html += '<input type="checkbox" name="' +  name + '" id="' + id + '" value="' + array[i][0] + '">'
+            if (array[i].length>1) {
+                html+= array[i][1] + '<br>';
+            }
+            else {
+                 html+= array[i][0] + '<br>';
+            }
         }
     }
+
     radio.innerHTML = html;
 }
 
@@ -69,10 +75,32 @@ function change_field_label(myRadio, field) {
 
 function handleRadio(myRadio, field, values, agg, select_all) {
     change_field_label(myRadio, field);
-    load_selected_values( myRadio, field, values, agg);
+    load_selected_values('select_', myRadio, field, values, agg);
     if (select_all) {
         checkByParent('select_'+ field, true);
     }
+
+    var li = document.getElementById("filtro_" + field);
+
+    if (agg == true)
+        classe = '';
+    else
+        classe = 'dropdown-submenu';
+
+    li.className = classe;
+
+}
+
+function handleRadioFilter(myRadio, field, values, agg, select_all) {
+  //alert(values)
+  load_selected_values('select_filtro_', myRadio, field, values, agg);
+
+  if (select_all) {
+        checkByParent('select_filtro_'+ field, true);
+    }
+
+  checkByParent('select_'+ field, false);
+
 }
 
 function setFieldLabel(id, field, values) {
@@ -87,7 +115,12 @@ function get_lis(id) {
     var output = [];
     for (var i = 0; i < lis.length; i++) {
          var span = lis[i].getElementsByTagName("span")[0];
-         output.push(span.getElementsByTagName("span")[0].innerHTML);
+         nome = span.getElementsByTagName("span")[0].innerHTML;
+
+         if (nome.substring(0, 7) != 'filtro_') {
+            output.push(span.getElementsByTagName("span")[0].innerHTML);
+         }
+
     }
     return output.join(",");
 }
@@ -137,9 +170,11 @@ function create_selection(values, too_many) {
     var selection_obj = new Object();
     var value_hash = eval('(' + values + ')');
     for (var key in value_hash) {
+        //alert(key);
         field_obj = [];
         selection_obj[key] = field_obj
-        field_value = value_hash[key];  
+        field_value = value_hash[key];
+        //alert(field_value);
         sel_name = "input_" + key;
         var coll = document.getElementsByName(sel_name);
         sp = document.getElementById(key);
@@ -285,6 +320,9 @@ function submit_popup (obs_values,
         return;
     }
     selection = create_selection(values, too_many);
+
+    alert(cols)
+
     if (selection == null) {
         return
     }

@@ -1050,7 +1050,7 @@ def protect_pivoted_table(data,
         return data
     else:
         #print "B"
-        data = protect_pivoted_secret(data,
+        data = protect_pivoted_secret(data, # primaria
                                       obs_values,
                                       threshold_columns_dict,
                                       pivot_c,
