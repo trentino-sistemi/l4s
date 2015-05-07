@@ -2265,6 +2265,8 @@ def secondary_row_suppression_constraint(data,
                         #print "riga ", riga
 
 
+    #print "finito"
+
     return data, asterisk_global_count
 
 def secondary_col_suppression_constraint(data,
@@ -3077,7 +3079,6 @@ def apply_stat_secret(headers,
                                                                    range)
 
                 tot_asterisked = ast_c + ast_r
-
 
         else:
             data = protect_pivoted_table(data,

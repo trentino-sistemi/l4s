@@ -899,14 +899,30 @@ def build_query(table_name,
         filter_vals = filters[field]
 
         if len(values[field]) != len(filter_vals):
+            #print "field " , field
+
             selected_vals = [str(val[0]) for val in filter_vals]
+
+            """
+            print "selected_vals ", selected_vals
+            print type(selected_vals[0])
+            print is_int(selected_vals[0])
+            """
+
             if filter_vals is not None and len(filter_vals) > 0:
                 if filtered:
                     query += '\nAND'
                 else:
                     query += '\nWHERE'
                 query += " \"%s\" IN (" % field
-                comma_sep_vals = ", ".join(selected_vals)
+
+                if (is_int(selected_vals[0]) == True): # perche il codice a volte puo essere stringa ......
+                    comma_sep_vals = ", ".join(selected_vals)
+                else:
+                    comma_sep_vals = "'" + "', '".join(selected_vals) + "'"
+
+                #print "comma_sep_vals ", comma_sep_vals
+
                 query += "%s )" % comma_sep_vals
                 filtered = True
 
@@ -941,7 +957,11 @@ def build_query(table_name,
 
         if len(ag_vals) > 0:
             #print "ag_vals ", ag_vals
-            comma_sep_ag_vals = ", ".join(ag_vals)
+
+            if (is_int(ag_vals[0]) == True): # perche il codice a volte puo essere stringa ......
+                comma_sep_ag_vals = ", ".join(ag_vals)
+            else:
+                comma_sep_ag_vals = "'" + "', '".join(ag_vals) + "'"
 
             #print comma_sep_ag_vals
 
@@ -3811,3 +3831,8 @@ def find_in_not_sorted_index(lista, elemento_da_cercare):
             fine = inizio
 
     return inizio, fine
+
+def is_int(v):
+    try:     i = int(v)
+    except:  return False
+    return True
