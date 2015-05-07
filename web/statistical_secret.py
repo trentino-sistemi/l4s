@@ -659,7 +659,7 @@ def row_secondary_suppression(data,
 
             totale_slice = 0
 
-            while sel_col != stop_col:  #scorro per estrarre il numero degli asterischi in quel slice
+            while sel_col <= stop_col:  #scorro per estrarre il numero degli asterischi in quel slice
 
                 #totale_slice += float(data_frame.iloc[row_index][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
@@ -671,7 +671,7 @@ def row_secondary_suppression(data,
 
             if float(totale_slice) <> 0.0:
 
-                while sel_col != stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
+                while sel_col <= stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
                     if not str(src_row[sel_col]).startswith(ASTERISK):
 
@@ -901,7 +901,7 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
             totale_slice = 0
 
-            while sel_row != stop_row:  #scorro per estrarre il numero degli asterischi in quel slice
+            while sel_row <= stop_row:  #scorro per estrarre il numero degli asterischi in quel slice
 
 
                 #totale_slice += float(data_frame.iloc[sel_row][column_index]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
@@ -918,7 +918,7 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
             if float(totale_slice) <> 0.0:
 
-                while sel_row != stop_row:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
+                while sel_row <= stop_row:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
                     src_row = data[sel_row]
 
@@ -1862,7 +1862,7 @@ def secondary_row_suppression_constraint(data,
 
             sel_col = start_col
             asterisk_count = 0
-            while sel_col != stop_col:
+            while sel_col <= stop_col:
                 if str(src_row[sel_col]).startswith(ASTERISK):
                     asterisk_count += 1
                 sel_col += 1
@@ -2031,6 +2031,7 @@ def secondary_row_suppression_constraint(data,
 
         for ct, row_tup in enumerate(data_frame_appoggio.index):
 
+            #print get_color()
             #print "row_tup" , row_tup
 
             start_row, stop_row = find_in_not_sorted_index(data_frame_appoggio.index, row_tup)
@@ -2044,7 +2045,7 @@ def secondary_row_suppression_constraint(data,
                 sel_col = start_col
                 asterisk_count = 0
 
-                while sel_col != stop_col:
+                while sel_col <= stop_col: # il diverso != non sembra andare bene
                     if str(data[start_row][sel_col]).startswith(ASTERISK):
                         asterisk_count += 1
                     sel_col += 1
@@ -2053,7 +2054,17 @@ def secondary_row_suppression_constraint(data,
 
                 dim_slice = stop_col - start_col + 1
 
-                if ((asterisk_count == 1) and (dim_slice > len(obs_vals))):
+                """
+                print "start_col ", start_col
+                print "stop_col ", stop_col
+                print "asterisk_count ", asterisk_count
+                print "dim_slice ", dim_slice
+                print "len(obs_vals) ", len(obs_vals)
+                """
+
+
+                #if ((asterisk_count == 1) and (dim_slice > len(obs_vals))): non sembra essere corretto
+                if (asterisk_count == 1):
 
                     """
                     print "asterisk_count ", asterisk_count
