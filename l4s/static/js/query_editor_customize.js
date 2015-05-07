@@ -101,6 +101,41 @@ function handleRadioFilter(myRadio, field, values, agg, select_all) {
 
   checkByParent('select_'+ field, false);
 
+    url="/test/"
+    data = {};
+
+    /*
+    data = { 'table': table_name,
+             'include_code': include_code_value,
+             'columns': cols,                                    //fields in colonna
+             'rows': rows,                                       //fields in riga
+             'selected_obs_values':  selected_obs_values,        //fields in obs value
+             'aggregate': sel_aggregations,                      //id delle aggregazioni di fields in riga o colonna
+             'filters': filter_value,                            // tutti i fields .... quelli raggruppati sono vuoti []
+             'agg_filters': agg_selection_value,                 //valore degli id delle aggregazioni es. (comunita di valle x , ccomunita di valle y ......)
+             'debug': debug_value,
+             'range': range_value,
+             'visible': visible_value,
+             'not_sel_aggregations': not_sel_aggregations,       //id delle aggregazioni di fields NON in riga o colonna
+             'not_agg_selection_value': not_agg_selection_value  ////valore degli id delle aggregazioni es. (comunita di valle x , ccomunita di valle y ......)
+              };
+    */
+
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: data,
+        success: function(response) {
+            //alert(response);
+            //document.write(response);
+            //document.close();
+    },
+        error: function(xhr, status) {
+            close_spinner(spinner, "modal");
+            bootbox.alert(xhr.responseText);
+        }
+    });
+
 }
 
 function setFieldLabel(id, field, values) {
@@ -321,7 +356,7 @@ function submit_popup (obs_values,
     }
     selection = create_selection(values, too_many);
 
-    alert(cols)
+    //alert(cols)
 
     if (selection == null) {
         return

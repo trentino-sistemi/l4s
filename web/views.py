@@ -1973,3 +1973,9 @@ def about(request):
     """
     return render_to_response("l4s/about.html",
                               RequestContext(request))
+
+
+def test(request):
+    #test
+
+    return HttpResponse(1)

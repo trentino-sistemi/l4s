@@ -232,4 +232,7 @@ urlpatterns = patterns('',
                        # Django explorer urls.
                        url(r'^explorer/',
                            include('explorer.urls')),
+                       url(r'^test/$',
+                           'web.views.test',
+                           name='test'),
                        )
