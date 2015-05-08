@@ -1477,6 +1477,13 @@ def query_editor_view(request):
     context['not_sel_aggregations'] = not_sel_aggregations
     context['not_agg_selection_value'] = not_agg_selection_value
 
+    st = detect_special_columns(query.sql)
+
+    context['show_legend'] = len(st.secret) > 0
+
+    #print st.secret
+    #print len(st.secret)
+
     #print "agg_values " , agg_values
 
     #print "dddddddddddddd"
@@ -1543,12 +1550,11 @@ def query_editor_view(request):
     context['url'] = url
 
     """
-    #print 'values ', context['values']
     print 'obs_values ', context['obs_values']
     print 'selected_obs_values ', context['selected_obs_values']
     print 'aggregations ', context['aggregations']
     #print 'agg_values ', context['agg_values']
-    print 'aggregation_ids ', context['aggregation_ids']
+    #print 'aggregation_ids ', context['aggregation_ids']
     print 'topic ', context['topic']
     print 'topic_id ', context['topic_id']
     print 'hidden_fields ', context['hidden_fields']
