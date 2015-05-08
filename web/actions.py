@@ -103,7 +103,7 @@ def generate_report_action_xls(request):
     :return: Response with Excel 1997 attachment.
     """
 
-    def add_header_and_footer(file_name, title, description):
+    def add_header_and_footer(file_name, title, description, show_legend):
         """
         Add header and footer to excel file.
 
@@ -160,16 +160,19 @@ def generate_report_action_xls(request):
                                   description,
                                   head_cell)
 
-        legend = "%s (%s)" % (settings.LEGEND, settings.DL_ART)
-        legend_cells = 4
-        new_sheet.write(line_num + 2, 0, legend, body_cell)
-        new_sheet.write_merge(line_num + 2,
-                              line_num + 2,
-                              0,
-                              legend_cells,
-                              legend,
-                              body_cell)
-        line_num += 2
+        #print "show_legend ", show_legend
+
+        if show_legend == 'True':
+            legend = "%s (%s)" % (settings.LEGEND, settings.DL_ART)
+            legend_cells = 4
+            new_sheet.write(line_num + 2, 0, legend, body_cell)
+            new_sheet.write_merge(line_num + 2,
+                                  line_num + 2,
+                                  0,
+                                  legend_cells,
+                                  legend,
+                                  body_cell)
+            line_num += 2
 
         k = 2 + line_num
         max_widths = dict()
@@ -218,12 +221,12 @@ def generate_report_action_xls(request):
         :return: Response with Excel 1997 attachment.
         """
         df = load_data_frame(request)
+
         # Limit the columns to the maximum allowed in Excel 97.
         max_length = 255
         index_len = len(df.index.names)
 
-        lim_df = df.drop(
-            df.columns[max_length - index_len - 1:len(df.columns) - 1], axis=1)
+        lim_df = df.drop(df.columns[max_length - index_len - 1:len(df.columns) - 1], axis=1)
 
         extension = 'xls'
         engine = 'xlwt'
@@ -235,7 +238,9 @@ def generate_report_action_xls(request):
         lim_df.to_excel(ew)
         ew.save()
 
-        add_header_and_footer(f.name, title, description)
+        show_legend = request.REQUEST.get('show_legend', '')
+
+        add_header_and_footer(f.name, title, description, show_legend)
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
         filename = '%s.%s' % (title, extension)
@@ -244,8 +249,7 @@ def generate_report_action_xls(request):
         response = HttpResponse(data)
         response["Content-Type"] = content_type
         response['Content-Transfer-Encoding'] = 'binary'
-        response[
-            'Content-Disposition'] = 'attachment; filename="%s"' % filename
+        response['Content-Disposition'] = 'attachment; filename="%s"' % filename
         return response
 
     return generate_report
@@ -259,7 +263,7 @@ def generate_report_action_xlsx(request):
     :return: Response with Excel 2007 attachment.
     """
 
-    def add_header_and_footer(file_name, title, description):
+    def add_header_and_footer(file_name, title, description, show_legend):
         """
         Add header and footer to excel file.
 
@@ -325,15 +329,16 @@ def generate_report_action_xlsx(request):
                                   end_row=line_num + 1,
                                   end_column=header_len + 1)
 
-        line_num += 3
-        cell = new_sheet.cell(row=line_num, column=1)
-        cell.value = "%s (%s)" % (settings.LEGEND, settings.DL_ART)
-        cell.style = body_style
-        legend_cells = 4
-        new_sheet.merge_cells(start_row=line_num,
-                              start_column=1,
-                              end_row=line_num,
-                              end_column=legend_cells + 1)
+        if show_legend == 'True':
+            line_num += 3
+            cell = new_sheet.cell(row=line_num, column=1)
+            cell.value = "%s (%s)" % (settings.LEGEND, settings.DL_ART)
+            cell.style = body_style
+            legend_cells = 4
+            new_sheet.merge_cells(start_row=line_num,
+                                  start_column=1,
+                                  end_row=line_num,
+                                  end_column=legend_cells + 1)
 
         k = 1 + line_num
         max_widths = dict()
@@ -406,7 +411,9 @@ def generate_report_action_xlsx(request):
         df.to_excel(ew)
         ew.save()
 
-        add_header_and_footer(f.name, title, description)
+        show_legend = request.REQUEST.get('show_legend', '')
+
+        add_header_and_footer(f.name, title, description, show_legend)
 
         # Setup response
         data = f.read()
