@@ -280,14 +280,18 @@ def generate_report_action_xlsx(request):
         title_label = unicode(_("Title"))
         line_num = 1
 
+        r_alignment = OAlignment(horizontal='right')
+        l_alignment = OAlignment(horizontal='left')
+        top_and_left_alignment = OAlignment(vertical='top', horizontal='left', wrapText=True)
+
         header_fill = PatternFill(patternType='solid',
                                   fgColor=Color('8B1F3F'))
 
         header_font = Font(color="FFFFFF", bold=True)
-        header_style = Style(fill=header_fill, font=header_font)
+        header_style = Style(fill=header_fill, font=header_font, alignment=top_and_left_alignment)
 
         body_font = Font(color="1F556F")
-        r_alignment = OAlignment(horizontal='right')
+
         r_style = Style(font=body_font, alignment=r_alignment)
         body_style = Style(font=body_font)
 
