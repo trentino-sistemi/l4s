@@ -113,7 +113,7 @@ def generate_report_action_xls(request):
         """
         workbook = open_workbook(file_name)
         sheet = workbook.sheet_by_index(0)
-        header_len = 12
+        header_len = 5
         sheet_rows = sheet.nrows
 
         new_workbook = new_xlwt_colored_workbook()
@@ -274,7 +274,7 @@ def generate_report_action_xlsx(request):
         workbook = load_workbook(filename=file_name, use_iterators=True)
         sheet = workbook.active
         new_workbook = OWorkbook(encoding="UTF-8")
-        header_len = 12
+        header_len = 5
         new_sheet = new_workbook.active
 
         title_label = unicode(_("Title"))
