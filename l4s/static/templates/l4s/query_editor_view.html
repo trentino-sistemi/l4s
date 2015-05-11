@@ -426,6 +426,50 @@ $(".download_turtle_button").click(function(e) {
             'POST',
             "{% csrf_token %}");
 });
+
+
+range = '{{ range }}';
+if (range=='True') {
+
+    colonne = '{{ columns|escapejs }}';
+    righe = '{{ rows|escapejs }}';
+
+    colonne_array = colonne.split(",");
+    righe_array = righe.split(",");
+
+    var tabella = document.getElementsByClassName("dataframe table table-striped");
+
+    riga = 0;
+
+    $(tabella[0]).find('tr').each (function() {
+
+      if (riga >= colonne_array.length) {
+
+          colonna = 0;
+
+          $.each(this.cells, function(){
+
+            if (colonna >= righe_array.length) {
+
+                if (($(this).text().indexOf("<") > -1) ||
+                    ($(this).text().indexOf(">") > -1) ||
+                    ($(this).text().indexOf("-") > -1))
+                  $(this).css('background-color','yellow');
+
+            }
+
+            colonna = colonna + 1;
+
+          });
+      }
+
+      riga = riga + 1;
+
+
+    });
+
+}
+
 </script>
 {% endblock %}
 
