@@ -137,7 +137,6 @@ def generate_report_action_xls(request):
         new_sheet.write(0, 0, title_label, head_cell)
         new_sheet.write(0, 1, title, head_cell)
         new_sheet.write_merge(0, 0, 1, header_len, title, head_cell)
-
         line_num = 1
         if description is not None:
             description_label = unicode(_("Description"))
@@ -179,17 +178,23 @@ def generate_report_action_xls(request):
         default_width = 10
         for col in range(sheet.ncols):
             max_widths[col] = default_width
-
         #Copy rows from existing sheets
         for rows in range(0, sheet_rows):
             data = [sheet.cell_value(rows, col) for col in range(sheet.ncols)]
             for index, value in enumerate(data):
+                #print index, value
                 column_len = arial10.fit_width(value, False)
+                #print column_len
+                #print isinstance(value, unicode)
                 if isinstance(value, unicode):
                     if value.isdigit():
+                        #rint "a"
+                        #print value
                         value = ast.literal_eval(value)
+                        #print value
                         new_sheet.write(rows+k, index, value, body_cell)
                     else:
+                        #print "b"
                         value = value.strip()
                         if value.startswith("*"):
                             new_sheet.write(rows+k, index, value, ast_cell)
@@ -199,7 +204,6 @@ def generate_report_action_xls(request):
                     new_sheet.write(rows+k, index, value, body_cell)
                 if column_len > max_widths[index]:
                     max_widths[index] = column_len
-
         # Adjust column width.
         for col in max_widths:
             new_sheet.col(col).width = round(max_widths[col]).__int__() + 1

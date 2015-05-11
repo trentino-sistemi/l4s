@@ -190,13 +190,16 @@ def pivot(data, headers, columns, rows, value):
 
     lista = []
     contatore = 0
+    #print df
     #print "columns ", df.columns
     #print "index ", df.index
+
 
     for a, b in enumerate(df.columns):
         for c, d in enumerate(df.index):
             contatore += 1
             #print  b, d
+            #print df[b][d]
             #print type(df[b][d])
             if type(df[b][d]) == decimal.Decimal:
                 if not b in lista:
@@ -208,6 +211,8 @@ def pivot(data, headers, columns, rows, value):
     #print lista
 
     df[lista] = df[lista].astype(float)
+
+    #print df
 
     #questa sotto arrotonda
     #df = df.applymap(format_value) #se si mescolano obs value interi e obs value con la virgola non funziona
@@ -251,7 +256,8 @@ def pivot(data, headers, columns, rows, value):
                                   index=rows,
                                   values=value,
                                   margins=True,
-                                  aggfunc=np.sum)
+                                  aggfunc=np.sum,
+                                  fill_value=0)
     except Exception, e:
         #print "errore ", e
         error = _("I can not pivot the table")
@@ -268,8 +274,20 @@ def pivot(data, headers, columns, rows, value):
     print bcolors.ENDC
     """
 
-    pivot_df = pivot_df.applymap(
-        lambda a: str(a).replace(".0", "", 1).replace("nan", "0"))
+    #print pivot_df.to_string()
+
+
+    #pivot_df = pivot_df.applymap(
+    #    lambda a: str(a).replace(".0", "", 1).replace("nan", "0"))
+
+    if len(lista) > 0:
+        pivot_df = pivot_df.applymap(lambda a: str(a));
+    else:
+        pivot_df = pivot_df.applymap(lambda a: str(a).replace(".0", "", 1));
+
+    #print bcolors.ENDC
+
+    #print pivot_df.to_string()
 
     total = unicode(_("Total")).encode('ascii')
     pivot_df.rename(columns={'All': total}, inplace=True)
