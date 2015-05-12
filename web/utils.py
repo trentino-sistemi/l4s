@@ -3152,8 +3152,6 @@ def get_all_aggregations(table_name):
 
                 vals = get_all_field_values(row[3], row[4], None)
 
-                #print "vals " , vals
-
                 agg_values[pk] = vals
 
     #print "agg1 ", agg

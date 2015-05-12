@@ -101,7 +101,9 @@ from web.utils import get_variable_dictionary, \
     located_in_area_value_to_column,\
     get_table_metadata_value,\
     build_aggregation_title,\
-    save_value
+    save_value, \
+    execute_query_on_django_db, \
+    execute_query_on_main_db
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1981,7 +1983,33 @@ def about(request):
                               RequestContext(request))
 
 
-def test(request):
+def get_list_of_value(request):
     #test
 
-    return HttpResponse(1)
+    lista_valori =  json.loads( request.POST.get('lista_valori') )
+    id_agg = request.POST.get('id_agg')
+
+    query = "select a.table_name, a.column_name, b.table_name, b.column_name " \
+            "from  web_metadata a join web_metadata b on (b.key = 'http://purl.org/linked-data/cube#concept' and b.value = a.value) " \
+            "where a.id = " + id_agg
+
+    rows= execute_query_on_django_db(query)
+
+    for row in rows:
+        source_table = row[0];
+        source_column = row[1];
+        destination_table = row[2];
+        destination_column = row[3];
+
+    query = "select a." + source_column + " " \
+            "from " + source_table + " a join " + destination_table + " b on (a." + source_column + "=b." + source_column + ") " \
+            "where b." + destination_column + " in (" + ', '.join(lista_valori) + ")"
+
+    rows = execute_query_on_main_db(query)
+
+    lista_elementi = []
+
+    for row in rows:
+        lista_elementi.append(str(row[0]))
+
+    return HttpResponse(",".join(lista_elementi))

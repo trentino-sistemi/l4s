@@ -110,7 +110,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     </div>
 
                     <ul>
-                        <li id="filtro_{{ field }}" class="dropdown-submenu">
+                        <li id="filtro_{{ field }}" class="dropdown-submenu" onclick='$( ".dropdown-menu" ).toggleClass( "attivo" );'>
 
                         <span
                               name = "filtro_{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
@@ -122,7 +122,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
                         </span>
 
-                        <span id="drop" class="dropdown-menu" role="menu">
+                        <span id="drop_manuel" class="dropdown-menu" role="menu">
 
                             <input onclick="handleRadioFilter(this,
                                                               '{{ field }}',
@@ -130,15 +130,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                               false,
                                                               false);"
                                    type="radio"
-                                   value="Niente"
+                                   value="Null"
                                    name="filtro_unused_{{field}}"
                                    checked="checked">
                             </input>
                             Niente
                             <br>
 
-                            {% for agg in aggregations %}
-                            {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
                             {% for ag in aggregations|lookup:agg %}
                             <input onclick="handleRadioFilter(this,
                                                               '{{ field }}',
@@ -146,14 +144,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                               false,
                                                               false);"
                                    type="radio"
-                                   value="{{aggregations|lookup:agg|lookup:ag}}"
+                                   value="{{ag}}"
                                    name="filtro_unused_{{field}}">
                             </input>
                             {{aggregations|lookup:agg|lookup:ag}}
                             <br>
 
-                            {% endfor %}
-                            {% endif %}
                             {% endfor %}
 
                             <br>
@@ -161,14 +157,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             <div class="'btn-group">
                                 <button type="button"
                                         class="btn btn-default"
-                                        onclick="checkByParent('select_filtro_{{field}}',
-                                                                true);">
+                                        onclick="checkByParent('select_filtro_{{field}}',true);checkByParent('select_{{field}}',true);">
                                     {% trans "All" %}
                                 </button>
                                 <button type="button"
                                         class="btn btn-default"
-                                        onclick="checkByParent('select_filtro_{{field}}',
-                                                                false);">
+                                        onclick="checkByParent('select_filtro_{{field}}',false);checkByParent('select_{{field}}',false);">
                                     {% trans "None" %}
                                 </button>
                             </div>

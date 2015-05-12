@@ -232,7 +232,7 @@ urlpatterns = patterns('',
                        # Django explorer urls.
                        url(r'^explorer/',
                            include('explorer.urls')),
-                       url(r'^test/$',
-                           'web.views.test',
-                           name='test'),
+                       url(r'^get_list_of_value/$',
+                           'web.views.get_list_of_value',
+                           name='get_list_of_value'),
                        )

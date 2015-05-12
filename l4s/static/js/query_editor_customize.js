@@ -30,7 +30,70 @@ function get_aggregation_color() {
 function colour(field) {
         element = document.getElementById(field);
         element.setAttribute("style", "background:" + get_aggregation_color());
+}
+
+function filtra_elementi(padre, elemento, nome_select) {
+
+    var radios = document.getElementsByName(nome_select);
+    var id_agg;
+    for (var i = 0; i < radios.length; i++) {
+        if (radios[i].type === 'radio' && radios[i].checked) {
+            // get value, set checked flag or do whatever you need to
+            id_agg = radios[i].value;
+        }
     }
+
+    var lista_valori = new Array();
+
+    el = document.getElementById(elemento);
+    var coll= el.getElementsByTagName('input');
+    for (var x=0; x<coll.length; x++) {
+        if (coll[x].checked == true) {
+            lista_valori.push(coll[x].value);
+        }
+    }
+
+    if (lista_valori.length == 0) {
+        checkByParent(padre, false);
+    }
+    else {
+        url="/get_list_of_value/"
+        data = {'lista_valori': JSON.stringify(lista_valori),
+                'id_agg': id_agg
+               };
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: data,
+            success: function(response) {
+                //alert(response);
+
+                checkByParent(padre, false);
+
+                lista = response.split(",");
+
+                el = document.getElementById(padre);
+                var coll= el.getElementsByTagName('input');
+                for (var x=0; x<coll.length; x++) {
+
+                    if (lista.indexOf(coll[x].value) > -1) {
+
+                        coll[x].checked = true;
+                    }
+
+                }
+
+                //document.write(response);
+                //document.close();
+        },
+            error: function(xhr, status) {
+                close_spinner(spinner, "modal");
+                bootbox.alert(xhr.responseText);
+            }
+        });
+    }
+}
 
 function load_selected_values(prefisso, myRadio, field, values, agg){
 
@@ -48,10 +111,23 @@ function load_selected_values(prefisso, myRadio, field, values, agg){
                 radio.name =  'select_input_' + myRadio.id;
             }
             else {
-                id =  field + '_input_' + array[i][0]
-                name = 'input_' +  field;
+                if (prefisso == 'select_filtro_') {
+                    id =  field + '_input_filtro_' + array[i][0]
+                    name = 'input_filtro_' +  field;
+                }
+                else {
+                    id =  field + '_input_' + array[i][0]
+                    name = 'input_' +  field;
+                }
             }
-            html += '<input type="checkbox" name="' +  name + '" id="' + id + '" value="' + array[i][0] + '">'
+            html += '<input type="checkbox" name="' +  name + '" id="' + id + '" value="' + array[i][0] + '"';
+
+            if (prefisso == 'select_filtro_')
+                html += ' onclick="filtra_elementi(\'select_' + field + '\', \'select_filtro_' + field + '\', \'filtro_unused_' + field + '\');"';
+
+            html += '>';
+
+
             if (array[i].length>1) {
                 html+= array[i][1] + '<br>';
             }
@@ -82,12 +158,15 @@ function handleRadio(myRadio, field, values, agg, select_all) {
 
     var li = document.getElementById("filtro_" + field);
 
-    if (agg == true)
-        classe = '';
-    else
-        classe = 'dropdown-submenu';
+    if (agg == true) {
+        eventoonclick = '';
+        $( ".dropdown-menu" ).removeClass( "attivo" );
+    }
+    else {
+        eventoonclick = '$( ".dropdown-menu" ).toggleClass( "attivo" );';
+    }
 
-    li.className = classe;
+    li.onclick = new Function(eventoonclick);
 
 }
 
@@ -97,44 +176,9 @@ function handleRadioFilter(myRadio, field, values, agg, select_all) {
 
   if (select_all) {
         checkByParent('select_filtro_'+ field, true);
-    }
+  }
 
   checkByParent('select_'+ field, false);
-
-    url="/test/"
-    data = {};
-
-    /*
-    data = { 'table': table_name,
-             'include_code': include_code_value,
-             'columns': cols,                                    //fields in colonna
-             'rows': rows,                                       //fields in riga
-             'selected_obs_values':  selected_obs_values,        //fields in obs value
-             'aggregate': sel_aggregations,                      //id delle aggregazioni di fields in riga o colonna
-             'filters': filter_value,                            // tutti i fields .... quelli raggruppati sono vuoti []
-             'agg_filters': agg_selection_value,                 //valore degli id delle aggregazioni es. (comunita di valle x , ccomunita di valle y ......)
-             'debug': debug_value,
-             'range': range_value,
-             'visible': visible_value,
-             'not_sel_aggregations': not_sel_aggregations,       //id delle aggregazioni di fields NON in riga o colonna
-             'not_agg_selection_value': not_agg_selection_value  ////valore degli id delle aggregazioni es. (comunita di valle x , ccomunita di valle y ......)
-              };
-    */
-
-    $.ajax({
-        url: url,
-        type: "POST",
-        data: data,
-        success: function(response) {
-            //alert(response);
-            //document.write(response);
-            //document.close();
-    },
-        error: function(xhr, status) {
-            close_spinner(spinner, "modal");
-            bootbox.alert(xhr.responseText);
-        }
-    });
 
 }
 

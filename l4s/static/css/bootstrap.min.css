@@ -5960,7 +5960,11 @@ td.visible-print {
   border-radius: 0 6px 6px 6px;
 }
 
-.dropdown-submenu:hover>.dropdown-menu {
+/*.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}*/
+
+.dropdown-menu .attivo {
   display: block;
 }
 
@@ -5993,3 +5997,6 @@ td.visible-print {
   -moz-border-radius: 6px 0 6px 6px;
   border-radius: 6px 0 6px 6px;
 }
+
+
+

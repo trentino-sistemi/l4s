@@ -217,6 +217,7 @@ function OpenCustomizePopup() {
        range_value = "true"
     }
     url = '/query_editor_customize/';
+
     data = { 'table': '{{ table_name|escapejs }}',
              'columns': '{{ columns|escapejs }}',
              'rows': '{{ rows|escapejs }}',
