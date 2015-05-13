@@ -113,7 +113,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         <li id="filtro_{{ field }}" class="dropdown-submenu" onclick='$( "#dropdown-menu_{{ field }}" ).toggleClass( "attivo" );'>
 
                         <span
-                              name = "filtro_{{ column_description|lookup_unicode:forloop.counter0|lookup:"description" }}"
                               class="pvtAttr btn btn-default dropdown-toggle"
                               data-toggle="dropdown">
                               {% trans "seleziona_per" %}
@@ -268,6 +267,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                       <span style="display:None">{{ field  }}</span>
                       <span class="caret"></span>
                 </span>
+
                 <span class="dropdown-menu" role="menu">
                 {% for agg in aggregations %}
                 {% if agg == column_description|lookup_unicode:f|lookup:"description" %}
@@ -288,6 +288,63 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             {{ agg }}
                         </label>
                     </div>
+
+
+                    <ul>
+                        <li id="filtro_{{ field }}" class="dropdown-submenu" onclick='$( "#dropdown-menu_{{ field }}" ).toggleClass( "attivo" );'>
+
+                        <span
+                              class="pvtAttr btn btn-default dropdown-toggle"
+                              data-toggle="dropdown">
+                              {% trans "seleziona_per" %}
+                              <span style="display:None">filtro_{{ field }}</span>
+                              <span class="caret"></span>
+
+                        </span>
+
+                        <span id="dropdown-menu_{{ field }}" class="dropdown-menu" role="menu">
+
+                            {% for ag in aggregations|lookup:agg %}
+                            <input onclick="handleRadioFilter(this,
+                                                              '{{ field }}',
+                                                              '{{ agg_values|lookup:ag|jsonify|escapejs }}',
+                                                              false,
+                                                              false);"
+                                   type="radio"
+                                   value="{{ag}}"
+                                   name="filtro_unused_{{field}}">
+                            </input>
+                            {{aggregations|lookup:agg|lookup:ag}}
+                            <br>
+
+                            {% endfor %}
+
+                            <br>
+                            {% trans "Select" %}
+                            <div class="'btn-group">
+                                <button type="button"
+                                        class="btn btn-default"
+                                        onclick="checkByParent('select_filtro_{{field}}',true);checkByParent('select_{{field}}',true);">
+                                    {% trans "All" %}
+                                </button>
+                                <button type="button"
+                                        class="btn btn-default"
+                                        onclick="checkByParent('select_filtro_{{field}}',false);checkByParent('select_{{field}}',false);">
+                                    {% trans "None" %}
+                                </button>
+                            </div>
+
+                            <div id="select_filtro_{{field}}"
+                                 name="select_filtro_{{field}}"
+                                 class="radio_container">
+                            </div>
+
+                        </span>
+
+                        </li>
+                    </ul>
+
+
                     {% for ag in aggregations|lookup:agg %}
                     <div class="radio" id="radio_agg_{{ag}}">
                         <label>
@@ -381,6 +438,63 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             {{ agg }}
                         </label>
                     </div>
+
+
+                    <ul>
+                        <li id="filtro_{{ field }}" class="dropdown-submenu" onclick='$( "#dropdown-menu_{{ field }}" ).toggleClass( "attivo" );'>
+
+                        <span
+                              class="pvtAttr btn btn-default dropdown-toggle"
+                              data-toggle="dropdown">
+                              {% trans "seleziona_per" %}
+                              <span style="display:None">filtro_{{ field }}</span>
+                              <span class="caret"></span>
+
+                        </span>
+
+                        <span id="dropdown-menu_{{ field }}" class="dropdown-menu" role="menu">
+
+                            {% for ag in aggregations|lookup:agg %}
+                            <input onclick="handleRadioFilter(this,
+                                                              '{{ field }}',
+                                                              '{{ agg_values|lookup:ag|jsonify|escapejs }}',
+                                                              false,
+                                                              false);"
+                                   type="radio"
+                                   value="{{ag}}"
+                                   name="filtro_unused_{{field}}">
+                            </input>
+                            {{aggregations|lookup:agg|lookup:ag}}
+                            <br>
+
+                            {% endfor %}
+
+                            <br>
+                            {% trans "Select" %}
+                            <div class="'btn-group">
+                                <button type="button"
+                                        class="btn btn-default"
+                                        onclick="checkByParent('select_filtro_{{field}}',true);checkByParent('select_{{field}}',true);">
+                                    {% trans "All" %}
+                                </button>
+                                <button type="button"
+                                        class="btn btn-default"
+                                        onclick="checkByParent('select_filtro_{{field}}',false);checkByParent('select_{{field}}',false);">
+                                    {% trans "None" %}
+                                </button>
+                            </div>
+
+                            <div id="select_filtro_{{field}}"
+                                 name="select_filtro_{{field}}"
+                                 class="radio_container">
+                            </div>
+
+                        </span>
+
+                        </li>
+                    </ul>
+
+
                     {% for ag in aggregations|lookup:agg %}
                     <div class="radio"
                          id="radio_agg_{{ag}}">
