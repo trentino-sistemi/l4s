@@ -2142,10 +2142,10 @@ input[type="button"].btn-block {
 }
 .collapsing {
   position: relative;
-  height: 0;
+  max-height: 0;
   overflow: hidden;
-  -webkit-transition: height 0.35s ease;
-  transition: height 0.35s ease;
+  -webkit-transition: max-height 0.85s ease;
+  transition: max-height 0.85s ease;
 }
 @font-face {
   font-family: 'Glyphicons Halflings';

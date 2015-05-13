@@ -71,13 +71,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {{ sel_tab|lookup:sel|length }} {% trans "values" %}:
                     {% endif %}
                     {% for s in sel_tab|lookup:sel|slice:":9" %}
-                    {{ s }}{% if forloop.counter0 == 8 %}<text id="suspension_points">...</text>
-                    <a id="morebtn"
+                    {{ s }}{% if forloop.counter0 == 8 %}<text id="suspension_points_{{ sel }}">...</text>
+                    <a onclick = "apri_more('{{ sel }}');"
+                       id="morebtn_{{ sel }}"
                        class="navbar-right"
                        data-toggle="collapse"
                        data-target="#more"
                        href="javascript:void(0)">{% trans "See more" %}</a>
-                    <div id="more" class="collapse">{% for s in sel_tab|lookup:sel|slice:"9:" %}{{s}}, {% endfor %}</div>
+                    <div id="more_{{ sel }}" class="collapsing">{% for s in sel_tab|lookup:sel|slice:"9:" %}{{s}}, {% endfor %}</div>
                     {% else %}{% if not forloop.last %},{% endif %}{% endif %}
                     {% endfor %}</i>
                 </td>
@@ -315,16 +316,29 @@ function OpenSavePopup() {
 	    }
     });
 }
-$("#morebtn").click(function() {
-    $(this).html(($(this).html() == "{% trans "See more" %}")? "{% trans "See less" %}" : "{% trans "See more" %}");
-    var el = document.getElementById("suspension_points");
+
+function apri_more (field) {
+
+    $("#morebtn_" + field).html(($("#morebtn_" + field).html() == "{% trans "See more" %}")? "{% trans "See less" %}" : "{% trans "See more" %}");
+
+    var el = document.getElementById("suspension_points_" + field);
+
     if (el.innerHTML == "...") {
         el.innerHTML = ",";
+
+        $("#more_" + field).css('max-height', '40px');
+        $("#more_" + field).css('max-height', '1000px');
+
     }
     else {
         el.innerHTML = "...";
+
+        $("#more_" + field).css('max-height', $("#more_" + field).height() / 2 );
+        $("#more_" + field).css('max-height', '0px');
+
     }
-});
+}
+
 $("#apply_button").click(function() {
     var progress$ = $("#progress");
     progress$.show();
