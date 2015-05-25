@@ -108,14 +108,18 @@ class ExecutedQueryLog(models.Model):
     Metadata to log queries.
     """
     query_title = models.CharField(_('Title'), max_length=255)
+    query_body = models.CharField(_('Body'), max_length=1000)
     executed_by = models.IntegerField()
     executed_at = models.DateTimeField(auto_now_add=True)
+    ip_address = models.CharField(_('IP'), max_length=15)
 
     @classmethod
-    def create(cls, query_title, executed_by):
+    def create(cls, query_title, query_body, executed_by, ip_address):
         log = cls(query_title=query_title,
+                  query_body=query_body,
                   executed_by=executed_by,
-                  executed_at=datetime.now())
+                  executed_at=datetime.now(),
+                  ip_address=ip_address)
         return log
 
 

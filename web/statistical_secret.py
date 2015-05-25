@@ -3162,7 +3162,8 @@ def headers_and_data(user,
                      include_descriptions,
                      include_code,
                      visible,
-                     range):
+                     range,
+                     ip_adress):
     """
     Execute query, get headers, data, duration, error
     and filter result set to preserve the statistical secret.
@@ -3186,7 +3187,9 @@ def headers_and_data(user,
     else:
         id = -1
 
-    log = ExecutedQueryLog.create(query.title, id)
+    #query_title, query_body, executed_by, ip_address
+
+    log = ExecutedQueryLog.create(query.title, query.sql, id, ip_adress)
     log.save()
 
     warn = None

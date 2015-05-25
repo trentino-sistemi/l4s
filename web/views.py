@@ -1451,7 +1451,8 @@ def query_editor_view(request):
                                            True,
                                            include_code,
                                            visible,
-                                           range)
+                                           range,
+                                           request.environ['REMOTE_ADDR'])
 
     context['values'] = values
     context['obs_values'] = obs_values
