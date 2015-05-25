@@ -1070,8 +1070,7 @@ def recent_queries(request):
     objects = Query.objects
     if not search is None and search != "":
         objects = objects & (Query.objects.filter(title__icontains=search) |
-                             Query.objects.filter(
-                                 description__icontains=search))
+                             Query.objects.filter(description__icontains=search))
 
     recent = objects.order_by('-last_run_date')
     recent = recent[:EXPLORER_RECENT_QUERY_COUNT]

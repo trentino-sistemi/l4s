@@ -3182,16 +3182,6 @@ def headers_and_data(user,
     :param visible: View all data without put asterisks.
     """
 
-    if user.is_authenticated():
-        id = user.pk
-    else:
-        id = -1
-
-    #query_title, query_body, executed_by, ip_address
-
-    log = ExecutedQueryLog.create(query.title, query.sql, id, ip_adress)
-    log.save()
-
     warn = None
     df = None
     st = detect_special_columns(query.sql)
@@ -3316,6 +3306,16 @@ def headers_and_data(user,
             df = drop_total_row(df)
 
     #print "cccccccccccccc"
+
+    if user.is_authenticated():
+        id = user.pk
+    else:
+        id = -1
+
+    #query_title, query_body, executed_by, ip_address
+
+    log = ExecutedQueryLog.create(query.title, query.sql, id, ip_adress)
+    log.save()
 
     return df, data, warn, err
 
