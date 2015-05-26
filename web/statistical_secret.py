@@ -642,6 +642,9 @@ def row_secondary_suppression(data,
 
     data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
 
+    data_frame_appoggio = drop_total_row(data_frame_appoggio)
+    data_frame_appoggio = drop_total_column(data_frame_appoggio)
+
     if len(obs_values) > 1:
         if has_data_frame_multi_level_columns(data_frame_appoggio):
             slice_da_preservare = len(data_frame_appoggio.columns.levels) - 1  #uno per l'ultimo slices
@@ -653,10 +656,14 @@ def row_secondary_suppression(data,
 
     #print "slice_da_preservare ", slice_da_preservare
 
+    #print len(data[0])
+
+    #print len(data)
+
     if slice_da_preservare == 0:
 
         start_col = 0
-        stop_col = len(data[0]) - 1
+        stop_col = data_frame_appoggio.shape[1] - 1
 
         for c, row in enumerate(data_frame_appoggio.index):
 
@@ -673,7 +680,7 @@ def row_secondary_suppression(data,
 
             while sel_col <= stop_col:  #scorro per estrarre il numero degli asterischi in quel slice
 
-                #totale_slice += float(data_frame.iloc[start_row][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+                totale_slice += float(data_frame.iloc[start_row][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
                 if str(data[start_row][sel_col]).startswith(ASTERISK):
                     asterisk_count += 1
@@ -695,7 +702,7 @@ def row_secondary_suppression(data,
                             if debug:
                                 data[start_row][sel_col] += ASTERISK
                                 data[start_row][sel_col] += 'P(' + str(
-                                    value) + ' - TOT ' + str(
+                                    value) + ' - TOT R ' + str(
                                     totale_slice) + ")"
 
                             asterisk_count += 1
@@ -754,11 +761,16 @@ def row_secondary_suppression(data,
 
             start_row, stop_row = find_in_not_sorted_index(data_frame_appoggio.index, row_tup)
 
+            #print "start_row " , start_row
+
             for c, col_tup in enumerate(column_tuples):
 
                 #print "col_tup",col_tup
 
                 start_col, stop_col = find_in_not_sorted_index(data_frame_appoggio.columns, col_tup)
+
+                #print "start_col ", start_col
+                #print "stop_col ", stop_col
 
                 sel_col = start_col
 
@@ -768,13 +780,15 @@ def row_secondary_suppression(data,
 
                 while sel_col <= stop_col:  #scorro per estrarre il numero degli asterischi in quel slice
 
-                    #totale_slice += float(data_frame.iloc[start_row][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+                    totale_slice += float(data_frame.iloc[start_row][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
                     if str(data[start_row][sel_col]).startswith(ASTERISK):
                         asterisk_count += 1
                     sel_col += 1
 
                 sel_col = start_col
+
+                #print "totale_slice ", totale_slice
 
                 if float(totale_slice) <> 0.0:
 
@@ -790,7 +804,7 @@ def row_secondary_suppression(data,
                                 if debug:
                                     data[start_row][sel_col] += ASTERISK
                                     data[start_row][sel_col] += 'P(' + str(
-                                        value) + ' - TOT ' + str(
+                                        value) + ' - TOT R ' + str(
                                         totale_slice) + ")"
 
                                 asterisk_count += 1
@@ -960,6 +974,9 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
     data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
 
+    data_frame_appoggio = drop_total_row(data_frame_appoggio)
+    data_frame_appoggio = drop_total_column(data_frame_appoggio)
+
     if len(obs_values) > 1:
         slice_da_preservare = len(data_frame_appoggio.index.levels) - 2  # 2, 1 per l'obs value e uno per l'ultimo slices
     else:
@@ -990,11 +1007,13 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
         #print "boh"
 
         start_row = 0
-        stop_row = len(data) - 1
+        stop_row = data_frame_appoggio.shape[0] - 1
+
+        #print len(data[0])
 
         for c, col in enumerate(data_frame_appoggio.columns):
 
-            #print col
+            #print c, col
 
             start_col, stop_col = find_in_not_sorted_index(data_frame_appoggio.columns, col)
 
@@ -1006,13 +1025,15 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
             while sel_row <= stop_row:
 
-                #totale_slice += float(data_frame.iloc[sel_row][start_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+                totale_slice += float(data_frame.iloc[sel_row][start_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
                 if str(data[sel_row][start_col]).startswith(ASTERISK):
                     asterisk_count += 1
                 sel_row += 1
 
             sel_row = start_row
+
+            #print "totale_slice ", totale_slice
 
             if float(totale_slice) <> 0.0:
 
@@ -1030,7 +1051,7 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
                             if debug:
                                 src_row[start_col] += ASTERISK
                                 src_row[start_col] += 'P(' + str(
-                                    value) + ' - TOT ' + str(
+                                    value) + ' - TOT C ' + str(
                                     totale_slice) + ")"
 
                             asterisk_count += 1
@@ -1089,7 +1110,11 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
         for ct, row_tup in enumerate(index_tuples):
 
+            #print "row_tup " , row_tup
+
             start_row, stop_row = find_in_not_sorted_index(data_frame_appoggio.index, row_tup)
+
+            #print start_row, stop_row
 
             for c, col_tup in enumerate(data_frame_appoggio.columns):
 
@@ -1105,13 +1130,15 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
                 while sel_row <= stop_row:
 
-                    #totale_slice += float(data_frame.iloc[sel_row][start_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+                    totale_slice += float(data_frame.iloc[sel_row][start_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
                     if str(data[sel_row][start_col]).startswith(ASTERISK):
                         asterisk_count += 1
                     sel_row += 1
 
                 sel_row = start_row
+
+                #print "totale_slice ", totale_slice
 
                 if float(totale_slice) <> 0.0:
 
@@ -1129,7 +1156,7 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
                                 if debug:
                                     src_row[start_col] += ASTERISK
                                     src_row[start_col] += 'P(' + str(
-                                        value) + ' - TOT ' + str(
+                                        value) + ' - TOT C ' + str(
                                         totale_slice) + ")"
 
                                 asterisk_count += 1
