@@ -429,6 +429,13 @@ def contains_ref_period(pivot, cols, axis=None):
                 column_name = cols[c]["column"]
                 if is_ref_period(table_name, column_name):
                     return True
+    if axis == None:
+        for c in cols:
+            table_name = cols[c]["table"]
+            column_name = cols[c]["column"]
+            if is_ref_period(table_name, column_name):
+                return True
+
     return False
 
 
@@ -3834,3 +3841,37 @@ def is_int(v):
     try:     i = int(v)
     except:  return False
     return True
+
+
+def drop_codes_and_totals(df, include_code, pivot, cols):
+
+    if not df is None:
+        if not include_code:
+            # Fix all columns before drop the codes.
+            df = remove_code_from_data_frame(df)
+
+        #print "st.pivot " , pivot
+        #print "st.cols " , cols
+        #print "df.shape ", df.shape[0], df.shape[1]
+
+        if contains_ref_period(pivot, cols, axis=None) == False:
+            #print "a"
+            if df.shape[1] == 2:
+                df = drop_total_column(df)
+            if df.shape[0] == 2:
+                df = drop_total_row(df)
+        else:
+            #print "b"
+            if (contains_ref_period(pivot, cols, axis=0) == False) and (contains_ref_period(pivot, cols, axis=1) == False):
+                #print "c"
+                df = drop_total_column(df)
+                df = drop_total_row(df)
+            else:
+                #print "d"
+                if contains_ref_period(pivot, cols, axis=0) or df.shape[1] == 2:   # df.shape[1] = quante colonne ...2 va bene ... vuol dire una colonna e un totale e quindi il totale va tolto
+                    df = drop_total_column(df)
+
+                if contains_ref_period(pivot, cols, axis=1) or df.shape[0] == 2:
+                    df = drop_total_row(df)
+
+    return df

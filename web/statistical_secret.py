@@ -28,6 +28,7 @@ from web.utils import execute_query_on_main_db, \
     get_data_from_data_frame, \
     drop_total_column, \
     drop_total_row, \
+    drop_codes_and_totals, \
     build_description_query, \
     get_data_frame_first_index, \
     get_table_metadata_value, \
@@ -620,6 +621,7 @@ def row_secondary_suppression(data,
 
     #print datetime.now().strftime("%H:%M:%S.%f")
 
+    """
     data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)  #riordina le colonne ....... menatona .... se c'e' il totale e campi stringa (es. comuni) su quella colonna sclera ... allora riordino ....
 
     data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
@@ -634,54 +636,46 @@ def row_secondary_suppression(data,
     data_frame_appoggio_righe.drop(TOTAL, axis=0, inplace=True)  # e poi tolgo la label TOTALE sulle righe
 
     slice_da_preservare_righe, index_tuples = estrai_tuple_per_righe(data_frame_appoggio_righe, False, obs_values)  #false percghe mi servono tutte le righe e non mi servono gli slices di riga
+    """
 
-    for rt, row_tup in enumerate(index_tuples):
+    data_frame_appoggio = pd.DataFrame(data_frame.values.copy(), data_frame.index.copy(), data_frame.columns.copy())
 
-        try:
-            row_index = data_frame_appoggio_righe.index.get_loc(
-                index_tuples[rt])
-        except (KeyError, TypeError):
-            continue
+    data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
 
-        src_row = data[
-            row_index]  #lista delle righe con la sopressione primaria
+    if len(obs_values) > 1:
+        if has_data_frame_multi_level_columns(data_frame_appoggio):
+            slice_da_preservare = len(data_frame_appoggio.columns.levels) - 1  #uno per l'ultimo slices
+        else:
+            slice_da_preservare = 0
+    else:
+        slice_da_preservare = len(data_frame_appoggio.columns.levels) - 1  #  1 per l'ultimo slices
 
-        #print row_tup
-        #print src_row
 
-        for ct, col_tup in enumerate(col_tuples):
+    #print "slice_da_preservare ", slice_da_preservare
 
-            #print col_tup
+    if slice_da_preservare == 0:
 
-            try:
-                column_index = data_frame_appoggio_colonne.columns.get_loc(
-                    col_tuples[ct])
-            except (KeyError, TypeError):
-                continue
+        start_col = 0
+        stop_col = len(data[0]) - 1
 
-            #print column_index
+        for c, row in enumerate(data_frame_appoggio.index):
 
-            if not isinstance(column_index,
-                              slice):  #non entra mai .... sulle colonne uno slice c'e' sempre ?????
-                start_col = 0
-                stop_col = len(src_row) - 1
-            else:
-                start_col = column_index.start
-                stop_col = column_index.stop
+            #print row
+            #print data_frame_appoggio.index
 
-            #print start_col
-            #print stop_col
+            start_row, stop_row = find_in_not_sorted_index(data_frame_appoggio.index, row)
 
             sel_col = start_col
+
             asterisk_count = 0
 
             totale_slice = 0
 
             while sel_col <= stop_col:  #scorro per estrarre il numero degli asterischi in quel slice
 
-                #totale_slice += float(data_frame.iloc[row_index][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+                totale_slice += float(data_frame.iloc[start_row][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
-                if str(src_row[sel_col]).startswith(ASTERISK):
+                if str(data[start_row][sel_col]).startswith(ASTERISK):
                     asterisk_count += 1
                 sel_col += 1
 
@@ -691,16 +685,16 @@ def row_secondary_suppression(data,
 
                 while sel_col <= stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
-                    if not str(src_row[sel_col]).startswith(ASTERISK):
+                    if not str(data[start_row][sel_col]).startswith(ASTERISK):
 
-                        if float(src_row[sel_col]) == totale_slice:
+                        if float(data[start_row][sel_col]) == totale_slice:
                             #print "bingo"
-                            value = src_row[sel_col]
-                            src_row[sel_col] = ASTERISK
+                            value = data[start_row][sel_col]
+                            data[start_row][sel_col] = ASTERISK
 
                             if debug:
-                                src_row[sel_col] += ASTERISK
-                                src_row[sel_col] += 'P(' + str(
+                                data[start_row][sel_col] += ASTERISK
+                                data[start_row][sel_col] += 'P(' + str(
                                     value) + ' - TOT ' + str(
                                     totale_slice) + ")"
 
@@ -709,42 +703,139 @@ def row_secondary_suppression(data,
 
             if asterisk_count == 1:  # se sulla riga c'e' un asterisco solo .... ne asterisco un altro
 
-                sel_column = find_column_with_min_value(src_row.tolist(),
+                #print "row_tup " , row_tup
+                sel_column = find_column_with_min_value(data[start_row].tolist(),
                                                         start_col,
                                                         stop_col)
 
+                #print "sel_column ", sel_column
+
                 if not sel_column is None:
 
-                    value = src_row[sel_column]
-                    src_row[sel_column] = ASTERISK
+                    value = data[start_row][sel_column]
+                    data[start_row][sel_column] = ASTERISK
 
                     if debug:
-                        src_row[sel_column] += ASTERISK
-                        src_row[sel_column] += "R(%s)" % str(value)
+                        data[start_row][sel_column] += ASTERISK
+                        data[start_row][sel_column] += "R(%s)" % str(value)
 
                     asterisk_count += 1
                     asterisk_global_count += asterisk_count
 
-                    if float(
-                            value) == 0.0:  # se ho asteriscato uno zero ne asterisco un altro
+                    if float(value) == 0.0:  # se ho asteriscato uno zero ne asterisco un altro
 
-                        sel_column = find_column_with_min_value_exclude_zero(
-                            src_row.tolist(),
-                            start_col,
-                            stop_col)
+                        sel_column = find_column_with_min_value_exclude_zero(data[start_row].tolist(),
+                                                                             start_col,
+                                                                             stop_col)
 
                         if not sel_column is None:
 
-                            value = src_row[sel_column]
+                            value = data[start_row][sel_column]
 
-                            src_row[sel_column] = ASTERISK
+                            data[start_row][sel_column] = ASTERISK
 
                             if debug:
-                                src_row[sel_column] += ASTERISK
-                                src_row[sel_column] += "R(%s)" % str(value)
+                                data[start_row][sel_column] += ASTERISK
+                                data[start_row][sel_column] += "R(%s)" % str(value)
 
                             asterisk_count += 1
                             asterisk_global_count += asterisk_count
+
+    else:  #else del if slice_da_preservare == 0:
+
+        column_tuples = tuple(data_frame_appoggio.columns.levels[slice_da_preservare-1])
+
+        column_tuples = tuple([x for x in column_tuples if x != TOTAL])
+
+        for ct, row_tup in enumerate(data_frame_appoggio.index):
+
+            #print get_color()
+            #print "row_tup" , row_tup
+
+            start_row, stop_row = find_in_not_sorted_index(data_frame_appoggio.index, row_tup)
+
+            for c, col_tup in enumerate(column_tuples):
+
+                #print "col_tup",col_tup
+
+                start_col, stop_col = find_in_not_sorted_index(data_frame_appoggio.columns, col_tup)
+
+                sel_col = start_col
+
+                asterisk_count = 0
+
+                totale_slice = 0
+
+                while sel_col <= stop_col:  #scorro per estrarre il numero degli asterischi in quel slice
+
+                    totale_slice += float(data_frame.iloc[start_row][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+
+                    if str(data[start_row][sel_col]).startswith(ASTERISK):
+                        asterisk_count += 1
+                    sel_col += 1
+
+                sel_col = start_col
+
+                if float(totale_slice) <> 0.0:
+
+                    while sel_col <= stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
+
+                        if not str(data[start_row][sel_col]).startswith(ASTERISK):
+
+                            if float(data[start_row][sel_col]) == totale_slice:
+                                #print "bingo"
+                                value = data[start_row][sel_col]
+                                data[start_row][sel_col] = ASTERISK
+
+                                if debug:
+                                    data[start_row][sel_col] += ASTERISK
+                                    data[start_row][sel_col] += 'P(' + str(
+                                        value) + ' - TOT ' + str(
+                                        totale_slice) + ")"
+
+                                asterisk_count += 1
+                        sel_col += 1
+
+                if asterisk_count == 1:  # se sulla riga c'e' un asterisco solo .... ne asterisco un altro
+
+                    #print "row_tup " , row_tup
+                    sel_column = find_column_with_min_value(data[start_row].tolist(),
+                                                            start_col,
+                                                            stop_col)
+
+                    #print "sel_column ", sel_column
+
+                    if not sel_column is None:
+
+                        value = data[start_row][sel_column]
+                        data[start_row][sel_column] = ASTERISK
+
+                        if debug:
+                            data[start_row][sel_column] += ASTERISK
+                            data[start_row][sel_column] += "R(%s)" % str(value)
+
+                        asterisk_count += 1
+                        asterisk_global_count += asterisk_count
+
+                        if float(value) == 0.0:  # se ho asteriscato uno zero ne asterisco un altro
+
+                            sel_column = find_column_with_min_value_exclude_zero(data[start_row].tolist(),
+                                                                                 start_col,
+                                                                                 stop_col)
+
+                            if not sel_column is None:
+
+                                value = data[start_row][sel_column]
+
+                                data[start_row][sel_column] = ASTERISK
+
+                                if debug:
+                                    data[start_row][sel_column] += ASTERISK
+                                    data[start_row][sel_column] += "R(%s)" % str(value)
+
+                                asterisk_count += 1
+                                asterisk_global_count += asterisk_count
+
 
     return data, asterisk_global_count
 
@@ -865,6 +956,21 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
     asterisk_global_count = 0
 
+    data_frame_appoggio = pd.DataFrame(data_frame.values.copy(), data_frame.index.copy(), data_frame.columns.copy())
+
+    data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
+
+    if len(obs_values) > 1:
+        slice_da_preservare = len(data_frame_appoggio.index.levels) - 2  # 2, 1 per l'obs value e uno per l'ultimo slices
+    else:
+        if has_data_frame_multi_level_index(data_frame_appoggio):
+            slice_da_preservare = len(data_frame_appoggio.index.levels) - 1  #uno per l'ultimo slices
+        else:
+            slice_da_preservare = 0
+
+    #print "slice_da_preservare " , slice_da_preservare
+
+    """
     data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)  #riordina le colonne ....... menatona .... se c'e' il totale e campi stringa (es. comuni) su quella colonna sclera ... allora riordino ....
     data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
 
@@ -878,57 +984,31 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
     data_frame_appoggio_righe.drop(TOTAL, axis=0,inplace=True)  # e poi tolgo la label TOTALE sulle righe
 
     slice_da_preservare_righe, index_tuples = estrai_tuple_per_righe(data_frame_appoggio_righe, True, obs_values)  #true perche mi servono gli slices .... devo tutelare gli slices di riga
+    """
 
-    for ct, col_tup in enumerate(col_tuples):
+    if slice_da_preservare == 0:
+        #print "boh"
 
-        asterisk_count = 0
+        start_row = 0
+        stop_row = len(data) - 1
 
-        try:
-            column_index = data_frame_appoggio_colonne.columns.get_loc(col_tup)
-        except (KeyError, TypeError):
-            continue
+        for c, col in enumerate(data_frame_appoggio.columns):
 
-        for rt, row_tup in enumerate(index_tuples):
+            #print col
 
-            #print row_tup
-
-            try:
-                row_index = data_frame_appoggio_righe.index.get_loc(row_tup)
-            except (KeyError, TypeError):
-                continue
-
-            #print "row_index " , row_index
-
-            if type(data_frame_appoggio_righe.index) <> pd.MultiIndex:  #un field solo senza codice
-                start_row = 0
-                stop_row = len(index_tuples)
-            else:
-                if isinstance(row_index, slice):  #piu fields
-                    start_row = row_index.start
-                    stop_row = row_index.stop
-                else:  #un field solo CON codice
-                    start_row = 0
-                    stop_row = len(index_tuples)
-
-            #print "start_row ", start_row
-            #print "stop_row " , stop_row
-
-            asterisk_count = 0
+            start_col, stop_col = find_in_not_sorted_index(data_frame_appoggio.columns, col)
 
             sel_row = start_row
 
             totale_slice = 0
 
-            while sel_row <= stop_row:  #scorro per estrarre il numero degli asterischi in quel slice
+            asterisk_count = 0
 
+            while sel_row <= stop_row:
 
-                #totale_slice += float(data_frame.iloc[sel_row][column_index]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+                totale_slice += float(data_frame.iloc[sel_row][start_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
-                src_row = data[sel_row]
-
-                #print sel_row , " " , src_row
-
-                if str(src_row[column_index]).startswith(ASTERISK):
+                if str(data[sel_row][start_col]).startswith(ASTERISK):
                     asterisk_count += 1
                 sel_row += 1
 
@@ -940,38 +1020,44 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
                     src_row = data[sel_row]
 
-                    if not str(src_row[column_index]).startswith(ASTERISK):
+                    if not str(src_row[start_col]).startswith(ASTERISK):
 
-                        if float(src_row[column_index]) == totale_slice:
+                        if float(src_row[start_col]) == totale_slice:
                             #print "bingo"
-                            value = src_row[column_index]
-                            src_row[column_index] = ASTERISK
+                            value = src_row[start_col]
+                            src_row[start_col] = ASTERISK
 
                             if debug:
-                                src_row[column_index] += ASTERISK
-                                src_row[column_index] += 'P(' + str(
+                                src_row[start_col] += ASTERISK
+                                src_row[start_col] += 'P(' + str(
                                     value) + ' - TOT ' + str(
                                     totale_slice) + ")"
 
                             asterisk_count += 1
                     sel_row += 1
 
-            if asterisk_count == 1:
+            dim_slice = stop_row - start_row + 1
+
+            if ((asterisk_count == len(obs_values)) and (dim_slice > len(obs_values))):
+
+                #print "col " , col
 
                 min_row_index = find_row_with_min_value(data,
                                                         start_row,
-                                                        stop_row - 1,
-                                                        column_index)
+                                                        stop_row,
+                                                        start_col)
+
+                #print "min_row_index ", min_row_index
 
                 if not min_row_index is None:
 
                     src_row = data[min_row_index]
-                    value = src_row[column_index]
-                    src_row[column_index] = ASTERISK
+                    value = src_row[start_col]
+                    src_row[start_col] = ASTERISK
                     if debug:
-                        src_row[column_index] += ASTERISK
-                        src_row[column_index] += "C(%s)" % str(
-                            value)  # + ' ' + str(row_index) + ' ' + str(column_index) + ' ' + str(min_row_index)
+                        src_row[start_col] += ASTERISK
+                        src_row[start_col] += "C(%s)" % str(
+                            value)  # + ' ' + str(row_index) + ' ' + str(start_col) + ' ' + str(min_row_index)
                     asterisk_count += 1
                     asterisk_global_count += asterisk_count
 
@@ -981,20 +1067,119 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
                             data,
                             start_row,
                             stop_row - 1,
-                            column_index)
+                            start_col)
 
                         if not min_row_index is None:
                             src_row = data[min_row_index]
-                            value = src_row[column_index]
-                            src_row[column_index] = ASTERISK
+                            value = src_row[start_col]
+                            src_row[start_col] = ASTERISK
                             if debug:
-                                src_row[column_index] += ASTERISK
-                                src_row[column_index] += "C(%s)" % str(
-                                    value)  # + ' ' + str(row_index) + ' ' + str(column_index)
+                                src_row[start_col] += ASTERISK
+                                src_row[start_col] += "C(%s)" % str(
+                                    value)  # + ' ' + str(row_index) + ' ' + str(start_col)
                             asterisk_count += 1
                             asterisk_global_count += asterisk_count
 
-    #print asterisk_global_count
+    else:  #else del if slice_da_preservare == 0:
+        #print "mah"
+
+        index_tuples = tuple(data_frame_appoggio.index.levels[slice_da_preservare-1])
+
+        index_tuples = tuple([x for x in index_tuples if x != TOTAL])
+
+        for ct, row_tup in enumerate(index_tuples):
+
+            start_row, stop_row = find_in_not_sorted_index(data_frame_appoggio.index, row_tup)
+
+            for c, col_tup in enumerate(data_frame_appoggio.columns):
+
+                #print "col_tup" , col_tup
+
+                start_col, stop_col = find_in_not_sorted_index(data_frame_appoggio.columns, col_tup)
+
+                sel_row = start_row
+
+                totale_slice = 0
+
+                asterisk_count = 0
+
+                while sel_row <= stop_row:
+
+                    totale_slice += float(data_frame.iloc[sel_row][start_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+
+                    if str(data[sel_row][start_col]).startswith(ASTERISK):
+                        asterisk_count += 1
+                    sel_row += 1
+
+                sel_row = start_row
+
+                if float(totale_slice) <> 0.0:
+
+                    while sel_row <= stop_row:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
+
+                        src_row = data[sel_row]
+
+                        if not str(src_row[start_col]).startswith(ASTERISK):
+
+                            if float(src_row[start_col]) == totale_slice:
+                                #print "bingo"
+                                value = src_row[start_col]
+                                src_row[start_col] = ASTERISK
+
+                                if debug:
+                                    src_row[start_col] += ASTERISK
+                                    src_row[start_col] += 'P(' + str(
+                                        value) + ' - TOT ' + str(
+                                        totale_slice) + ")"
+
+                                asterisk_count += 1
+                        sel_row += 1
+
+                dim_slice = stop_row - start_row + 1
+
+                if ((asterisk_count == len(obs_values)) and (dim_slice > len(obs_values))):
+
+                    #print "row_tup "  , row_tup
+                    #print "col_tup " , col_tup
+
+                    min_row_index = find_row_with_min_value(data,
+                                                            start_row,
+                                                            stop_row,
+                                                            start_col)
+
+                    #print "min_row_index ", min_row_index
+
+                    if not min_row_index is None:
+
+                        src_row = data[min_row_index]
+                        value = src_row[start_col]
+                        src_row[start_col] = ASTERISK
+                        if debug:
+                            src_row[start_col] += ASTERISK
+                            src_row[start_col] += "C(%s)" % str(
+                                value)  # + ' ' + str(row_index) + ' ' + str(start_col) + ' ' + str(min_row_index)
+                        asterisk_count += 1
+                        asterisk_global_count += asterisk_count
+
+                        if float(value) == 0.0:
+
+                            min_row_index = find_row_with_min_value_exclude_zero(
+                                data,
+                                start_row,
+                                stop_row - 1,
+                                start_col)
+
+                            if not min_row_index is None:
+                                src_row = data[min_row_index]
+                                value = src_row[start_col]
+                                src_row[start_col] = ASTERISK
+                                if debug:
+                                    src_row[start_col] += ASTERISK
+                                    src_row[start_col] += "C(%s)" % str(
+                                        value)  # + ' ' + str(row_index) + ' ' + str(start_col)
+                                asterisk_count += 1
+                                asterisk_global_count += asterisk_count
+
 
     return data, asterisk_global_count  #perche ritorna 0 e non asterisk_global_count ?????
 
@@ -1086,11 +1271,13 @@ def protect_pivoted_table(data,
 
 
     while tot_asterisked > 0:
+
         data, asterisked_r = row_secondary_suppression(data,
                                                        data_frame,
                                                        rows,
                                                        debug,
                                                        obs_values)
+
 
         data, asterisked_c = column_secondary_suppression(data,
                                                           data_frame,
@@ -1101,9 +1288,10 @@ def protect_pivoted_table(data,
 
         tot_asterisked = asterisked_c + asterisked_r
 
-        #tot_asterisked = asterisked_c
+        #tot_asterisked = asterisked_r
 
         #print datetime.now().strftime("%H:%M:%S.%f")
+
 
     return data
 
@@ -3293,17 +3481,10 @@ def headers_and_data(user,
                                                               agg_filters, # serve per le tabelle del turismo per costruire la query secondaria
                                                               range)
 
-    if not df is None:
-        if not include_code:
-            # Fix all columns before drop the codes.
-            df = remove_code_from_data_frame(df)
 
-        if contains_ref_period(st.pivot, st.cols, axis=0) or df.shape[1] == 2:
-            df = drop_total_column(df)
+    #stampa_symtobltabel(st)
 
-        index = get_data_frame_first_index(df)
-        if contains_ref_period(st.pivot, st.cols, axis=1) or len(index) == 2:
-            df = drop_total_row(df)
+    df = drop_codes_and_totals(df, include_code, st.pivot,  st.cols)
 
     #print "cccccccccccccc"
 
