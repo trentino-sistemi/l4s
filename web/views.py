@@ -1370,6 +1370,12 @@ def query_editor_view(request):
             values[column_name] = vals
 
     ref_periods = list_ref_period(table_name, table_schema)
+    """
+    print "table_name ", table_name
+    print "table_schema ", table_schema
+    print "ref_periods ", ref_periods
+    """
+
     aggregations, agg_values = get_all_aggregations(table_name)
 
     """
@@ -1451,7 +1457,9 @@ def query_editor_view(request):
                                            include_code,
                                            visible,
                                            range,
-                                           request.environ['REMOTE_ADDR'])
+                                           request.environ['REMOTE_ADDR'],
+                                           table_name,
+                                           table_schema)
 
     context['values'] = values
     context['obs_values'] = obs_values

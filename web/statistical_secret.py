@@ -3351,7 +3351,9 @@ def headers_and_data(user,
                      include_code,
                      visible,
                      range,
-                     ip_adress):
+                     ip_adress,
+                     table_name,
+                     table_schema):
     """
     Execute query, get headers, data, duration, error
     and filter result set to preserve the statistical secret.
@@ -3484,7 +3486,7 @@ def headers_and_data(user,
 
     #stampa_symtobltabel(st)
 
-    df = drop_codes_and_totals(df, include_code, st.pivot,  st.cols)
+    df = drop_codes_and_totals(df, include_code, st.pivot,  st.cols, table_name, table_schema)
 
     #print "cccccccccccccc"
 

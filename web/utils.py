@@ -3843,7 +3843,7 @@ def is_int(v):
     return True
 
 
-def drop_codes_and_totals(df, include_code, pivot, cols):
+def drop_codes_and_totals(df, include_code, pivot, cols, table_name, table_schema):
 
     if not df is None:
         if not include_code:
@@ -3854,7 +3854,10 @@ def drop_codes_and_totals(df, include_code, pivot, cols):
         #print "st.cols " , cols
         #print "df.shape ", df.shape[0], df.shape[1]
 
-        if contains_ref_period(pivot, cols, axis=None) == False:
+        ref_periods = list_ref_period(table_name, table_schema)
+        #print len(ref_periods)
+
+        if len(ref_periods) == 0:
             #print "a"
             if df.shape[1] == 2:
                 df = drop_total_column(df)
