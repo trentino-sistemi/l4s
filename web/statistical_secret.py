@@ -673,7 +673,7 @@ def row_secondary_suppression(data,
 
             while sel_col <= stop_col:  #scorro per estrarre il numero degli asterischi in quel slice
 
-                totale_slice += float(data_frame.iloc[start_row][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+                #totale_slice += float(data_frame.iloc[start_row][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
                 if str(data[start_row][sel_col]).startswith(ASTERISK):
                     asterisk_count += 1
@@ -768,7 +768,7 @@ def row_secondary_suppression(data,
 
                 while sel_col <= stop_col:  #scorro per estrarre il numero degli asterischi in quel slice
 
-                    totale_slice += float(data_frame.iloc[start_row][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+                    #totale_slice += float(data_frame.iloc[start_row][sel_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
                     if str(data[start_row][sel_col]).startswith(ASTERISK):
                         asterisk_count += 1
@@ -1006,7 +1006,7 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
             while sel_row <= stop_row:
 
-                totale_slice += float(data_frame.iloc[sel_row][start_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+                #totale_slice += float(data_frame.iloc[sel_row][start_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
                 if str(data[sel_row][start_col]).startswith(ASTERISK):
                     asterisk_count += 1
@@ -1105,7 +1105,7 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
                 while sel_row <= stop_row:
 
-                    totale_slice += float(data_frame.iloc[sel_row][start_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
+                    #totale_slice += float(data_frame.iloc[sel_row][start_col]) #questo rallenta l'elaborazione ... il problema e' che in data ho gia' il dato con l'asterisco
 
                     if str(data[sel_row][start_col]).startswith(ASTERISK):
                         asterisk_count += 1
