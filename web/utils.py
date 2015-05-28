@@ -845,6 +845,8 @@ def build_query(table_name,
             fields.append(" \"%s\" " % row)
             position += 1
 
+    #print "annotation ", annotation
+
     comma_sep_fields = ", ".join(fields)
     query += "\n"
     query += 'SELECT '
@@ -1092,9 +1094,73 @@ def remove_code_from_data_frame(df):
 
                 #print df.index.get_loc(('Alta Valsugana e Bersntol                         ',))
 
+    return df
+
+def remove_description_from_data_frame(df, cols):
+    """
+    Remove code from data frame.
+
+    :param df: Data frame.
+    """
+    #print df.index.get_loc((4,'Alta Valsugana e Bersntol                         '))
+
+    # Rename empty index with total index name.
+    df.rename(index={u"": TOTAL}, inplace=True)
+    # Rename empty columns with total column name.
+    df.rename(columns={u"": TOTAL}, inplace=True)
+
+    #print df.index.get_loc((4,'Alta Valsugana e Bersntol                         '))
+
+    nome_tabella = cols[0]['table']
+
+    i = 0
+
+    dropped_levels = 0
+
+    """
+    print get_color()
+    print  "df.columns.names ", df.columns.names
+    print get_color()
+    print  "df.index.names ", df.index.names
+    """
+
+    for level, column in enumerate(df.columns.names):
+
+        """
+        print "i " , i
+        print "column " , column
+        """
+
+        if cols[i]['table'] <> nome_tabella:
+            #print "drop"
+            df.columns = df.columns.droplevel(level-dropped_levels)
+            dropped_levels += 1
+        i += 1
+
+    dropped_levels = 0
+
+    #print get_color()
+
+    for level, column in enumerate(df.index.names):
+
+        """
+        print "i " , i
+        print "column " , column
+        """
 
 
+        if cols[i]['table'] <> nome_tabella:
+            #print "drop"
+            df.index = df.index.droplevel(level-dropped_levels)
+            dropped_levels += 1
 
+        i += 1
+
+
+    """
+    print  "df.columns.names ", df.columns.names
+    print  "df.index.names ", df.index.names
+    """
 
     return df
 
@@ -1140,6 +1206,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
     fk_hash = dict()
     counter = 0
 
+    #print get_color()
     #print "fields ", fields
 
     for f in fields:
@@ -1176,6 +1243,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 print "dest_column " + dest_column
                 print "desc_column " + desc_column
                 print "alias " + alias
+                print sort_by_code
                 """
 
                 if alias is None:
@@ -1184,8 +1252,15 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 alias = alias.strip() #toglie gli spazi all'inizio e alla fine
                 sort_by_code = is_to_be_sorted_by_description(fk_hash[table],
                                                               field)
+                new_sql_header += "%s %s.%s %d \n" % (JOIN_TOKEN,
+                                                      table,
+                                                      field,
+                                                      counter)
 
-                #print sort_by_code
+                if f in pivot_cols:
+                    new_sql_header += "%s %d \n" % (PIVOT_TOKEN, counter)
+
+                counter += 1
 
                 if include_code or sort_by_code:
                 #if True:
@@ -1200,16 +1275,12 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
 
                     if f in pivot_cols:
                         new_sql_header += "%s %d \n" % (PIVOT_TOKEN, counter)
+
                     counter += 1
 
-                new_sql_header += "%s %s.%s %d \n" % (JOIN_TOKEN,
-                                                      table,
-                                                      field,
-                                                      counter)
+                #print new_sql_header
 
-                if f in pivot_cols:
-                    new_sql_header += "%s %d \n" % (PIVOT_TOKEN, counter)
-                counter += 1
+
                 j_table = "%s_%s" % (dest_table, field)
                 desc_query += "%s.%s " % (j_table, desc_column)
                 desc_query += "AS \"%s\"" % alias
@@ -3782,6 +3853,12 @@ def find_in_not_sorted_index(lista, elemento_da_cercare):
     inizio = -1
     fine = -1
 
+    """
+    if type(elemento_da_cercare) <> tuple:
+        if elemento_da_cercare.strip() == 'Bulgaria':
+            print type(lista)
+    """
+
     if type(lista) == pd.MultiIndex:
 
 
@@ -3821,6 +3898,12 @@ def find_in_not_sorted_index(lista, elemento_da_cercare):
                 fine = inizio
             else:
                 for a, b in enumerate(lista):
+
+                    """
+                    if elemento_da_cercare.strip() == 'Bulgaria':
+                        print a, b
+                    """
+
                     if elemento_da_cercare in b:
 
                         #print a, b

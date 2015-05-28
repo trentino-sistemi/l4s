@@ -32,7 +32,8 @@ from pandas import ExcelWriter
 from web.pyjstat import to_json_stat
 from web.reconcilation import reconciles_data_frame
 from web.utils import unpivot,\
-    has_data_frame_multi_level_columns
+    has_data_frame_multi_level_columns, \
+    get_color
 from web.statistical_secret import load_data_frame
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
@@ -48,7 +49,7 @@ import ast
 import six
 import calendar
 import StringIO
-
+import shutil
 
 def new_xlwt_colored_workbook():
     """
@@ -239,8 +240,15 @@ def generate_report_action_xls(request):
         # Add content and return response
         f = NamedTemporaryFile(suffix=extension)
         ew = ExcelWriter(f.name, engine=engine, encoding=encoding)
+
+        #print lim_df.to_string()
+        #print f.name
+
         lim_df.to_excel(ew)
         ew.save()
+
+
+        #shutil.copyfile(f.name, 'manuel.xls')
 
         show_legend = request.REQUEST.get('show_legend', '')
 
@@ -250,6 +258,7 @@ def generate_report_action_xls(request):
         filename = '%s.%s' % (title, extension)
         # Setup response
         data = f.read()
+
         response = HttpResponse(data)
         response["Content-Type"] = content_type
         response['Content-Transfer-Encoding'] = 'binary'

@@ -36,6 +36,7 @@ from web.utils import execute_query_on_main_db, \
     has_data_frame_multi_level_columns, \
     has_data_frame_multi_level_index, \
     remove_code_from_data_frame, \
+    remove_description_from_data_frame , \
     contains_ref_period, \
     TOTAL, \
     get_table_schema, \
@@ -333,14 +334,13 @@ def find_column_with_min_value(row, start_index, end_index):
     #print start_index
     #print end_index
 
-    for co, column in enumerate(row[start_index:]):
+    for co, column in enumerate(row[start_index:end_index+1]):
 
-        #print column
+        #print co, column
 
         c = start_index + co
-        if c == len(
-                row) - 1 or c == end_index:  # non capisco ... bastava mettere end_index nell'enumerate
-            break
+        #if c == len(row) - 1 or c == end_index:  # non capisco ... bastava mettere end_index nell'enumerate
+        #    break
         val = row[c]
         if str(val).startswith(ASTERISK):
             continue
@@ -361,10 +361,10 @@ def find_column_with_min_value_exclude_zero(row, start_index, end_index):
     :param end_index: End index.
     """
     min_index = None
-    for co, column in enumerate(row[start_index:]):
+    for co, column in enumerate(row[start_index:end_index+1]):
         c = start_index + co
-        if c == len(row) - 1 or c == end_index:
-            break
+        #if c == len(row) - 1 or c == end_index:
+        #    break
         val = row[c]
         if str(val).startswith(ASTERISK):
             continue
@@ -396,28 +396,47 @@ def row_primary_suppression(data,
                             debug):
     """
     Preform primary suppression for row.
+    This support multiple observation values.
 
     :param data: List of tuples containing query result set.
     :param threshold_columns_dict: The threshold.
     :param debug: Is to be debugged?
     :return: The data set after the primary suppression on rows.
     """
-    for r, row in enumerate(data):
-        if r == len(data) - len(obs_values):  #per saltare la riga dei totali
-            continue
-        for c, column in enumerate(row):
-            threshold = get_threshold_from_dict(threshold_columns_dict,
-                                                c)  #estrare la soglia se c'e' altrimenti usa quella di default che e' 3
-            if c == len(row) - 1:  #per saltare la colonna dei totali
-                break
-            val = row[c]  #usare column ??????????
-            if str(val).startswith(
-                    ASTERISK):  #sara' mai vero ? e' la prima procedura che cicla su data e quindi asterischi non dovrebbero essercene
+
+    #print "obs_values a ", obs_values
+    #print "threshold_columns_dict ", threshold_columns_dict
+
+    for o, obs in enumerate(obs_values):
+
+        threshold = get_threshold_from_dict(threshold_columns_dict, obs)
+
+        #print threshold
+
+        for r, row in enumerate(data):
+
+            if r == len(data) - len(obs_values):  #per saltare la riga dei totali
                 continue
-            if is_to_be_asterisked(val, threshold):
-                row[c] = ASTERISK
-                if debug:
-                    row[c] += 'P(' + val + ")"
+
+            #print r, row
+
+            for c, column in enumerate(row):
+
+                if c == len(row) - 1:  #per saltare la colonna dei totali
+                    break
+
+                #print c, column
+
+                if len(obs_values) > 1 and r % len(obs_values) != obs:  #per piu obs value ... ma non l'ho capita del tutto
+                    continue
+
+                val = row[c]  #usare column ??????????
+                if str(val).startswith(ASTERISK):  #sara' mai vero ? e' la prima procedura che cicla su data e quindi asterischi non dovrebbero essercene
+                    continue
+                if is_to_be_asterisked(val, threshold):
+                    row[c] = ASTERISK
+                    if debug:
+                        row[c] += 'P(' + val + ")"
 
     return data
 
@@ -469,23 +488,21 @@ def column_primary_pivoted_suppression(data,
     :return: The data set after the primary suppression on columns.
     """
 
-    for o, obs in enumerate(obs_values):  #questo e' corretto non quello che c'e' sulla riga
+    #print "obs_values b ", obs_values
+
+    for o, obs in enumerate(obs_values):
         threshold = get_threshold_from_dict(threshold_columns_dict, obs)
 
-        for c, column in enumerate(data[0],
-                                   start=0):  #e' un modo buffo per ciclare sulle colonne
+        for c, column in enumerate(data[0],start=0):  #e' un modo buffo per ciclare sulle colonne
             if c == len(data[0]) - 1:  #per saltare i totali di riga
                 break
             for r, row in enumerate(data):
-                if r > len(data) - len(
-                        obs_values) - 1:  #per saltare i totali di colonna
+                if r > len(data) - len(obs_values) - 1:  #per saltare i totali di colonna
                     break
-                if len(obs_values) > 1 and r % len(
-                        obs_values) != obs:  #per piu obs value ... ma non l'ho capita del tutto
+                if len(obs_values) > 1 and r % len(obs_values) != obs:  #per piu obs value ... ma non l'ho capita del tutto
                     continue
                 val = row[c]
-                if str(val).startswith(
-                        ASTERISK):  # se e' gia' stato asteriscato da quella per riga
+                if str(val).startswith(ASTERISK):  # se e' gia' stato asteriscato da quella per riga
                     continue
                 if is_to_be_asterisked(val, threshold):
                     row[c] = ASTERISK
@@ -604,7 +621,8 @@ def row_secondary_suppression(data,
                               data_frame,
                               rows,
                               debug,
-                              obs_values):
+                              obs_values,
+                              cols):
     """
     Secondary suppression.
 
@@ -640,7 +658,9 @@ def row_secondary_suppression(data,
 
     data_frame_appoggio = pd.DataFrame(data_frame.values.copy(), data_frame.index.copy(), data_frame.columns.copy())
 
-    data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
+    #data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
+
+    data_frame_appoggio = remove_description_from_data_frame(data_frame_appoggio, cols)
 
     data_frame_appoggio = drop_total_row(data_frame_appoggio)
     data_frame_appoggio = drop_total_column(data_frame_appoggio)
@@ -688,25 +708,26 @@ def row_secondary_suppression(data,
 
             sel_col = start_col
 
-            if float(totale_slice) <> 0.0:
+            if stop_col > start_col: #  per eliminare slice composti da un solo elemento
+                if float(totale_slice) <> 0.0:
 
-                while sel_col <= stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
+                    while sel_col <= stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
-                    if not str(data[start_row][sel_col]).startswith(ASTERISK):
+                        if not str(data[start_row][sel_col]).startswith(ASTERISK):
 
-                        if float(data[start_row][sel_col]) == totale_slice:
-                            #print "bingo"
-                            value = data[start_row][sel_col]
-                            data[start_row][sel_col] = ASTERISK
+                            if float(data[start_row][sel_col]) == totale_slice:
+                                #print "bingo"
+                                value = data[start_row][sel_col]
+                                data[start_row][sel_col] = ASTERISK
 
-                            if debug:
-                                data[start_row][sel_col] += ASTERISK
-                                data[start_row][sel_col] += 'P(' + str(
-                                    value) + ' - TOT R ' + str(
-                                    totale_slice) + ")"
+                                if debug:
+                                    data[start_row][sel_col] += ASTERISK
+                                    data[start_row][sel_col] += 'P(' + str(
+                                        value) + ' - TOT R ' + str(
+                                        totale_slice) + ")"
 
-                            asterisk_count += 1
-                    sel_col += 1
+                                asterisk_count += 1
+                        sel_col += 1
 
             if asterisk_count == 1:  # se sulla riga c'e' un asterisco solo .... ne asterisco un altro
 
@@ -762,6 +783,7 @@ def row_secondary_suppression(data,
             start_row, stop_row = find_in_not_sorted_index(data_frame_appoggio.index, row_tup)
 
             #print "start_row " , start_row
+            #print "stop_row " , stop_row
 
             for c, col_tup in enumerate(column_tuples):
 
@@ -788,27 +810,28 @@ def row_secondary_suppression(data,
 
                 sel_col = start_col
 
-                #print "totale_slice ", totale_slice
+                #print "asterisk_count ", asterisk_count
 
-                if float(totale_slice) <> 0.0:
+                if stop_col > start_col: #  per eliminare slice composti da un solo elemento
+                    if float(totale_slice) <> 0.0:
 
-                    while sel_col <= stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
+                        while sel_col <= stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
-                        if not str(data[start_row][sel_col]).startswith(ASTERISK):
+                            if not str(data[start_row][sel_col]).startswith(ASTERISK):
 
-                            if float(data[start_row][sel_col]) == totale_slice:
-                                #print "bingo"
-                                value = data[start_row][sel_col]
-                                data[start_row][sel_col] = ASTERISK
+                                if float(data[start_row][sel_col]) == totale_slice:
+                                    #print "bingo"
+                                    value = data[start_row][sel_col]
+                                    data[start_row][sel_col] = ASTERISK
 
-                                if debug:
-                                    data[start_row][sel_col] += ASTERISK
-                                    data[start_row][sel_col] += 'P(' + str(
-                                        value) + ' - TOT R ' + str(
-                                        totale_slice) + ")"
+                                    if debug:
+                                        data[start_row][sel_col] += ASTERISK
+                                        data[start_row][sel_col] += 'P(' + str(
+                                            value) + ' - TOT R ' + str(
+                                            totale_slice) + ")"
 
-                                asterisk_count += 1
-                        sel_col += 1
+                                    asterisk_count += 1
+                            sel_col += 1
 
                 if asterisk_count == 1:  # se sulla riga c'e' un asterisco solo .... ne asterisco un altro
 
@@ -953,7 +976,7 @@ def estrai_slice_da_preservare(righe, livello_in, obs_vals):
     return slice_da_preservare_originale, slice_da_preservare
 
 
-def column_secondary_suppression(data, data_frame, obs_values, debug):
+def column_secondary_suppression(data, data_frame, obs_values, debug, cols):
     """
     Perform secondary suppression for columns.
     The function asterisk at least 2 value
@@ -972,7 +995,19 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
     data_frame_appoggio = pd.DataFrame(data_frame.values.copy(), data_frame.index.copy(), data_frame.columns.copy())
 
-    data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
+    """
+    for level, column in enumerate(data_frame_appoggio.columns.names):
+        print level, column
+
+    for level, column in enumerate(data_frame_appoggio.index.names):
+        print level, column
+    """
+
+    #data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
+
+    #print "cols " , cols
+
+    data_frame_appoggio = remove_description_from_data_frame(data_frame_appoggio, cols)
 
     data_frame_appoggio = drop_total_row(data_frame_appoggio)
     data_frame_appoggio = drop_total_column(data_frame_appoggio)
@@ -1035,27 +1070,28 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
             #print "totale_slice ", totale_slice
 
-            if float(totale_slice) <> 0.0:
+            if stop_row > start_row: # per eliminare slice composta da un solo elemento
+                if float(totale_slice) <> 0.0:
 
-                while sel_row <= stop_row:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
+                    while sel_row <= stop_row:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
-                    src_row = data[sel_row]
+                        src_row = data[sel_row]
 
-                    if not str(src_row[start_col]).startswith(ASTERISK):
+                        if not str(src_row[start_col]).startswith(ASTERISK):
 
-                        if float(src_row[start_col]) == totale_slice:
-                            #print "bingo"
-                            value = src_row[start_col]
-                            src_row[start_col] = ASTERISK
+                            if float(src_row[start_col]) == totale_slice:
+                                #print "bingo"
+                                value = src_row[start_col]
+                                src_row[start_col] = ASTERISK
 
-                            if debug:
-                                src_row[start_col] += ASTERISK
-                                src_row[start_col] += 'P(' + str(
-                                    value) + ' - TOT C ' + str(
-                                    totale_slice) + ")"
+                                if debug:
+                                    src_row[start_col] += ASTERISK
+                                    src_row[start_col] += 'P(' + str(
+                                        value) + ' - TOT C ' + str(
+                                        totale_slice) + ")"
 
-                            asterisk_count += 1
-                    sel_row += 1
+                                asterisk_count += 1
+                        sel_row += 1
 
             dim_slice = stop_row - start_row + 1
 
@@ -1108,19 +1144,38 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
         index_tuples = tuple([x for x in index_tuples if x != TOTAL])
 
+        #print "index_tuples " , index_tuples
+
         for ct, row_tup in enumerate(index_tuples):
+
+            """
+            if row_tup.strip() == 'Bulgaria':
+                print "row_tup " , row_tup
+            """
 
             #print "row_tup " , row_tup
 
             start_row, stop_row = find_in_not_sorted_index(data_frame_appoggio.index, row_tup)
 
-            #print start_row, stop_row
+            """
+            if row_tup.strip() == 'Bulgaria':
+                print "start_row, stop_row " , start_row, stop_row
+            """
+
+            #print "start_row, stop_row " , start_row, stop_row
 
             for c, col_tup in enumerate(data_frame_appoggio.columns):
+
+                """
+                if row_tup.strip() == 'Bulgaria':
+                    print "col_tup" , col_tup
+                """
 
                 #print "col_tup" , col_tup
 
                 start_col, stop_col = find_in_not_sorted_index(data_frame_appoggio.columns, col_tup)
+
+                #print "start_col, stop_col " , start_col, stop_col
 
                 sel_row = start_row
 
@@ -1138,29 +1193,33 @@ def column_secondary_suppression(data, data_frame, obs_values, debug):
 
                 sel_row = start_row
 
-                #print "totale_slice ", totale_slice
+                """
+                if row_tup.strip() == 'Bulgaria':
+                    print "asterisk_count ", asterisk_count
+                """
 
-                if float(totale_slice) <> 0.0:
+                if stop_row > start_row: # per eliminare slice composta da un solo elemento
+                    if float(totale_slice) <> 0.0:
 
-                    while sel_row <= stop_row:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
+                        while sel_row <= stop_row:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
-                        src_row = data[sel_row]
+                            src_row = data[sel_row]
 
-                        if not str(src_row[start_col]).startswith(ASTERISK):
+                            if not str(src_row[start_col]).startswith(ASTERISK):
 
-                            if float(src_row[start_col]) == totale_slice:
-                                #print "bingo"
-                                value = src_row[start_col]
-                                src_row[start_col] = ASTERISK
+                                if float(src_row[start_col]) == totale_slice:
+                                    #print "bingo"
+                                    value = src_row[start_col]
+                                    src_row[start_col] = ASTERISK
 
-                                if debug:
-                                    src_row[start_col] += ASTERISK
-                                    src_row[start_col] += 'P(' + str(
-                                        value) + ' - TOT C ' + str(
-                                        totale_slice) + ")"
+                                    if debug:
+                                        src_row[start_col] += ASTERISK
+                                        src_row[start_col] += 'P(' + str(
+                                            value) + ' - TOT C ' + str(
+                                            totale_slice) + ")"
 
-                                asterisk_count += 1
-                        sel_row += 1
+                                    asterisk_count += 1
+                            sel_row += 1
 
                 dim_slice = stop_row - start_row + 1
 
@@ -1229,12 +1288,14 @@ def protect_pivoted_secret(data,
     :return: The pivoted table preserving statistical secret with marginality.
     """
     if not contains_ref_period(pivot_c, cols, axis=0):
+        #print "aaaaa"
         data = row_primary_suppression(data,
                                        threshold_columns_dict,
                                        obs_values,
                                        debug)
 
     if not contains_ref_period(pivot_c, cols, axis=1):
+        #print "bbbbb"
         data = column_primary_pivoted_suppression(data,
                                                   obs_values,
                                                   threshold_columns_dict,
@@ -1303,22 +1364,22 @@ def protect_pivoted_table(data,
                                                        data_frame,
                                                        rows,
                                                        debug,
-                                                       obs_values)
-
+                                                       obs_values,
+                                                       cols)
 
         data, asterisked_c = column_secondary_suppression(data,
                                                           data_frame,
                                                           obs_values,
-                                                          debug)
+                                                          debug,
+                                                          cols)
 
         #print "asterisked_c ", asterisked_c, " asterisked_r ", asterisked_r
 
         tot_asterisked = asterisked_c + asterisked_r
 
-        #tot_asterisked = asterisked_r
+        #tot_asterisked = asterisked_c
 
         #print datetime.now().strftime("%H:%M:%S.%f")
-
 
     return data
 
@@ -3327,10 +3388,7 @@ def apply_stat_secret(headers,
                                          rows,
                                          debug)
 
-        #print "aaaaaaaaaaaaaaaaaaaaaaa"
         data_frame = data_frame_from_tuples(data_frame, data)
-
-        #print "bbbbb"
 
         return data, headers, data_frame, warn, err
 
@@ -3436,6 +3494,7 @@ def headers_and_data(user,
 
     #print "agg_filters " , agg_filters
 
+    #stampa_symtobltabel(st)
 
     """
     print bcolors.OKGREEN
@@ -3451,6 +3510,7 @@ def headers_and_data(user,
                                                pivot_cols,
                                                False,
                                                include_code)
+        #print query.sql
         st = detect_special_columns(query.sql)
 
     """
@@ -3511,6 +3571,7 @@ def headers_and_data(user,
                                                               range)
 
 
+    #print old_head
     #stampa_symtobltabel(st)
 
     df = drop_codes_and_totals(df, include_code, st.pivot,  st.cols, table_name, table_schema)
@@ -3561,6 +3622,9 @@ def load_data_frame(request):
     :return: Data frame.
     """
     store_name = request.REQUEST.get('store', '')
+
+    #print "store_name ", store_name
+
     if store_name is "":
         query_id = request.REQUEST.get('id')
         query = Query.objects.get(id=query_id)
@@ -3608,6 +3672,9 @@ def load_data_frame(request):
                                                    False)
             return df
     df = pd.read_pickle(store_name)
+
+    #print df
+
     return df
 
 
