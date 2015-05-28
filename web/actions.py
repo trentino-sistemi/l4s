@@ -104,7 +104,7 @@ def generate_report_action_xls(request):
     :return: Response with Excel 1997 attachment.
     """
 
-    def add_header_and_footer(file_name, title, description, show_legend):
+    def add_header_and_footer(file_name, title, description, show_legend, table_description):
         """
         Add header and footer to excel file.
 
@@ -134,11 +134,18 @@ def generate_report_action_xls(request):
 
         new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
 
+        table_description_label = unicode(_("Argomento"))
+        new_sheet.write(0, 0, table_description_label, head_cell)
+        new_sheet.write(0, 1, table_description, head_cell)
+        new_sheet.write_merge(0, 0, 1, header_len, table_description, head_cell)
+
         title_label = unicode(_("Title"))
-        new_sheet.write(0, 0, title_label, head_cell)
-        new_sheet.write(0, 1, title, head_cell)
-        new_sheet.write_merge(0, 0, 1, header_len, title, head_cell)
-        line_num = 1
+        new_sheet.write(1, 0, title_label, head_cell)
+        new_sheet.write(1, 1, title, head_cell)
+        new_sheet.write_merge(1, 1, 1, header_len, title, head_cell)
+
+
+        line_num = 2
         if description is not None:
             description_label = unicode(_("Description"))
             s = StringIO.StringIO(description)
@@ -149,16 +156,10 @@ def generate_report_action_xls(request):
                     add = (len(line) / (char_per_cell * header_len)) + 1
                     line_num += add
 
-            new_sheet.write(1, 0, description_label, head_cell)
-            new_sheet.write_merge(1, line_num, 0, 0, description_label,
-                                  head_cell)
-            new_sheet.write(1, 1, description, head_cell)
-            new_sheet.write_merge(1,
-                                  line_num,
-                                  1,
-                                  header_len,
-                                  description,
-                                  head_cell)
+            new_sheet.write(2, 0, description_label, head_cell)
+            new_sheet.write_merge(2, line_num, 0, 0, description_label, head_cell)
+            new_sheet.write(2, 1, description, head_cell)
+            new_sheet.write_merge(2, line_num, 1, header_len, description, head_cell)
 
         #print "show_legend ", show_legend
 
@@ -251,8 +252,9 @@ def generate_report_action_xls(request):
         #shutil.copyfile(f.name, 'manuel.xls')
 
         show_legend = request.REQUEST.get('show_legend', '')
+        table_description = request.REQUEST.get('table_description', '')
 
-        add_header_and_footer(f.name, title, description, show_legend)
+        add_header_and_footer(f.name, title, description, show_legend, table_description)
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
         filename = '%s.%s' % (title, extension)
@@ -276,7 +278,7 @@ def generate_report_action_xlsx(request):
     :return: Response with Excel 2007 attachment.
     """
 
-    def add_header_and_footer(file_name, title, description, show_legend):
+    def add_header_and_footer(file_name, title, description, show_legend, table_description):
         """
         Add header and footer to excel file.
 
@@ -291,7 +293,9 @@ def generate_report_action_xlsx(request):
         new_sheet = new_workbook.active
 
         title_label = unicode(_("Title"))
-        line_num = 1
+        table_description_label = unicode(_("Argomento"))
+
+        line_num = 2
 
         r_alignment = OAlignment(horizontal='right')
         l_alignment = OAlignment(horizontal='left')
@@ -309,15 +313,27 @@ def generate_report_action_xlsx(request):
         body_style = Style(font=body_font)
 
         cell = new_sheet.cell(row=1, column=1)
-        cell.value = title_label
+        cell.value = table_description_label
         cell.style = header_style
 
         cell = new_sheet.cell(row=1, column=2)
-        cell.value = title
+        cell.value = table_description
         cell.style = header_style
 
         new_sheet.merge_cells(start_row=1, start_column=2,
                               end_row=1, end_column=header_len+1)
+
+
+        cell = new_sheet.cell(row=2, column=1)
+        cell.value = title_label
+        cell.style = header_style
+
+        cell = new_sheet.cell(row=2, column=2)
+        cell.value = title
+        cell.style = header_style
+
+        new_sheet.merge_cells(start_row=2, start_column=2,
+                              end_row=2, end_column=header_len+1)
 
         if description is not None:
             description_label = unicode(_("Description"))
@@ -329,19 +345,19 @@ def generate_report_action_xlsx(request):
                     add = (len(line) / (char_per_cell * header_len)) + 1
                     line_num += add
 
-            cell = new_sheet.cell(row=2, column=1)
+            cell = new_sheet.cell(row=3, column=1)
             cell.style = header_style
             cell.value = description_label
-            new_sheet.merge_cells(start_row=2,
+            new_sheet.merge_cells(start_row=3,
                                   start_column=1,
                                   end_row=line_num + 1,
                                   end_column=1)
 
-            cell = new_sheet.cell(row=2, column=2)
+            cell = new_sheet.cell(row=3, column=2)
             cell.style = header_style
             cell.value = description
 
-            new_sheet.merge_cells(start_row=2,
+            new_sheet.merge_cells(start_row=3,
                                   start_column=2,
                                   end_row=line_num + 1,
                                   end_column=header_len + 1)
@@ -429,8 +445,9 @@ def generate_report_action_xlsx(request):
         ew.save()
 
         show_legend = request.REQUEST.get('show_legend', '')
+        table_description = request.REQUEST.get('table_description', '')
 
-        add_header_and_footer(f.name, title, description, show_legend)
+        add_header_and_footer(f.name, title, description, show_legend, table_description)
 
         # Setup response
         data = f.read()
