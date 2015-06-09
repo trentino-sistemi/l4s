@@ -343,3 +343,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         :param from_email: Sender email address.
         """
         send_mail(subject, message, from_email, [self.email])
+
+
+class Synonym(models.Model):
+    """
+    Tuple che rappresentano sinonimi separati da ;
+    """
+    synonyms_list = models.CharField(max_length=5000)

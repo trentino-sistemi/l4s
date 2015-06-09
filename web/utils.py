@@ -40,6 +40,8 @@ import ast
 import six
 from datetime import datetime
 
+ASTERISK = '*'
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -3836,12 +3838,15 @@ def subtuple_index(tuples, t):
         if t in x: return i
     return -1
 
-def find_in_not_sorted_index(lista, elemento_da_cercare):
+def find_in_not_sorted_index(lista, elemento_da_cercare, debug=False):
+
 
     """
     print lista.tolist()
     print elemento_da_cercare
+    print type(lista)
     print type(elemento_da_cercare)
+
 
     if type(elemento_da_cercare) == tuple:
         print lista.tolist().index(elemento_da_cercare)
@@ -3867,7 +3872,13 @@ def find_in_not_sorted_index(lista, elemento_da_cercare):
 
         if type(elemento_da_cercare) == tuple:
 
+            if debug == True:
+                print "after " , elemento_da_cercare
+
             elemento_da_cercare = [str(i) for i in elemento_da_cercare]
+
+            if debug == True:
+                print "post ", elemento_da_cercare
 
             nuova_lista = []
 
@@ -3877,6 +3888,8 @@ def find_in_not_sorted_index(lista, elemento_da_cercare):
             inizio = subtuple_index(nuova_lista, list(elemento_da_cercare))
             fine = inizio
 
+            #print "inizio " , inizio
+
             #inizio = lista.tolist().index(elemento_da_cercare)
             #fine = inizio
         else:
@@ -3885,7 +3898,32 @@ def find_in_not_sorted_index(lista, elemento_da_cercare):
 
                 #per i comuni o le comunita' di valle con caratteri particolari non va
                 #elemento_da_cercare = [str(i).encode('UTF-8') for i in elemento_da_cercare]
-                elemento_da_cercare = [i.encode('UTF-8') for i in elemento_da_cercare if type(i) == str]
+
+                if debug == True:
+                    print "after " , elemento_da_cercare
+
+                if debug == True:
+                    for i in elemento_da_cercare:
+                        print i, type(i)
+
+                #elemento_da_cercare = [i.encode('UTF-8') for i in elemento_da_cercare if type(i) == str]
+
+                lista_appoggio = []
+
+                for i in elemento_da_cercare:
+
+                    if is_int(i):
+                        lista_appoggio.append(str(i))
+                    else:
+                        if type(i) == unicode:
+                            lista_appoggio.append(i.encode('UTF-8'))
+                        else:
+                            lista_appoggio.append(i)
+
+                    #lista_appoggio.append(i)
+
+                if debug == True:
+                    print "post ", lista_appoggio
 
                 #print "quiiii"
 
@@ -3894,8 +3932,12 @@ def find_in_not_sorted_index(lista, elemento_da_cercare):
                 for y, a in enumerate(lista):
                     nuova_lista.append([str(i) for i in a])
 
-                inizio = subtuple_index(nuova_lista, elemento_da_cercare)
+                inizio = subtuple_index(nuova_lista, lista_appoggio)
                 fine = inizio
+
+                if debug == True:
+                    print "inizio " , inizio
+
             else:
                 for a, b in enumerate(lista):
 
@@ -3961,3 +4003,19 @@ def drop_codes_and_totals(df, include_code, pivot, cols, table_name, table_schem
                     df = drop_total_row(df)
 
     return df
+
+
+def condition_for_secondary_suppression(data, apply_range):
+
+    result = False
+
+    if apply_range == True:
+        if str(data).startswith('<') or \
+           str(data).startswith('>') or \
+           str(data).find('-') > 0: # significa che e' trovata e non e' il primo carattere (per esempio un numero negativo)
+            result = True
+    else:
+        if str(data).startswith(ASTERISK):
+            result = True
+
+    return result

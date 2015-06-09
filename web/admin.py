@@ -24,7 +24,7 @@ from django.contrib.auth.admin import UserAdmin as _UserAdmin
 from web.forms import UserChangeForm, \
     UserCreationForm, \
     UserTypeForm
-from web.models import User, Test3, Test4, Test5, ClassRange, ExecutedQueryLog
+from web.models import User, Test3, Test4, Test5, ClassRange, ExecutedQueryLog, Synonym
 
 
 class UserAdmin(_UserAdmin):
@@ -101,6 +101,10 @@ class ClassRangeAdmin(admin.ModelAdmin):
 class ClassLogAdmin(admin.ModelAdmin):
     list_display = ('query_title', 'query_body', 'executed_by', 'executed_at', 'ip_address')
 
+class ClassSynonymsAdmin(admin.ModelAdmin):
+    list_display = ('synonyms_list', )
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(UserType)
 admin.site.register(Test3, Test3Admin)
@@ -108,4 +112,5 @@ admin.site.register(Test4, Test4Admin)
 admin.site.register(Test5, Test5Admin)
 admin.site.register(ClassRange, ClassRangeAdmin)
 admin.site.register(ExecutedQueryLog, ClassLogAdmin)
+admin.site.register(Synonym, ClassSynonymsAdmin)
 

@@ -448,27 +448,80 @@ $(".download_turtle_button").click(function(e) {
 
 
 range = '{{ range }}';
+
 if (range=='True') {
 
+    //menatona per via che ci sono alcune celle mergiate
+
+    obs_values = '{{ selected_obs_values|escapejs }}';
     colonne = '{{ columns|escapejs }}';
     righe = '{{ rows|escapejs }}';
 
+    obs_values_array = obs_values.split(",");
     colonne_array = colonne.split(",");
     righe_array = righe.split(",");
 
+    if (obs_values_array.length == 1) {
+      elemento_da_conteggiare = 1;
+    }
+      else
+    {
+      elemento_da_conteggiare = 0;
+    }
+
+    //alert(colonne_array);
+    //alert(righe_array);
+
+    //alert(colonne_array.length);
+    //alert(righe_array.length);
+
     var tabella = document.getElementsByClassName("dataframe table table-striped");
+
+    numero_righe = 0;
+    numero_colonne = 0;
+
+    $(tabella[0]).find('tr').each (function() {
+
+      numero_colonne_app = 0;
+
+      $.each(this.cells, function(){
+
+        numero_colonne_app = numero_colonne_app + 1;
+
+      });
+
+      if (numero_colonne_app > numero_colonne) {
+        numero_colonne = numero_colonne_app;
+      }
+
+      numero_righe = numero_righe + 1;
+
+    });
+
+    //alert(numero_righe);
+    //alert(numero_colonne);
 
     riga = 0;
 
     $(tabella[0]).find('tr').each (function() {
 
-      if (riga >= colonne_array.length) {
+      if (riga > (colonne_array.length + elemento_da_conteggiare)) {
+
+          numero_colonne_app = 0;
+
+          $.each(this.cells, function(){
+
+            numero_colonne_app = numero_colonne_app + 1;
+
+          });
+
+          //alert(numero_colonne_app);
 
           colonna = 0;
 
           $.each(this.cells, function(){
 
-            if (colonna >= righe_array.length) {
+            if (colonna > righe_array.length - (numero_colonne - numero_colonne_app) - elemento_da_conteggiare) {
 
                 if (($(this).text().indexOf("<") > -1) ||
                     ($(this).text().indexOf(">") > -1) ||
@@ -480,6 +533,7 @@ if (range=='True') {
             colonna = colonna + 1;
 
           });
+
       }
 
       riga = riga + 1;
