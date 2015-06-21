@@ -117,19 +117,42 @@ def get_table_by_name_or_desc(search, tables, order):
     """
 
     search_s = "'" + '%' + search + '%' + "'"
+
+    query_synonyms =  "select regexp_split_to_table(synonyms_list, ';') \n"
+    query_synonyms += "from web_synonym \n"
+    query_synonyms += "where synonyms_list ilike %s\n" % search_s
+
+    rows = execute_query_on_django_db(query_synonyms)
+
     query = "SELECT DISTINCT b.table_name, d.value \n"
-    query += "FROM web_metadata b \n"
-    query += "JOIN web_metadata d \n"
-    query += "ON (d.table_name = b.table_name and d.column_name = 'NULL' "
-    query += "and upper(d.key) = 'HTTP://PURL.ORG/DC/TERMS/DESCRIPTION') \n"
-    query += "WHERE (b.column_name ilike %s or " % search_s
-    query += "b.table_name ilike %s or " % search_s
-    query += "d.value ilike %s) \n" % search_s
+    query += "FROM web_metadata b JOIN web_metadata d ON (d.table_name = b.table_name and \n"
+    query += "                                            d.column_name = 'NULL' and \n"
+    query += "                                            upper(d.key) = 'HTTP://PURL.ORG/DC/TERMS/DESCRIPTION') \n"
+    query += "WHERE ("
+
+    if len(rows) > 0:
+        for j, row in enumerate(rows):
+            #print j, row
+            search_r = "'" + '%' + row[0] + '%' + "'"
+            query += "b.column_name ilike %s or " % search_r
+            query += "b.table_name ilike %s or " % search_r
+            query += "d.value ilike %s " % search_r
+            if j < len(rows) - 1:
+                query += " or "
+    else:
+        query += "b.column_name ilike %s or " % search_s
+        query += "b.table_name ilike %s or " % search_s
+        query += "d.value ilike %s " % search_s
+
+    query += ") \n"
+
     if not tables is None:
         table_names = "'" + "','".join(tables) + "'"
         query += "and b.table_name IN (%s)" % table_names
     if not order is None:
-        query += "ORDER BY %s" % order
+        query += "\nORDER BY %s" % order
+
+    #print query
 
     rows = execute_query_on_django_db(query)
     ret = OrderedDict()
@@ -180,26 +203,43 @@ def order_tables_by_topic_and_descriptions(tables):
 
     ret_tables = []
     tables_str = "'" + "','".join(tables) + "'"
-    query = "SELECT b.argomento, a.nome from tabelle a \n"
-    query += "JOIN argomenti_tabelle b \n"
-    query += "ON (b.id = a.id)"
-    query += "and a.nome IN (%s) \n" % tables_str
+    query =  "SELECT b.argomento, a.nome \n"
+    query += "from tabelle a JOIN argomenti_tabelle b ON (b.id = a.id) \n"
+    query += "Where a.nome IN (%s) \n" % tables_str
     query += "ORDER BY b.argomento"
+
+    #print query
 
     old_arg = None
     rows = execute_query_on_main_db(query)
     arg_tables = []
     for r, row in enumerate(rows):
+
+        #print r, row
+
         curr_arg = row[0]
         table_name = row[1]
-        if not old_arg is None and (
-                old_arg != curr_arg or r == len(rows) - 1):
+
+        if not old_arg is None and (old_arg != curr_arg or r == len(rows) - 1):
             # order set and append it
+            #print "aaaaaaa"
             ord_tables = order_tables_by_descriptions(arg_tables)
             ret_tables.extend(ord_tables)
             arg_tables = []
+
         arg_tables.append(table_name)
         old_arg = curr_arg
+
+        #print "ret_tables", ret_tables
+        #print "arg_tables", arg_tables
+        #print "old_arg", old_arg
+
+    if not old_arg is None and (old_arg != curr_arg or r == len(rows) - 1): # questo va messo per l'ultima riga che altirmenti resta non analizzata
+        # order set and append it
+        #print "aaaaaaa"
+        ord_tables = order_tables_by_descriptions(arg_tables)
+        ret_tables.extend(ord_tables)
+        arg_tables = []
 
     return ret_tables
 

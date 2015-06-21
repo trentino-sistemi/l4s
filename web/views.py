@@ -103,7 +103,8 @@ from web.utils import get_variable_dictionary, \
     build_aggregation_title,\
     save_value, \
     execute_query_on_django_db, \
-    execute_query_on_main_db
+    execute_query_on_main_db, \
+    get_color
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1739,6 +1740,8 @@ def query_editor(request):
     # Filter tables matching descriptions and table_name.
     if search:
         table_description = get_table_by_name_or_desc(search, tables, 'value')
+        #print get_color()
+        #print "table_description ", table_description
         tables = table_description.keys()
 
     if topic is not None and topic != "":
@@ -1747,9 +1750,13 @@ def query_editor(request):
         # Topic 0 means that all the topics will be displayed.
         topic_id = 0
 
+    #print "topic_id", topic_id
+
     if topic_id == 0:
         context['topics_counter'] = build_topics_counter_dict(tables)
+        #print "tables 1", tables
         tables = order_tables_by_topic_and_descriptions(tables)
+        #print "tables 2", tables
         topic_dict = build_topics_dict(tables)
     else:
         tables = filter_tables_by_topic(topic_id, tables, None)
@@ -1759,7 +1766,6 @@ def query_editor(request):
         tables = order_tables_by_descriptions(tables)
         if not search:
             table_description = build_description_table_dict(tables)
-
 
     keywords = build_topic_keywords()
     icons = build_topic_icons()
@@ -1786,6 +1792,21 @@ def query_editor(request):
 
     #print "topics ", topic_mapping
     #print "topics_counter ", context['topics_counter']
+
+    """
+    print get_color()
+    print "topic_id" , topic_id
+    print "topic_mapping", topic_mapping
+    print "tables", tables
+    print "search", search
+    print "table_description", table_description
+    print "topic_dict", topic_dict
+    print "topic_id", topic_id
+    print "keywords", keywords
+    print "icons", icons
+    print "queries_to_topics", queries_to_topics
+    print "queries", queries
+    """
 
     return render_to_response("l4s/query_editor.html", context)
 
