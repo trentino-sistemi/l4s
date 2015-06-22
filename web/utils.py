@@ -116,7 +116,7 @@ def get_table_by_name_or_desc(search, tables, order):
     :return: Matching table list.
     """
 
-    search_s = "'" + '%' + search + '%' + "'"
+    search_s = "$$" + '%' + search + '%' + "$$"
 
     query_synonyms =  "select regexp_split_to_table(synonyms_list, ';') \n"
     query_synonyms += "from web_synonym \n"
@@ -133,7 +133,7 @@ def get_table_by_name_or_desc(search, tables, order):
     if len(rows) > 0:
         for j, row in enumerate(rows):
             #print j, row
-            search_r = "'" + '%' + row[0] + '%' + "'"
+            search_r = "$$" + '%' + row[0] + '%' + "$$"
             query += "b.column_name ilike %s or " % search_r
             query += "b.table_name ilike %s or " % search_r
             query += "d.value ilike %s " % search_r
