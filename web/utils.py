@@ -680,8 +680,9 @@ def get_all_field_values(table_name, column_name, select):
         """
 
     else:
-        query += "SELECT DISTINCT \"%s\" FROM %s\n" % (select, table_name)
-        query += "ORDER BY \"%s\"" % select
+        query += "SELECT DISTINCT %s FROM %s\n" % (select, table_name)
+        query += "ORDER BY %s" % select
+
 
     """
     print "table_name " , table_name
@@ -3276,26 +3277,52 @@ def get_all_aggregations(table_name):
 
     #print "agg1 ", agg
 
-    metadata_list = Metadata.objects.filter(table_name=table_name,
-                                            key=CLASS)
+    metadata_list = Metadata.objects.filter(table_name=table_name, key=CLASS)
 
     #print "metadata_list " , metadata_list
 
     for m, metadata in enumerate(metadata_list):  # tipo per ATECO dove c'e' una formula
+
+        #print metadata.column_name
+        #print metadata.value
+
         column_name = metadata.column_name
         src_description = get_column_description(table_name, column_name)
+
+        #print src_description
+
         if src_description is None or src_description == "":
             src_description = column_name
+
         if not src_description in agg:
             agg[src_description] = dict()
+
         value = "%s" % metadata.value
+
         ref_description = re.findall(r'AS(.*)', value)[0].strip().strip('"')
+
+        #print "ref_description " , ref_description
+
         if ref_description is None or ref_description == "":
             ref_description = column_name + "_" + str(m+1)
+
+        #print "ref_description " , ref_description
+
         agg[src_description][metadata.pk] = ref_description
+
         formula, alias = get_class_formula_alias(metadata.pk)
+
+        #print "formula ", formula, " alias ", alias
+
         vals = get_all_field_values(table_name, column_name, formula)
-        pk = ast.literal_eval(metadata.pk)
+
+        #print metadata.pk
+
+        #pk = ast.literal_eval(metadata.pk)
+        pk = metadata.pk
+
+        #print "aassssss"
+
         agg_values[pk] = vals
 
     #print "table_name ", table_name
