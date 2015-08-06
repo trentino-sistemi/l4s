@@ -630,7 +630,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         {% if request.user.is_staff %}
         <td>
             <input type="checkbox"
-                   id="visible"/>
+                   id="visible"
+                   onclick="includi_escludi(this);" />
             <label class="control-label">
                 {% trans "View all" %}
             </label>
@@ -645,6 +646,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <td>
             <input type="checkbox"
                    id="debug"
+                   onclick="includi_escludi(this);"
             {% if debug %}
             checked="checked"
             {% endif %} />

@@ -503,3 +503,21 @@ $(function () {
     }
    });
 });
+
+function includi_escludi (elemento) {
+
+    //alert(elemento.checked);
+
+    if (elemento.checked == true) {
+
+        if (elemento.id == 'debug') {
+            document.getElementById('visible').checked = false;
+        }
+          else
+        {
+            document.getElementById('debug').checked = false;
+        }
+
+    }
+
+}
