@@ -1,0 +1,112 @@
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% extends "explorer/base.html" %}
+{% load i18n %}
+
+{% block l4s_container %}
+<div class="col-sm-12">
+    <ul class="breadcrumb">
+        <li>{% trans "FAQ" %}</li>
+    </ul>
+</div>
+<br>
+
+<div>
+    <ol>
+
+        <h4>
+            <li>
+                <b>Cos’è LOD4STAT?</b>
+            </li>
+
+        </h4>
+
+            <p align="justify">
+            LOD4STAT è un'applicazione web in grado di erogare nuovi servizi basati su dati aperti e linkati e di
+            fornire agli utenti interfacce avanzate, rendendo disponibili dati provenienti da differenti origini nel
+            rispetto del segreto statistico. LOD4STAT rende disponibili in maniera “open” dati statistici che sono
+            fra loro collegati e al tempo stesso permette di avere un controllo sulla divulgazione dei dati.
+            </p>
+            <br>
+
+        <h4>
+            <li>
+                <b>Cosa sono i Linked Open Data (LOD)?</b>
+            </li>
+        </h4>
+
+            <p align="justify">
+            I <a href="https://it.wikipedia.org/wiki/Dati_collegati">Linked Open Data</a> sono una modalità di pubblicazione di dati strutturati e collegati fra loro. Si basa
+            su tecnologie e standard web aperti e ne estende l'applicazione per fornire informazioni che possano
+            essere lette e comprese da computer. Questo rende possibile collegare e utilizzare dati provenienti
+            da diverse sorgenti.
+            </p>
+            <br>
+
+        <h4>
+            <li>
+                <b>Con quale licenza sono rilasciati i dati in questione e che uso posso farne?</b>
+            </li>
+        </h4>
+
+            <p align="justify">
+            La diffusione dei dati è effettuata attraverso la licenza <a href="https://creativecommons.org/licenses/by/2.0/it/">Creative Commons Attribution 2.0 – CC BY 2.0 IT</a>:
+            E’ una licenza per il pubblico dominio. La pubblica amministrazione, dal momento del rilascio dei dati, non si interessa più dell’evoluzione del
+            dato, certifica i dati al momento della pubblicazione e non ha responsabilità su suoi utilizzi. Chiunque
+            usa i dati può farne ciò che vuole e nessuno è obbligato alla restituzione.
+            </p>
+            <br>
+
+        <h4>
+            <li>
+                <b>Cos’è il segreto statistico?</b>
+            </li>
+        </h4>
+
+            <p align="justify">
+            In Italia il <a href="https://it.wikipedia.org/wiki/Segreto_statistico">Segreto statistico</a> è di fatto regolamentato dall'art.9 del DL n.322 del 6 settembre 1989 (vedasi SISTAN):<br>
+            <br>
+            Art.9 - Disposizioni per la tutela del segreto statistico<br>
+            <br>
+            1. I dati raccolti nell'ambito di rilevazioni statistiche comprese nel programma statistico nazionale da parte degli uffici di statistica non possono essere esternati se non in forma aggregata, in modo che non se ne possa trarre alcun riferimento relativamente a persone identificabili e possono essere utilizzati solo per scopi statistici.<br>
+            <br>
+            2. I dati di cui al comma 1 non possono essere comunicati o diffusi, se non in forma aggregata e secondo modalità che rendano non identificabili gli interessati ad alcun soggetto esterno, pubblico o privato, né ad alcun ufficio della pubblica amministrazione. In ogni caso, i dati non possono essere utilizzati al fine di identificare nuovamente gli interessati.<br>
+            <br>
+            3. In casi eccezionali, l'organo responsabile dell'amministrazione nella quale è inserito l'ufficio di statistica può, sentito il comitato di cui all'art.17, chiedere al Presidente del Consiglio dei ministri l'autorizzazione ad estendere il segreto statistico anche a dati aggregati.<br>
+            </p>
+            <br>
+
+
+        <h4>
+            <li>
+                <b>Perche devo iscrivermi?</b>
+            </li>
+        </h4>
+
+            <p align="justify">
+                L'iscrizione da la facoltà all'utente di salvare le proprie query per poter farne uso in un momento successivo.
+            </p>
+            <br>
+
+    </ol>
+
+</div>
+{% endblock %}
