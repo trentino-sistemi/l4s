@@ -2042,3 +2042,14 @@ def get_list_of_value(request):
         lista_elementi.append(str(row[0]))
 
     return HttpResponse(",".join(lista_elementi))
+
+
+def FAQ(request):
+    """
+    About page.
+
+    :param request: Django request.
+    :return: The Django request response.
+    """
+    return render_to_response("l4s/FAQ.html",
+                              RequestContext(request))

@@ -235,4 +235,8 @@ urlpatterns = patterns('',
                        url(r'^get_list_of_value/$',
                            'web.views.get_list_of_value',
                            name='get_list_of_value'),
+                       # Url for FAQ.
+                       url(r'^FAQ/',
+                           'web.views.FAQ',
+                           name='FAQ'),
                        )
