@@ -239,4 +239,8 @@ urlpatterns = patterns('',
                        url(r'^FAQ/',
                            'web.views.FAQ',
                            name='FAQ'),
+                       # Url for PDF manual.
+                       url(r'^manual/',
+                           'web.views.manual_view',
+                           name='manual_view'),
                        )

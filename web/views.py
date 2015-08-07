@@ -2053,3 +2053,29 @@ def FAQ(request):
     """
     return render_to_response("l4s/FAQ.html",
                               RequestContext(request))
+
+
+def manual_view(request):
+
+    #print request.user.is_authenticated()
+    #print request.user.is_superuser
+    #print request.user.is_staff
+
+    path = 'l4s/static/templates/l4s/'
+
+    if request.user.is_authenticated() == False:
+        nome_file = 'Manuale_Utente_Anonimo_LOD4STAT.pdf'
+    else:
+        if request.user.is_superuser == True:
+            nome_file = 'Manuale_Amministratore_LOD4STAT.pdf'
+        else:
+            if request.user.is_staff == True:
+                nome_file = 'Manuale_Utente_Interno_LOD4STAT.pdf'
+            else:
+                nome_file = 'Manuale_Utente_Registrato_LOD4STAT.pdf'
+
+    with open(path + nome_file, 'r') as pdf:
+        response = HttpResponse(pdf.read(), mimetype='application/pdf')
+        response['Content-Disposition'] = 'inline;filename=' + nome_file
+        return response
+    pdf.closed
