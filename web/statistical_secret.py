@@ -46,7 +46,8 @@ from web.utils import execute_query_on_main_db, \
     get_color, \
     find_in_not_sorted_index, \
     condition_for_secondary_suppression, \
-    is_int
+    is_int, \
+    data_type
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -166,7 +167,7 @@ def format_value(x):
     else:
         return x
 
-def pivot(data, headers, columns, rows, value):
+def pivot(data, headers, columns, rows, value, col_dict):
     """
     Pivot the table.
 
@@ -195,11 +196,26 @@ def pivot(data, headers, columns, rows, value):
 
     lista = []
     contatore = 0
+
+    #print "col_dict ", col_dict
+
+    for a, b in enumerate(col_dict):
+        column = col_dict[b]["column"]
+        table = col_dict[b]["table"]
+        tipo = data_type (table, column)
+        #print a, table, column, tipo
+        #print df.columns[a]
+
+        if (tipo == 'numeric' or tipo == 'double precision' or tipo == 'real'):
+            #print table, column, tipo
+            lista.append(df.columns[a])
+
+
     #print df
     #print "columns ", df.columns
     #print "index ", df.index
 
-
+    """
     for a, b in enumerate(df.columns):
         for c, d in enumerate(df.index):
             contatore += 1
@@ -212,8 +228,10 @@ def pivot(data, headers, columns, rows, value):
                     break
                 #df[b][d] = np.float64(df[b][d])
 
-    #print contatore
-    #print lista
+    """
+
+    #print "contatore " , contatore
+    #print "lista " , lista
 
     df[lista] = df[lista].astype(float)
 
@@ -3531,11 +3549,14 @@ def apply_stat_secret(headers,
         #print "headers " , headers
         #print data
 
+        #print "pivot_cols ", pivot_cols
+
         data, data_frame, err = pivot(data,
                                       headers,
                                       pivot_cols,
                                       rows,
-                                      pivot_values)
+                                      pivot_values,
+                                      col_dict)
 
         #print data_frame
 
@@ -3746,8 +3767,6 @@ def headers_and_data(user,
 
     #print "agg_filters " , agg_filters
 
-    #stampa_symtobltabel(st)
-
     """
     print bcolors.OKGREEN
     print "2-----"
@@ -3764,6 +3783,9 @@ def headers_and_data(user,
                                                include_code)
         #print query.sql
         st = detect_special_columns(query.sql)
+
+
+    #stampa_symtobltabel(st)
 
     """
     print bcolors.WARNING

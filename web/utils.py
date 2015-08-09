@@ -4086,3 +4086,17 @@ def condition_for_secondary_suppression(data, apply_range):
             result = True
 
     return result
+
+def data_type (table_name, column_name):
+
+    query = "select data_type \n"
+    query += "from information_schema.columns \n"
+    query += "where table_name = '%s' and \n" % table_name
+    query += "      column_name = '%s' \n" % column_name
+
+    rows = execute_query_on_main_db(query)
+
+    for row in rows:
+        result = row[0]
+
+    return result
