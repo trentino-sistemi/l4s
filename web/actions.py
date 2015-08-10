@@ -51,6 +51,8 @@ import calendar
 import StringIO
 import shutil
 
+max_length_filename = 150 # sotto linux dipende dal file system ... sotto ntfs massimo 240 compreso path ... ma il path non lo so .....per ora metto 150 prudenziale
+
 def new_xlwt_colored_workbook():
     """
     Get an Xlwt Workbook with the custom colors.
@@ -257,7 +259,12 @@ def generate_report_action_xls(request):
         add_header_and_footer(f.name, title, description, show_legend, table_description)
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
+
+        if len(title) > max_length_filename:
+            title = title[:max_length_filename]
+
         filename = '%s.%s' % (title, extension)
+
         # Setup response
         data = f.read()
 
@@ -453,13 +460,15 @@ def generate_report_action_xlsx(request):
         data = f.read()
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
+
+        if len(title) > max_length_filename:
+            title = title[:max_length_filename]
+
         filename = '%s.%s' % (title, extension)
         # Setup response
-        content_type = \
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         response = HttpResponse(data, content_type=content_type)
-        response[
-            'Content-Disposition'] = 'attachment; filename="%s"' % filename
+        response['Content-Disposition'] = 'attachment; filename="%s"' % filename
         # Add content and return response
         return response
 
