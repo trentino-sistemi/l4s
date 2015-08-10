@@ -83,6 +83,10 @@ def generate_report_action_csv(request):
         """
         df = load_data_frame(request)
         title = title.strip().encode("UTF-8").replace(" ", '_')
+
+        if len(title) > max_length_filename:
+            title = title[:max_length_filename]
+
         extension = 'csv'
         separator = ';'
         filename = '%s.%s' % (title, extension)
@@ -499,6 +503,10 @@ def generate_report_action_sdmx(request):
             int_df = df
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
+
+        if len(title) > max_length_filename:
+            title = title[:max_length_filename]
+
         extension = 'sdmx'
         filename = '%s.%s' % (title, extension)
         content_type = 'application/xml'
@@ -540,6 +548,10 @@ def generate_report_action_json_stat(request):
 
         int_df = reconciles_data_frame(int_df, sql)
         title = title.strip().encode("UTF-8").replace(" ", '_')
+
+        if len(title) > max_length_filename:
+            title = title[:max_length_filename]
+
         extension = 'json'
         filename = '%s.%s' % (title, extension)
         content_type = 'application/json'
@@ -586,6 +598,10 @@ def generate_report_action_rdf(request):
             int_df = df
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
+
+        if len(title) > max_length_filename:
+            title = title[:max_length_filename]
+
         extension = 'xml'
         filename = '%s.%s' % (title, extension)
         res = rdf_report(sql, title, description,
@@ -628,6 +644,10 @@ def generate_report_action_turtle(request):
             int_df = df
 
         title = title.strip().encode("UTF-8").replace(" ", '_')
+
+        if len(title) > max_length_filename:
+            title = title[:max_length_filename]
+
         extension = 'ttl'
         filename = '%s.%s' % (title, extension)
         res = rdf_report(sql, title, description,
@@ -866,6 +886,10 @@ def generate_usage_report_action_xls(request):
         new_workbook.save(f.name)
 
         title = us_title.strip().encode("UTF-8").replace(" ", '_')
+
+        if len(title) > max_length_filename:
+            title = title[:max_length_filename]
+
         filename = '%s.%s' % (title, extension)
 
         data = f.read()
