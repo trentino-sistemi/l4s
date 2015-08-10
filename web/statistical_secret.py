@@ -653,7 +653,7 @@ def row_secondary_suppression(data,
     :param debug:
     :return:
     """
-
+    #return data, 0
     #arrivati qui nel data_frame ho ancora i dati vergini senza asterischi della primaria, solo in data ho gli asterischi della primaria
 
     asterisk_global_count = 0
@@ -681,10 +681,24 @@ def row_secondary_suppression(data,
 
     #data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
 
+    #print "cols " , cols
+
+    #print data_frame_appoggio.columns
+
+    #print "a"
     data_frame_appoggio = remove_description_from_data_frame(data_frame_appoggio, cols)
 
+    #print "b"
     data_frame_appoggio = drop_total_row(data_frame_appoggio)
+
+    #print "c"
     data_frame_appoggio = drop_total_column(data_frame_appoggio)
+
+    #print "d"
+
+    #print len(obs_values)
+
+    #print data_frame_appoggio.columns
 
     if len(obs_values) > 1:
         if has_data_frame_multi_level_columns(data_frame_appoggio):
@@ -694,6 +708,8 @@ def row_secondary_suppression(data,
     else:
         slice_da_preservare = len(data_frame_appoggio.columns.levels) - 1  #  1 per l'ultimo slices
 
+
+    #print "e"
 
     #print "slice_da_preservare ", slice_da_preservare
 
@@ -1379,6 +1395,7 @@ def protect_pivoted_table(data,
     # su dataset grandi non cambia nulla
 
 
+
     while tot_asterisked > 0:
 
         data, asterisked_r = row_secondary_suppression(data,
@@ -1394,13 +1411,16 @@ def protect_pivoted_table(data,
                                                           debug,
                                                           cols)
 
+
         #print "asterisked_c ", asterisked_c, " asterisked_r ", asterisked_r
 
         tot_asterisked = asterisked_c + asterisked_r
 
-        #tot_asterisked = asterisked_c
+        #tot_asterisked = asterisked_r
 
         #print datetime.now().strftime("%H:%M:%S.%f")
+
+
 
     return data
 
@@ -1690,11 +1710,21 @@ def apply_constraint_pivot(data,
 
         for row in dest_data:  #cicla sulla query con i dati delle strutture collegate
 
-            #print bcolors.WARNING
-            #print row
+            """
+            print bcolors.WARNING
+            print row
+            print "new_header ", new_header
+            print "data_frame_appoggio_colonne.columns ", data_frame_appoggio_colonne.columns
+
+            if has_data_frame_multi_level_columns(data_frame_appoggio_colonne):
+                print data_frame_appoggio_colonne.columns.levels
+            """
 
             key_colonna = []
+
             for cn, column_name in enumerate(data_frame_appoggio_colonne.columns.names):
+
+                #print "column_name " , column_name
 
                 if not column_name is None:
                     column_name = column_name.decode('utf-8')
@@ -1705,7 +1735,10 @@ def apply_constraint_pivot(data,
                     appoggio.append(p_col)
                     key_colonna.append(tuple(appoggio))
                 else:
-                    key_colonna.append(tuple(data_frame_appoggio_colonne.columns.levels[cn]))
+                    if has_data_frame_multi_level_columns(data_frame_appoggio_colonne):
+                        key_colonna.append(tuple(data_frame_appoggio_colonne.columns.levels[cn]))
+                    else:
+                        key_colonna.append(tuple(data_frame_appoggio_colonne.columns))
 
             #print bcolors.HEADER
             #print "key_colonna " , key_colonna
@@ -1730,7 +1763,10 @@ def apply_constraint_pivot(data,
                     key_riga.append(tuple(appoggio))
                 else:
                     #print "non c'e'"
-                    key_riga.append(tuple(data_frame_appoggio_righe.index.levels[cn]))
+                   if has_data_frame_multi_level_index(data_frame_appoggio_righe):
+                        key_riga.append(tuple(data_frame_appoggio_righe.index.levels[cn]))
+                   else:
+                        key_riga.append(tuple(data_frame_appoggio_righe.index))
 
             #print "key_riga", key_riga
 
@@ -1741,6 +1777,8 @@ def apply_constraint_pivot(data,
             #print "index_tuples " , index_tuples
 
             for cn, column_name in enumerate(col_tuples):
+
+                #print "column_name ", column_name
 
                 try:
                     if len(column_name) == 1:

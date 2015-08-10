@@ -1094,9 +1094,21 @@ def remove_code_from_data_frame(df):
     dropped_levels = 0
     # Now I can drop the codes indices preserving totals.
     for level, column in enumerate(df.columns.names):
+
+        #print column
+
         if column is not None and column.startswith(CODE):
-            df.columns = df.columns.droplevel(level-dropped_levels)
-            dropped_levels += 1
+
+            #print column
+
+            desc = column[len(CODE)+1:]
+
+            #print desc
+
+            if desc in df.columns.names:
+
+                df.columns = df.columns.droplevel(level-dropped_levels)
+                dropped_levels += 1
 
     #print "ddff " , df.index.get_loc((4,'Alta Valsugana e Bersntol                         '))
 
@@ -1124,18 +1136,6 @@ def remove_code_from_data_frame(df):
                 df.index = df.index.droplevel(level-dropped_levels)
                 dropped_levels += 1
 
-                #if has_data_frame_multi_level_index(df):  #riordina il data_freame per le righe...
-                #    df = df.sortlevel(axis=0)
-                #else:
-                #    df = df.sort_index(axis=0)
-
-                #print df.index.levels
-
-                #print "df.index.lexsort_depth " , df.index.lexsort_depth
-
-                #print df.index.values.tolist()
-
-                #print df.index.get_loc(('Alta Valsugana e Bersntol                         ',))
 
     return df
 
@@ -1167,14 +1167,25 @@ def remove_description_from_data_frame(df, cols):
     print  "df.index.names ", df.index.names
     """
 
+    #print get_color()
+
+    #print "cols " , cols
+    #print "nome_tabella " , nome_tabella
+    #print "df.columns.names ", df.columns.names
+
     for level, column in enumerate(df.columns.names):
 
-        """
-        print "i " , i
-        print "column " , column
-        """
 
-        if cols[i]['table'] <> nome_tabella:
+
+        #print "i " , i
+        #print "column " , column
+
+        #print cols[i]['table']
+        #print cols[i]['column']
+        #print is_description_column(cols[i]['table'], cols[i]['column'])
+
+        #if cols[i]['table'] <> nome_tabella: # in caso di aggregazione non va bene
+        if is_description_column(cols[i]['table'], cols[i]['column']) == True:
             #print "drop"
             df.columns = df.columns.droplevel(level-dropped_levels)
             dropped_levels += 1
@@ -1192,7 +1203,8 @@ def remove_description_from_data_frame(df, cols):
         """
 
 
-        if cols[i]['table'] <> nome_tabella:
+        #if cols[i]['table'] <> nome_tabella:
+        if is_description_column(cols[i]['table'], cols[i]['column']) == True:
             #print "drop"
             df.index = df.index.droplevel(level-dropped_levels)
             dropped_levels += 1
@@ -4041,6 +4053,7 @@ def drop_codes_and_totals(df, include_code, pivot, cols, table_name, table_schem
         if not include_code:
             # Fix all columns before drop the codes.
             df = remove_code_from_data_frame(df)
+            #df = df
 
         #print "st.pivot " , pivot
         #print "st.cols " , cols
@@ -4100,3 +4113,16 @@ def data_type (table_name, column_name):
         result = row[0]
 
     return result
+
+def is_description_column(table_name, column_name):
+    """
+    Return if the table is a decoder table
+
+    :param table_name: Table name.
+    :return: If the table is a decoder one.
+    """
+
+    value = get_key_column_value(table_name, column_name, "http://www.w3.org/2002/07/owl#sameAs")
+    if value is not None and value == "http://it.dbpedia.org/data/Descrizione":
+        return True
+    return False
