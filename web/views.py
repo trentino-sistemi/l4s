@@ -225,13 +225,19 @@ def execute_query_viewmodel(request,
                                                               dict(),
                                                               aggregation,
                                                               debug,
+                                                              False,
+                                                              False,
+                                                              st.cols,
+                                                              '',
                                                               False)
             if warn_n is not None and warn != "":
                 warn = warn_n
 
+        #print df
+
         if df is not None:
             store = store_data_frame(df)
-            html = data_frame_to_html(df, False, pivot)
+            html = data_frame_to_html(df, True, pivot)
 
     return RequestContext(request,
                           {'store': store,
