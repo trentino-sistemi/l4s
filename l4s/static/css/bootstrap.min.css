@@ -5998,5 +5998,8 @@ td.visible-print {
   border-radius: 6px 0 6px 6px;
 }
 
-
+.div_scroll {
+  height: 300px;
+  overflow: scroll;
+}
 
