@@ -253,6 +253,9 @@ def order_queries_by_topics(queries):
     """
     ordered_queries = []
     tab_top = sorted(queries, key=lambda x: x[1])
+
+    #print "tab_top ", tab_top
+
     query_pks = [z[0] for z in tab_top]
     for pk in query_pks:
         query = Query.objects.get(pk=pk)

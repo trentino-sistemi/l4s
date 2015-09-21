@@ -3942,9 +3942,10 @@ def load_data_frame(request):
         query = Query.objects.get(id=query_id)
         if query.open_data:
             st = detect_special_columns(query.sql)
+            #print query.sql
             query.sql, h = build_description_query(query.sql,
                                                    st.cols,
-                [],
+                                                   [],
                                                    False,
                                                    True)
             head, data, duration, err = query.headers_and_data()
@@ -3972,6 +3973,11 @@ def load_data_frame(request):
                 aggregation_ids = [ast.literal_eval(x) for x in
                                    aggregation.split(',')]
 
+            range = query.range
+            include_code = query.include_code
+            table_name = query.table
+            table_schema = get_table_schema(table_name)
+
             df, data, warn, err = headers_and_data(request.user,
                                                    query,
                                                    filters,
@@ -3980,8 +3986,12 @@ def load_data_frame(request):
                                                    pivot_cols,
                                                    False,
                                                    True,
+                                                   include_code,
                                                    False,
-                                                   False)
+                                                   range,
+                                                   request.environ['REMOTE_ADDR'],
+                                                   table_name,
+                                                   table_schema)
             return df
     df = pd.read_pickle(store_name)
 

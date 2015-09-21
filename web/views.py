@@ -1036,16 +1036,28 @@ def query_list(request):
 
     queries = (Query.objects.filter(created_by=request.user) |
                Query.objects.filter(is_public='true'))
+
+    """
+    print queries
+    print "search ", search
+    print "public " , public
+    print "topic " , topic
+    """
+
     if search:
         queries = queries & (Query.objects.filter(title__icontains=search) |
                              Query.objects.filter(
                                  description__icontains=search))
 
-    queries_to_topics = build_queries_to_topics_mapping(queries,
-                                                        selected_topic)
+    queries_to_topics = build_queries_to_topics_mapping(queries, selected_topic)
 
     order_by = request.GET.get('order_by')
+
+    #print "order_by " , order_by
+    #print "queries_to_topics ", queries_to_topics
+
     if order_by is None or order_by == "topic":
+        #print "aaaaa"
         queries = order_queries_by_topics(queries_to_topics.items())
     else:
         queries = queries.order_by(order_by)
@@ -1061,6 +1073,9 @@ def query_list(request):
     context['public'] = public
     context['tables'] = queries_to_topics
     context['topics'] = topic_mapping
+
+    print queries
+
     return render_to_response("explorer/query_list.html", context)
 
 
