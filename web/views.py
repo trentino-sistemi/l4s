@@ -1267,10 +1267,11 @@ def query_editor_customize(request):
     """
     print "fields ", fields
     print "obs_values ", obs_values
-    print "cols ", cols
+    print "columns ", cols
     print "rows ", rows
     print "hidden_fields ", hidden_fields
     print "aggregations ", aggregations
+    print "column_description ", column_description
     """
 
     sec = get_table_metadata_value(table_name, 'secondary')

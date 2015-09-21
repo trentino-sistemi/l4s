@@ -808,6 +808,9 @@ def build_foreign_keys(table_name):
     query += "select oid from pg_class c where c.relkind = 'r'\n"
     query += ")\n"
     query += "and m.relname = '%s'\n" % table_name
+
+    #print query
+
     rows = execute_query_on_main_db(query)
     for row in rows:
         col_name = row[0]
