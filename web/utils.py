@@ -122,6 +122,8 @@ def get_table_by_name_or_desc(search, tables, order):
     query_synonyms += "from web_synonym \n"
     query_synonyms += "where synonyms_list ilike %s\n" % search_s
 
+    #print query_synonyms
+
     rows = execute_query_on_django_db(query_synonyms)
 
     query = "SELECT DISTINCT b.table_name, d.value \n"
@@ -136,13 +138,11 @@ def get_table_by_name_or_desc(search, tables, order):
             search_r = "$$" + '%' + row[0] + '%' + "$$"
             query += "b.column_name ilike %s or " % search_r
             query += "b.table_name ilike %s or " % search_r
-            query += "d.value ilike %s " % search_r
-            if j < len(rows) - 1:
-                query += " or "
-    else:
-        query += "b.column_name ilike %s or " % search_s
-        query += "b.table_name ilike %s or " % search_s
-        query += "d.value ilike %s " % search_s
+            query += "d.value ilike %s or " % search_r
+
+    query += "b.column_name ilike %s or " % search_s
+    query += "b.table_name ilike %s or " % search_s
+    query += "d.value ilike %s " % search_s
 
     query += ") \n"
 
