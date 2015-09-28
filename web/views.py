@@ -1525,7 +1525,7 @@ def query_editor_view(request):
                                                        table_schema,
                                                        True)
 
-
+    #print "column_description ", column_description
 
     #print "eeeeeee"
 

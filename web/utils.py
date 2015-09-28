@@ -2643,6 +2643,9 @@ def build_description_column_dict(table_name, table_schema, fk):
     :param table_schema: Table schema.
     :return: dictionary with column description
     """
+
+    #print "table_schema ", table_schema
+
     foreign_keys = build_foreign_keys(table_name)
 
     #print "foreign_keys ", foreign_keys
@@ -2653,22 +2656,34 @@ def build_description_column_dict(table_name, table_schema, fk):
         nome_tabella = table_name
         nome_campo = field.name
 
-        if fk == True:
-            if field.name in foreign_keys:
-                #print foreign_keys[field.name][0]
-                #print foreign_keys[field.name][1]
+        """
+        print "nome_tabella ", nome_tabella
+        print "nome_campo ", nome_campo
 
-                nome_tabella = foreign_keys[field.name][0]
-                #print "nome_tabella " , nome_tabella
-                nome_campo = find_table_description_column(nome_tabella)
+        print is_description_column(nome_tabella, nome_campo)
+        """
+
+        if is_description_column(nome_tabella, nome_campo) == False: #se non trovo la descrizione sulla tabella dei dati la cerco sulla tabella di decodifica
+            if fk == True:
+                if field.name in foreign_keys:
+                    #print foreign_keys[field.name][0]
+                    #print foreign_keys[field.name][1]
+
+                    nome_tabella = foreign_keys[field.name][0]
+                    #print "nome_tabella " , nome_tabella
+                    nome_campo = find_table_description_column(nome_tabella)
 
         description = get_column_description(nome_tabella, nome_campo)
+
+        #print "description ", description
 
         if description is not None:
             value = dict()
             value['name'] = field.name
             value['description'] = description
             table_description_dict[f] = value
+
+    #print "table_description_dict ", table_description_dict
 
     return table_description_dict
 
@@ -3203,10 +3218,18 @@ def get_all_aggregations(table_name):
     agg_values = dict()
     fks = build_foreign_keys(table_name)
 
+    #print "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+    #print "table_name " , table_name
+
     #print "fks ", fks
 
     for col in fks:
+
+        #print get_color()
+
         tup = fks[col]
+
+        #print "tup " , tup
 
         ref_tab = tup[0]
         ref_col = tup[1]
@@ -3235,14 +3258,24 @@ def get_all_aggregations(table_name):
 
                 ref_col = find_table_description_column(ref_tab)
 
-                if ref_col is None or ref_col == "":
-                    src_description = col
+                #print "ref_tab ", ref_tab
+                #print "ref_col ", ref_col
+
+
+                if is_description_column(table_name, col) == True:
+                    src_description = get_column_description(table_name, col)
                 else:
-                    src_description = get_column_description(ref_tab, ref_col)
-                    if src_description is None or src_description == "":
-                        src_description = ref_col
+                    if ref_col is None or ref_col == "":
+                        src_description = col
+                    else:
+                        src_description = get_column_description(ref_tab, ref_col)
+                        if src_description is None or src_description == "":
+                            src_description = ref_col
 
                 #print "src_description ", src_description
+
+                #if (src_description == 'Comune'):
+                #    src_description = 'Codice comune'
 
                 ref_tab = row[3]
                 ref_col = row[4]
@@ -4128,7 +4161,12 @@ def is_description_column(table_name, column_name):
     :return: If the table is a decoder one.
     """
 
-    value = get_key_column_value(table_name, column_name, "http://www.w3.org/2002/07/owl#sameAs")
-    if value is not None and value == "http://it.dbpedia.org/data/Descrizione":
-        return True
+    rows = get_key_column_values(table_name, column_name, "http://www.w3.org/2002/07/owl#sameAs")
+
+    #print "value ", rows
+
+    for row in rows:
+        if row is not None and row == "http://it.dbpedia.org/data/Descrizione":
+            return True
+
     return False
