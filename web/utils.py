@@ -2158,22 +2158,32 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     new_table = metadata.table_name + "_" + ref_table
     old_header, inner_sql = extract_header(sql)
 
+    #print "inner_sql ", inner_sql
+
     header = ""
     if DESCRIPTION_TOKEN in old_header:
         header += DESCRIPTION_TOKEN + "\n"
 
     header += "%s " % JOIN_TOKEN
     header += "%s.%s\n" % (metadata.table_name, metadata.column_name)
+
+    """
+    print "cols ", cols
+    print "threshold ", threshold
+    """
+
     for c in cols:
         table = cols[c]['table']
         column = cols[c]['column']
         if c != 0:
             query += ", "
+        """
         if c in threshold:
             query += "SUM(%s.%s) %s " % (new_table, column, column)
             header += "%s " % JOIN_TOKEN
             header += "%s.%s %s\n" % (table, column, c)
             continue
+        """
 
         if column == orig_column:
             query += ref_table + "." + ref_column
@@ -2214,7 +2224,8 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
     query += ")"
 
-    query += "\nGROUP BY %s" % params
+    #query += "\nGROUP BY %s" % params
+    # nota bene tolto come tolto il sum sopra ... non so se e' corretto o meno .. per adesso sembra ok cosi
 
     if len(constraints) != 0:
         query += " HAVING "
@@ -3306,6 +3317,7 @@ def get_all_aggregations(table_name):
 
                 if not src_description in agg:
                     agg[src_description] = dict()
+
 
                 agg[src_description][pk] = ref_description
 
