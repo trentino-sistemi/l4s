@@ -3088,7 +3088,7 @@ def exclude_invisible_tables(tables):
     query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
     query += "WHERE upper(key)='VISIBLE' and upper(value)='TRUE' "
     query += "and table_name IN(%s)" % table_names
-    print "query " , query
+    #print "query " , query
     rows = execute_query_on_django_db(query)
     ret_tables = []
     if rows is not None:

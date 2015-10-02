@@ -1074,7 +1074,7 @@ def query_list(request):
     context['tables'] = queries_to_topics
     context['topics'] = topic_mapping
 
-    print queries
+    #print queries
 
     return render_to_response("explorer/query_list.html", context)
 
