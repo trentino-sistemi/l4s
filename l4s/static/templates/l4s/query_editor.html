@@ -139,7 +139,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                                                   "{{ query.include_code }}",
                                                   "{{ query.aggregations|escapejs }}",
                                                   "{{ query.filters | escapejs }}",
-                                                  "{{ query.agg_filters|escapejs }}" )'
+                                                  "{{ query.agg_filters|escapejs }}",
+                                                  "{{ query.range|escapejs }}",
+                                                  "{{ query.not_sel_aggregations|escapejs }}",
+                                                  "{{ query.not_agg_selection_value|escapejs }}" )'
+
                 {% else %}
                 <a href="/explorer/{{ query.id }}/"
                 {% endif %}
