@@ -2177,13 +2177,16 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
         column = cols[c]['column']
         if c != 0:
             query += ", "
-        """
+
+
         if c in threshold:
+            #print get_color()
+            #print "prrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
             query += "SUM(%s.%s) %s " % (new_table, column, column)
             header += "%s " % JOIN_TOKEN
             header += "%s.%s %s\n" % (table, column, c)
             continue
-        """
+
 
         if column == orig_column:
             query += ref_table + "." + ref_column
@@ -2224,10 +2227,12 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
     query += ")"
 
-    #query += "\nGROUP BY %s" % params
-    # nota bene tolto come tolto il sum sopra ... non so se e' corretto o meno .. per adesso sembra ok cosi
-
     if len(constraints) != 0:
+
+        # nota bene spostato da prima del if a qui
+
+        query += "\nGROUP BY %s" % params
+
         query += " HAVING "
 
         for c, constraint in enumerate(constraints):
