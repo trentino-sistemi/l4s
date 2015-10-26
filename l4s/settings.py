@@ -39,7 +39,7 @@ locale.setlocale(locale.LC_ALL, '')
 SECRET_KEY = 'VeryLongSecret'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = True
 
