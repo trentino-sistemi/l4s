@@ -18,8 +18,14 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from web.views import QueryView, CreateQueryView
+from django.conf import settings
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from django.core.mail import send_mail
+import json
 
 admin.autodiscover()
+
 
 urlpatterns = patterns('',
                        # Url for admin interface.
@@ -244,3 +250,22 @@ urlpatterns = patterns('',
                            'web.views.manual_view',
                            name='manual_view'),
                        )
+
+
+"""
+if settings.DEBUG is False:   #if DEBUG is True it will be served automatically
+    urlpatterns += patterns('',
+            url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
+    )
+"""
+
+def handler500(request):
+
+    POST = {k:v if len(v) > 1 else v[0] for k,v in request.POST.iterlists()}
+
+    send_mail('Errore Lod4Stat ' + request.META['HTTP_REFERER'], json.dumps(POST), settings.DEFAULT_FROM_EMAIL, [settings.ADMINISTRATOR_EMAIL], fail_silently=False)
+
+    response = render_to_response('l4s/500.html', {}, context_instance=RequestContext(request))
+    response.status_code = 500
+    return response
+

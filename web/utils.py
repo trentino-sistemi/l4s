@@ -2131,18 +2131,20 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
     foreign_keys = build_foreign_keys(cols[0]['table'])
 
+    #print "foreign_keys ", foreign_keys
+
+    orig_column = ''
+
     for id, column in enumerate(foreign_keys):
 
         elements = foreign_keys[column]
 
-        #print elements
+        #print "elements " , elements
 
         if elements[0] == metadata.table_name and elements[1] == metadata.column_name:
             orig_column = column
 
     """
-    print "orig_column ", orig_column
-
     print "metadata.table_name " , metadata.table_name
     print "metadata.column_name " , metadata.column_name
     print "metadata.value " , metadata.value
@@ -2151,6 +2153,8 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     print "ref_column " , ref_column
     print "cols " , cols
     print "agg_filters " , agg_filters
+
+    print "orig_column ", orig_column
     """
 
     query = "SELECT "
@@ -3301,9 +3305,11 @@ def get_all_aggregations(table_name):
                 #print "foreign_keys ", foreign_keys
 
                 if foreign_keys is None:
+                    #print "a"
                     ref_description = get_column_description(ref_tab, ref_col)
                 else:
                     #print "foreign_keys ", foreign_keys
+                    #print "b"
                     for col2 in foreign_keys:
                         if col2 == row[4]:
                             #print "col2 ", col2
@@ -3315,14 +3321,13 @@ def get_all_aggregations(table_name):
                             ref_col = find_table_description_column(ref_tab)
                             ref_description = get_column_description(ref_tab, ref_col)
 
-                #print "ref_description ", ref_description
-
                 if ref_description is None or ref_description == "":
                     ref_description = ref_col
 
                 if not src_description in agg:
                     agg[src_description] = dict()
 
+                #print "ref_description ", ref_description
 
                 agg[src_description][pk] = ref_description
 

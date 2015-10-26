@@ -2101,3 +2101,4 @@ def manual_view(request):
         response['Content-Disposition'] = 'inline;filename=' + nome_file
         return response
     pdf.closed
+

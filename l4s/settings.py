@@ -39,7 +39,7 @@ locale.setlocale(locale.LC_ALL, '')
 SECRET_KEY = 'VeryLongSecret'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = True
 
@@ -47,7 +47,7 @@ SENDER = "SSPAT"
 SENDER_NAME = "Servizio Statistica: Provincia Autonoma di Trento"
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['l4s.trentinosistemi.com']
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -111,6 +111,7 @@ ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/accounts/success'
 
 # Email settings for sending accout activation mails
 DEFAULT_FROM_EMAIL = 'l4s@example.com'
+ADMINISTRATOR_EMAIL = 'm.voltolini@trentinosistemi.com'
 EMAIL_USE_TLS = True
 EMAIL_HOST = "example.com"
 EMAIL_HOST_USER = "smtp@example.com"
