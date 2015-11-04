@@ -218,10 +218,18 @@ def generate_report_action_xls(request):
             new_sheet.col(col)
 
         k = k + sheet_rows + 1
+
+        stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
+
+        print stat_bitmap
+
+        """
         if settings.DEBUG:
             stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
         else:
             stat_bitmap = static('/img/testata_Statistica.bmp')
+        """
+
         new_sheet.insert_bitmap(stat_bitmap, k, 0)
         new_workbook.save(file_name)
 
