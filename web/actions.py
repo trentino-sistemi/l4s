@@ -274,6 +274,7 @@ def generate_report_action_xls(request):
 
         response = HttpResponse(data)
         response["Content-Type"] = content_type
+        response["Content-status_code"] = 200
         response['Content-Transfer-Encoding'] = 'binary'
         response['Content-Disposition'] = 'attachment; filename="%s"' % filename
         return response
