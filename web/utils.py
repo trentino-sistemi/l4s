@@ -624,7 +624,11 @@ def get_all_field_values(table_name, column_name, select):
     ret = []
     query = "--JOIN %s.%s 0\n" % (table_name, column_name)
 
+    #print "prima 1 ", datetime.now().strftime("%H:%M:%S.%f")
+
     foreign_keys = build_foreign_keys(table_name)
+
+    #print "prima 2 ", datetime.now().strftime("%H:%M:%S.%f")
 
     """
     if column_name == 'ttarga':
@@ -672,8 +676,12 @@ def get_all_field_values(table_name, column_name, select):
         """
 
 
+        #print "prima 3 ", datetime.now().strftime("%H:%M:%S.%f")
+
         query, h = build_description_query(query, st.cols, [], ordine, True)
         st = detect_special_columns(query)
+
+        #print "prima  ", datetime.now().strftime("%H:%M:%S.%f")
 
         """
         if column_name == 'ttarga':
@@ -693,7 +701,10 @@ def get_all_field_values(table_name, column_name, select):
     print "query " , query
     """
 
+    #print "prima ", datetime.now().strftime("%H:%M:%S.%f")
     rows = execute_query_on_main_db(query)
+    #print "dopo ", datetime.now().strftime("%H:%M:%S.%f")
+
     for row in rows:
         if len(row) == 1:
             # Description is the code.

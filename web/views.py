@@ -1309,6 +1309,8 @@ def query_editor_view(request):
 
     #save_value('manuel', 'fino qui arrivo')
 
+    #print datetime.now().strftime("%H:%M:%S.%f")
+
     table_name = request.REQUEST.get('table')
     topic = get_topic_description(table_name)
     topic_id = get_topic_id(table_name)
@@ -1369,10 +1371,14 @@ def query_editor_view(request):
     if aggregation is not None and aggregation != "":
         aggregation_ids = [ast.literal_eval(x) for x in aggregation.split(',')]
 
+    #print "dd ", datetime.now().strftime("%H:%M:%S.%f")
+
     values = dict()
     table_schema = get_table_schema(table_name)
 
     hidden_fields = all_hidden_fields(table_name, table_schema)
+
+    #print "dd1 ", datetime.now().strftime("%H:%M:%S.%f")
 
     obs_values = all_obs_value_column(table_name, table_schema).values()
     if len(selected_obs_values) == 0:
@@ -1380,11 +1386,13 @@ def query_editor_view(request):
         selected_obs_values = obs_values
 
     #print "table_schema ", table_schema
+    #print "dd2 ", datetime.now().strftime("%H:%M:%S.%f")
 
     for f, field in enumerate(table_schema):
         column_name = field.name
         if not column_name in obs_values:
             try:
+                #print "xxx ", datetime.now().strftime("%H:%M:%S.%f")
                 vals = get_all_field_values(table_name, column_name, None)
             except MissingMetadataException, e:
                 context['error'] = "%s" % (unicode(e.message))
@@ -1392,7 +1400,12 @@ def query_editor_view(request):
                                           context)
             values[column_name] = vals
 
+    #print "dd3 ", datetime.now().strftime("%H:%M:%S.%f")
+
     ref_periods = list_ref_period(table_name, table_schema)
+
+    #print "dd4 ", datetime.now().strftime("%H:%M:%S.%f")
+
     """
     print "table_name ", table_name
     print "table_schema ", table_schema
@@ -1441,6 +1454,7 @@ def query_editor_view(request):
         not_agg_selection_value = json.loads(not_agg_selection_value_s)
 
 
+    #print "ee ", datetime.now().strftime("%H:%M:%S.%f")
 
     """
     print "filters ", filters
@@ -1483,6 +1497,8 @@ def query_editor_view(request):
                                            request.environ['REMOTE_ADDR'],
                                            table_name,
                                            table_schema)
+
+    #print datetime.now().strftime("%H:%M:%S.%f")
 
     context['values'] = values
     context['obs_values'] = obs_values
@@ -1581,6 +1597,8 @@ def query_editor_view(request):
     context['store'] = store
     context['sql'] = sql
     context['url'] = url
+
+    #print datetime.now().strftime("%H:%M:%S.%f")
 
     """
     print 'obs_values ', context['obs_values']

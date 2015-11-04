@@ -221,8 +221,6 @@ def generate_report_action_xls(request):
 
         stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
 
-        print stat_bitmap
-
         """
         if settings.DEBUG:
             stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
@@ -430,10 +428,15 @@ def generate_report_action_xlsx(request):
 
         sheet_rows = len(new_sheet.rows)
         k = k + sheet_rows - 1
+
+        stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
+
+        """
         if settings.DEBUG:
             stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
         else:
             stat_bitmap = static('/img/testata_Statistica.bmp')
+        """
 
         stat_img = Image(stat_bitmap)
         stat_img.drawing.left = 0
@@ -886,10 +889,16 @@ def generate_usage_report_action_xls(request):
             new_sheet.col(col).width = round(max_widths[col]).__int__() + 1
 
         start = start + q + 3
+
+        stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
+
+        """
         if settings.DEBUG:
             stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
         else:
             stat_bitmap = static('/img/testata_Statistica.bmp')
+        """
+
         new_sheet.insert_bitmap(stat_bitmap, start, 0)
 
         new_workbook.save(f.name)

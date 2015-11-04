@@ -252,6 +252,7 @@ urlpatterns = patterns('',
                        )
 
 
+
 """
 if settings.DEBUG is False:   #if DEBUG is True it will be served automatically
     urlpatterns += patterns('',
