@@ -196,13 +196,21 @@ def generate_report_action_xls(request):
                 #print isinstance(value, unicode)
                 if isinstance(value, unicode):
                     if value.isdigit():
-                        #rint "a"
-                        #print value
-                        value = ast.literal_eval(value)
-                        #print value
+                        #print "a"
+                        #print "prima '",value,"'"
+                        #print type(value)
+
+                        if len(value) > 1 and value.startswith("0"): #sembra un baco della eval quando i numeri cominciano con 0
+                            value = str(value)
+                        else:
+                            value = ast.literal_eval(value)
+
+                        #print "dopo ", value
+                        #print type(value)
                         new_sheet.write(rows+k, index, value, body_cell)
                     else:
                         #print "b"
+                        #print value
                         value = value.strip()
                         if value.startswith("*"):
                             new_sheet.write(rows+k, index, value, ast_cell)
