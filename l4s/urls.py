@@ -253,19 +253,18 @@ urlpatterns = patterns('',
 
 
 
-"""
+
 if settings.DEBUG is False:   #if DEBUG is True it will be served automatically
     urlpatterns += patterns('',
             url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
     )
-"""
+
 
 def handler500(request):
 
     POST = {k:v if len(v) > 1 else v[0] for k,v in request.POST.iterlists()}
 
-    #send_mail('Errore Lod4Stat (' + request.user + ') ' + request.META['HTTP_REFERER'], json.dumps(POST), settings.DEFAULT_FROM_EMAIL, [settings.ADMINISTRATOR_EMAIL], fail_silently=False)
-    send_mail('Errore Lod4Stat ' + request.META['HTTP_REFERER'], json.dumps(POST), settings.DEFAULT_FROM_EMAIL, [settings.ADMINISTRATOR_EMAIL], fail_silently=False)
+    send_mail('Errore Lod4Stat (' + str(request.user) + ') ' + request.META['HTTP_REFERER'], json.dumps(POST), settings.DEFAULT_FROM_EMAIL, [settings.ADMINISTRATOR_EMAIL], fail_silently=False)
 
     response = render_to_response('l4s/500.html', {}, context_instance=RequestContext(request))
     response.status_code = 500
