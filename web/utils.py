@@ -67,6 +67,7 @@ REF_PERIOD = 'http://purl.org/linked-data/sdmx/2009/dimension#refPeriod'
 REF_AREA = 'http://purl.org/linked-data/sdmx/2009/dimension#refArea'
 SAME_AS = 'http://www.w3.org/2002/07/owl#sameAs'
 DESCRIPTION = 'http://purl.org/dc/terms/description'
+VALUE_DESCRIPTION = 'http://it.dbpedia.org/data/Descrizione'
 SUBJECT = 'http://purl.org/linked-data/sdmx/2009/subject'
 CONCEPT = 'http://purl.org/linked-data/cube#concept'
 SQL_PREFIX = "sql://"
@@ -129,7 +130,7 @@ def get_table_by_name_or_desc(search, tables, order):
     query = "SELECT DISTINCT b.table_name, d.value \n"
     query += "FROM web_metadata b JOIN web_metadata d ON (d.table_name = b.table_name and \n"
     query += "                                            d.column_name = 'NULL' and \n"
-    query += "                                            upper(d.key) = 'HTTP://PURL.ORG/DC/TERMS/DESCRIPTION') \n"
+    query += "                                            d.key = '%s') \n" % DESCRIPTION
     query += "WHERE ("
 
     if len(rows) > 0:
@@ -703,7 +704,7 @@ def get_all_field_values(table_name, column_name, select):
 
     #print "prima ", datetime.now().strftime("%H:%M:%S.%f")
     rows = execute_query_on_main_db(query)
-    #print "dopo ", datetime.now().strftime("%H:%M:%S.%f")
+    print "dopo ", datetime.now().strftime("%H:%M:%S.%f")
 
     for row in rows:
         if len(row) == 1:
@@ -1090,7 +1091,7 @@ def find_table_description_column(table_name):
     if not rows is None:
         for row in rows:
             return row[0]
-    raise MissingMetadataException(SAME_AS, DESCRIPTION, table_name)
+    raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, table_name)
 
 
 def remove_code_from_data_frame(df):
@@ -4194,12 +4195,12 @@ def is_description_column(table_name, column_name):
     :return: If the table is a decoder one.
     """
 
-    rows = get_key_column_values(table_name, column_name, "http://www.w3.org/2002/07/owl#sameAs")
+    rows = get_key_column_values(table_name, column_name, SAME_AS)
 
     #print "value ", rows
 
     for row in rows:
-        if row is not None and row == "http://it.dbpedia.org/data/Descrizione":
+        if row is not None and row == VALUE_DESCRIPTION:
             return True
 
     return False
