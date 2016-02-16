@@ -3813,7 +3813,6 @@ def headers_and_data(user,
     print "2-----"
     """
 
-
     if include_descriptions or st.include_descriptions: # ...... sempre vero ......robe da legnare Pillo
         query.sql, h = build_description_query(query.sql,
                                                st.cols,
@@ -3836,15 +3835,16 @@ def headers_and_data(user,
 
     old_head, data, duration, err = query.headers_and_data()
 
-    if len(data) == 0:
-        return df, data, warn, err
-
     """
     print "-------------------------"
     print err
 
     print data
     """
+
+    if len(data) == 0:
+        #print "vuoto"
+        return df, data, warn, err
 
     #stampa_symtobltabel(st)
 

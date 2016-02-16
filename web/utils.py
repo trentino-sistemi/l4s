@@ -704,7 +704,7 @@ def get_all_field_values(table_name, column_name, select):
 
     #print "prima ", datetime.now().strftime("%H:%M:%S.%f")
     rows = execute_query_on_main_db(query)
-    print "dopo ", datetime.now().strftime("%H:%M:%S.%f")
+    #print "dopo ", datetime.now().strftime("%H:%M:%S.%f")
 
     for row in rows:
         if len(row) == 1:
@@ -2491,6 +2491,8 @@ def get_table_schema(table_name):
     :param table_name: Table name.
     :return: Table schema.
     """
+    #print "table_name ", table_name
+
     explorer_connection = connections[EXPLORER_CONNECTION_NAME]
     cursor = explorer_connection.cursor()
     introspection = explorer_connection.introspection
@@ -4204,3 +4206,18 @@ def is_description_column(table_name, column_name):
             return True
 
     return False
+
+
+def exists_table (table_schema, table_name):
+
+    query = "SELECT EXISTS ( \n"
+    query += "   SELECT 1 \n"
+    query += "   FROM   information_schema.tables \n"
+    query += "   WHERE  table_schema = '%s' \n" % table_schema
+    query += "   AND    table_name = '%s' \n" % table_name
+    query += ") \n"
+
+    rows = execute_query_on_main_db(query)
+
+    for row in rows:
+      return row[0]

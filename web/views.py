@@ -104,7 +104,8 @@ from web.utils import get_variable_dictionary, \
     save_value, \
     execute_query_on_django_db, \
     execute_query_on_main_db, \
-    get_color
+    get_color, \
+    exists_table
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -134,6 +135,7 @@ from utils import ALL
 import json
 import ast
 import calendar
+from explorer.models import MSG_FAILED_BLACKLIST
 
 
 def execute_query_viewmodel(request,
@@ -986,20 +988,35 @@ def table(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    table_name = request.GET.get('name', '')
-    table_schema = get_table_schema(table_name)
-    column_description = build_description_column_dict(table_name,
-                                                       table_schema,
-                                                       False)
 
-    fks = build_foreign_keys(table_name)
-    context = Context({'table_schema': table_schema})
-    context['table_name'] = table_name
-    context['request'] = request
-    context['column_description'] = column_description
-    context['fks'] = fks
+    table_name = request.GET.get('name', '')
+
+    #print exists_table('public', table_name)
+
+    if exists_table('public', table_name) == True:
+
+        table_schema = get_table_schema(table_name)
+
+        column_description = build_description_column_dict(table_name,
+                                                           table_schema,
+                                                           False)
+
+        fks = build_foreign_keys(table_name)
+        context = Context({'table_schema': table_schema})
+        context['table_name'] = table_name
+        context['request'] = request
+        context['column_description'] = column_description
+        context['fks'] = fks
+        return render_to_response("l4s/table.html", context)
+
+    else:
+        context = Context({})
+        context['error_string'] = 'La tabella non esiste'
+
+        return render_to_response("l4s/error.html", context)
+
     #print fks
-    return render_to_response("l4s/table.html", context)
+
 
 
 def open_data(request):
@@ -1312,6 +1329,12 @@ def query_editor_view(request):
     #print datetime.now().strftime("%H:%M:%S.%f")
 
     table_name = request.REQUEST.get('table')
+
+    if (exists_table('public', table_name) == False):
+        context = RequestContext(request)
+        context['error_string'] = 'La tabella non esiste'
+        return render_to_response("l4s/error.html", context)
+
     topic = get_topic_description(table_name)
     topic_id = get_topic_id(table_name)
     context = RequestContext(request)
@@ -1481,6 +1504,8 @@ def query_editor_view(request):
                              not_agg_selection_value)
 
 
+    #print sql
+
     query = Query(title=table_name, sql=sql)
 
     df, data, warn, err = headers_and_data(request.user,
@@ -1581,7 +1606,12 @@ def query_editor_view(request):
     context['agg_col'] = agg_col
 
     if df is None:
-        no_display = _("Can not display the requested content")
+
+        if (err == MSG_FAILED_BLACKLIST):
+            no_display = _("Il nome della tabella non puo' contenere le stringe DELETE, INSERT o UPDATE")
+        else:
+            no_display = _("Can not display the requested content")
+
         context['dataframe'] = no_display
 
         return render_to_response("l4s/query_editor_view.html", context)
@@ -2102,6 +2132,8 @@ def manual_view(request):
     #print request.user.is_staff
 
     path = 'l4s/static/templates/l4s/'
+
+    #print "user " , request.user
 
     if request.user.is_authenticated() == False:
         nome_file = 'Manuale_Utente_Anonimo_LOD4STAT.pdf'
