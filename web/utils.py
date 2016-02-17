@@ -65,6 +65,7 @@ MEASURE = 'http://purl.org/linked-data/cube#measure'
 OBS_VALUE = 'http://purl.org/linked-data/sdmx/2009/measure#obsValue'
 REF_PERIOD = 'http://purl.org/linked-data/sdmx/2009/dimension#refPeriod'
 REF_AREA = 'http://purl.org/linked-data/sdmx/2009/dimension#refArea'
+DEFAULT_PIVOT_COLUMN = 'http://dbpedia.org/ontology/default_pivot_column'
 SAME_AS = 'http://www.w3.org/2002/07/owl#sameAs'
 DESCRIPTION = 'http://purl.org/dc/terms/description'
 VALUE_DESCRIPTION = 'http://it.dbpedia.org/data/Descrizione'
@@ -350,6 +351,37 @@ def count_distinct(table_name, column_name):
     rows = execute_query_on_main_db(query)
     first_row = rows[0]
     return first_row[0]
+
+
+def metadata_default_pivot_values_column(table_name,
+                                         table_description,
+                                         exclude):
+    """
+    Return the index with metadata default pivot
+    neglecting exclude indices.
+
+    :param table_name: Table name.
+    :param table_description: Table description structure.
+    :param exclude: Column index to be neglected.
+    :return: index_column, column_name
+    """
+
+    #print table_description
+
+    for f, field in enumerate(table_description):
+
+        #print field.name
+
+        if f in exclude:
+            continue
+        column_name = field.name
+
+        #print column_name, get_key_column_values(table_name, column_name, DEFAULT_PIVOT_COLUMN)
+
+        if get_key_column_values(table_name, column_name, DEFAULT_PIVOT_COLUMN) == ['http://dbpedia.org/ontology/true']:
+            #print "llll"
+            return f, column_name
+    return -1, None
 
 
 def max_distinct_values_column(table_name,
@@ -776,6 +808,11 @@ def choose_default_axis(table_name, ref_periods, hidden_fields):
         index, column_name = first_ref_area_column(table_name,
                                                    table_schema,
                                                    neglected_index)
+
+    if column_name is None:
+        index, column_name = metadata_default_pivot_values_column(table_name,
+                                                                  table_schema,
+                                                                  neglected_index)
 
     if column_name is None:
         index, column_name = max_distinct_values_column(table_name,
@@ -3131,6 +3168,22 @@ def exclude_invisible_tables(tables):
 
 
 def get_concept(value):
+    """
+    Get concept.
+
+    :param value:
+    :return: Concept.
+    """
+    query = "SELECT table_name, column_name from %s " % METADATA
+    query += "WHERE column_name != 'NULL' and "
+    query += "key = '%s' and " % CONCEPT
+    query += "value = '%s'" % value
+    rows = execute_query_on_django_db(query)
+    if rows is not None and len(rows) > 0:
+        return rows[0][0], rows[0][1]
+    return None, None
+
+def get_default_pivot_column(value):
     """
     Get concept.
 
