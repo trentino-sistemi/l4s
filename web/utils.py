@@ -372,10 +372,14 @@ def max_distinct_values_column(table_name,
         else:
             column_name = field.name
             number_of_el = count_distinct(table_name, column_name)
+            #print field.name, number_of_el
             if c == 0 or number_of_el > max_occurrences:
                 max_occurrences = number_of_el
                 ret = c, column_name
-    return ret, None
+
+    #print ret
+
+    return ret
 
 
 def min_distinct_values_column(table_name,
@@ -772,10 +776,15 @@ def choose_default_axis(table_name, ref_periods, hidden_fields):
         index, column_name = first_ref_area_column(table_name,
                                                    table_schema,
                                                    neglected_index)
+
     if column_name is None:
         index, column_name = max_distinct_values_column(table_name,
                                                         table_schema,
                                                         neglected_index)
+
+    #print "index " , index
+    #print "column_name " , column_name
+
     if column_name is None:
         index, column_name = first_column(table_schema,
                                           neglected_index)
