@@ -1011,9 +1011,10 @@ def table(request):
 
     else:
         context = Context({})
-        context['error_string'] = 'La tabella non esiste'
+        context['error_string'] = _("The table does not exist")
 
         return render_to_response("l4s/error.html", context)
+
 
     #print fks
 
@@ -1332,7 +1333,7 @@ def query_editor_view(request):
 
     if (exists_table('public', table_name) == False):
         context = RequestContext(request)
-        context['error_string'] = 'La tabella non esiste'
+        context['error_string'] = _("The table does not exist")
         return render_to_response("l4s/error.html", context)
 
     topic = get_topic_description(table_name)
@@ -1445,6 +1446,8 @@ def query_editor_view(request):
     print len(cols)
     print "--------------------------------------"
     """
+
+    #print table_name
 
     filters = dict()
     if len(rows) + len(cols) == 0:
