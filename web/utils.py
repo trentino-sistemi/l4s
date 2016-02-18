@@ -4300,3 +4300,20 @@ def count_of_columns_table (table_schema, table_name):
 
     for row in rows:
       return row[0]
+
+def all_columns_have_metadata_description (table_schema, table_name):
+
+    columns_count = count_of_columns_table(table_schema, table_name)
+
+    query = "select count(*) \n"
+    query += "from web_metadata \n"
+    query += "where table_name = '%s' and \n" % table_name
+    query += "      column_name <> 'NULL' and \n"
+    query += "      key = '%s' \n" % DESCRIPTION
+
+    rows = execute_query_on_django_db(query)
+
+    for row in rows:
+      columns_count_with_description_metadata = row[0]
+
+    return columns_count_with_description_metadata == columns_count

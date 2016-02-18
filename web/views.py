@@ -108,7 +108,8 @@ from web.utils import get_variable_dictionary, \
     exists_table, \
     get_table_description, \
     DESCRIPTION, \
-    count_of_columns_table
+    count_of_columns_table, \
+    all_columns_have_metadata_description
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1333,12 +1334,12 @@ def query_editor_view(request):
 
     table_name = request.REQUEST.get('table')
 
-    if (exists_table('public', table_name) == False):
+    if exists_table('public', table_name) == False:
         context = RequestContext(request)
         context['error_string'] = _("The table does not exist")
         return render_to_response("l4s/error.html", context)
 
-    if (count_of_columns_table('public', table_name) < 3):
+    if count_of_columns_table('public', table_name) < 3:
         context = RequestContext(request)
         context['error_string'] = _("The table must have at least 3 columns")
         return render_to_response("l4s/error.html", context)
@@ -1350,6 +1351,11 @@ def query_editor_view(request):
         error += unicode(_("for table"))
         error += " '" + table_name + "'"
         context['error_string'] = error
+        return render_to_response("l4s/error.html", context)
+
+    if all_columns_have_metadata_description('public', table_name) == False:
+        context = RequestContext(request)
+        context['error_string'] = _("All columns mast have description metadata")
         return render_to_response("l4s/error.html", context)
 
     topic = get_topic_description(table_name)

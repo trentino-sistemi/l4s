@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-18 10:15+0100\n"
+"POT-Creation-Date: 2016-02-18 14:50+0100\n"
 "PO-Revision-Date: 2014-12-19 13:48+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -895,7 +895,7 @@ msgid "key"
 msgstr "chiave"
 
 #: l4s/static/templates/l4s/metadata.html:86 web/exceptions.py:36
-#: web/utils.py:3871
+#: web/utils.py:3876
 msgid "and"
 msgstr "e"
 
@@ -1467,68 +1467,68 @@ msgstr "Nuova richiesta manuale"
 msgid "with id"
 msgstr "con il codice"
 
-#: web/utils.py:2875
+#: web/utils.py:2880
 msgid "Invalid syntax: "
 msgstr "Sintassi non corretta:"
 
-#: web/utils.py:2876
+#: web/utils.py:2881
 msgid "Usage"
 msgstr "Utilizzo"
 
-#: web/utils.py:2880
+#: web/utils.py:2885
 msgid "Invalid Token "
 msgstr "Carattere non corretto"
 
-#: web/utils.py:2881
+#: web/utils.py:2886
 msgid " expected token is "
 msgstr "carattere atteso"
 
-#: web/utils.py:3697
+#: web/utils.py:3702
 msgid "group by"
 msgstr "raggruppato per"
 
-#: web/utils.py:3852
+#: web/utils.py:3857
 msgid "Selected values"
 msgstr "Valori selezionati"
 
-#: web/utils.py:3870
+#: web/utils.py:3875
 msgid "for"
 msgstr "per"
 
-#: web/views.py:176
+#: web/views.py:177
 msgid "No --JOIN statements specified in SQL"
 msgstr "Non hai specificato le istruzioni --JOIN  in SQL"
 
-#: web/views.py:177
+#: web/views.py:178
 msgid "the table is shown as-is"
 msgstr "la tabella è mostrata così com'è"
 
-#: web/views.py:178
+#: web/views.py:179
 msgid "without preserving statistical secret"
 msgstr "senza preservare il segreto statistico"
 
-#: web/views.py:217
+#: web/views.py:218
 msgid "Can not give you the result set"
 msgstr "Non è possibile  mostrare il risultato"
 
-#: web/views.py:218
+#: web/views.py:219
 msgid "in order to preserve the statistical secret"
 msgstr "per preservare il segreto statistico"
 
-#: web/views.py:219
+#: web/views.py:220
 msgid "please chose a pivot and push the Apply button"
 msgstr ""
 "per favore scegli come costruire la tabella pivot e premi il bottone Applica"
 
-#: web/views.py:335 web/views.py:451
+#: web/views.py:336 web/views.py:452
 msgid "The Query could not be saved because the data didn't validate."
 msgstr "L'interrogazione non può essere salvata perchè incorretta."
 
-#: web/views.py:350 web/views.py:475
+#: web/views.py:351 web/views.py:476
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
 
-#: web/views.py:1017 web/views.py:1339
+#: web/views.py:1018 web/views.py:1339
 msgid "The table does not exist"
 msgstr "La tabella non esiste"
 
@@ -1536,24 +1536,28 @@ msgstr "La tabella non esiste"
 msgid "The table must have at least 3 columns"
 msgstr "La tabella deve avere almeno tre colonne"
 
-#: web/views.py:1632
+#: web/views.py:1358
+msgid "All columns mast have description metadata"
+msgstr "Tutte le colonne della tabella devono avere il metadato per la descrizione"
+
+#: web/views.py:1636
 msgid ""
 "Il nome della tabella non puo' contenere le stringe DELETE, INSERT o UPDATE"
 msgstr ""
 
-#: web/views.py:1634
+#: web/views.py:1638
 msgid "Can not display the requested content"
 msgstr "Impossibile mostrare il contenuto richiesto"
 
-#: web/views.py:1726
+#: web/views.py:1730
 msgid "here"
 msgstr "qui"
 
-#: web/views.py:1727
+#: web/views.py:1731
 msgid "The query has been saved"
 msgstr "L'interrogazione è stata salvata"
 
-#: web/views.py:1729
+#: web/views.py:1733
 msgid "In order to see the saved queries click"
 msgstr "Per vedere the interrogazioni salvate clicca"
 
