@@ -2757,10 +2757,15 @@ def build_description_column_dict(table_name, table_schema, fk):
 
         #print "description ", description
 
-        if description is not None:
+        if description is not None: #se non trovo la descrizione ne sul filed ne sulla tabella di decodifica setto come description il nome del field
             value = dict()
             value['name'] = field.name
             value['description'] = description
+            table_description_dict[f] = value
+        else:
+            value = dict()
+            value['name'] = field.name
+            value['description'] = field.name
             table_description_dict[f] = value
 
     #print "table_description_dict ", table_description_dict

@@ -1271,7 +1271,6 @@ def query_editor_customize(request):
     agg_filters = request.REQUEST.get('agg_filters')
 
     """
-    print "aggregations ", aggregations
     print "agg_values ", agg_values
     print "filters ", filters
     print "values ", values
@@ -1352,7 +1351,6 @@ def query_editor_view(request):
         error += " '" + table_name + "'"
         context['error_string'] = error
         return render_to_response("l4s/error.html", context)
-
 
     topic = get_topic_description(table_name)
     topic_id = get_topic_id(table_name)
