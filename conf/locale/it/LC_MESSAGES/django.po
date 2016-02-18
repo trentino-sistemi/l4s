@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-18 09:41+0100\n"
+"POT-Creation-Date: 2016-02-18 10:15+0100\n"
 "PO-Revision-Date: 2014-12-19 13:48+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -913,7 +913,7 @@ msgid "Edit new metadata"
 msgstr "Aggiungi metadato"
 
 #: l4s/static/templates/l4s/metadata_add.html:48
-#: l4s/static/templates/l4s/metadata_edit.html:26 web/views.py:1345
+#: l4s/static/templates/l4s/metadata_edit.html:26 web/views.py:1351
 msgid "for table"
 msgstr "per la tabella"
 
@@ -1218,11 +1218,11 @@ msgstr "Argomento"
 msgid "Title"
 msgstr "Nome"
 
-#: web/exceptions.py:34 web/views.py:1343
+#: web/exceptions.py:34 web/views.py:1349
 msgid "Please add the metadata "
 msgstr "Per favore aggiungi il metadato"
 
-#: web/exceptions.py:35 web/views.py:1344
+#: web/exceptions.py:35 web/views.py:1350
 msgid "with key"
 msgstr "con chiave"
 
@@ -1495,61 +1495,65 @@ msgstr "Valori selezionati"
 msgid "for"
 msgstr "per"
 
-#: web/views.py:175
+#: web/views.py:176
 msgid "No --JOIN statements specified in SQL"
 msgstr "Non hai specificato le istruzioni --JOIN  in SQL"
 
-#: web/views.py:176
+#: web/views.py:177
 msgid "the table is shown as-is"
 msgstr "la tabella è mostrata così com'è"
 
-#: web/views.py:177
+#: web/views.py:178
 msgid "without preserving statistical secret"
 msgstr "senza preservare il segreto statistico"
 
-#: web/views.py:216
+#: web/views.py:217
 msgid "Can not give you the result set"
 msgstr "Non è possibile  mostrare il risultato"
 
-#: web/views.py:217
+#: web/views.py:218
 msgid "in order to preserve the statistical secret"
 msgstr "per preservare il segreto statistico"
 
-#: web/views.py:218
+#: web/views.py:219
 msgid "please chose a pivot and push the Apply button"
 msgstr ""
 "per favore scegli come costruire la tabella pivot e premi il bottone Applica"
 
-#: web/views.py:334 web/views.py:450
+#: web/views.py:335 web/views.py:451
 msgid "The Query could not be saved because the data didn't validate."
 msgstr "L'interrogazione non può essere salvata perchè incorretta."
 
-#: web/views.py:349 web/views.py:474
+#: web/views.py:350 web/views.py:475
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
 
-#: web/views.py:1016 web/views.py:1338
+#: web/views.py:1017 web/views.py:1339
 msgid "The table does not exist"
 msgstr "La tabella non esiste"
 
-#: web/views.py:1626
+#: web/views.py:1344
+msgid "The table must have at least 3 columns"
+msgstr "La tabella deve avere almeno tre colonne"
+
+#: web/views.py:1632
 msgid ""
 "Il nome della tabella non puo' contenere le stringe DELETE, INSERT o UPDATE"
 msgstr ""
 
-#: web/views.py:1628
+#: web/views.py:1634
 msgid "Can not display the requested content"
 msgstr "Impossibile mostrare il contenuto richiesto"
 
-#: web/views.py:1720
+#: web/views.py:1726
 msgid "here"
 msgstr "qui"
 
-#: web/views.py:1721
+#: web/views.py:1727
 msgid "The query has been saved"
 msgstr "L'interrogazione è stata salvata"
 
-#: web/views.py:1723
+#: web/views.py:1729
 msgid "In order to see the saved queries click"
 msgstr "Per vedere the interrogazioni salvate clicca"
 

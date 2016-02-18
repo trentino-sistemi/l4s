@@ -107,7 +107,8 @@ from web.utils import get_variable_dictionary, \
     get_color, \
     exists_table, \
     get_table_description, \
-    DESCRIPTION
+    DESCRIPTION, \
+    count_of_columns_table
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1336,6 +1337,11 @@ def query_editor_view(request):
     if (exists_table('public', table_name) == False):
         context = RequestContext(request)
         context['error_string'] = _("The table does not exist")
+        return render_to_response("l4s/error.html", context)
+
+    if (count_of_columns_table('public', table_name) < 3):
+        context = RequestContext(request)
+        context['error_string'] = _("The table must have at least 3 columns")
         return render_to_response("l4s/error.html", context)
 
     if get_table_description(table_name) == None:

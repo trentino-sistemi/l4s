@@ -4283,3 +4283,15 @@ def exists_table (table_schema, table_name):
 
     for row in rows:
       return row[0]
+
+def count_of_columns_table (table_schema, table_name):
+
+    query = "select count(*) \n"
+    query += "from information_schema.columns \n"
+    query += "WHERE  table_schema = '%s' \n" % table_schema
+    query += " AND    table_name = '%s' \n" % table_name
+
+    rows = execute_query_on_main_db(query)
+
+    for row in rows:
+      return row[0]
