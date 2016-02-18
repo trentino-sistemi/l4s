@@ -105,7 +105,9 @@ from web.utils import get_variable_dictionary, \
     execute_query_on_django_db, \
     execute_query_on_main_db, \
     get_color, \
-    exists_table
+    exists_table, \
+    get_table_description, \
+    DESCRIPTION
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1335,6 +1337,16 @@ def query_editor_view(request):
         context = RequestContext(request)
         context['error_string'] = _("The table does not exist")
         return render_to_response("l4s/error.html", context)
+
+    if get_table_description(table_name) == None:
+        context = RequestContext(request)
+        error = unicode(_("Please add the metadata "))
+        error += " " + unicode(_("with key")) + " '" + DESCRIPTION + "' "
+        error += unicode(_("for table"))
+        error += " '" + table_name + "'"
+        context['error_string'] = error
+        return render_to_response("l4s/error.html", context)
+
 
     topic = get_topic_description(table_name)
     topic_id = get_topic_id(table_name)

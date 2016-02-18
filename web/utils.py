@@ -1137,7 +1137,7 @@ def find_table_description_column(table_name):
     if not rows is None:
         for row in rows:
             return row[0]
-    raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, table_name)
+    #raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, table_name)
 
 
 def remove_code_from_data_frame(df):
@@ -2493,7 +2493,7 @@ def get_table_description(table):
     if rows is not None:
         for row in rows:
             return "%s" % row[0]
-    return ""
+    return None
 
 
 def column_position_in_dataframe(column_description, data_frame):
