@@ -81,6 +81,7 @@ ORDER_BY_DESCRIPTION = 'http://dbpedia.org/data/description'
 GROUPEDBY = 'http://dbpedia.org/ontology/groupedby'
 SECRET = 'http://dbpedia.org/ontology/secret'
 DECODER = 'http://dbpedia.org/ontology/decoder'
+THRESHOLD = 'http://dbpedia.org/ontology/threshold'
 
 DESCRIPTION_TOKEN = "--INCLUDE_DESCRIPTIONS"
 JOIN_TOKEN = '--JOIN'
@@ -3117,7 +3118,7 @@ def get_threshold(table_name, column_name):
     :return: The threshold value.
     """
 
-    return get_key_column_value(table_name, column_name, 'threshold')
+    return get_key_column_value(table_name, column_name, THRESHOLD)
 
 
 def is_decoder_table(table_name):
