@@ -80,6 +80,7 @@ ORDER_BY = 'http://dbpedia.org/ontology/order_by'
 ORDER_BY_DESCRIPTION = 'http://dbpedia.org/data/description'
 GROUPEDBY = 'http://dbpedia.org/ontology/groupedby'
 SECRET = 'http://dbpedia.org/ontology/secret'
+DECODER = 'http://dbpedia.org/ontology/decoder'
 
 DESCRIPTION_TOKEN = "--INCLUDE_DESCRIPTIONS"
 JOIN_TOKEN = '--JOIN'
@@ -137,9 +138,9 @@ def get_table_by_name_or_desc(search, tables, order):
     rows = execute_query_on_django_db(query_synonyms)
 
     query = "SELECT DISTINCT b.table_name, d.value \n"
-    query += "FROM web_metadata b JOIN web_metadata d ON (d.table_name = b.table_name and \n"
-    query += "                                            d.column_name = 'NULL' and \n"
-    query += "                                            upper(d.key) = upper('%s') ) \n" % DESCRIPTION
+    query += "FROM %s b JOIN %s d ON (d.table_name = b.table_name and \n" % (METADATA, METADATA)
+    query += "                        d.column_name = 'NULL' and \n"
+    query += "                        upper(d.key) = upper('%s') ) \n" % DESCRIPTION
     query += "WHERE ("
 
     if len(rows) > 0:
@@ -482,7 +483,7 @@ def list_ref_period(table_name,
     :return: Columns containing a ref period.
     """
     columns = dict()
-    query = "SELECT column_name FROM web_metadata \n"
+    query = "SELECT column_name FROM %s \n" % METADATA
     query += "WHERE table_name='%s' \n" % table_name
     query += "and upper(value)=upper('%s') " % REF_PERIOD
     rows = execute_query_on_django_db(query)
@@ -541,7 +542,7 @@ def all_hidden_fields(table_name,
     :param table_description: Table descriptiopn.
     :return: All the field to be hidden.
     """
-    query = "SELECT column_name FROM web_metadata \n"
+    query = "SELECT column_name FROM %s \n" % METADATA
     query += "WHERE table_name='%s' and \n" % table_name
     query += "upper(key)=upper('%s') and upper(value)=upper('%s') " % (VISIBLE, FALSE)
     rows = execute_query_on_django_db(query)
@@ -661,7 +662,7 @@ def all_obs_value_column(table_name, table_description):
     :return: index_column, column_name
     """
     ret = OrderedDict()
-    query = "SELECT column_name FROM web_metadata \n"
+    query = "SELECT column_name FROM %s \n" % METADATA
     query += "WHERE table_name='%s' \n" % table_name
     query += "and upper(key)=upper('%s') " % MEASURE
     rows = execute_query_on_django_db(query)
@@ -3127,8 +3128,8 @@ def is_decoder_table(table_name):
     :return: If the table is a decoder one.
     """
 
-    value = get_key_table_value(table_name, 'decoder')
-    if value is not None and value == "TRUE":
+    value = get_key_table_value(table_name, DECODER)
+    if value is not None and value.lower() == TRUE.lower():
         return True
     return False
 
@@ -3142,8 +3143,8 @@ def filter_coder_table(tables):
     :return:
     """
     table_names = "'" + "','".join(tables) + "'"
-    query = "SELECT table_name FROM web_metadata \n"
-    query += "WHERE key='decoder' and value='TRUE' \n"
+    query = "SELECT table_name FROM %s \n" % METADATA
+    query += "WHERE upper(key)='%s' and upper(value)='%s' \n" % (DECODER, TRUE)
     query += "and table_name IN(%s)" % table_names
     rows = execute_query_on_django_db(query)
     decoder_tables = []
@@ -3164,7 +3165,7 @@ def all_visible_tables(request):
 
     :return: List of table names.
     """
-    query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
+    query = "SELECT DISTINCT(table_name) FROM %s \n" % METADATA
 
     if request.user.is_staff:
       query += "WHERE upper(key)=upper('%s') and upper(value)=upper('%s') \n" % (VISIBLE, TRUE)
@@ -3187,7 +3188,7 @@ def exclude_invisible_tables(tables):
     :return:
     """
     table_names = "'" + "','".join(tables) + "'"
-    query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
+    query = "SELECT DISTINCT(table_name) FROM %s \n" % METADATA
     query += "WHERE upper(key)=upper('%s') and upper(value)=upper('%s') " % (VISIBLE, TRUE)
     query += "and table_name IN(%s)" % table_names
     #print "query " , query
@@ -3365,8 +3366,8 @@ def get_all_aggregations(table_name):
 
         query = "SELECT b.id, b.table_name, b.column_name, "
         query += "d.table_name, d.column_name \n"
-        query += "FROM web_metadata b \n"
-        query += "JOIN web_metadata d ON( \n"
+        query += "FROM %s b \n" % METADATA
+        query += "JOIN %s d ON( \n" % METADATA
         query += "upper(b.key)=upper('%s') \n" % LOCATED_IN_AREA
         query += "and b.table_name='%s' \n" % ref_tab
         query += "and b.column_name = '%s' \n" % ref_col
@@ -4334,7 +4335,7 @@ def all_columns_have_metadata_description (table_schema, table_name):
     columns_count = count_of_columns_table(table_schema, table_name)
 
     query = "select count(*) \n"
-    query += "from web_metadata \n"
+    query += "from %s \n" % METADATA
     query += "where table_name = '%s' and \n" % table_name
     query += "      column_name <> 'NULL' and \n"
     query += "      upper(key) = upper('%s') \n" % DESCRIPTION
