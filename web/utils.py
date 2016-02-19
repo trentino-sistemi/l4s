@@ -79,6 +79,7 @@ VISIBLE = 'http://dbpedia.org/ontology/visible'
 ORDER_BY = 'http://dbpedia.org/ontology/order_by'
 ORDER_BY_DESCRIPTION = 'http://dbpedia.org/data/description'
 GROUPEDBY = 'http://dbpedia.org/ontology/groupedby'
+SECRET = 'http://dbpedia.org/ontology/secret'
 
 DESCRIPTION_TOKEN = "--INCLUDE_DESCRIPTIONS"
 JOIN_TOKEN = '--JOIN'
@@ -3081,9 +3082,9 @@ def is_secret(table_name, column_name):
     :param column_name: Column name.
     :return: If the column on table is secret.
     """
-    value = get_key_column_value(table_name, column_name, 'secret')
+    value = get_key_column_value(table_name, column_name, SECRET)
 
-    if value is not None and value == "TRUE":
+    if value is not None and value.lower() == TRUE.lower():
         return True
 
     return False
