@@ -112,7 +112,8 @@ from web.utils import get_variable_dictionary, \
     count_of_columns_table, \
     all_columns_have_metadata_description, \
     there_are_ref_area_in_query, \
-    stampa_symtobltabel
+    stampa_symtobltabel, \
+    SECONDARY
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1320,7 +1321,7 @@ def query_editor_customize(request):
     print "column_description ", column_description
     """
 
-    sec = get_table_metadata_value(table_name, 'secondary')
+    sec = get_table_metadata_value(table_name, SECONDARY)
 
     if not sec is None and len(sec) > 0:
         context['secondary'] = True

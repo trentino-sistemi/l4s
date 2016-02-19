@@ -47,7 +47,8 @@ from web.utils import execute_query_on_main_db, \
     find_in_not_sorted_index, \
     condition_for_secondary_suppression, \
     is_int, \
-    data_type
+    data_type, \
+    SECONDARY
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -3633,7 +3634,7 @@ def apply_stat_secret(headers,
                                       old_cols,
                                       range)
 
-        sec = get_table_metadata_value(col_dict[0]['table'], 'secondary')
+        sec = get_table_metadata_value(col_dict[0]['table'], SECONDARY)
 
         if not sec is None and len(sec) > 0:
             tot_asterisked = 1

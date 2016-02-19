@@ -83,6 +83,7 @@ SECRET = 'http://dbpedia.org/ontology/secret'
 DECODER = 'http://dbpedia.org/ontology/decoder'
 THRESHOLD = 'http://dbpedia.org/ontology/threshold'
 CONSTRAINT = 'http://dbpedia.org/ontology/constraint'
+SECONDARY = 'http://dbpedia.org/ontology/secondary'
 
 DESCRIPTION_TOKEN = "--INCLUDE_DESCRIPTIONS"
 JOIN_TOKEN = '--JOIN'
@@ -2473,7 +2474,7 @@ def get_table_metadata_value(table_name, key):
     """
     query = "SELECT value from %s " % METADATA
     query += "WHERE table_name='%s' " % table_name
-    query += "and key='%s' " % key
+    query += "and upper(key)=upper('%s') " % key
     rows = execute_query_on_django_db(query)
     return rows
 
