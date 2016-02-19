@@ -58,6 +58,8 @@ QUERY = 'explorer_query'
 USER = 'web_user'
 LOG = 'web_executedquerylog'
 MANUAL_REQUEST = 'web_manualrequest'
+SQL_PREFIX = "sql://"
+
 LOCATED_IN_AREA = "http://dbpedia.org/ontology/locatedInArea"
 CLASS = "http://www.w3.org/2000/01/rdf-schema#Class"
 DIMENSION = 'http://purl.org/linked-data/cube#dimension'
@@ -71,7 +73,12 @@ DESCRIPTION = 'http://purl.org/dc/terms/description'
 VALUE_DESCRIPTION = 'http://it.dbpedia.org/data/Descrizione'
 SUBJECT = 'http://purl.org/linked-data/sdmx/2009/subject'
 CONCEPT = 'http://purl.org/linked-data/cube#concept'
-SQL_PREFIX = "sql://"
+TRUE = 'http://dbpedia.org/data/true'
+FALSE = 'http://dbpedia.org/data/false'
+VISIBLE = 'http://dbpedia.org/ontology/visible'
+ORDER_BY = 'http://dbpedia.org/ontology/order_by'
+ORDER_BY_DESCRIPTION = 'http://dbpedia.org/data/description'
+GROUPEDBY = 'http://dbpedia.org/ontology/groupedby'
 
 DESCRIPTION_TOKEN = "--INCLUDE_DESCRIPTIONS"
 JOIN_TOKEN = '--JOIN'
@@ -131,7 +138,7 @@ def get_table_by_name_or_desc(search, tables, order):
     query = "SELECT DISTINCT b.table_name, d.value \n"
     query += "FROM web_metadata b JOIN web_metadata d ON (d.table_name = b.table_name and \n"
     query += "                                            d.column_name = 'NULL' and \n"
-    query += "                                            d.key = '%s') \n" % DESCRIPTION
+    query += "                                            upper(d.key) = upper('%s') ) \n" % DESCRIPTION
     query += "WHERE ("
 
     if len(rows) > 0:
@@ -181,7 +188,7 @@ def order_tables_by_descriptions(tables):
     tables_str = "'" + "','".join(tables) + "'"
     query = "SELECT table_name, value from %s \n" % METADATA
     query += "WHERE column_name ='NULL' \n"
-    query += "and key='%s' \n" % DESCRIPTION
+    query += "and upper(key)=upper('%s') \n" % DESCRIPTION
     query += "and table_name IN (%s) \n" % tables_str
     query += "ORDER BY value;"
 
@@ -376,11 +383,14 @@ def metadata_default_pivot_values_column(table_name,
             continue
         column_name = field.name
 
-        #print column_name, get_key_column_values(table_name, column_name, DEFAULT_PIVOT_COLUMN)
+        values = get_key_column_values(table_name, column_name, DEFAULT_PIVOT_COLUMN)
 
-        if get_key_column_values(table_name, column_name, DEFAULT_PIVOT_COLUMN) == ['http://dbpedia.org/ontology/true']:
-            #print "llll"
-            return f, column_name
+        print column_name, values
+
+        for val in values:
+            if val.lower() == TRUE.lower():
+                return f, column_name
+
     return -1, None
 
 
@@ -473,7 +483,7 @@ def list_ref_period(table_name,
     columns = dict()
     query = "SELECT column_name FROM web_metadata \n"
     query += "WHERE table_name='%s' \n" % table_name
-    query += "and value='%s'" % REF_PERIOD
+    query += "and upper(value)=upper('%s') " % REF_PERIOD
     rows = execute_query_on_django_db(query)
     obs_set = []
     if not rows is None:
@@ -532,7 +542,7 @@ def all_hidden_fields(table_name,
     """
     query = "SELECT column_name FROM web_metadata \n"
     query += "WHERE table_name='%s' and \n" % table_name
-    query += "upper(key)='VISIBLE' and upper(value)='FALSE'"
+    query += "upper(key)=upper('%s') and upper(value)=upper('%s') " % (VISIBLE, FALSE)
     rows = execute_query_on_django_db(query)
     res = []
     if rows is not None:
@@ -652,7 +662,7 @@ def all_obs_value_column(table_name, table_description):
     ret = OrderedDict()
     query = "SELECT column_name FROM web_metadata \n"
     query += "WHERE table_name='%s' \n" % table_name
-    query += "and key='%s'" % MEASURE
+    query += "and upper(key)=upper('%s') " % MEASURE
     rows = execute_query_on_django_db(query)
     obs_set = []
     if not rows is None:
@@ -707,8 +717,8 @@ def get_all_field_values(table_name, column_name, select):
                 print "fk_col " , fk_col
             """
 
-            val = get_key_column_value(fk_tab, fk_col, "http://dbpedia.org/ontology/order_by")
-            if val is not None and val == "http://dbpedia.org/ontology/description":
+            val = get_key_column_value(fk_tab, fk_col, ORDER_BY)
+            if val is not None and val.lower() == ORDER_BY_DESCRIPTION.lower():
                 ordine = True
             else:
                 ordine = False
@@ -1145,7 +1155,7 @@ def find_table_description_column(table_name):
     query += "FROM %s\n" % METADATA
     query += "WHERE column_name  != 'NULL'"
     query += "and table_name='%s' " % table_name
-    query += "and key = '%s'" % SAME_AS
+    query += "and upper(key) = upper('%s') " % SAME_AS
     query += "and value='%s'" % DESCRIPTION_SUBJECT
 
     #print "find_table_description_column ", query
@@ -1312,8 +1322,8 @@ def is_to_be_sorted_by_description(foreign_keys, column):
     f = foreign_keys[column]
     f_table = f[0]
     f_column = f[1]
-    val = get_key_column_value(f_table, f_column, "http://dbpedia.org/ontology/order_by")
-    if val is not None and val == "http://dbpedia.org/ontology/description":
+    val = get_key_column_value(f_table, f_column, ORDER_BY)
+    if val is not None and val.lower() == ORDER_BY_DESCRIPTION.lower():
         return False
     return True
 
@@ -2488,7 +2498,7 @@ def get_subject_table(table):
     :return: The subject
     """
     query = "SELECT value from %s " % METADATA
-    query += "WHERE key='%s' " % SUBJECT
+    query += "WHERE upper(key)=upper('%s') " % SUBJECT
     query += "and table_name='%s';" % table
     rows = execute_query_on_django_db(query)
     return rows
@@ -2504,7 +2514,7 @@ def get_table_description(table):
     """
     query = "SELECT value from %s " % METADATA
     query += "WHERE column_name = 'NULL' "
-    query += "and key='%s' " % DESCRIPTION
+    query += "and upper(key)=upper('%s') " % DESCRIPTION
     query += "and table_name='%s';" % table
     rows = execute_query_on_django_db(query)
     if rows is not None:
@@ -2536,7 +2546,7 @@ def get_column_description(table_name, column):
     :return: The column description in natural language.
     """
     query = "SELECT value from %s " % METADATA
-    query += "WHERE key='%s' " % DESCRIPTION
+    query += "WHERE upper(key)=upper('%s') " % DESCRIPTION
     query += "and table_name='%s' " % table_name
     query += "and column_name='%s';" % column
     rows = execute_query_on_django_db(query)
@@ -2716,7 +2726,7 @@ def build_description_table_dict(tables):
     table_str = "'" + "','".join(tables) + "'"
     query = "SELECT table_name, value from %s " % METADATA
     query += "WHERE column_name = 'NULL' "
-    query += "and key='%s' " % DESCRIPTION
+    query += "and upper(key)=upper('%s') " % DESCRIPTION
     query += "and table_name IN (%s);" % table_str
 
     rows = execute_query_on_django_db(query)
@@ -3005,13 +3015,12 @@ def get_key_column_value(table_name, column_name, key_name):
     :param key_name: The key name.
     :return: The value of the key on column table.
     """
-    metadata_list = Metadata.objects.filter(table_name=table_name)
+    metadata_list = Metadata.objects.filter(table_name__iexact=table_name)
 
     if column_name is not None:
-        metadata_list = metadata_list & Metadata.objects.filter(
-            column_name=column_name)
+        metadata_list = metadata_list & Metadata.objects.filter(column_name__iexact=column_name)
 
-    metadata_list = metadata_list & Metadata.objects.filter(key=key_name)
+    metadata_list = metadata_list & Metadata.objects.filter(key__iexact=key_name)
 
     if metadata_list is not None:
         for metadata in metadata_list:
@@ -3030,13 +3039,12 @@ def get_key_column_values(table_name, column_name, key_name):
     :return: The value of the key on column table.
     """
     val = []
-    metadata_list = Metadata.objects.filter(table_name=table_name)
+    metadata_list = Metadata.objects.filter(table_name__iexact=table_name)
 
     if column_name is not None:
-        metadata_list = metadata_list & Metadata.objects.filter(
-            column_name=column_name)
+        metadata_list = metadata_list & Metadata.objects.filter(column_name__iexact=column_name)
 
-    metadata_list = metadata_list & Metadata.objects.filter(key=key_name)
+    metadata_list = metadata_list & Metadata.objects.filter(key__iexact=key_name)
 
     if metadata_list is not None:
 
@@ -3054,9 +3062,9 @@ def get_key_table_value(table_name, key_name):
     :param key_name: The key name.
     :return: The value of key on table.
     """
-    metadata_list = Metadata.objects.filter(table_name=table_name,
-                                            key=key_name,
-                                            column_name="NULL")
+    metadata_list = Metadata.objects.filter(table_name__iexact=table_name,
+                                            key__iexact=key_name,
+                                            column_name__iexact="NULL")
 
     if metadata_list is not None:
         for metadata in metadata_list:
@@ -3158,7 +3166,7 @@ def all_visible_tables(request):
     query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
 
     if request.user.is_staff:
-      query += "WHERE upper(key)='VISIBLE' and upper(value)='TRUE' \n"
+      query += "WHERE upper(key)=upper('%s') and upper(value)=upper('%s') \n" % (VISIBLE, TRUE)
 
     query += "order by table_name"
 
@@ -3179,7 +3187,7 @@ def exclude_invisible_tables(tables):
     """
     table_names = "'" + "','".join(tables) + "'"
     query = "SELECT DISTINCT(table_name) FROM web_metadata \n"
-    query += "WHERE upper(key)='VISIBLE' and upper(value)='TRUE' "
+    query += "WHERE upper(key)=upper('%s') and upper(value)=upper('%s') " % (VISIBLE, TRUE)
     query += "and table_name IN(%s)" % table_names
     #print "query " , query
     rows = execute_query_on_django_db(query)
@@ -3200,7 +3208,7 @@ def get_concept(value):
     """
     query = "SELECT table_name, column_name from %s " % METADATA
     query += "WHERE column_name != 'NULL' and "
-    query += "key = '%s' and " % CONCEPT
+    query += "upper(key) = upper('%s') and " % CONCEPT
     query += "value = '%s'" % value
     rows = execute_query_on_django_db(query)
     if rows is not None and len(rows) > 0:
@@ -3216,7 +3224,7 @@ def get_default_pivot_column(value):
     """
     query = "SELECT table_name, column_name from %s " % METADATA
     query += "WHERE column_name != 'NULL' and "
-    query += "key = '%s' and " % CONCEPT
+    query += "upper(key) = upper('%s') and " % CONCEPT
     query += "value = '%s'" % value
     rows = execute_query_on_django_db(query)
     if rows is not None and len(rows) > 0:
@@ -3249,7 +3257,7 @@ def located_in_area_value_to_column(metadata_list):
     :return: <value,[table,column]>
     """
     ret = dict()
-    metadata_list = metadata_list.filter(key=LOCATED_IN_AREA)
+    metadata_list = metadata_list.filter(key__iexact=LOCATED_IN_AREA)
     for metadata in metadata_list:
         value = metadata.value
         table = metadata.table_name
@@ -3292,7 +3300,7 @@ def is_obs_value(table, column):
     """
     values = get_measure(table, column)
     for val in values:
-        if val == OBS_VALUE:
+        if val.lower() == OBS_VALUE.lower():
             return True
     return False
 
@@ -3307,7 +3315,7 @@ def is_ref_period(table, column):
     """
     values = get_dimensions(table, column)
     for val in values:
-        if val == REF_PERIOD:
+        if val.lower() == REF_PERIOD.lower():
             return True
     return False
 
@@ -3322,7 +3330,7 @@ def is_ref_area(table, column):
     """
     values = get_dimensions(table, column)
     for val in values:
-        if val == REF_AREA:
+        if val.lower() == REF_AREA.lower():
             return True
     return False
 
@@ -3358,10 +3366,10 @@ def get_all_aggregations(table_name):
         query += "d.table_name, d.column_name \n"
         query += "FROM web_metadata b \n"
         query += "JOIN web_metadata d ON( \n"
-        query += "b.key='%s' \n" % LOCATED_IN_AREA
+        query += "upper(b.key)=upper('%s') \n" % LOCATED_IN_AREA
         query += "and b.table_name='%s' \n" % ref_tab
         query += "and b.column_name = '%s' \n" % ref_col
-        query += "and d.key = '%s' \n" % CONCEPT
+        query += "and upper(d.key) = upper('%s') \n" % CONCEPT
         query += "and d.value = b.value \n"
         query += ")"
 
@@ -3450,7 +3458,7 @@ def get_all_aggregations(table_name):
 
     #print "agg1 ", agg
 
-    metadata_list = Metadata.objects.filter(table_name=table_name, key=CLASS)
+    metadata_list = Metadata.objects.filter(table_name__iexact=table_name, key__iexact=CLASS)
 
     #print "metadata_list " , metadata_list
 
@@ -3520,9 +3528,9 @@ def get_aggregations(cols):
         src_description = get_column_description(table_name, column_name)
         if src_description is None or src_description == "":
             src_description = column_name
-        metadata_list = Metadata.objects.filter(table_name=table_name,
-                                                column_name=column_name,
-                                                key=LOCATED_IN_AREA)
+        metadata_list = Metadata.objects.filter(table_name__iexact=table_name,
+                                                column_name__iexact=column_name,
+                                                key__iexact=LOCATED_IN_AREA)
 
         for metadata in metadata_list:
             ref_tab, ref_col = located_in_area(metadata.table_name,
@@ -3536,9 +3544,9 @@ def get_aggregations(cols):
                     agg[src_description] = dict()
                 agg[src_description][metadata.pk] = ref_description
 
-        metadata_list = Metadata.objects.filter(table_name=table_name,
-                                                column_name=column_name,
-                                                key=CLASS)
+        metadata_list = Metadata.objects.filter(table_name__iexact=table_name,
+                                                column_name__iexact=column_name,
+                                                key__iexact=CLASS)
         for m, metadata in enumerate(metadata_list):
             src_description = get_column_description(table_name, column_name)
             if src_description is None or src_description == "":
@@ -4288,7 +4296,7 @@ def is_description_column(table_name, column_name):
     #print "value ", rows
 
     for row in rows:
-        if row is not None and row == VALUE_DESCRIPTION:
+        if row is not None and row.lower() == VALUE_DESCRIPTION.lower():
             return True
 
     return False
@@ -4328,7 +4336,7 @@ def all_columns_have_metadata_description (table_schema, table_name):
     query += "from web_metadata \n"
     query += "where table_name = '%s' and \n" % table_name
     query += "      column_name <> 'NULL' and \n"
-    query += "      key = '%s' \n" % DESCRIPTION
+    query += "      upper(key) = upper('%s') \n" % DESCRIPTION
 
     rows = execute_query_on_django_db(query)
 

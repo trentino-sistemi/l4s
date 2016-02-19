@@ -784,6 +784,7 @@ def table_view_metadata(request):
     :return: T
     he Django request response.
     """
+
     context = RequestContext(request)
     table_name = request.GET.get('table')
     column_name = request.GET.get('column', '')
