@@ -1,4 +1,5 @@
 # This file is part of Lod4Stat.
+# This file is part of Lod4Stat.
 #
 # Copyright (C) 2014 Provincia autonoma di Trento
 #
@@ -109,7 +110,9 @@ from web.utils import get_variable_dictionary, \
     get_table_description, \
     DESCRIPTION, \
     count_of_columns_table, \
-    all_columns_have_metadata_description
+    all_columns_have_metadata_description, \
+    there_are_ref_area_in_query, \
+    stampa_symtobltabel
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1212,6 +1215,11 @@ def query_editor_customize(request):
         if not range_s is None and range_s == 'true':
             range = True
 
+    there_are_ref_area_in_query = False
+    there_are_ref_area_in_query_s = request.REQUEST.get('there_are_ref_area_in_query')
+    if not there_are_ref_area_in_query_s is None and there_are_ref_area_in_query_s == 'true':
+        there_are_ref_area_in_query = True
+
     selected_obs_values_s = request.REQUEST.get('selected_obs_values')
     selected_obs_values = []
     if not selected_obs_values_s is None and selected_obs_values != "":
@@ -1260,6 +1268,7 @@ def query_editor_customize(request):
     context['rows'] = rows
     context['include_code'] = include_code
     context['range'] = range
+    context['there_are_ref_area_in_query'] = there_are_ref_area_in_query
 
     values = request.REQUEST.get('values')
     agg_values = request.REQUEST.get('agg_values')
@@ -1528,7 +1537,6 @@ def query_editor_view(request):
                              values,
                              not_agg_selection_value)
 
-
     #print sql
 
     query = Query(title=table_name, sql=sql)
@@ -1580,7 +1588,6 @@ def query_editor_view(request):
 
     context['show_legend'] = len(st.secret) > 0
 
-    #print st.secret
     #print len(st.secret)
 
     #print "agg_values " , agg_values
@@ -1590,6 +1597,8 @@ def query_editor_view(request):
     column_description = build_description_column_dict(table_name,
                                                        table_schema,
                                                        True)
+
+    context['there_are_ref_area_in_query'] = there_are_ref_area_in_query(column_description)
 
     #print "column_description ", column_description
 
@@ -1686,9 +1695,7 @@ def query_editor_view(request):
     #print 'store ', context['store']
     print 'sql ', context['sql']
     print 'url ', context['url']
-    """
 
-    """
     print "aggregations ", aggregations
     print "agg_values ", agg_values
     print "filters ", filters

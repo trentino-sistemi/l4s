@@ -576,12 +576,29 @@ def first_ref_area_column(table_name,
     :param exclude: Column index to be neglected.
     :return: index_column, column_name
     """
+
+    #cerco sia sulla tabella e ralative chiavi
+    column_description = build_description_column_dict(table_name,
+                                                       table_description,
+                                                       True)
+
+    for f in column_description:
+        #print f, column_description[f]
+        if f in exclude:
+            continue
+        if is_ref_area(column_description[f]['table_name'], column_description[f]['name']) == True:
+            #print table_description[f].name e' giusto prendere table_description perche serve il fields della tabella con i dati e non quello della tabella di decodifica
+            return f, table_description[f].name
+
+    #se non trovo niente provo sulla tabella dei dati
     for f, field in enumerate(table_description):
+        print f, field
         if f in exclude:
             continue
         column_name = field.name
         if is_ref_area(table_name, column_name):
             return f, column_name
+
     return -1, None
 
 
@@ -690,8 +707,8 @@ def get_all_field_values(table_name, column_name, select):
                 print "fk_col " , fk_col
             """
 
-            val = get_key_column_value(fk_tab, fk_col, "order_by")
-            if val is not None and val == "description":
+            val = get_key_column_value(fk_tab, fk_col, "http://dbpedia.org/ontology/order_by")
+            if val is not None and val == "http://dbpedia.org/ontology/description":
                 ordine = True
             else:
                 ordine = False
@@ -1295,8 +1312,8 @@ def is_to_be_sorted_by_description(foreign_keys, column):
     f = foreign_keys[column]
     f_table = f[0]
     f_column = f[1]
-    val = get_key_column_value(f_table, f_column, "order_by")
-    if val is not None and val == "description":
+    val = get_key_column_value(f_table, f_column, "http://dbpedia.org/ontology/order_by")
+    if val is not None and val == "http://dbpedia.org/ontology/description":
         return False
     return True
 
@@ -2759,11 +2776,13 @@ def build_description_column_dict(table_name, table_schema, fk):
 
         if description is not None: #se non trovo la descrizione ne sul filed ne sulla tabella di decodifica setto come description il nome del field
             value = dict()
+            value['table_name'] = nome_tabella
             value['name'] = field.name
             value['description'] = description
             table_description_dict[f] = value
         else:
             value = dict()
+            value['table_name'] = nome_tabella
             value['name'] = field.name
             value['description'] = field.name
             table_description_dict[f] = value
@@ -4317,3 +4336,32 @@ def all_columns_have_metadata_description (table_schema, table_name):
       columns_count_with_description_metadata = row[0]
 
     return columns_count_with_description_metadata == columns_count
+
+def stampa_symtobltabel(st):
+    print "aggregation"
+    print st.aggregation
+    print "cols"
+    print st.cols
+    print "constraint"
+    print st.constraint
+    print "decoder"
+    print st.decoder
+    print "include_descriptions"
+    print st.include_descriptions
+    print "pivot"
+    print st.pivot
+    print "secret"
+    print st.secret
+    print "secret_ref"
+    print st.secret_ref
+    print "threshold"
+    print st.threshold
+
+
+def there_are_ref_area_in_query(column_description):
+
+    for index in column_description:
+        if is_ref_area(column_description[index]['table_name'], column_description[index]['name']) == True:
+            return True
+
+    return False

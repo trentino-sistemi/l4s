@@ -3715,28 +3715,6 @@ def apply_stat_secret(headers,
 
     return data, headers, data_frame, warn, err
 
-
-def stampa_symtobltabel(st):
-    print "aggregation"
-    print st.aggregation
-    print "cols"
-    print st.cols
-    print "constraint"
-    print st.constraint
-    print "decoder"
-    print st.decoder
-    print "include_descriptions"
-    print st.include_descriptions
-    print "pivot"
-    print st.pivot
-    print "secret"
-    print st.secret
-    print "secret_ref"
-    print st.secret_ref
-    print "threshold"
-    print st.threshold
-
-
 def headers_and_data(user,
                      query,
                      filters,
