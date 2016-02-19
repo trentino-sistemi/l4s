@@ -82,6 +82,7 @@ GROUPEDBY = 'http://dbpedia.org/ontology/groupedby'
 SECRET = 'http://dbpedia.org/ontology/secret'
 DECODER = 'http://dbpedia.org/ontology/decoder'
 THRESHOLD = 'http://dbpedia.org/ontology/threshold'
+CONSTRAINT = 'http://dbpedia.org/ontology/constraint'
 
 DESCRIPTION_TOKEN = "--INCLUDE_DESCRIPTIONS"
 JOIN_TOKEN = '--JOIN'
@@ -3101,7 +3102,7 @@ def get_constraint(table_name, column_name):
     :param column_name: Column name.
     :return: The constraint value.
     """
-    value = get_key_column_value(table_name, column_name, 'constraint')
+    value = get_key_column_value(table_name, column_name, CONSTRAINT)
 
     if value is not None:
         return value
