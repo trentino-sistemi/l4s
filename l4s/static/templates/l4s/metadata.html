@@ -62,7 +62,21 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </a>
             {% endwith %}
             {% else %}
-            {{ metadata.value }}
+
+                {% if metadata.value in groupedby %}
+
+                {% with groupedby|lookup:metadata.value as ref %}
+                <a href="/table/metadata/?table={{ ref.0 }};column={{ ref.1 }}">
+                    {{ metadata.value }}
+                </a>
+                {% endwith %}
+                {% else %}
+
+                {{ metadata.value }}
+
+                {% endif %}
+
+
             {% endif %}
         </td>
         <td>

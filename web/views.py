@@ -1,5 +1,4 @@
 # This file is part of Lod4Stat.
-# This file is part of Lod4Stat.
 #
 # Copyright (C) 2014 Provincia autonoma di Trento
 #
@@ -113,7 +112,8 @@ from web.utils import get_variable_dictionary, \
     all_columns_have_metadata_description, \
     there_are_ref_area_in_query, \
     stampa_symtobltabel, \
-    SECONDARY
+    SECONDARY, \
+    groupedby_value_to_column
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -796,11 +796,14 @@ def table_view_metadata(request):
                                                 column_name=column_name)
         context['column_name'] = column_name
         aggregations = located_in_area_value_to_column(metadata_list)
+        groupedby = groupedby_value_to_column(metadata_list)
     else:
         aggregations = dict()
+        groupedby = dict()
         metadata_list = Metadata.objects.filter(table_name=table_name)
     context['metadata_list'] = metadata_list
     context['aggregations'] = aggregations
+    context['groupedby'] = groupedby
     context['request'] = request
     return render_to_response('l4s/metadata.html', context)
 

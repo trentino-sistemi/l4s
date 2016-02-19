@@ -3236,6 +3236,20 @@ def get_default_pivot_column(value):
         return rows[0][0], rows[0][1]
     return None, None
 
+def grouped_by(table, column, value):
+    """
+    Get locatedInArea metadata on column table.
+
+    :param table: Table name.
+    :param column: Column name.
+    :return: The table.column that contains the super area.
+    """
+    values = get_key_column_values(table, column, GROUPEDBY)
+    for val in values:
+        if value == val:
+            ref_table, ref_column = get_concept(value)
+            return ref_table, ref_column
+    return None, None
 
 def located_in_area(table, column, value):
     """
@@ -3252,6 +3266,24 @@ def located_in_area(table, column, value):
             return ref_table, ref_column
     return None, None
 
+def groupedby_value_to_column(metadata_list):
+    """
+    Return hashtable with key the value of LOCATED_IN_AREA key
+    and value the column table referenced by link.
+
+    :param metadata_list:
+    :return: <value,[table,column]>
+    """
+    ret = dict()
+    metadata_list = metadata_list.filter(key__iexact=GROUPEDBY)
+    for metadata in metadata_list:
+        value = metadata.value
+        table = metadata.table_name
+        column = metadata.column_name
+        ref_table, ref_column = grouped_by(table, column, value)
+        ret[value] = [ref_table, ref_column]
+
+    return ret
 
 def located_in_area_value_to_column(metadata_list):
     """
