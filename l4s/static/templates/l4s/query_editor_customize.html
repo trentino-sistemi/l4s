@@ -419,6 +419,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <span class="caret"></span>
                 </span>
                 <span class="dropdown-menu" role="menu">
+
+                    {% if there_are_grouped_by_in_query %}
+
+                    <div class="radio" id="radio_test">
+                        <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "historical boundaries" %}"/><br>
+                        <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "the current borders" %}"/>
+
+                    </div>
+
+                    {% endif %}
+
                 {% for agg in aggregations %}
                 {% if agg == column_description|lookup_unicode:f|lookup:"description" %}
                 <script>colour('{{ field }}');</script>
@@ -680,16 +691,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </label>
         </td>
     </tr>
-
-    {% if there_are_grouped_by_in_query %}
-    <tr>
-        <td colspan=4 align="center">
-           <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "historical boundaries" %}"/><br>
-           <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "the current borders" %}"/>
-        </td>
-    </tr>
-    {% endif %}
-
 
     <tr style="width:100%">
         <td colspan=4 align="center">
