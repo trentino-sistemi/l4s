@@ -390,7 +390,7 @@ def metadata_default_pivot_values_column(table_name,
 
         values = get_key_column_values(table_name, column_name, DEFAULT_PIVOT_COLUMN)
 
-        print column_name, values
+        #print column_name, values
 
         for val in values:
             if val.lower() == TRUE.lower():
@@ -607,7 +607,7 @@ def first_ref_area_column(table_name,
 
     #se non trovo niente provo sulla tabella dei dati
     for f, field in enumerate(table_description):
-        print f, field
+        #print f, field
         if f in exclude:
             continue
         column_name = field.name
@@ -3371,7 +3371,6 @@ def is_ref_area(table, column):
             return True
     return False
 
-
 def get_all_aggregations(table_name):
     """
     Get all the aggregation that are feasible on table.
@@ -4403,10 +4402,10 @@ def stampa_symtobltabel(st):
     print st.threshold
 
 
-def there_are_ref_area_in_query(column_description):
+def there_are_grouped_by_in_query(column_description):
 
     for index in column_description:
-        if is_ref_area(column_description[index]['table_name'], column_description[index]['name']) == True:
+        if get_key_column_value(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> None:
             return True
 
     return False

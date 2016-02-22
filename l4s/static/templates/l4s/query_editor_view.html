@@ -219,10 +219,10 @@ function OpenCustomizePopup() {
     if (range=='True') {
        range_value = "true"
     }
-    there_are_ref_area_in_query_value = "false"
-    there_are_ref_area_in_query = '{{ there_are_ref_area_in_query }}';
-    if (there_are_ref_area_in_query=='True') {
-       there_are_ref_area_in_query_value = "true"
+    there_are_grouped_by_in_query_value = "false"
+    there_are_grouped_by_in_query = '{{ there_are_grouped_by_in_query }}';
+    if (there_are_grouped_by_in_query=='True') {
+       there_are_grouped_by_in_query_value = "true"
     }
 
     url = '/query_editor_customize/';
@@ -245,7 +245,7 @@ function OpenCustomizePopup() {
              'debug': debug_value,
              'not_sel_aggregations': '{{ not_sel_aggregations|escapejs }}',
              'not_agg_selection_value': '{{ not_agg_selection_value|jsonify|escapejs }}',
-             'there_are_ref_area_in_query': there_are_ref_area_in_query_value,
+             'there_are_grouped_by_in_query': there_are_grouped_by_in_query_value,
               };
 
     $.ajax({

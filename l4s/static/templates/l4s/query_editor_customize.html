@@ -681,11 +681,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </td>
     </tr>
 
-    {% if there_are_ref_area_in_query %}
+    {% if there_are_grouped_by_in_query %}
     <tr>
         <td colspan=4 align="center">
-           <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_ref_area_in_query" name="there_are_ref_area_in_query" value="{% trans "historical boundaries" %}"/><br>
-           <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_ref_area_in_query" name="there_are_ref_area_in_query" value="{% trans "the current borders" %}"/>
+           <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "historical boundaries" %}"/><br>
+           <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "the current borders" %}"/>
         </td>
     </tr>
     {% endif %}
