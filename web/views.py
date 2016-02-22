@@ -110,7 +110,7 @@ from web.utils import get_variable_dictionary, \
     DESCRIPTION, \
     count_of_columns_table, \
     all_columns_have_metadata_description, \
-    there_are_grouped_by_in_query, \
+    grouped_by_in_query, \
     stampa_symtobltabel, \
     SECONDARY, \
     groupedby_value_to_column
@@ -1220,11 +1220,6 @@ def query_editor_customize(request):
         if not range_s is None and range_s == 'true':
             range = True
 
-    there_are_grouped_by_in_query = False
-    there_are_grouped_by_in_query_s = request.REQUEST.get('there_are_grouped_by_in_query')
-    if not there_are_grouped_by_in_query_s is None and there_are_grouped_by_in_query_s == 'true':
-        there_are_grouped_by_in_query = True
-
     selected_obs_values_s = request.REQUEST.get('selected_obs_values')
     selected_obs_values = []
     if not selected_obs_values_s is None and selected_obs_values != "":
@@ -1262,6 +1257,8 @@ def query_editor_customize(request):
         sel_aggregation_ids = [x for x in sel_aggregation.split(',')]
 
     column_description = request.REQUEST.get('column_description')
+    grouped_by_in_query = request.REQUEST.get('grouped_by_in_query')
+
     fields = [field.name for field in table_schema]
     obs_values = all_obs_value_column(table_name, table_schema).values()
 
@@ -1273,7 +1270,6 @@ def query_editor_customize(request):
     context['rows'] = rows
     context['include_code'] = include_code
     context['range'] = range
-    context['there_are_grouped_by_in_query'] = there_are_grouped_by_in_query
 
     values = request.REQUEST.get('values')
     agg_values = request.REQUEST.get('agg_values')
@@ -1302,6 +1298,7 @@ def query_editor_customize(request):
     context['aggregations'] = json.loads(aggregations)
     context['sel_aggregation'] = sel_aggregation_ids
     context['column_description'] = json.loads(column_description)
+    context['grouped_by_in_query'] = json.loads(grouped_by_in_query)
     context['debug'] = debug
     context['values'] = json.loads(values)
     context['agg_values'] = json.loads(agg_values)
@@ -1322,6 +1319,7 @@ def query_editor_customize(request):
     print "hidden_fields ", hidden_fields
     print "aggregations ", aggregations
     print "column_description ", column_description
+    print "grouped_by_in_query", grouped_by_in_query
     """
 
     sec = get_table_metadata_value(table_name, SECONDARY)
@@ -1603,8 +1601,9 @@ def query_editor_view(request):
                                                        table_schema,
                                                        True)
 
-    context['there_are_grouped_by_in_query'] = there_are_grouped_by_in_query(column_description)
-    #print "there_are_grouped_by_in_query" , context['there_are_grouped_by_in_query']
+    context['grouped_by_in_query'] = grouped_by_in_query(column_description)
+
+    #print "grouped_by_in_query" , context['grouped_by_in_query']
 
     #print "column_description ", column_description
 

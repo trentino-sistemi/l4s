@@ -87,6 +87,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </span>
                 <span id="drop" class="dropdown-menu" role="menu">
 
+                {% if grouped_by_in_query|lookup_unicode:forloop.counter0|lookup:"table_name" == column_description|lookup_unicode:forloop.counter0|lookup:"table_name" %}
+                    {% if grouped_by_in_query|lookup_unicode:forloop.counter0|lookup:"column_name" == column_description|lookup_unicode:forloop.counter0|lookup:"name" %}
+
+                        <div class="radio" id="radio_grouped_by_{{field }}">
+                            <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "historical boundaries" %}"/><br>
+                            <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "the current borders" %}"/>
+
+                        </div>
+
+                    {% endif %}
+                {% endif %}
+
                 {% for agg in aggregations %}
                 {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
                 <script>colour('{{ field }}');</script>
@@ -269,6 +281,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </span>
 
                 <span class="dropdown-menu" role="menu">
+
+                {% if grouped_by_in_query|lookup_unicode:f|lookup:"table_name" == column_description|lookup_unicode:f|lookup:"table_name" %}
+                    {% if grouped_by_in_query|lookup_unicode:f|lookup:"column_name" == column_description|lookup_unicode:f|lookup:"name" %}
+
+                        <div class="radio" id="radio_grouped_by_{{field }}">
+                            <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "historical boundaries" %}"/><br>
+                            <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "the current borders" %}"/>
+
+                        </div>
+
+                    {% endif %}
+                {% endif %}
+
                 {% for agg in aggregations %}
                 {% if agg == column_description|lookup_unicode:f|lookup:"description" %}
                 <script>colour('{{ field }}');</script>
@@ -420,15 +445,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 </span>
                 <span class="dropdown-menu" role="menu">
 
-                    {% if there_are_grouped_by_in_query %}
+                {% if grouped_by_in_query|lookup_unicode:f|lookup:"table_name" == column_description|lookup_unicode:f|lookup:"table_name" %}
+                    {% if grouped_by_in_query|lookup_unicode:f|lookup:"column_name" == column_description|lookup_unicode:f|lookup:"name" %}
 
-                    <div class="radio" id="radio_test">
-                        <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "historical boundaries" %}"/><br>
-                        <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "the current borders" %}"/>
+                        <div class="radio" id="radio_grouped_by_{{field }}">
+                            <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "historical boundaries" %}"/><br>
+                            <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "the current borders" %}"/>
 
-                    </div>
+                        </div>
 
                     {% endif %}
+                {% endif %}
 
                 {% for agg in aggregations %}
                 {% if agg == column_description|lookup_unicode:f|lookup:"description" %}

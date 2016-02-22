@@ -4402,10 +4402,19 @@ def stampa_symtobltabel(st):
     print st.threshold
 
 
-def there_are_grouped_by_in_query(column_description):
+def grouped_by_in_query(column_description):
+
+    result = dict()
 
     for index in column_description:
-        if get_key_column_value(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> None:
-            return True
+        #print get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY)
 
-    return False
+        value = dict()
+
+        if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> []:
+            value['table_name'] = column_description[index]['table_name']
+            value['column_name'] = column_description[index]['name']
+
+        result[index] = value
+
+    return result
