@@ -1419,6 +1419,13 @@ def query_editor_view(request):
     aggregation = request.REQUEST.get('aggregate', "")
     not_sel_aggregations = request.REQUEST.get('not_sel_aggregations', "")
 
+    if request.REQUEST.get('get_grouped_by_value') == None:
+        get_grouped_by_value = 1 #per default confini storici
+    else:
+        get_grouped_by_value = request.REQUEST.get('get_grouped_by_value')
+
+    #print "get_grouped_by_value ", get_grouped_by_value
+
     #print "aggregation " ,aggregation
 
     not_sel_aggregations_ids = []

@@ -213,7 +213,7 @@ function get_aggregations(in_riga_o_colonna) {
     for (var i = 0; i < radios.length; i++) {
         var name = radios[i].name;
         var type = radios[i].type;
-        if (type == 'radio' && radios[i].checked) {
+        if (type == 'radio' && radios[i].checked && name.indexOf("radio_grouped_by") == -1) {
 
             var lista_id_parent_validi = new Array();
 
@@ -377,6 +377,48 @@ function addHiddenInput(form, id, value) {
     form.appendChild(hiddenField);
 }
 
+function get_grouped_by_in_query () {
+
+    var radios = document.getElementsByTagName('input');
+    var output = [];
+
+    for (var i = 0; i < radios.length; i++) {
+        var name = radios[i].name;
+        var type = radios[i].type;
+
+        if (type == 'radio' && radios[i].checked && name.indexOf("radio_grouped_by") != -1) {
+
+            //alert("name " + name);
+
+            var lista_id_parent_validi = new Array();
+
+            lista_id_parent_validi.push('rowFields');
+            lista_id_parent_validi.push('columnFields');
+            lista_id_parent_validi.push('unselectedFields');
+
+            //alert("lista_id_parent_validi " + lista_id_parent_validi);
+
+            id_parent = radios[i].parentNode.parentNode.parentNode.parentNode.parentNode.getAttribute("id");
+
+            //alert("id_parent " + id_parent);
+
+            if (lista_id_parent_validi.indexOf(id_parent) != -1) {
+
+              id = radios[i].id;
+
+              //alert("id " + id);
+
+              if (id != "") {
+                  output.push(id);
+              }
+            }
+        }
+    }
+    return output.join(",");
+
+
+}
+
 function submit_popup (obs_values,
                        values,
                        agg_values,
@@ -432,6 +474,9 @@ function submit_popup (obs_values,
     not_agg_selection_value = JSON.stringify(not_agg_selection);
     //alert("not_agg_selection_value " + not_agg_selection_value);
 
+    get_grouped_by = get_grouped_by_in_query();
+    get_grouped_by_value = JSON.stringify(get_grouped_by);
+
     debug_value = "false";
     var debug = document.getElementById('debug');  
       if (debug != null && debug.checked == 1) {
@@ -474,7 +519,8 @@ function submit_popup (obs_values,
              'range': range_value,
              'visible': visible_value,
              'not_sel_aggregations': not_sel_aggregations,       //id delle aggregazioni di fields NON in riga o colonna
-             'not_agg_selection_value': not_agg_selection_value  ////valore degli id delle aggregazioni es. (comunita di valle x , ccomunita di valle y ......)
+             'not_agg_selection_value': not_agg_selection_value,  ////valore degli id delle aggregazioni es. (comunita di valle x , ccomunita di valle y ......)
+             'get_grouped_by_value': get_grouped_by_value
               };
     $.ajax({
 		url: url,
