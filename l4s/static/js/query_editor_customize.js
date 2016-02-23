@@ -157,16 +157,27 @@ function handleRadio(myRadio, field, values, agg, select_all) {
     }
 
     var li = document.getElementById("filtro_" + field);
+    var div_radio_grouped_by = document.getElementById("div_radio_grouped_by_" + field);
 
     if (agg == true) {
         eventoonclick = '';
         $( ".dropdown-menu" ).removeClass( "attivo" );
+
+        if (div_radio_grouped_by != null) {
+            div_radio_grouped_by.style.display = 'none';
+        }
     }
     else {
         eventoonclick = '$( ".dropdown-menu" ).toggleClass( "attivo" );';
+
+        if (div_radio_grouped_by != null) {
+            div_radio_grouped_by.style.display = 'block';
+        }
+
     }
 
     li.onclick = new Function(eventoonclick);
+
 
 }
 

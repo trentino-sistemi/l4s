@@ -90,9 +90,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% if grouped_by_in_query|lookup_unicode:forloop.counter0|lookup:"table_name" == column_description|lookup_unicode:forloop.counter0|lookup:"table_name" %}
                     {% if grouped_by_in_query|lookup_unicode:forloop.counter0|lookup:"column_name" == column_description|lookup_unicode:forloop.counter0|lookup:"name" %}
 
-                        <div class="radio" id="radio_grouped_by_{{field }}">
-                            <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "historical boundaries" %}"/><br>
-                            <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "the current borders" %}"/>
+                        <div class="radio" id="div_radio_grouped_by_{{field }}">
+                            <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="radio_grouped_by_{{field }}" name="radio_grouped_by_{{field }}" value="{% trans "historical boundaries" %}"/><br>
+                            <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="radio_grouped_by_{{field }}" name="radio_grouped_by_{{field }}" value="{% trans "the current borders" %}"/>
 
                         </div>
 
@@ -285,9 +285,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% if grouped_by_in_query|lookup_unicode:f|lookup:"table_name" == column_description|lookup_unicode:f|lookup:"table_name" %}
                     {% if grouped_by_in_query|lookup_unicode:f|lookup:"column_name" == column_description|lookup_unicode:f|lookup:"name" %}
 
-                        <div class="radio" id="radio_grouped_by_{{field }}">
-                            <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "historical boundaries" %}"/><br>
-                            <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "the current borders" %}"/>
+                        <div class="radio" id="div_radio_grouped_by_{{field }}">
+                            <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="radio_grouped_by_{{field }}" name="radio_grouped_by_{{field }}" value="{% trans "historical boundaries" %}"/><br>
+                            <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="radio_grouped_by_{{field }}" name="radio_grouped_by_{{field }}" value="{% trans "the current borders" %}"/>
 
                         </div>
 
@@ -448,9 +448,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% if grouped_by_in_query|lookup_unicode:f|lookup:"table_name" == column_description|lookup_unicode:f|lookup:"table_name" %}
                     {% if grouped_by_in_query|lookup_unicode:f|lookup:"column_name" == column_description|lookup_unicode:f|lookup:"name" %}
 
-                        <div class="radio" id="radio_grouped_by_{{field }}">
-                            <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "historical boundaries" %}"/><br>
-                            <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="there_are_grouped_by_in_query" name="there_are_grouped_by_in_query" value="{% trans "the current borders" %}"/>
+                        <div class="radio" id="div_radio_grouped_by_{{field }}">
+                            <label class="control-label">{% trans "historical boundaries" %}</label> <input type="radio" id="radio_grouped_by_{{field }}" name="radio_grouped_by_{{field }}" value="{% trans "historical boundaries" %}"/><br>
+                            <label class="control-label">{% trans "the current borders" %}</label> <input checked type="radio" id="radio_grouped_by_{{field }}" name="radio_grouped_by_{{field }}" value="{% trans "the current borders" %}"/>
 
                         </div>
 
