@@ -4414,6 +4414,7 @@ def grouped_by_in_query(column_description):
         if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> []:
             value['table_name'] = column_description[index]['table_name']
             value['column_name'] = column_description[index]['name']
+            value['valore'] = '2' #confini attuali
 
         result[index] = value
 

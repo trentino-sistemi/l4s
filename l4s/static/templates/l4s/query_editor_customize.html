@@ -117,9 +117,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             <ul>
                                 <div class="radio" id="div_radio_grouped_by_{{field }}">
                                     <label class="control-label">{% trans "historical boundaries" %}</label>
-                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" /><br>
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:forloop.counter0|lookup:"valore" == '1' %}
+                                               checked
+                                           {% endif %}
+                                           id='1'
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" /><br>
                                     <label class="control-label">{% trans "the current borders" %}</label>
-                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" />
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:forloop.counter0|lookup:"valore" == '2' %}
+                                               checked
+                                           {% endif %}
+                                           id='2'
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" />
 
                                 </div>
                             </ul>
@@ -213,9 +229,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
                                 <div class="radio" id="div_radio_grouped_by_{{field }}">
                                     <label class="control-label">{% trans "historical boundaries" %}</label>
-                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" /><br>
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:forloop.counter0|lookup:"valore" == '1' %}
+                                               checked
+                                           {% endif %}
+                                           id='1'
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" /><br>
                                     <label class="control-label">{% trans "the current borders" %}</label>
-                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" />
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:forloop.counter0|lookup:"valore" == '2' %}
+                                               checked
+                                           {% endif %}
+                                           id='2'
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" />
 
                                 </div>
 
@@ -336,9 +368,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             <ul>
                                 <div class="radio" id="div_radio_grouped_by_{{field }}">
                                     <label class="control-label">{% trans "historical boundaries" %}</label>
-                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:f|lookup:"valore" == '1' %}
+                                               checked
+                                           {% endif %}
+                                           id=1
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:f|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
                                     <label class="control-label">{% trans "the current borders" %}</label>
-                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:f|lookup:"valore" == '2' %}
+                                               checked
+                                           {% endif %}
+                                           id=2
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:f|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
 
 
                                 </div>
@@ -432,9 +480,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
                                 <div class="radio" id="div_radio_grouped_by_{{field }}">
                                     <label class="control-label">{% trans "historical boundaries" %}</label>
-                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:f|lookup:"valore" == '1' %}
+                                               checked
+                                           {% endif %}
+                                           id=1
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:f|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
                                     <label class="control-label">{% trans "the current borders" %}</label>
-                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:f|lookup:"valore" == '2' %}
+                                               checked
+                                           {% endif %}
+                                           id=2
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:f|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
 
 
                                 </div>
@@ -523,9 +587,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         <ul>
                             <div class="radio" id="div_radio_grouped_by_{{field }}">
                                     <label class="control-label">{% trans "historical boundaries" %}</label>
-                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:f|lookup:"valore" == '1' %}
+                                               checked
+                                           {% endif %}
+                                           id=1
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:f|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
                                     <label class="control-label">{% trans "the current borders" %}</label>
-                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:f|lookup:"valore" == '2' %}
+                                               checked
+                                           {% endif %}
+                                           id=2
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:f|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
 
                             </div>
                         </ul>
@@ -620,9 +700,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         <ul>
                             <div class="radio" id="div_radio_grouped_by_{{field }}">
                                     <label class="control-label">{% trans "historical boundaries" %}</label>
-                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:f|lookup:"valore" == '1' %}
+                                               checked
+                                           {% endif %}
+                                           id=1
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:f|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
                                     <label class="control-label">{% trans "the current borders" %}</label>
-                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
+                                    <input type="radio"
+                                           {% if grouped_by_in_query|lookup_unicode:f|lookup:"valore" == '2' %}
+                                               checked
+                                           {% endif %}
+                                           id=2
+                                           name="radio_grouped_by_{{field }}"
+                                           grouped_by="true"
+                                           column_name="{{ column_description|lookup_unicode:f|lookup:"name" }}"
+                                           table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
 
                             </div>
                         </ul>

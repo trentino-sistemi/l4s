@@ -390,28 +390,13 @@ function get_grouped_by_in_query () {
 
             //alert("name " + name);
 
-            var lista_id_parent_validi = new Array();
+            id = radios[i].id;
 
-            lista_id_parent_validi.push('rowFields');
-            lista_id_parent_validi.push('columnFields');
-            lista_id_parent_validi.push('unselectedFields');
+            var elemento = {table_name:radios[i].getAttribute("table_name"), column_name:radios[i].getAttribute("column_name"), valore:id};
 
-            //alert("lista_id_parent_validi " + lista_id_parent_validi);
+            //alert(elemento);
 
-            id_parent = radios[i].parentNode.parentNode.parentNode.parentNode.parentNode.getAttribute("id");
-
-            //alert("id_parent " + id_parent);
-
-            if (lista_id_parent_validi.indexOf(id_parent) != -1) {
-
-              id = radios[i].id;
-
-              var elemento = {table_name:radios[i].getAttribute("table_name"), column_name:radios[i].getAttribute("column_name"), valore:id};
-
-              //alert("id " + id);
-
-              output.push(elemento);
-            }
+            output.push(elemento);
         }
     }
 

@@ -1419,13 +1419,6 @@ def query_editor_view(request):
     aggregation = request.REQUEST.get('aggregate', "")
     not_sel_aggregations = request.REQUEST.get('not_sel_aggregations', "")
 
-    if request.REQUEST.get('get_grouped_by_value') == None:
-        get_grouped_by_value = 1 #per default confini storici
-    else:
-        get_grouped_by_value = request.REQUEST.get('get_grouped_by_value')
-
-    #print "get_grouped_by_value ", get_grouped_by_value
-
     #print "aggregation " ,aggregation
 
     not_sel_aggregations_ids = []
@@ -1608,9 +1601,35 @@ def query_editor_view(request):
                                                        table_schema,
                                                        True)
 
-    context['grouped_by_in_query'] = grouped_by_in_query(column_description)
+    if request.REQUEST.get('get_grouped_by_value') == None: #se non sono ancora passato dal personalizza prendo il default
+        context['grouped_by_in_query'] = grouped_by_in_query(column_description)
+    else:
+
+        result = dict()
+
+        for index1 in column_description:
+
+            value = dict()
+
+            for index2 in json.loads(request.REQUEST.get('get_grouped_by_value')):
+
+                if column_description[index1]['table_name'] == index2["table_name"]:
+                    if column_description[index1]['name'] == index2["column_name"]:
+
+                        value['table_name'] = index2["table_name"]
+                        value['column_name'] = index2["column_name"]
+                        value['valore'] = index2["valore"]
+
+            result[index1] = value
+
+        #print result
+
+        context['grouped_by_in_query'] = result
+
 
     #print "grouped_by_in_query" , context['grouped_by_in_query']
+
+    #print "get_grouped_by_value ", get_grouped_by_value
 
     #print "column_description ", column_description
 
