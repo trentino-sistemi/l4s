@@ -86,7 +86,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                       <span style="display:None">{{ field }}</span>
                       <span class="caret"></span>
                 </span>
-                <span id="drop" class="dropdown-menu" role="menu">
+
+                <span id="drop" class="dropdown-menu" role="menu" lunghezza="{{ aggregations }}" >
 
                 {% for agg in aggregations %}
                 {% if agg == column_description|lookup_unicode:forloop.parentloop.counter0|lookup:"description" %}
@@ -115,8 +116,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
                             <ul>
                                 <div class="radio" id="div_radio_grouped_by_{{field }}">
-                                    <label class="control-label">{% trans "historical boundaries" %}</label> <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" /><br>
-                                    <label class="control-label">{% trans "the current borders" %}</label> <input type="radio" id=2 name="radio_grouped_by_{{field }}" />
+                                    <label class="control-label">{% trans "historical boundaries" %}</label>
+                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" /><br>
+                                    <label class="control-label">{% trans "the current borders" %}</label>
+                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" />
 
                                 </div>
                             </ul>
@@ -126,6 +129,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
                     <ul>
                         <li id="filtro_{{ field }}" class="dropdown-submenu" onclick='$( "#dropdown-menu_{{ field }}" ).toggleClass( "attivo" );'>
+
 
                         <span
                               class="pvtAttr btn btn-default dropdown-toggle"
@@ -200,6 +204,27 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% endfor %}
                 {% endif %}
                 {% endfor %}
+
+                {% if not column_description|lookup_unicode:forloop.counter0|lookup:"description" in aggregations %}
+
+                    {% if grouped_by_in_query|lookup_unicode:forloop.counter0|lookup:"table_name" == column_description|lookup_unicode:forloop.counter0|lookup:"table_name" %}
+                        {% if grouped_by_in_query|lookup_unicode:forloop.counter0|lookup:"column_name" == column_description|lookup_unicode:forloop.counter0|lookup:"name" %}
+
+
+                                <div class="radio" id="div_radio_grouped_by_{{field }}">
+                                    <label class="control-label">{% trans "historical boundaries" %}</label>
+                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" /><br>
+                                    <label class="control-label">{% trans "the current borders" %}</label>
+                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:forloop.counter0|lookup:"table_name" }}" />
+
+                                </div>
+
+
+                        {% endif %}
+                    {% endif %}
+
+                {% endif %}
+
                 {% trans "Select" %}
                     <div class="'btn-group">
                         <button type="button"
@@ -283,7 +308,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                       <span class="caret"></span>
                 </span>
 
-                <span class="dropdown-menu" role="menu">
+                <span class="dropdown-menu" role="menu" lunghezza="{{ aggregations }}">
 
                 {% for agg in aggregations %}
                 {% if agg == column_description|lookup_unicode:f|lookup:"description" %}
@@ -310,8 +335,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
                             <ul>
                                 <div class="radio" id="div_radio_grouped_by_{{field }}">
-                                    <label class="control-label">{% trans "historical boundaries" %}</label> <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" /><br>
-                                    <label class="control-label">{% trans "the current borders" %}</label> <input type="radio" id=2 name="radio_grouped_by_{{field }}" />
+                                    <label class="control-label">{% trans "historical boundaries" %}</label>
+                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
+                                    <label class="control-label">{% trans "the current borders" %}</label>
+                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
+
 
                                 </div>
                             </ul>
@@ -396,6 +424,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% endfor %}
                 {% endif %}
                 {% endfor %}
+
+                {% if not column_description|lookup_unicode:f|lookup:"description" in aggregations %}
+
+                    {% if grouped_by_in_query|lookup_unicode:f|lookup:"table_name" == column_description|lookup_unicode:f|lookup:"table_name" %}
+                        {% if grouped_by_in_query|lookup_unicode:f|lookup:"column_name" == column_description|lookup_unicode:f|lookup:"name" %}
+
+                                <div class="radio" id="div_radio_grouped_by_{{field }}">
+                                    <label class="control-label">{% trans "historical boundaries" %}</label>
+                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
+                                    <label class="control-label">{% trans "the current borders" %}</label>
+                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}"  table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
+
+
+                                </div>
+
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
                 {% trans "Select" %}
                     <div class="'btn-group">
                         <button type="button"
@@ -447,6 +494,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <span style="display:None">{{ field }}</span>
                     <span class="caret"></span>
                 </span>
+
                 <span class="dropdown-menu" role="menu">
 
                 {% for agg in aggregations %}
@@ -474,8 +522,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
                         <ul>
                             <div class="radio" id="div_radio_grouped_by_{{field }}">
-                                <label class="control-label">{% trans "historical boundaries" %}</label> <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" /><br>
-                                <label class="control-label">{% trans "the current borders" %}</label> <input type="radio" id=2 name="radio_grouped_by_{{field }}" />
+                                    <label class="control-label">{% trans "historical boundaries" %}</label>
+                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
+                                    <label class="control-label">{% trans "the current borders" %}</label>
+                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
 
                             </div>
                         </ul>
@@ -561,6 +611,26 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     {% endfor %}
                 {% endif %}
                 {% endfor %}
+
+                {% if not column_description|lookup_unicode:f|lookup:"description" in aggregations %}
+
+                    {% if grouped_by_in_query|lookup_unicode:f|lookup:"table_name" == column_description|lookup_unicode:f|lookup:"table_name" %}
+                        {% if grouped_by_in_query|lookup_unicode:f|lookup:"column_name" == column_description|lookup_unicode:f|lookup:"name" %}
+
+                        <ul>
+                            <div class="radio" id="div_radio_grouped_by_{{field }}">
+                                    <label class="control-label">{% trans "historical boundaries" %}</label>
+                                    <input checked type="radio" id=1 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" /><br>
+                                    <label class="control-label">{% trans "the current borders" %}</label>
+                                    <input type="radio" id=2 name="radio_grouped_by_{{field }}" grouped_by="true" column_name="{{field }}" table_name="{{ column_description|lookup_unicode:f|lookup:"table_name" }}" />
+
+                            </div>
+                        </ul>
+
+                        {% endif %}
+                    {% endif %}
+                 {% endif %}
+
                 {% trans "Select" %}
                     <div class="'btn-group">
                         <button type="button"

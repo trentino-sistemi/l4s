@@ -213,7 +213,7 @@ function get_aggregations(in_riga_o_colonna) {
     for (var i = 0; i < radios.length; i++) {
         var name = radios[i].name;
         var type = radios[i].type;
-        if (type == 'radio' && radios[i].checked && name.indexOf("radio_grouped_by") == -1) {
+        if (type == 'radio' && radios[i].checked && radios[i].getAttribute("grouped_by") == null) {
 
             var lista_id_parent_validi = new Array();
 
@@ -380,13 +380,13 @@ function addHiddenInput(form, id, value) {
 function get_grouped_by_in_query () {
 
     var radios = document.getElementsByTagName('input');
-    var output = [];
+    var output = new Array;
 
     for (var i = 0; i < radios.length; i++) {
         var name = radios[i].name;
         var type = radios[i].type;
 
-        if (type == 'radio' && radios[i].checked && name.indexOf("radio_grouped_by") != -1) {
+        if (type == 'radio' && radios[i].checked && radios[i].getAttribute("grouped_by") == "true") {
 
             //alert("name " + name);
 
@@ -406,16 +406,16 @@ function get_grouped_by_in_query () {
 
               id = radios[i].id;
 
+              var elemento = {table_name:radios[i].getAttribute("table_name"), column_name:radios[i].getAttribute("column_name"), valore:id};
+
               //alert("id " + id);
 
-              if (id != "") {
-                  output.push(id);
-              }
+              output.push(elemento);
             }
         }
     }
-    return output.join(",");
 
+    return output;
 
 }
 
@@ -476,6 +476,7 @@ function submit_popup (obs_values,
 
     get_grouped_by = get_grouped_by_in_query();
     get_grouped_by_value = JSON.stringify(get_grouped_by);
+    //alert(get_grouped_by_value);
 
     debug_value = "false";
     var debug = document.getElementById('debug');  
@@ -522,6 +523,7 @@ function submit_popup (obs_values,
              'not_agg_selection_value': not_agg_selection_value,  ////valore degli id delle aggregazioni es. (comunita di valle x , ccomunita di valle y ......)
              'get_grouped_by_value': get_grouped_by_value
               };
+
     $.ajax({
 		url: url,
         type: "POST",
