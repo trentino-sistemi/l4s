@@ -84,6 +84,7 @@ DECODER = 'http://dbpedia.org/ontology/decoder'
 THRESHOLD = 'http://dbpedia.org/ontology/threshold'
 CONSTRAINT = 'http://dbpedia.org/ontology/constraint'
 SECONDARY = 'http://dbpedia.org/ontology/secondary'
+NUOVI_CONFINI_COMUNE = 'http://it.dbpedia.org/data/Nuovi_confini_comune'
 
 DESCRIPTION_TOKEN = "--INCLUDE_DESCRIPTIONS"
 JOIN_TOKEN = '--JOIN'
@@ -935,7 +936,9 @@ def build_query(table_name,
                 aggregation_ids,
                 filters,
                 values,
-                not_agg_selection_value):
+                not_agg_selection_value,
+                grouped_by_in_query,
+                table_schema):
     """
     Build a query on table that select obsValues and then the desired
     cols and rows.
@@ -954,14 +957,16 @@ def build_query(table_name,
     query = ""
     annotation = "%s\n" % DESCRIPTION_TOKEN
     fields = []
+    group_by = []
     obs_fields = []
+    join_groupedby = ''
 
     for agg in aggregation_ids:
         annotation += "%s %d\n" % (AGGREGATION_TOKEN, agg)
 
     position = 0
     for obs_value in obs_values:
-        sum_s = "SUM(\"%s\") %s" % (obs_value, obs_value)
+        sum_s = "SUM(%s.\"%s\") %s" % (table_name, obs_value, obs_value)
         obs_fields.append(sum_s)
         annotation += "%s " % JOIN_TOKEN
         annotation += "%s.%s %d\n" % (table_name, obs_value, position)
@@ -974,19 +979,65 @@ def build_query(table_name,
             annotation += "%s.%s %d\n" % (table_name, col, position)
             annotation += "%s %d\n" % (PIVOT_TOKEN, position)
             col_positions.append(position)
-            fields.append(" \"%s\" " % col)
             position += 1
+
+            indice = [x for x, y in enumerate(table_schema) if y.name == col]
+            grouped_by_in_query_elemento = grouped_by_in_query[indice[0]]
+
+            if grouped_by_in_query_elemento == {}:
+                fields.append(" %s.\"%s\" " % (table_name, col))
+                group_by.append(" %s.\"%s\" " % (table_name, col))
+            else:
+                if grouped_by_in_query_elemento["valore"] == '1':
+                    fields.append(" %s.\"%s\" " % (table_name, col))
+                    group_by.append(" %s.\"%s\" " % (table_name, col))
+                else:
+                    metadata_list = Metadata.objects.filter(table_name=grouped_by_in_query_elemento["table_name"],
+                                                            column_name=grouped_by_in_query_elemento["column_name"])
+                    groupedby = groupedby_value_to_column(metadata_list)
+
+                    for key, value in groupedby.iteritems():
+                        join_groupedby += ' join %s on (%s."%s" = %s."%s") ' % (value[0], value[0], value[1], table_name, col)
+                        a, b = get_concept(NUOVI_CONFINI_COMUNE)
+                        fields.append(" %s.\"%s\" %s " % (a, b, col))
+                        group_by.append(" %s.\"%s\" " % (a, b))
+
+
 
     for row in rows:
         if not row is None:
             annotation += "%s " % JOIN_TOKEN
             annotation += "%s.%s %d\n" % (table_name, row, position)
-            fields.append(" \"%s\" " % row)
             position += 1
+
+            indice = [x for x, y in enumerate(table_schema) if y.name == row]
+            grouped_by_in_query_elemento = grouped_by_in_query[indice[0]]
+
+            #print grouped_by_in_query_elemento["valore"]
+
+            if grouped_by_in_query_elemento == {}:
+                fields.append(" %s.\"%s\" " % (table_name, row))
+                group_by.append(" %s.\"%s\" " % (table_name, row))
+            else:
+                if grouped_by_in_query_elemento["valore"] == '1':
+                    fields.append(" %s.\"%s\" " % (table_name, row))
+                    group_by.append(" %s.\"%s\" " % (table_name, row))
+                else:
+                    metadata_list = Metadata.objects.filter(table_name=grouped_by_in_query_elemento["table_name"],
+                                                            column_name=grouped_by_in_query_elemento["column_name"])
+                    groupedby = groupedby_value_to_column(metadata_list)
+
+                    for key, value in groupedby.iteritems():
+                        join_groupedby += ' join %s on (%s."%s" = %s."%s") ' % (value[0], value[0], value[1], table_name, row)
+                        a, b = get_concept(NUOVI_CONFINI_COMUNE)
+                        fields.append(" %s.\"%s\" %s " % (a, b, row))
+                        group_by.append(" %s.\"%s\" " % (a, b))
 
     #print "annotation ", annotation
 
     comma_sep_fields = ", ".join(fields)
+    comma_sep_group_by  = ", ".join(group_by)
+
     query += "\n"
     query += 'SELECT '
     if len(obs_fields) > 0:
@@ -994,6 +1045,7 @@ def build_query(table_name,
         query += "%s, " % comma_sep_threshold_fields
     query += '%s' % comma_sep_fields
     query += '\nFROM %s' % table_name
+    query += join_groupedby
 
     #print query
 
@@ -1062,7 +1114,7 @@ def build_query(table_name,
                     query += '\nAND'
                 else:
                     query += '\nWHERE'
-                query += " \"%s\" IN (" % field
+                query += ' %s."%s" IN (' % (table_name, field)
 
                 if (is_int(selected_vals[0]) == True): # perche il codice a volte puo essere stringa ......
                     comma_sep_vals = ", ".join(selected_vals)
@@ -1121,7 +1173,7 @@ def build_query(table_name,
         #print not_agg_selection_value[id]
 
     if len(obs_fields) > 0:
-        query += "\nGROUP BY %s" % comma_sep_fields
+        query += "\nGROUP BY %s" % comma_sep_group_by
 
     query = "%s\n%s\n" % (annotation, query)
 

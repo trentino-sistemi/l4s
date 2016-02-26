@@ -1514,6 +1514,40 @@ def query_editor_view(request):
         not_agg_selection_value = json.loads(not_agg_selection_value_s)
 
 
+    column_description = build_description_column_dict(table_name,
+                                                       table_schema,
+                                                       True)
+
+    if request.REQUEST.get('get_grouped_by_value') == None: #se non sono ancora passato dal personalizza prendo il default
+        context['grouped_by_in_query'] = grouped_by_in_query(table_name, column_description)
+    else:
+
+        result = dict()
+
+        for index1 in column_description:
+
+            value = dict()
+
+            for index2 in json.loads(request.REQUEST.get('get_grouped_by_value')):
+
+                if column_description[index1]['table_name'] == index2["table_name"]:
+                    if column_description[index1]['name'] == index2["column_name"]:
+
+                        value['table_name'] = index2["table_name"]
+                        value['column_name'] = index2["column_name"]
+                        value['valore'] = index2["valore"]
+
+            result[index1] = value
+
+        #print result
+
+        context['grouped_by_in_query'] = result
+
+
+    #print "grouped_by_in_query" , context['grouped_by_in_query']
+
+    #print "get_grouped_by_value ", get_grouped_by_value
+
     #print "ee ", datetime.now().strftime("%H:%M:%S.%f")
 
     """
@@ -1538,7 +1572,9 @@ def query_editor_view(request):
                              aggregation_ids,
                              filters,
                              values,
-                             not_agg_selection_value)
+                             not_agg_selection_value,
+                             context['grouped_by_in_query'],
+                             table_schema)
 
     #print sql
 
@@ -1596,40 +1632,6 @@ def query_editor_view(request):
     #print "agg_values " , agg_values
 
     #print "dddddddddddddd"
-
-    column_description = build_description_column_dict(table_name,
-                                                       table_schema,
-                                                       True)
-
-    if request.REQUEST.get('get_grouped_by_value') == None: #se non sono ancora passato dal personalizza prendo il default
-        context['grouped_by_in_query'] = grouped_by_in_query(table_name, column_description)
-    else:
-
-        result = dict()
-
-        for index1 in column_description:
-
-            value = dict()
-
-            for index2 in json.loads(request.REQUEST.get('get_grouped_by_value')):
-
-                if column_description[index1]['table_name'] == index2["table_name"]:
-                    if column_description[index1]['name'] == index2["column_name"]:
-
-                        value['table_name'] = index2["table_name"]
-                        value['column_name'] = index2["column_name"]
-                        value['valore'] = index2["valore"]
-
-            result[index1] = value
-
-        #print result
-
-        context['grouped_by_in_query'] = result
-
-
-    #print "grouped_by_in_query" , context['grouped_by_in_query']
-
-    #print "get_grouped_by_value ", get_grouped_by_value
 
     #print "column_description ", column_description
 
