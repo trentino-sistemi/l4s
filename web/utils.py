@@ -4402,20 +4402,26 @@ def stampa_symtobltabel(st):
     print st.threshold
 
 
-def grouped_by_in_query(column_description):
+def grouped_by_in_query(table_name, column_description):
+
+    secret = get_table_metadata_value(table_name, SECRET)
 
     result = dict()
 
     for index in column_description:
-        #print get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY)
+
+        #print column_description[index]['table_name'], column_description[index]['name'], get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], SECRET)
 
         value = dict()
 
-        if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> []:
-            value['table_name'] = column_description[index]['table_name']
-            value['column_name'] = column_description[index]['name']
-            value['valore'] = '2' #confini attuali
+        if secret == []:
+            if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> []:
+                value['table_name'] = column_description[index]['table_name']
+                value['column_name'] = column_description[index]['name']
+                value['valore'] = '2' #confini attuali
 
         result[index] = value
 
     return result
+
+

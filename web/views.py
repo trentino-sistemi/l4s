@@ -1602,7 +1602,7 @@ def query_editor_view(request):
                                                        True)
 
     if request.REQUEST.get('get_grouped_by_value') == None: #se non sono ancora passato dal personalizza prendo il default
-        context['grouped_by_in_query'] = grouped_by_in_query(column_description)
+        context['grouped_by_in_query'] = grouped_by_in_query(table_name, column_description)
     else:
 
         result = dict()
