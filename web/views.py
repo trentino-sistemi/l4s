@@ -1470,7 +1470,11 @@ def query_editor_view(request):
     print "ref_periods ", ref_periods
     """
 
-    aggregations, agg_values = get_all_aggregations(table_name)
+    try:
+      aggregations, agg_values = get_all_aggregations(table_name)
+    except MissingMetadataException, e:
+        context['error'] = "%s" % (unicode(e.message))
+        return render_to_response("l4s/query_editor_view.html", context)
 
     """
     print "--------------------------------------"
@@ -1491,8 +1495,7 @@ def query_editor_view(request):
                                              hidden_fields)
         except MissingMetadataException, e:
             context['error'] = "%s" % (unicode(e.message))
-            return render_to_response("l4s/query_editor_view.html",
-                                      context)
+            return render_to_response("l4s/query_editor_view.html", context)
 
         if len(cols) > 1:
             if cols[0] in ref_periods.values():

@@ -3477,6 +3477,7 @@ def get_all_aggregations(table_name):
                 #print "ref_tab ", ref_tab
                 #print "ref_col ", ref_col
 
+                src_description = ''
 
                 if is_description_column(table_name, col) == True:
                     src_description = get_column_description(table_name, col)
@@ -3488,7 +3489,15 @@ def get_all_aggregations(table_name):
                         if src_description is None or src_description == "":
                             src_description = ref_col
 
-                #print "src_description ", src_description
+                if src_description is None or src_description == "":
+                    raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, ref_tab)
+
+                """
+                print get_color()
+                print "ref_tab", ref_tab
+                print "src_description ", src_description
+                print get_color()
+                """
 
                 #if (src_description == 'Comune'):
                 #    src_description = 'Codice comune'
@@ -3499,6 +3508,9 @@ def get_all_aggregations(table_name):
                 foreign_keys = build_foreign_keys(ref_tab)
 
                 #print "foreign_keys ", foreign_keys
+                #print "ref_col", ref_col
+
+                ref_description = ''
 
                 if foreign_keys is None:
                     #print "a"
@@ -3516,6 +3528,9 @@ def get_all_aggregations(table_name):
 
                             ref_col = find_table_description_column(ref_tab)
                             ref_description = get_column_description(ref_tab, ref_col)
+
+                if ref_description is None or ref_description == "":
+                    raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, ref_tab)
 
                 if ref_description is None or ref_description == "":
                     ref_description = ref_col
