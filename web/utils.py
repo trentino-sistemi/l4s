@@ -2715,8 +2715,7 @@ def email_new_manual_request(instance):
     url = 'http://' + current_site.domain + '/manual_request_view/?id=' \
           + manual_request_id
     message += "\n" + url
-    send_mail(subject, message, DEFAULT_FROM_EMAIL, to_list,
-              fail_silently=False)
+    send_mail(subject, message, DEFAULT_FROM_EMAIL, to_list, fail_silently=False)
 
 
 def build_queries_to_tables_mapping(queries):

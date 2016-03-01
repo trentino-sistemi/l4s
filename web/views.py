@@ -19,6 +19,7 @@
 Django views for l4s project.
 """
 
+from django.core.mail import send_mail
 from copy import deepcopy
 from django.db import connections
 from django.http import HttpResponseRedirect, HttpResponse
@@ -35,7 +36,10 @@ from django.contrib.auth.decorators import login_required, \
     user_passes_test
 from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
     EXPLORER_CONNECTION_NAME, \
-    LEGEND, DL_ART
+    LEGEND, DL_ART, \
+    DEFAULT_FROM_EMAIL, \
+    ADMINISTRATOR_EMAIL, \
+    ALLOWED_HOSTS
 from explorer.models import Query
 from explorer.utils import url_get_rows
 from explorer.views import ExplorerContextMixin, \
@@ -1024,8 +1028,13 @@ def table(request):
     else:
         context = Context({})
         context['error_string'] = _("The table does not exist")
-
+        send_mail('Errore Lod4Stat (' +
+                  str(request.user) + ') ' +
+                  ''.join(ALLOWED_HOSTS) +
+                  '/table/?name=' + table_name,
+                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         return render_to_response("l4s/error.html", context)
+
 
 
     #print fks
@@ -1349,11 +1358,21 @@ def query_editor_view(request):
     if exists_table('public', table_name) == False:
         context = RequestContext(request)
         context['error_string'] = _("The table does not exist")
+        send_mail('Errore Lod4Stat (' +
+                  str(request.user) + ') ' +
+                  ''.join(ALLOWED_HOSTS) +
+                  '/query_editor_view/?table=' + table_name,
+                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         return render_to_response("l4s/error.html", context)
 
     if count_of_columns_table('public', table_name) < 3:
         context = RequestContext(request)
         context['error_string'] = _("The table must have at least 3 columns")
+        send_mail('Errore Lod4Stat (' +
+                  str(request.user) + ') ' +
+                  ''.join(ALLOWED_HOSTS) +
+                  '/query_editor_view/?table=' + table_name,
+                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         return render_to_response("l4s/error.html", context)
 
     if get_table_description(table_name) == None:
@@ -1363,11 +1382,21 @@ def query_editor_view(request):
         error += unicode(_("for table"))
         error += " '" + table_name + "'"
         context['error_string'] = error
+        send_mail('Errore Lod4Stat (' +
+                  str(request.user) + ') ' +
+                  ''.join(ALLOWED_HOSTS) +
+                  '/query_editor_view/?table=' + table_name,
+                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         return render_to_response("l4s/error.html", context)
 
     if all_columns_have_metadata_description('public', table_name) == False:
         context = RequestContext(request)
         context['error_string'] = _("All columns mast have description metadata")
+        send_mail('Errore Lod4Stat (' +
+                  str(request.user) + ') ' +
+                  ''.join(ALLOWED_HOSTS) +
+                  '/query_editor_view/?table=' + table_name,
+                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         return render_to_response("l4s/error.html", context)
 
     topic = get_topic_description(table_name)
@@ -1454,8 +1483,12 @@ def query_editor_view(request):
                 vals = get_all_field_values(table_name, column_name, None)
             except MissingMetadataException, e:
                 context['error'] = "%s" % (unicode(e.message))
-                return render_to_response("l4s/query_editor_view.html",
-                                          context)
+                send_mail('Errore Lod4Stat (' +
+                          str(request.user) + ') ' +
+                          ''.join(ALLOWED_HOSTS) +
+                          '/query_editor_view/?table=' +
+                          ''.join(request.GET.getlist("table")), unicode(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+                return render_to_response("l4s/query_editor_view.html", context)
             values[column_name] = vals
 
     #print "dd3 ", datetime.now().strftime("%H:%M:%S.%f")
@@ -1470,10 +1503,17 @@ def query_editor_view(request):
     print "ref_periods ", ref_periods
     """
 
+    #print "request.GET", request.GET
+
     try:
       aggregations, agg_values = get_all_aggregations(table_name)
     except MissingMetadataException, e:
         context['error'] = "%s" % (unicode(e.message))
+        send_mail('Errore Lod4Stat (' +
+                  str(request.user) + ') ' +
+                  ''.join(ALLOWED_HOSTS) +
+                  '/query_editor_view/?table=' +
+                  ''.join(request.GET.getlist("table")), unicode(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         return render_to_response("l4s/query_editor_view.html", context)
 
     """
@@ -1495,6 +1535,11 @@ def query_editor_view(request):
                                              hidden_fields)
         except MissingMetadataException, e:
             context['error'] = "%s" % (unicode(e.message))
+            send_mail('Errore Lod4Stat (' +
+                      str(request.user) + ') ' +
+                      ''.join(ALLOWED_HOSTS) +
+                      '/query_editor_view/?table=' +
+                      ''.join(request.GET.getlist("table")), unicode(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
             return render_to_response("l4s/query_editor_view.html", context)
 
         if len(cols) > 1:
