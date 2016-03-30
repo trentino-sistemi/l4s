@@ -657,7 +657,7 @@ def list_obs_value_column_from_dict(col_dict):
     return obs_list
 
 
-def all_obs_value_column(table_name, table_description):
+def all_obs_value_column(table_name, table_description, hidden_fields):
     """
     Found all observable value.
 
@@ -666,6 +666,7 @@ def all_obs_value_column(table_name, table_description):
     :return: index_column, column_name
     """
     ret = OrderedDict()
+
     query = "SELECT column_name FROM %s \n" % METADATA
     query += "WHERE table_name='%s' \n" % table_name
     query += "and upper(key)=upper('%s') " % MEASURE
@@ -677,7 +678,10 @@ def all_obs_value_column(table_name, table_description):
     for f, field in enumerate(table_description):
         column_name = field.name
         if column_name in obs_set:
-            ret[f] = column_name
+
+            #print column_name
+            if dict((v,k) for k,v in hidden_fields.items()).get(column_name) is None:
+                ret[f] = column_name
 
     return ret
 
@@ -804,7 +808,7 @@ def choose_default_axis(table_name, ref_periods, hidden_fields):
     for hidden_field in hidden_fields:
         neglected_index.append(hidden_field)
 
-    obs_values = all_obs_value_column(table_name, table_schema)
+    obs_values = all_obs_value_column(table_name, table_schema, hidden_fields)
     if len(obs_values) < 1:
         raise MissingMetadataException(MEASURE, OBS_VALUE, table_name)
 
@@ -2826,6 +2830,7 @@ def build_description_column_dict(table_name, table_schema, fk):
         print is_description_column(nome_tabella, nome_campo)
         """
 
+
         if is_description_column(nome_tabella, nome_campo) == False: #se non trovo la descrizione sulla tabella dei dati la cerco sulla tabella di decodifica
             if fk == True:
                 if field.name in foreign_keys:
@@ -4439,6 +4444,8 @@ def all_columns_have_metadata_description (table_schema, table_name):
     query += "where table_name = '%s' and \n" % table_name
     query += "      column_name <> 'NULL' and \n"
     query += "      upper(key) = upper('%s') \n" % DESCRIPTION
+
+    #print query
 
     rows = execute_query_on_django_db(query)
 

@@ -1268,8 +1268,11 @@ def query_editor_customize(request):
     column_description = request.REQUEST.get('column_description')
     grouped_by_in_query = request.REQUEST.get('grouped_by_in_query')
 
+    hidden_fields = request.REQUEST.get('hidden_fields')
+
     fields = [field.name for field in table_schema]
-    obs_values = all_obs_value_column(table_name, table_schema).values()
+
+    obs_values = all_obs_value_column(table_name, table_schema, json.loads(hidden_fields)).values()
 
     context['fields'] = fields
     context['obs_values'] = obs_values
@@ -1284,7 +1287,7 @@ def query_editor_customize(request):
     agg_values = request.REQUEST.get('agg_values')
     not_agg_selection_value = request.REQUEST.get('not_agg_selection_value')
     aggregations = request.REQUEST.get('aggregations')
-    hidden_fields = request.REQUEST.get('hidden_fields')
+
 
     filters = request.REQUEST.get('filters')
 
@@ -1465,9 +1468,15 @@ def query_editor_view(request):
 
     hidden_fields = all_hidden_fields(table_name, table_schema)
 
+    #print hidden_fields
+
     #print "dd1 ", datetime.now().strftime("%H:%M:%S.%f")
 
-    obs_values = all_obs_value_column(table_name, table_schema).values()
+    obs_values = all_obs_value_column(table_name, table_schema, hidden_fields).values()
+
+    #print obs_values
+    #print type(obs_values)
+
     if len(selected_obs_values) == 0:
         # Take all.
         selected_obs_values = obs_values
@@ -1565,6 +1574,8 @@ def query_editor_view(request):
     column_description = build_description_column_dict(table_name,
                                                        table_schema,
                                                        True)
+
+    #print column_description
 
     if request.REQUEST.get('get_grouped_by_value') == None: #se non sono ancora passato dal personalizza prendo il default
         context['grouped_by_in_query'] = grouped_by_in_query(table_name, column_description)
