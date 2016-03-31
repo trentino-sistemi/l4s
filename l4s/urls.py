@@ -266,7 +266,7 @@ def handler500(request):
 
     #send_mail('Errore Lod4Stat (' + str(request.user) + ') ' + request.META['HTTP_REFERER'], json.dumps(POST), settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
 
-    send_mail('Errore Lod4Stat (' + str(request.user) + ') ' + request.META['HTTP_REFERER'], request, settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
+    send_mail('Errore Lod4Stat (' + str(request.user) + ') ' + request.META['HTTP_REFERER'], request.POST, settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
 
     response = render_to_response('l4s/500.html', {}, context_instance=RequestContext(request))
     response.status_code = 500
