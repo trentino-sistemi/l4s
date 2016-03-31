@@ -795,6 +795,9 @@ def table_view_metadata(request):
     column_name = request.GET.get('column', '')
     if not table_name is None and table_name != "":
         context['table_name'] = table_name
+
+    send_mail('', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+                
     if not column_name is None and column_name != "":
         metadata_list = Metadata.objects.filter(table_name=table_name,
                                                 column_name=column_name)
