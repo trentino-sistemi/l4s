@@ -804,6 +804,7 @@ def table_view_metadata(request):
                                                 column_name=column_name)
         send_mail('3', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         context['column_name'] = column_name
+        send_mail('3/1', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         aggregations = located_in_area_value_to_column(metadata_list)
         send_mail('4', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         groupedby = groupedby_value_to_column(metadata_list)
