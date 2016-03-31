@@ -32,7 +32,10 @@ from collections import OrderedDict
 from l4s.settings import EXPLORER_DEFAULT_ROWS,\
     EXPLORER_DEFAULT_COLS,\
     DESCRIPTION_SUBJECT, DEFAULT_FROM_EMAIL, \
-    EXPLORER_CONNECTION_NAME
+    EXPLORER_CONNECTION_NAME, \
+    DEFAULT_FROM_EMAIL, \
+    ADMINISTRATOR_EMAIL
+
 import random
 import re
 import pandas as pd
@@ -3287,7 +3290,7 @@ def get_concept(value):
     query += "upper(key) = upper('%s') and " % CONCEPT
     query += "value = '%s'" % value
 
-    print query
+    #print query
 
     rows = execute_query_on_django_db(query)
     if rows is not None and len(rows) > 0:
