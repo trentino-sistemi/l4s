@@ -1635,7 +1635,8 @@ def query_editor_view(request):
                              context['grouped_by_in_query'],
                              table_schema)
 
-    #print sql
+    #print "sql", sql
+    #print "pivot", pivot
 
     query = Query(title=table_name, sql=sql)
 

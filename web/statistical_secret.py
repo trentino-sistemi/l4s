@@ -179,6 +179,8 @@ def pivot(data, headers, columns, rows, value, col_dict):
     :param value: Pivot value.
     :return: Data and Pandas data frame.
     """
+    #print "headers", headers
+
     if len(data) == 0:
         error = _("I can not pivot the table")
         e_value = _("the query return an empty result set")
@@ -3812,7 +3814,15 @@ def headers_and_data(user,
     print bcolors.ENDC
     """
 
+    """
+    print "query.sql", query.sql
+    print "query.title", query.title
+    print "query.headers_and_data", query.headers_and_data
+    """
+
     old_head, data, duration, err = query.headers_and_data()
+
+    #print "old_head", old_head
 
     """
     print "-------------------------"

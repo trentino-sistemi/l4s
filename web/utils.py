@@ -1418,6 +1418,10 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
 
     for f in fields:
         #print f
+
+        #print get_color()
+        #print fields[f]
+
         if f == -1:
             continue
         table = fields[f]['table']
@@ -1443,7 +1447,11 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
 
                 dest_column = fk[1]
                 desc_column = find_table_description_column(dest_table)
-                alias = get_column_description(dest_table, desc_column)
+
+                if is_description_column(table, field) == True:
+                    alias = get_column_description(table, field)
+                else:
+                    alias = get_column_description(dest_table, desc_column)
 
                 """
                 print "dest_table " + dest_table
@@ -1551,8 +1559,11 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                         desc_query += "ORDER BY %s." % alias_t
                         desc_query += "%s" % desc_column
 
-    #print "desc_query " , desc_query
-
+    """
+    print "desc_query " , desc_query
+    print "query_header " , query_header
+    """
+    
     return desc_query, query_header
 
 
