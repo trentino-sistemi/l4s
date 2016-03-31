@@ -3376,14 +3376,23 @@ def located_in_area_value_to_column(metadata_list):
     :param metadata_list:
     :return: <value,[table,column]>
     """
+
+    send_mail('1a', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+
     ret = dict()
+
     metadata_list = metadata_list.filter(key__iexact=LOCATED_IN_AREA)
+
+    send_mail('2a', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+
     for metadata in metadata_list:
         value = metadata.value
         table = metadata.table_name
         column = metadata.column_name
         ref_table, ref_column = located_in_area(table, column, value)
         ret[value] = [ref_table, ref_column]
+
+    send_mail('3a', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
 
     return ret
 
