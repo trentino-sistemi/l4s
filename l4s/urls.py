@@ -253,7 +253,7 @@ urlpatterns = patterns('',
 
 
 
-
+"""
 if settings.DEBUG is False:   #if DEBUG is True it will be served automatically
     urlpatterns += patterns('',
             url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
@@ -269,4 +269,4 @@ def handler500(request):
     response = render_to_response('l4s/500.html', {}, context_instance=RequestContext(request))
     response.status_code = 500
     return response
-
+"""
