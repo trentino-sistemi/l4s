@@ -3515,6 +3515,7 @@ def get_all_aggregations(table_name):
                             src_description = ref_col
 
                 if src_description is None or src_description == "":
+                    #print "kkkkkkk"
                     raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, ref_tab)
 
                 """
@@ -3555,6 +3556,7 @@ def get_all_aggregations(table_name):
                             ref_description = get_column_description(ref_tab, ref_col)
 
                 if ref_description is None or ref_description == "":
+                    #print "kkkkkkk1"
                     raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, ref_tab)
 
                 if ref_description is None or ref_description == "":
