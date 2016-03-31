@@ -3336,7 +3336,13 @@ def located_in_area(table, column, value):
     :param column: Column name.
     :return: The table.column that contains the super area.
     """
+
+    send_mail('1a', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+
     values = get_key_column_values(table, column, LOCATED_IN_AREA)
+
+    send_mail('2a', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+
     for val in values:
         if value == val:
             ref_table, ref_column = get_concept(value)
