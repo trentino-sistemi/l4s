@@ -1,4 +1,5 @@
 # This file is part of Lod4Stat.
+# This file is part of Lod4Stat.
 #
 # Copyright (C) 2014 Provincia autonoma di Trento
 #
@@ -41,7 +42,7 @@ SECRET_KEY = 'VeryLongSecret'
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
 
-TEMPLATE_DEBUG = True
+#TEMPLATE_DEBUG = True
 
 SENDER = "SSPAT"
 SENDER_NAME = "Servizio Statistica: Provincia Autonoma di Trento"
