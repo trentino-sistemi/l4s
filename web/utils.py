@@ -3340,11 +3340,7 @@ def located_in_area(table, column, value):
     :return: The table.column that contains the super area.
     """
 
-    send_mail('1a', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-
     values = get_key_column_values(table, column, LOCATED_IN_AREA)
-
-    send_mail('2a', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
 
     for val in values:
         if value == val:
@@ -3380,13 +3376,9 @@ def located_in_area_value_to_column(metadata_list):
     :return: <value,[table,column]>
     """
 
-    send_mail('1a', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-
     ret = dict()
 
     metadata_list = metadata_list.filter(key__iexact=LOCATED_IN_AREA)
-
-    send_mail('2a', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
 
     for metadata in metadata_list:
         value = metadata.value
@@ -3394,8 +3386,6 @@ def located_in_area_value_to_column(metadata_list):
         column = metadata.column_name
         ref_table, ref_column = located_in_area(table, column, value)
         ret[value] = [ref_table, ref_column]
-
-    send_mail('3a', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
 
     return ret
 

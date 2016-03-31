@@ -112,8 +112,8 @@ ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/accounts/success'
 
 # Email settings for sending accout activation mails
 DEFAULT_FROM_EMAIL = 'l4s@example.com'
-#ADMINISTRATOR_EMAIL = ['m.voltolini@trentinosistemi.com','giacomo.gamba@provincia.tn.it']
-ADMINISTRATOR_EMAIL = ['m.voltolini@trentinosistemi.com']
+ADMINISTRATOR_EMAIL = ['m.voltolini@trentinosistemi.com','giacomo.gamba@provincia.tn.it']
+#ADMINISTRATOR_EMAIL = ['m.voltolini@trentinosistemi.com']
 EMAIL_USE_TLS = True
 EMAIL_HOST = "example.com"
 EMAIL_HOST_USER = "smtp@example.com"
