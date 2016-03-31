@@ -802,16 +802,18 @@ def table_view_metadata(request):
         send_mail('2', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         metadata_list = Metadata.objects.filter(table_name=table_name,
                                                 column_name=column_name)
+        send_mail('3', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         context['column_name'] = column_name
         aggregations = located_in_area_value_to_column(metadata_list)
+        send_mail('4', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         groupedby = groupedby_value_to_column(metadata_list)
+        send_mail('5', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
     else:
-        send_mail('3', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         aggregations = dict()
         groupedby = dict()
         metadata_list = Metadata.objects.filter(table_name=table_name)
 
-    send_mail('4', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+    send_mail('6', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
 
     context['metadata_list'] = metadata_list
     context['aggregations'] = aggregations
