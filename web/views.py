@@ -796,18 +796,22 @@ def table_view_metadata(request):
     if not table_name is None and table_name != "":
         context['table_name'] = table_name
 
-    send_mail('', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-                
+    send_mail('1', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+
     if not column_name is None and column_name != "":
+        send_mail('2', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         metadata_list = Metadata.objects.filter(table_name=table_name,
                                                 column_name=column_name)
         context['column_name'] = column_name
         aggregations = located_in_area_value_to_column(metadata_list)
         groupedby = groupedby_value_to_column(metadata_list)
     else:
+        send_mail('3', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         aggregations = dict()
         groupedby = dict()
         metadata_list = Metadata.objects.filter(table_name=table_name)
+
+    send_mail('4', '', DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
 
     context['metadata_list'] = metadata_list
     context['aggregations'] = aggregations
