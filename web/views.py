@@ -805,6 +805,7 @@ def table_view_metadata(request):
         aggregations = dict()
         groupedby = dict()
         metadata_list = Metadata.objects.filter(table_name=table_name)
+
     context['metadata_list'] = metadata_list
     context['aggregations'] = aggregations
     context['groupedby'] = groupedby

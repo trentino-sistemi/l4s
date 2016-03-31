@@ -39,6 +39,7 @@ import pandas as pd
 import ast
 import six
 from datetime import datetime
+import json
 
 ASTERISK = '*'
 
@@ -1563,7 +1564,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
     print "desc_query " , desc_query
     print "query_header " , query_header
     """
-    
+
     return desc_query, query_header
 
 
@@ -3278,10 +3279,16 @@ def get_concept(value):
     :param value:
     :return: Concept.
     """
+
+    value = value.replace("'", "''")
+
     query = "SELECT table_name, column_name from %s " % METADATA
     query += "WHERE column_name != 'NULL' and "
     query += "upper(key) = upper('%s') and " % CONCEPT
     query += "value = '%s'" % value
+
+    print query
+
     rows = execute_query_on_django_db(query)
     if rows is not None and len(rows) > 0:
         return rows[0][0], rows[0][1]
@@ -3294,6 +3301,9 @@ def get_default_pivot_column(value):
     :param value:
     :return: Concept.
     """
+
+    value = value.replace("'", "''")
+
     query = "SELECT table_name, column_name from %s " % METADATA
     query += "WHERE column_name != 'NULL' and "
     query += "upper(key) = upper('%s') and " % CONCEPT
