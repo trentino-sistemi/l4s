@@ -4261,17 +4261,31 @@ def find_in_not_sorted_index(lista, elemento_da_cercare, debug=False):
             if debug == True:
                 print "after " , elemento_da_cercare
 
-            elemento_da_cercare = [str(i) for i in elemento_da_cercare]
+            #str(i.encode('UTF-8'))
+
+            lista_appoggio = []
+
+            for i in elemento_da_cercare:
+
+                if is_int(i):
+                    lista_appoggio.append(str(i))
+                else:
+                    if type(i) == unicode:
+                        lista_appoggio.append(i.encode('UTF-8'))
+                    else:
+                        lista_appoggio.append(i)
+
+            #elemento_da_cercare = [str(i) for i in elemento_da_cercare] non va bene in caso di unicode
 
             if debug == True:
-                print "post ", elemento_da_cercare
+                print "post ", lista_appoggio
 
             nuova_lista = []
 
             for y, a in enumerate(lista):
                 nuova_lista.append([str(i) for i in a])
 
-            inizio = subtuple_index(nuova_lista, list(elemento_da_cercare))
+            inizio = subtuple_index(nuova_lista, list(lista_appoggio))
             fine = inizio
 
             #print "inizio " , inizio
