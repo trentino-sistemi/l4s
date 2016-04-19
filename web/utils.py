@@ -709,7 +709,7 @@ def get_all_field_values(table_name, column_name, select):
     #print "prima 2 ", datetime.now().strftime("%H:%M:%S.%f")
 
     """
-    if column_name == 'ttarga':
+    if column_name == 'dmc1copr':
         print "table_name ", table_name
         print "column_name ", column_name
         print "foreign_keys ", foreign_keys
@@ -1441,7 +1441,10 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
         else:
             foreign_keys = fk_hash[table]
 
-        #print "foreign_keys ", foreign_keys
+        """
+        if (field == 'dmc1copr'):
+            print "foreign_keys ", foreign_keys
+        """
 
         if field in foreign_keys:
             fk = foreign_keys[field]
@@ -1452,17 +1455,21 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                 dest_column = fk[1]
                 desc_column = find_table_description_column(dest_table)
 
+                if (desc_column is None):
+                    raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, dest_table)
+
                 if is_description_column(table, field) == True:
                     alias = get_column_description(table, field)
                 else:
                     alias = get_column_description(dest_table, desc_column)
 
                 """
-                print "dest_table " + dest_table
-                print "dest_column " + dest_column
-                print "desc_column " + desc_column
-                print "alias " + alias
-                print sort_by_code
+                if (field == 'dmc1copr'):
+                    print "dest_table " + dest_table
+                    print "dest_column " + dest_column
+                    print "desc_column " + desc_column
+                    print "alias " + alias
+                    print sort_by_code
                 """
 
                 if alias is None:
