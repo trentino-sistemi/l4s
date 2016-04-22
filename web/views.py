@@ -117,7 +117,8 @@ from web.utils import get_variable_dictionary, \
     grouped_by_in_query, \
     stampa_symtobltabel, \
     SECONDARY, \
-    groupedby_value_to_column
+    groupedby_value_to_column, \
+    column_with_same_description
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1404,6 +1405,16 @@ def query_editor_view(request):
                   unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         return render_to_response("l4s/error.html", context)
 
+    if column_with_same_description('public', table_name) == True:
+        context = RequestContext(request)
+        context['error_string'] = _("There are one ore plus fields on table %s with same description metadata") % table_name.upper()
+        send_mail('Errore Lod4Stat (' +
+                  str(request.user) + ') ' +
+                  ''.join(ALLOWED_HOSTS) +
+                  '/query_editor_view/?table=' + table_name,
+                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+        return render_to_response("l4s/error.html", context)
+
     topic = get_topic_description(table_name)
     topic_id = get_topic_id(table_name)
     context = RequestContext(request)
@@ -1737,7 +1748,7 @@ def query_editor_view(request):
     if df is None:
 
         if (err == MSG_FAILED_BLACKLIST):
-            no_display = _("Il nome della tabella non puo' contenere le stringe DELETE, INSERT o UPDATE")
+            no_display = _("Table name can not contain DELETE, INSERT o UPDATE string")
         else:
             no_display = _("Can not display the requested content")
 

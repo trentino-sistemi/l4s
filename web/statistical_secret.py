@@ -275,6 +275,7 @@ def pivot(data, headers, columns, rows, value, col_dict):
     print "columns " , columns
     print "rows ", rows
     print "value ", value
+    print "df", df
     """
 
     try:
@@ -305,6 +306,8 @@ def pivot(data, headers, columns, rows, value, col_dict):
 
     #pivot_df = pivot_df.applymap(
     #    lambda a: str(a).replace(".0", "", 1).replace("nan", "0"))
+
+    #print "lista", lista
 
     if len(lista) > 0:
         pivot_df = pivot_df.applymap(lambda a: str(a));
@@ -3600,7 +3603,7 @@ def apply_stat_secret(headers,
                                       pivot_values,
                                       col_dict)
 
-        #print data_frame
+        #print "data_frame", data_frame
 
         """
         print err

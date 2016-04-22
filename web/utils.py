@@ -4506,6 +4506,25 @@ def all_columns_have_metadata_description (table_schema, table_name):
 
     return columns_count_with_description_metadata == columns_count
 
+def column_with_same_description(table_schema, table_name):
+
+    query = "select count(*) \n"
+    query += "from ( \n"
+    query += "select trim(both ' ' from upper(value)), count(*) \n"
+    query += "from %s \n" % METADATA
+    query += "where table_name = '%s' and \n" % table_name
+    query += "column_name <> 'NULL' and \n"
+    query += "upper(key) = upper('%s') \n" % DESCRIPTION
+    query += "group by trim(both ' ' from upper(value)) \n"
+    query += "having count(*) > 1) a \n"
+
+    rows = execute_query_on_django_db(query)
+
+    for row in rows:
+      contatore = row[0]
+
+    return contatore > 0
+
 def stampa_symtobltabel(st):
     print "aggregation"
     print st.aggregation

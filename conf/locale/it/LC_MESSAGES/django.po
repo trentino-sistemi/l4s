@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-23 11:53+0100\n"
+"POT-Creation-Date: 2016-04-22 17:12+0200\n"
 "PO-Revision-Date: 2014-12-19 13:48+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -325,7 +325,7 @@ msgid "Open data"
 msgstr "Dati aperti"
 
 #: l4s/static/templates/explorer/query.html:180
-#: l4s/static/templates/l4s/query_editor_customize.html:696
+#: l4s/static/templates/l4s/query_editor_customize.html:863
 msgid "Debug"
 msgstr "Analizza"
 
@@ -748,7 +748,7 @@ msgstr "Note legali"
 
 #: l4s/static/templates/l4s/manual_request.html:57
 #: l4s/static/templates/l4s/metadata_add.html:58
-#: l4s/static/templates/l4s/query_editor_customize.html:729
+#: l4s/static/templates/l4s/query_editor_customize.html:896
 #: l4s/static/templates/l4s/query_editor_save.html:56
 msgid "Cancel"
 msgstr "Annulla"
@@ -756,7 +756,7 @@ msgstr "Annulla"
 #: l4s/static/templates/l4s/manual_request.html:61
 #: l4s/static/templates/l4s/metadata_add.html:60
 #: l4s/static/templates/l4s/metadata_edit.html:36
-#: l4s/static/templates/l4s/query_editor_customize.html:743
+#: l4s/static/templates/l4s/query_editor_customize.html:910
 #: l4s/static/templates/l4s/query_editor_save.html:59
 #: l4s/static/templates/l4s/usage_report.html:80
 #: l4s/static/templates/l4s/user_profile_change.html:32
@@ -891,16 +891,17 @@ msgid "Are you sure you want to delete the metadata with"
 msgstr "Sei sicuro di voler cancellare il metadato con"
 
 #: l4s/static/templates/l4s/metadata.html:100 web/models.py:102
+#: web/models.py:112
 msgid "key"
 msgstr "chiave"
 
 #: l4s/static/templates/l4s/metadata.html:100 web/exceptions.py:36
-#: web/utils.py:3939
+#: web/utils.py:4048
 msgid "and"
 msgstr "e"
 
 #: l4s/static/templates/l4s/metadata.html:101 web/exceptions.py:37
-#: web/models.py:103
+#: web/models.py:103 web/models.py:113
 msgid "value"
 msgstr "valore"
 
@@ -913,7 +914,7 @@ msgid "Edit new metadata"
 msgstr "Aggiungi metadato"
 
 #: l4s/static/templates/l4s/metadata_add.html:48
-#: l4s/static/templates/l4s/metadata_edit.html:26 web/views.py:1363
+#: l4s/static/templates/l4s/metadata_edit.html:26 web/views.py:1388
 msgid "for table"
 msgstr "per la tabella"
 
@@ -945,102 +946,108 @@ msgstr "Dataset"
 msgid "No dataset found for selected criteria"
 msgstr "Non ho trovato dataset che corrispondo ai tuoi criteri di ricerca"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:65
+#: l4s/static/templates/l4s/query_editor_customize.html:66
 msgid "Choose the fields to display by dragging them to the row and column"
 msgstr "Scegli i campi da visualizzare trascinandoli in riga e colonna"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:93
-#: l4s/static/templates/l4s/query_editor_customize.html:290
-#: l4s/static/templates/l4s/query_editor_customize.html:454
+#: l4s/static/templates/l4s/query_editor_customize.html:95
+#: l4s/static/templates/l4s/query_editor_customize.html:348
+#: l4s/static/templates/l4s/query_editor_customize.html:567
 msgid "Show"
 msgstr "Visualizza"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:117
-#: l4s/static/templates/l4s/query_editor_customize.html:312
-#: l4s/static/templates/l4s/query_editor_customize.html:476
+#: l4s/static/templates/l4s/query_editor_customize.html:119
+#: l4s/static/templates/l4s/query_editor_customize.html:231
+#: l4s/static/templates/l4s/query_editor_customize.html:370
+#: l4s/static/templates/l4s/query_editor_customize.html:482
+#: l4s/static/templates/l4s/query_editor_customize.html:589
+#: l4s/static/templates/l4s/query_editor_customize.html:702
 msgid "historical boundaries"
 msgstr "Confini storici"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:118
-#: l4s/static/templates/l4s/query_editor_customize.html:313
-#: l4s/static/templates/l4s/query_editor_customize.html:477
+#: l4s/static/templates/l4s/query_editor_customize.html:129
+#: l4s/static/templates/l4s/query_editor_customize.html:241
+#: l4s/static/templates/l4s/query_editor_customize.html:380
+#: l4s/static/templates/l4s/query_editor_customize.html:492
+#: l4s/static/templates/l4s/query_editor_customize.html:599
+#: l4s/static/templates/l4s/query_editor_customize.html:712
 msgid "the current borders"
 msgstr "Confini attuali"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:132
-#: l4s/static/templates/l4s/query_editor_customize.html:327
-#: l4s/static/templates/l4s/query_editor_customize.html:491
+#: l4s/static/templates/l4s/query_editor_customize.html:153
+#: l4s/static/templates/l4s/query_editor_customize.html:404
+#: l4s/static/templates/l4s/query_editor_customize.html:622
 msgid "seleziona_per"
 msgstr "Seleziona per"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:156
-#: l4s/static/templates/l4s/query_editor_customize.html:202
-#: l4s/static/templates/l4s/query_editor_customize.html:351
-#: l4s/static/templates/l4s/query_editor_customize.html:398
-#: l4s/static/templates/l4s/query_editor_customize.html:515
-#: l4s/static/templates/l4s/query_editor_customize.html:563
+#: l4s/static/templates/l4s/query_editor_customize.html:177
+#: l4s/static/templates/l4s/query_editor_customize.html:260
+#: l4s/static/templates/l4s/query_editor_customize.html:428
+#: l4s/static/templates/l4s/query_editor_customize.html:510
+#: l4s/static/templates/l4s/query_editor_customize.html:646
+#: l4s/static/templates/l4s/query_editor_customize.html:730
 msgid "Select"
 msgstr "Seleziona"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:161
-#: l4s/static/templates/l4s/query_editor_customize.html:208
-#: l4s/static/templates/l4s/query_editor_customize.html:356
-#: l4s/static/templates/l4s/query_editor_customize.html:404
-#: l4s/static/templates/l4s/query_editor_customize.html:520
-#: l4s/static/templates/l4s/query_editor_customize.html:569 web/utils.py:98
+#: l4s/static/templates/l4s/query_editor_customize.html:182
+#: l4s/static/templates/l4s/query_editor_customize.html:266
+#: l4s/static/templates/l4s/query_editor_customize.html:433
+#: l4s/static/templates/l4s/query_editor_customize.html:516
+#: l4s/static/templates/l4s/query_editor_customize.html:651
+#: l4s/static/templates/l4s/query_editor_customize.html:736 web/utils.py:103
 msgid "All"
 msgstr "Tutti"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:166
-#: l4s/static/templates/l4s/query_editor_customize.html:214
-#: l4s/static/templates/l4s/query_editor_customize.html:361
-#: l4s/static/templates/l4s/query_editor_customize.html:410
-#: l4s/static/templates/l4s/query_editor_customize.html:525
-#: l4s/static/templates/l4s/query_editor_customize.html:575
+#: l4s/static/templates/l4s/query_editor_customize.html:187
+#: l4s/static/templates/l4s/query_editor_customize.html:272
+#: l4s/static/templates/l4s/query_editor_customize.html:438
+#: l4s/static/templates/l4s/query_editor_customize.html:522
+#: l4s/static/templates/l4s/query_editor_customize.html:656
+#: l4s/static/templates/l4s/query_editor_customize.html:742
 msgid "None"
 msgstr "Nessuno"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:254
+#: l4s/static/templates/l4s/query_editor_customize.html:312
 msgid "The values ​​of the fields of this color can be grouped"
 msgstr "I valori dei campi di questo colore possono essere raggruppati"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:264
+#: l4s/static/templates/l4s/query_editor_customize.html:322
 msgid "Column"
 msgstr "Colonna"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:268
+#: l4s/static/templates/l4s/query_editor_customize.html:326
 msgid "Row"
 msgstr "Riga"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:601
+#: l4s/static/templates/l4s/query_editor_customize.html:768
 msgid "Data"
 msgstr "Valori"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:678
+#: l4s/static/templates/l4s/query_editor_customize.html:845
 msgid "View all"
 msgstr "Vedi tutto"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:708
+#: l4s/static/templates/l4s/query_editor_customize.html:875
 msgid "Range"
 msgstr "Range"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:721
+#: l4s/static/templates/l4s/query_editor_customize.html:888
 msgid "Include code"
 msgstr "Includi codici"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:739
+#: l4s/static/templates/l4s/query_editor_customize.html:906
 msgid "The table must have at least one field in row"
 msgstr "La tabella deve avere almeno un campo in riga"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:740
+#: l4s/static/templates/l4s/query_editor_customize.html:907
 msgid "The table must have at least one field in column"
 msgstr "La tabella deve avere almeno un campo in colonna"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:741
+#: l4s/static/templates/l4s/query_editor_customize.html:908
 msgid "The table must have at least one field in value"
 msgstr "La tabella deve avere almeno un campo come valore"
 
-#: l4s/static/templates/l4s/query_editor_customize.html:742
+#: l4s/static/templates/l4s/query_editor_customize.html:909
 msgid "you can select only one unless you drag it in line or column"
 msgstr ""
 "puoi selezionarne solo uno a meno che non lo trascini in riga o in colonna"
@@ -1167,7 +1174,7 @@ msgstr "Numero di interrogazioni salvate per tipologia di utente"
 #: l4s/static/templates/l4s/usage_report.html:112
 #: l4s/static/templates/l4s/usage_report.html:129
 #: l4s/static/templates/l4s/usage_report.html:149 web/actions.py:796
-#: web/actions.py:822 web/actions.py:850 web/forms.py:320 web/models.py:277
+#: web/actions.py:822 web/actions.py:850 web/forms.py:320 web/models.py:286
 msgid "User type"
 msgstr "Tipologia utente"
 
@@ -1226,15 +1233,15 @@ msgstr "Modifica il profilo utente"
 msgid "Argomento"
 msgstr "Argomento"
 
-#: web/actions.py:148 web/actions.py:321 web/models.py:110
+#: web/actions.py:148 web/actions.py:321 web/models.py:119
 msgid "Title"
 msgstr "Nome"
 
-#: web/exceptions.py:34 web/views.py:1361
+#: web/exceptions.py:34 web/views.py:1386
 msgid "Please add the metadata "
 msgstr "Per favore aggiungi il metadato"
 
-#: web/exceptions.py:35 web/views.py:1362
+#: web/exceptions.py:35 web/views.py:1387
 msgid "with key"
 msgstr "con chiave"
 
@@ -1283,101 +1290,101 @@ msgstr "Numero di telefono non valido."
 msgid "numerosity"
 msgstr "numerosità"
 
-#: web/models.py:100
+#: web/models.py:100 web/models.py:109
 msgid "table name"
 msgstr "nome tabella"
 
-#: web/models.py:101
+#: web/models.py:101 web/models.py:110
 msgid "column name"
 msgstr "nome colonna"
 
-#: web/models.py:111
+#: web/models.py:120
 msgid "Body"
 msgstr ""
 
-#: web/models.py:114
+#: web/models.py:123
 msgid "IP"
 msgstr ""
 
-#: web/models.py:156
+#: web/models.py:165
 msgid "subject"
 msgstr "oggetto"
 
-#: web/models.py:157
+#: web/models.py:166
 msgid "goal"
 msgstr "finalità"
 
-#: web/models.py:158
+#: web/models.py:167
 msgid "topic"
 msgstr "settore"
 
-#: web/models.py:159
+#: web/models.py:168
 msgid "requested data"
 msgstr "dati richiesti"
 
-#: web/models.py:162
+#: web/models.py:171
 msgid "referenced years"
 msgstr "anni di riferimento"
 
-#: web/models.py:165
+#: web/models.py:174
 msgid "territorial level"
 msgstr "livello territoriale"
 
-#: web/models.py:169
+#: web/models.py:178
 msgid "other territorial level (specify)"
 msgstr "altro livello territoriale (specifica)"
 
-#: web/models.py:173
+#: web/models.py:182
 msgid "specific territorial level"
 msgstr "specifiche livello territoriale"
 
-#: web/models.py:176
+#: web/models.py:185
 msgid "url"
 msgstr "url"
 
-#: web/models.py:187
+#: web/models.py:196
 msgid "user type"
 msgstr "tipologia utente"
 
-#: web/models.py:220
+#: web/models.py:229
 msgid "The given email must be set"
 msgstr "Sevi inserire la email"
 
-#: web/models.py:266
+#: web/models.py:275
 msgid "email address"
 msgstr "indirizzo email"
 
-#: web/models.py:271
+#: web/models.py:280
 msgid "first name"
 msgstr "nome"
 
-#: web/models.py:272
+#: web/models.py:281
 msgid "last name"
 msgstr "cognome"
 
-#: web/models.py:273
+#: web/models.py:282
 msgid "phone_number"
 msgstr "numero di telefono"
 
-#: web/models.py:280
+#: web/models.py:289
 msgid "Designates whether the user can loginto this admin site."
 msgstr "Indica se l'utente può accedere al sito di amministrazione."
 
-#: web/models.py:282
+#: web/models.py:291
 msgid "staff status"
 msgstr "utente interno"
 
-#: web/models.py:287
+#: web/models.py:296
 msgid "Designates whether the user can receive manual request nofications."
 msgstr ""
 "Indica se l'utente riceverà le mail di notifica delle nuove richieste "
 "manuali."
 
-#: web/models.py:290
+#: web/models.py:299
 msgid "manual request dispatcher status"
 msgstr "Evasore delle richieste manuali"
 
-#: web/models.py:294
+#: web/models.py:303
 msgid ""
 "Designates whether this user should be treated as active. Unselect this "
 "instead of deleting accounts."
@@ -1385,19 +1392,19 @@ msgstr ""
 "Indica se l'utente deve essere trattato come attivo. Deselezionare questa "
 "proprietà invece di eliminare gli account."
 
-#: web/models.py:296
+#: web/models.py:305
 msgid "active"
 msgstr "attivo"
 
-#: web/models.py:300
+#: web/models.py:309
 msgid "date joined"
 msgstr "data iscrizione"
 
-#: web/models.py:309
+#: web/models.py:318
 msgid "user"
 msgstr "utente"
 
-#: web/models.py:310
+#: web/models.py:319
 msgid "users"
 msgstr "utenti"
 
@@ -1406,173 +1413,185 @@ msgid "Some value are asterisked to preserve the statistical secret"
 msgstr ""
 "Alcuni valori sono stati asteriscati per preservare il segreto statistico"
 
-#: web/statistical_secret.py:183 web/statistical_secret.py:287
-#: web/utils.py:864
+#: web/statistical_secret.py:185 web/statistical_secret.py:290
+#: web/utils.py:873
 msgid "I can not pivot the table"
 msgstr "Non è possibile pivotare la tabella"
 
-#: web/statistical_secret.py:184
+#: web/statistical_secret.py:186
 msgid "the query return an empty result set"
 msgstr "l'interrogazione ritorna come risultato una tabella vuota"
 
-#: web/statistical_secret.py:290
+#: web/statistical_secret.py:293
 msgid "All objects passed were None"
 msgstr "Il risultato contiene solo valori nulli"
 
-#: web/statistical_secret.py:316 web/statistical_secret.py:1995
-#: web/utils.py:97
+#: web/statistical_secret.py:321 web/statistical_secret.py:2000
+#: web/utils.py:102
 msgid "Total"
 msgstr "Totale"
 
-#: web/statistical_secret.py:3575
+#: web/statistical_secret.py:3580
 msgid "Can not pivot the table; missing numerosity!"
 msgstr "Non è possibile pivotare la tabella; manca la numerosità!"
 
-#: web/statistical_secret.py:3586
+#: web/statistical_secret.py:3591
 msgid "Can not pivot the table; missing rows!"
 msgstr ""
 "Non è possibile pivotare la tabella; lascia uno o più valori per le righe!"
 
-#: web/utils.py:96
+#: web/utils.py:101
 msgid "Code"
 msgstr "Codice"
 
-#: web/utils.py:2165
+#: web/utils.py:2243
 msgid "You can aggregate for a single criterion for each column only."
 msgstr "Puoi aggregare solo per un singolo criterio per ciascuna colonna."
 
-#: web/utils.py:2166
+#: web/utils.py:2244
 msgid "You have selected more than one aggregation on column"
 msgstr "Hai selezionato più di una aggregazione sulla colonna"
 
-#: web/utils.py:2169
+#: web/utils.py:2247
 msgid "with description"
 msgstr "con descrizione"
 
-#: web/utils.py:2635
+#: web/utils.py:2713
 msgid "The statistical service"
 msgstr "Il Servizio Statistica"
 
-#: web/utils.py:2636
+#: web/utils.py:2714
 msgid "is handling"
 msgstr "ha preso in carico"
 
-#: web/utils.py:2637
+#: web/utils.py:2715
 msgid "the request"
 msgstr "la richiesta"
 
-#: web/utils.py:2638
+#: web/utils.py:2716
 msgid "with subject"
 msgstr "con oggetto"
 
-#: web/utils.py:2640
+#: web/utils.py:2718
 msgid "Your request will be dispatched as soon as possible"
 msgstr ""
 "La richiesta verrà evasa al più presto compatibilmente con l'attività del "
 "Servizio"
 
-#: web/utils.py:2658 web/utils.py:2660
+#: web/utils.py:2736 web/utils.py:2738
 msgid "new manual request"
 msgstr "Nuova richiesta manuale"
 
-#: web/utils.py:2659
+#: web/utils.py:2737
 msgid "with id"
 msgstr "con il codice"
 
-#: web/utils.py:2914
+#: web/utils.py:2992
 msgid "Invalid syntax: "
 msgstr "Sintassi non corretta:"
 
-#: web/utils.py:2915
+#: web/utils.py:2993
 msgid "Usage"
 msgstr "Utilizzo"
 
-#: web/utils.py:2919
+#: web/utils.py:2997
 msgid "Invalid Token "
 msgstr "Carattere non corretto"
 
-#: web/utils.py:2920
+#: web/utils.py:2998
 msgid " expected token is "
 msgstr "carattere atteso"
 
-#: web/utils.py:3765
+#: web/utils.py:3874
 msgid "group by"
 msgstr "raggruppato per"
 
-#: web/utils.py:3920
+#: web/utils.py:4029
 msgid "Selected values"
 msgstr "Valori selezionati"
 
-#: web/utils.py:3938
+#: web/utils.py:4047
 msgid "for"
 msgstr "per"
 
-#: web/views.py:181
+#: web/views.py:186
 msgid "No --JOIN statements specified in SQL"
 msgstr "Non hai specificato le istruzioni --JOIN  in SQL"
 
-#: web/views.py:182
+#: web/views.py:187
 msgid "the table is shown as-is"
 msgstr "la tabella è mostrata così com'è"
 
-#: web/views.py:183
+#: web/views.py:188
 msgid "without preserving statistical secret"
 msgstr "senza preservare il segreto statistico"
 
-#: web/views.py:222
+#: web/views.py:227
 msgid "Can not give you the result set"
 msgstr "Non è possibile  mostrare il risultato"
 
-#: web/views.py:223
+#: web/views.py:228
 msgid "in order to preserve the statistical secret"
 msgstr "per preservare il segreto statistico"
 
-#: web/views.py:224
+#: web/views.py:229
 msgid "please chose a pivot and push the Apply button"
 msgstr ""
 "per favore scegli come costruire la tabella pivot e premi il bottone Applica"
 
-#: web/views.py:340 web/views.py:456
+#: web/views.py:345 web/views.py:461
 msgid "The Query could not be saved because the data didn't validate."
 msgstr "L'interrogazione non può essere salvata perchè incorretta."
 
-#: web/views.py:355 web/views.py:480
+#: web/views.py:360 web/views.py:485
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
 
-#: web/views.py:1026 web/views.py:1351
+#: web/views.py:1033 web/views.py:1366
 msgid "The table does not exist"
 msgstr "La tabella non esiste"
 
-#: web/views.py:1356
+#: web/views.py:1376
 msgid "The table must have at least 3 columns"
 msgstr "La tabella deve avere almeno tre colonne"
 
-#: web/views.py:1370
+#: web/views.py:1400
 msgid "All columns mast have description metadata"
 msgstr ""
 "Tutte le colonne della tabella devono avere il metadato per la descrizione"
 
-#: web/views.py:1650
+#: web/views.py:1410
+#, python-format
 msgid ""
-"Il nome della tabella non puo' contenere le stringe DELETE, INSERT o UPDATE"
-msgstr ""
+"There are one ore plus fields on table %s with same description metadata"
+msgstr "Ci sono una o piu colonne dalla tabella %s con lo stesso metadato della descrizione"
 
-#: web/views.py:1652
+#: web/views.py:1751
+#, fuzzy
+msgid "Table name can not contain DELETE, INSERT o UPDATE string"
+msgstr ""
+"Il nome della tabella non puo' contenere le stringe DELETE, INSERT o UPDATE"
+
+#: web/views.py:1753
 msgid "Can not display the requested content"
 msgstr "Impossibile mostrare il contenuto richiesto"
 
-#: web/views.py:1742
+#: web/views.py:1843
 msgid "here"
 msgstr "qui"
 
-#: web/views.py:1743
+#: web/views.py:1844
 msgid "The query has been saved"
 msgstr "L'interrogazione è stata salvata"
 
-#: web/views.py:1745
+#: web/views.py:1846
 msgid "In order to see the saved queries click"
 msgstr "Per vedere the interrogazioni salvate clicca"
+
+#~ msgid "All columns mast have DIFFERENT description metadata"
+#~ msgstr ""
+#~ "Ci sono due o più colonne della tabella con lo stesso metadato della "
+#~ "descrizione"
 
 #~ msgid " on one of the columns of the table "
 #~ msgstr "su una delle colonne della tabella"
