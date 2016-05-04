@@ -106,11 +106,11 @@ class External_Metadata(models.Model):
     """
     A Metadata used to add <key, value> to main db table and columns.
     """
-    table_name = models.CharField(_('table name'), max_length=30, blank=False)
-    column_name = models.CharField(_('column name'), max_length=30, null=True)
-    id_value = models.IntegerField()
-    key = models.CharField(_('key'), max_length=256, blank=False)
-    value = models.CharField(_('value'), max_length=256, blank=False)
+    table_name = models.CharField(_('table name'), max_length=128, blank=False)
+    column_name = models.CharField(_('column name'), max_length=128, null=True)
+    id_value = models.CharField(_('column name'), max_length=10, null=True)
+    key = models.CharField(_('key'), max_length=128, blank=False)
+    value = models.CharField(_('value'), max_length=1500, blank=False)
 
 class ExecutedQueryLog(models.Model):
     """
