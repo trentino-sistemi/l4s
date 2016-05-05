@@ -112,6 +112,13 @@ class External_Metadata(models.Model):
     key = models.CharField(_('key'), max_length=128, blank=False)
     value = models.CharField(_('value'), max_length=1500, blank=False)
 
+class Concept(models.Model):
+    """
+    A Metadata used to add <key, value> to main db table and columns.
+    """
+    key = models.CharField(_('key'), max_length=128, blank=False)
+    concept = models.CharField(_('concept'), max_length=500, null=True)
+
 class ExecutedQueryLog(models.Model):
     """
     Metadata to log queries.
