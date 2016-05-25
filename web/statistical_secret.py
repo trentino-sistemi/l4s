@@ -3616,9 +3616,15 @@ def apply_stat_secret(headers,
         if err:
             return rows, headers, None, warn, err
 
+        #print get_color()
+        #print "data_frame prima", data_frame
+
         if len(obs_vals) > 1:
-            data_frame = data_frame.stack(0)
+            data_frame = data_frame.stack(0) #questa operazione cambia l'ordine dei osb value mettendoli in ordine alfabetico
             data = get_data_from_data_frame(data_frame)
+
+        #print get_color()
+        #print "data_frame dopo", data_frame
 
         #visible = vedi tutto, se vedi tutto ritorna il dataset cosi come e' senza asterischi
         #debug = analizza
@@ -3706,9 +3712,13 @@ def apply_stat_secret(headers,
                                          rows,
                                          debug)
 
+        #print data_frame
+
         data_frame = data_frame_from_tuples(data_frame, data)
 
         return data, headers, data_frame, warn, err
+
+    #print data_frame
 
     # If plain and secret does not return it.
     if len(secret_column_dict) > 0 or len(constraint_cols) > 0 or len(sec_ref) > 0:

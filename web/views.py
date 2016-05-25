@@ -118,7 +118,10 @@ from web.utils import get_variable_dictionary, \
     stampa_symtobltabel, \
     SECONDARY, \
     groupedby_value_to_column, \
-    column_with_same_description
+    column_with_same_description, \
+    build_table_external_medatata, \
+    build_column_external_medatata, \
+    build_column_value_external_medatata
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1361,6 +1364,15 @@ def query_editor_view(request):
 
     table_name = request.REQUEST.get('table')
 
+    """
+    table_external_metadata = build_table_external_medatata(table_name)
+    column_external_metadata = build_column_external_medatata(table_name)
+
+    context = RequestContext(request)
+    context['error_string'] = _("The table does not exist")
+    return render_to_response("l4s/error.html", context)
+    """
+
     if exists_table('public', table_name) == False:
         context = RequestContext(request)
         context['error_string'] = _("The table does not exist")
@@ -1733,6 +1745,13 @@ def query_editor_view(request):
     print "rows", rows
     """
 
+    #print "agg_col", agg_col
+    #print "sel_tab" , sel_tab
+
+    table_external_metadata = build_table_external_medatata(table_name)
+    column_external_metadata = build_column_external_medatata(table_name)
+    column_value_external_metadata = build_column_value_external_medatata(table_name)
+
     title = build_query_title(column_description,
                               selected_obs_values,
                               agg_col,
@@ -1767,6 +1786,9 @@ def query_editor_view(request):
     context['store'] = store
     context['sql'] = sql
     context['url'] = url
+    context['table_external_metadata'] = table_external_metadata
+    context['column_external_metadata'] = column_external_metadata
+    context['column_value_external_metadata'] = column_value_external_metadata
 
     #print datetime.now().strftime("%H:%M:%S.%f")
 

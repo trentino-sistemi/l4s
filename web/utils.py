@@ -57,6 +57,8 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 METADATA = 'web_metadata'
+EXTERNAL_METADATA = 'web_external_metadata'
+WEB_CONCEPT = 'web_concept'
 USER_TYPE = 'web_usertype'
 QUERY = 'explorer_query'
 USER = 'web_user'
@@ -4568,4 +4570,114 @@ def grouped_by_in_query(table_name, column_description):
 
     return result
 
+
+def build_table_external_medatata(table_name):
+
+    result = dict()
+
+    query =  "select a.key, a.value, b.concept \n"
+    query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
+    query += "where a.table_name = '%s' and \n" % table_name
+    query += "      a.column_name is null "
+
+    rows = execute_query_on_django_db(query)
+
+    for row in rows:
+        result[row[2]] = row[1]
+
+    #print result
+
+    return result
+
+
+def build_column_external_medatata(table_name):
+
+    query =  "select a.table_name, a.column_name, a.value, b.concept \n"
+    query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
+    query += "where a.table_name = '%s' and \n" % table_name
+    query += "      not a.column_name is null and \n"
+    query += "      a.id_value is null"
+
+    result = execute_query_on_django_db(query)
+
+    foreign_keys = build_foreign_keys(table_name)
+
+    #print get_color()
+    #print "foreign_keys" , foreign_keys
+
+    for row in foreign_keys:
+
+        tabella_foreign_keys = foreign_keys[row][0]
+        colonna_foreign_keys = foreign_keys[row][1]
+
+        query =  "select '%s' as table_name, '%s' as column_name, a.value, b.concept \n" % (table_name, row)
+        query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
+        query += "where a.table_name = '%s' and \n" % tabella_foreign_keys
+        query += "      a.column_name = '%s' and \n" % colonna_foreign_keys
+        query += "      a.id_value is null"
+
+        result = result + execute_query_on_django_db(query)
+
+    #print get_color()
+    #print "column_external_medatata" , result
+
+    return result
+
+def build_column_value_external_medatata(table_name):
+
+    query =  "select a.table_name, a.column_name, a.id_value, a.value, b.concept \n"
+    query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
+    query += "where a.table_name = '%s' and \n" % table_name
+    query += "      not a.column_name is null and \n"
+    query += "      not a.id_value is null"
+
+    result = execute_query_on_django_db(query)
+
+    foreign_keys = build_foreign_keys(table_name)
+
+    #print get_color()
+    #print "foreign_keys" , foreign_keys
+
+    for row in foreign_keys:
+
+        tabella_foreign_keys = foreign_keys[row][0]
+        colonna_foreign_keys = foreign_keys[row][1]
+
+        query =  "select a.id_value \n"
+        query += "from %s a  \n" % EXTERNAL_METADATA
+        query += "where a.table_name = '%s' and \n" % tabella_foreign_keys
+        query += "      a.column_name = '%s' and \n" % colonna_foreign_keys
+        query += "      not a.id_value is null"
+
+        #print query
+
+        rows_app = execute_query_on_django_db(query)
+
+        for row_app in rows_app:
+            colonna_descrizione = find_table_description_column(tabella_foreign_keys)
+
+            query =  "select %s \n" % colonna_descrizione
+            query += "from %s \n" % tabella_foreign_keys
+            query += "where %s = %s" % (colonna_foreign_keys,row_app[0])
+
+            #print query
+
+            rows_app2 = execute_query_on_main_db(query)
+
+            for row_app2 in rows_app2:
+                query =  "select '%s' as table_name, '%s' as column_name, '%s' as id_value, a.value, b.concept \n" % (table_name, row, row_app2[0].strip())
+                query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
+                query += "where a.table_name = '%s' and \n" % tabella_foreign_keys
+                query += "      a.column_name = '%s' and \n" % colonna_foreign_keys
+                query += "      a.id_value = '%s' " % row_app[0]
+
+                #print query
+
+                result = result + execute_query_on_django_db(query)
+
+
+    #print get_color()
+    #print "column_value_external_medatata", result, type(result)
+
+    return result
 

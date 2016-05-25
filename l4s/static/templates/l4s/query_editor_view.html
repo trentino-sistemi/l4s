@@ -87,6 +87,26 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </tr>
             {% endfor %}
         </table>
+
+        <table data-intro="{% trans "External Metadata" %}"
+               data-position="right"
+               style="width:auto"
+               class="table">
+
+            {% for element in table_external_metadata %}
+            <tr>
+                <td>
+                  {{ element }}
+                </td>
+                <td>
+                  {{  table_external_metadata|lookup:element }}
+                </td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+
 {% if error %}
 <div class="alert alert-danger">
     {{ error|escape }}
@@ -195,6 +215,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 </div>
 {% endif %}
 {% endif %}
+
+
 <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
 <script type="text/javascript" src="/static/js/download.js"></script>
@@ -450,38 +472,147 @@ $(".download_turtle_button").click(function(e) {
 });
 
 
-range = '{{ range }}';
+function applica_range () {
 
-if (range=='True') {
+    range = '{{ range }}';
 
-    //menatona per via che ci sono alcune celle mergiate
+    if (range=='True') {
+
+        //menatona per via che ci sono alcune celle mergiate
+
+        obs_values = '{{ selected_obs_values|escapejs }}';
+        colonne = '{{ columns|escapejs }}';
+        righe = '{{ rows|escapejs }}';
+
+        obs_values_array = obs_values.split(",");
+        colonne_array = colonne.split(",");
+        righe_array = righe.split(",");
+
+        if (obs_values_array.length == 1) {
+          elemento_da_conteggiare = 1;
+        }
+          else
+        {
+          elemento_da_conteggiare = 0;
+        }
+
+        //alert(colonne_array);
+        //alert(righe_array);
+
+        //alert(colonne_array.length);
+        //alert(righe_array.length);
+
+        var tabella = document.getElementsByClassName("dataframe table table-striped");
+
+        numero_righe = 0;
+        numero_colonne = 0;
+
+        $(tabella[0]).find('tr').each (function() {
+
+          numero_colonne_app = 0;
+
+          $.each(this.cells, function(){
+
+            numero_colonne_app = numero_colonne_app + 1;
+
+          });
+
+          if (numero_colonne_app > numero_colonne) {
+            numero_colonne = numero_colonne_app;
+          }
+
+          numero_righe = numero_righe + 1;
+
+        });
+
+        //alert(numero_righe);
+        //alert(numero_colonne);
+
+        riga = 0;
+
+        $(tabella[0]).find('tr').each (function() {
+
+          if (riga > (colonne_array.length + elemento_da_conteggiare)) {
+
+              numero_colonne_app = 0;
+
+              $.each(this.cells, function(){
+
+                numero_colonne_app = numero_colonne_app + 1;
+
+              });
+
+              //alert(numero_colonne_app);
+
+              colonna = 0;
+
+              $.each(this.cells, function(){
+
+                if (colonna > righe_array.length - (numero_colonne - numero_colonne_app) - elemento_da_conteggiare) {
+
+                    if (($(this).text().indexOf("<") > -1) ||
+                        ($(this).text().indexOf(">") > -1) ||
+                        ($(this).text().indexOf("-") > -1))
+                      $(this).css('background-color','yellow');
+
+                }
+
+                colonna = colonna + 1;
+
+              });
+
+          }
+
+          riga = riga + 1;
+
+
+        });
+
+    }
+}
+
+function aggiungi_external_metadata () {
+
+    function add_tooltip (row, column, column_external_metadata_array, concept, inhint) {
+
+        if (inhint == '') {
+            hint = '';
+            for (var j = 0; j < column_external_metadata_array.length; j++) {
+                if (column_external_metadata_array[j][1] == concept) {
+                  hint = hint + column_external_metadata_array[j][3] + ': ' + column_external_metadata_array[j][2] + "<br>";
+                }
+            }
+        }
+          else
+        {
+          hint = inhint;
+        }
+
+        row.cells[column].setAttribute("data-toggle", "tooltip");
+        row.cells[column].setAttribute("data-placement", "top");
+        row.cells[column].setAttribute("data-html", "true");
+        row.cells[column].setAttribute("data-container", "body");
+        row.cells[column].setAttribute("data-original-title", hint );
+    }
 
     obs_values = '{{ selected_obs_values|escapejs }}';
     colonne = '{{ columns|escapejs }}';
     righe = '{{ rows|escapejs }}';
+    column_external_medatata = '{{ column_external_metadata|jsonify|escapejs }}';
+    column_value_external_medatata = '{{ column_value_external_metadata|jsonify|escapejs }}';
+
+    //alert(righe);
 
     obs_values_array = obs_values.split(",");
     colonne_array = colonne.split(",");
     righe_array = righe.split(",");
-
-    if (obs_values_array.length == 1) {
-      elemento_da_conteggiare = 1;
-    }
-      else
-    {
-      elemento_da_conteggiare = 0;
-    }
-
-    //alert(colonne_array);
-    //alert(righe_array);
-
-    //alert(colonne_array.length);
-    //alert(righe_array.length);
+    column_external_metadata_array = JSON.parse(column_external_medatata);
+    column_value_external_medatata_array = JSON.parse(column_value_external_medatata);
 
     var tabella = document.getElementsByClassName("dataframe table table-striped");
+    var rows =  tabella[0].rows;
 
-    numero_righe = 0;
-    numero_colonne = 0;
+    max_numero_colonne = 0;
 
     $(tabella[0]).find('tr').each (function() {
 
@@ -493,58 +624,209 @@ if (range=='True') {
 
       });
 
-      if (numero_colonne_app > numero_colonne) {
-        numero_colonne = numero_colonne_app;
+      if (numero_colonne_app > max_numero_colonne) {
+        max_numero_colonne = numero_colonne_app;
       }
-
-      numero_righe = numero_righe + 1;
 
     });
 
-    //alert(numero_righe);
-    //alert(numero_colonne);
+    if (obs_values_array.length == 1)  //un solo obsvalue
+    {
 
-    riga = 0;
+        add_tooltip(rows[0], righe_array.length, column_external_metadata_array, obs_values_array[0], '');
 
-    $(tabella[0]).find('tr').each (function() {
+        for (var i = 0; i < colonne_array.length; i++) {
 
-      if (riga > (colonne_array.length + elemento_da_conteggiare)) {
+            add_tooltip(rows[1+i], righe_array.length - 1, column_external_metadata_array, colonne_array[i], '');
 
-          numero_colonne_app = 0;
+        }
 
-          $.each(this.cells, function(){
+        for (var z = 0; z < righe_array.length; z++) {
 
-            numero_colonne_app = numero_colonne_app + 1;
+            add_tooltip(rows[i+1], z, column_external_metadata_array, righe_array[z], '');
 
-          });
+        }
 
-          //alert(numero_colonne_app);
+    }
+      else
+    {
 
-          colonna = 0;
+        for (var i = (colonne_array.length + 1); i < rows.length; i++) {
 
-          $.each(this.cells, function(){
+          if (rows[i].cells.length == max_numero_colonne) {
+            indice = righe_array.length;
+          }
+            else
+          {
+            indice = 0;
+          };
 
-            if (colonna > righe_array.length - (numero_colonne - numero_colonne_app) - elemento_da_conteggiare) {
+          nome_campo = obs_values_array[(i - 2) % (obs_values_array.length)];
 
-                if (($(this).text().indexOf("<") > -1) ||
-                    ($(this).text().indexOf(">") > -1) ||
-                    ($(this).text().indexOf("-") > -1))
-                  $(this).css('background-color','yellow');
+          add_tooltip(rows[i], indice, column_external_metadata_array, nome_campo, '');
+
+        }
+
+        for (var i = 0; i < colonne_array.length; i++) {
+
+            add_tooltip(rows[i], righe_array.length, column_external_metadata_array, colonne_array[i], '');
+
+        }
+
+        for (var z = 0; z < righe_array.length; z++) {
+
+            add_tooltip(rows[i], z, column_external_metadata_array, righe_array[z], '');
+
+        }
+
+    }
+
+
+    if (obs_values_array.length == 1)  //un solo obsvalue
+    {
+
+        for (var i = 0; i < colonne_array.length; i++) {
+
+          for (var j = 0; j < column_value_external_medatata_array.length; j++) {
+
+            if (column_value_external_medatata_array[j][1] == colonne_array[i]) {
+
+              //console.log(colonne_array[i]);
+              //console.log(rows[i+1].cells.length);
+
+              for (var z = 0; z < rows[i+1].cells.length; z++) {
+
+                //console.log(column_value_external_medatata_array[j][2]);
+                //console.log(rows[i+1].cells[z].innerText);
+
+                if (column_value_external_medatata_array[j][2] == rows[i+1].cells[z].innerText) {
+
+                    add_tooltip(rows[i+1], z, '', '', column_value_external_medatata_array[j][4] + ': ' + column_value_external_medatata_array[j][3]);
+
+                }
+              }
 
             }
 
-            colonna = colonna + 1;
+          }
 
-          });
+        }
 
-      }
+        for (var i = 0; i < righe_array.length; i++) {
 
-      riga = riga + 1;
+          for (var j = 0; j < column_value_external_medatata_array.length; j++) {
 
+            if (column_value_external_medatata_array[j][1] == righe_array[i]) {
 
-    });
+              //console.log(righe_array[i]);
+              //console.log(rows.length);
+
+              for (var z = 0; z < rows.length; z++) {
+
+                if (rows[z].cells.length == max_numero_colonne) {
+                  indice = i;
+                }
+                  else
+                {
+                  indice = 0;
+                };
+
+                //console.log(column_value_external_medatata_array[j][2]);
+                //console.log(rows[z].cells[indice].innerText);
+
+                if (column_value_external_medatata_array[j][2] == rows[z].cells[indice].innerText) {
+
+                    //console.log('eccolo');
+                    add_tooltip(rows[z], indice, '', '', column_value_external_medatata_array[j][4] + ': ' + column_value_external_medatata_array[j][3]);
+
+                }
+
+              }
+
+            }
+
+          }
+
+        }
+
+    }
+      else
+    {
+
+        for (var i = 0; i < colonne_array.length; i++) {
+
+          for (var j = 0; j < column_value_external_medatata_array.length; j++) {
+
+            if (column_value_external_medatata_array[j][1] == colonne_array[i]) {
+
+              //console.log(colonne_array[i]);
+              //console.log(rows[i+1].cells.length);
+
+              for (var z = 0; z < rows[i].cells.length; z++) {
+
+                //console.log(column_value_external_medatata_array[j][2]);
+                //console.log(rows[i+1].cells[z].innerText);
+
+                if (column_value_external_medatata_array[j][2] == rows[i].cells[z].innerText) {
+
+                    add_tooltip(rows[i], z, '', '', column_value_external_medatata_array[j][4] + ': ' + column_value_external_medatata_array[j][3]);
+
+                }
+              }
+
+            }
+
+          }
+
+        }
+
+        for (var i = 0; i < righe_array.length; i++) {
+
+          for (var j = 0; j < column_value_external_medatata_array.length; j++) {
+
+            if (column_value_external_medatata_array[j][1] == righe_array[i]) {
+
+              //console.log(righe_array[i]);
+              //console.log(rows.length);
+
+              for (var z = 0; z < rows.length; z++) {
+
+                if (rows[z].cells.length == max_numero_colonne) {
+                  indice = i;
+                }
+                  else
+                {
+                  indice = 0;
+                };
+
+                //console.log(column_value_external_medatata_array[j][2]);
+                //console.log(rows[z].cells[indice].innerText);
+
+                if (column_value_external_medatata_array[j][2] == rows[z].cells[indice].innerText) {
+
+                    //console.log('eccolo');
+                    add_tooltip(rows[z], indice, '', '', column_value_external_medatata_array[j][4] + ': ' + column_value_external_medatata_array[j][3]);
+
+                }
+
+              }
+
+            }
+
+          }
+
+        }
+
+    }
 
 }
+
+$(document).ready(function(){
+    applica_range();
+    aggiungi_external_metadata();
+
+    $('[data-toggle="tooltip"]').tooltip();
+});
 
 </script>
 {% endblock %}
