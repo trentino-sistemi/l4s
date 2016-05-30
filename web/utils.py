@@ -2345,6 +2345,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     print "cols ", cols
     print "threshold ", threshold
     """
+    groupby = False
 
     for c in cols:
         table = cols[c]['table']
@@ -2359,6 +2360,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
             query += "SUM(%s.%s) %s " % (new_table, column, column)
             header += "%s " % JOIN_TOKEN
             header += "%s.%s %s\n" % (table, column, c)
+            groupby = True
             continue
 
 
@@ -2401,11 +2403,15 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
     query += ")"
 
+    if groupby:
+        query += "\nGROUP BY %s" % params
+
+    #print "constraints", constraints
+
     if len(constraints) != 0:
 
-        # nota bene spostato da prima del if a qui
-
-        query += "\nGROUP BY %s" % params
+        # data non verificabile GROUP BY spostato da prima del if a qui
+        # 01/06/2016 GROUP BY rispostato fuori ... nel caso dmdstres aggrega stato per continente va fuori perche serve il group by
 
         query += " HAVING "
 
