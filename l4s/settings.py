@@ -48,7 +48,7 @@ SENDER = "SSPAT"
 SENDER_NAME = "Servizio Statistica: Provincia Autonoma di Trento"
 
 
-ALLOWED_HOSTS = ['l4s.trentinosistemi.com']
+ALLOWED_HOSTS = ['l4s.trentinosistemi.com', '*']
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -199,6 +199,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
@@ -214,10 +215,7 @@ TEMPLATE_DIRS = (
                  "templates"),
 )
 
-STATICFILES_DIRS = [
-    os.path.join(os.path.dirname(os.path.realpath(__file__)), "static"),
-]
-
+STATIC_ROOT= os.path.join(BASE_DIR, "l4s/static")
 
 LOCALE_PATHS = ('conf/locale',)
 
