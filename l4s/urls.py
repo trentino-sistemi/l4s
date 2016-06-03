@@ -47,6 +47,10 @@ urlpatterns = patterns('',
                        url(r'^query_editor_customize/$',
                            'web.views.query_editor_customize',
                            name='query_editor_customize'),
+                       #Url for query editor external metadata.
+                       url(r'^query_editor_external_metadata/$',
+                           'web.views.query_editor_external_metadata',
+                           name='query_editor_external_metadata'),
                        #Url for query editor save check.
                        url(r'^query_editor_save_check/$',
                            'web.views.query_editor_save_check',

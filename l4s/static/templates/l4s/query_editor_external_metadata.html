@@ -1,0 +1,119 @@
+<!--
+<!--
+This file is part of Lod4stat.
+
+Copyright (c) 2014 Provincia autonoma di Trento
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+
+{% load i18n %}
+{% load jsonify %}
+{% load dictionary_extras %}
+{% load unicode_extras %}
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible"
+          content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <script src="/static/js/jquery-ui.js">
+    </script>
+    <script type="text/javascript"
+            src="/static/js/jquery.cookie.js">
+    </script>
+    <script type="text/javascript"
+            src="/static/js/spin.min.js">
+    </script>
+    <script type="text/javascript"
+            src="/static/js/bootbox.min.js">
+    </script>
+    <script type="text/javascript"
+            src="/static/js/bootbox.conf.js">
+    </script>
+    <link href="/static/css/drag_and_drop.css"
+          rel="stylesheet">
+    <script type="text/javascript"
+            src="/static/js/ajax_csfrtoken.js">
+    </script>
+    <script>
+    $(document).ready(function(){
+        initToken();
+    });
+    </script>
+</head>
+<body style="cursor: auto;">
+
+    <table border="0" class="table">
+
+    <tr>
+        <th colspan="4" align="center">
+            {% if tipo = '1' %}
+                {% trans "Warnings" %}
+            {% else %}
+                {% trans "Definitions" %}
+            {% endif %}
+
+        </th>
+    </tr>
+
+    {% if tipo = '1' %}
+
+        {% for column in column_value_external_metadata %}
+
+            <tr style="width:100%">
+
+                {% for element in column %}
+                <td>
+                   {{ element }}
+                </td>
+                {% endfor %}
+
+            </tr>
+
+        {% endfor %}
+
+    {% else %}
+
+        {% for column in column_external_metadata %}
+
+            <tr style="width:100%">
+
+                {% for element in column %}
+                <td>
+                   {{ element }}
+                </td>
+                {% endfor %}
+
+            </tr>
+
+        {% endfor %}
+
+    {% endif %}
+
+    <tr style="width:100%">
+        <td colspan=4 align="center">
+            <button class="btn btn-default" onclick="$('#popup').modal('hide');">
+                {% trans "Close" %}
+            </button>
+        </td>
+    </tr>
+
+    </table>
+
+</body>
+</html>

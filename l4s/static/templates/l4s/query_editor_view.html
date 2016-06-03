@@ -203,6 +203,23 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
      {% trans "Manual request" %}
      </button>
 {% endif %}
+
+ <button title="{% trans "Show warnings" %}"
+         data-intro="{% trans "Show warnings" %}"
+         data-position="top"
+         class="btn btn-default"
+         onclick="OpenExternalMetadataPopup(1);">
+ {% trans "Warnings" %}
+ </button>
+
+ <button title="{% trans "Show definitions" %}"
+         data-intro="{% trans "Show definitions" %}"
+         data-position="top"
+         class="btn btn-default"
+         onclick="OpenExternalMetadataPopup(2);">
+ {% trans "Definitions" %}
+ </button>
+
 </div>
 {% if dataframe %}
 <div data-intro="{% trans "Result set preview" %}"
@@ -225,6 +242,32 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <script>
 initToken();
 $('#progress').hide();
+
+function OpenExternalMetadataPopup(tipo) {
+
+    url = '/query_editor_external_metadata/';
+
+    data = {'table': '{{ table_name|escapejs }}',
+            'columns': '{{ columns|escapejs }}',
+            'rows': '{{ rows|escapejs }}',
+            'tipo': tipo,
+           };
+
+    $.ajax({
+		url: url,
+        type: "POST",
+        data: data,
+        success: function(response) {
+            $('#popup-body').html(response);
+            $('#popup').modal('show');
+	    },
+        error: function(xhr, status) {
+            bootbox.alert(xhr.responseText);
+	    }
+    });
+
+}
+
 function OpenCustomizePopup() {
     debug_value = "false"
     debug = '{{ debug }}';
@@ -630,6 +673,7 @@ function aggiungi_external_metadata () {
 
     });
 
+    /*
     if (obs_values_array.length == 1)  //un solo obsvalue
     {
 
@@ -680,6 +724,7 @@ function aggiungi_external_metadata () {
         }
 
     }
+
 
 
     if (obs_values_array.length == 1)  //un solo obsvalue
@@ -806,6 +851,170 @@ function aggiungi_external_metadata () {
 
                     //console.log('eccolo');
                     add_tooltip(rows[z], indice, '', '', column_value_external_medatata_array[j][4] + ': ' + column_value_external_medatata_array[j][3]);
+
+                }
+
+              }
+
+            }
+
+          }
+
+        }
+
+    }*/
+
+    var href='javascript:OpenExternalMetadataPopup(1);';
+    var testo_link = ' i ';
+
+    if (obs_values_array.length == 1)  //un solo obsvalue
+    {
+
+        for (var i = 0; i < colonne_array.length; i++) {
+
+          for (var j = 0; j < column_value_external_medatata_array.length; j++) {
+
+            if (column_value_external_medatata_array[j][1] == colonne_array[i]) {
+
+              //console.log(colonne_array[i]);
+              //console.log(rows[i+1].cells.length);
+
+              for (var z = 0; z < rows[i+1].cells.length; z++) {
+
+                //console.log(column_value_external_medatata_array[j][2]);
+                //console.log(rows[i+1].cells[z].innerText);
+
+                if (column_value_external_medatata_array[j][2] == rows[i+1].cells[z].innerText) {
+
+                    //add_tooltip(rows[i+1], z, '', '', column_value_external_medatata_array[j][4] + ': ' + column_value_external_medatata_array[j][3]);
+
+                    var elLink = document.createElement('a');
+                    elLink.href = href;
+                    elLink.innerHTML = testo_link;
+
+                    rows[i+1].cells[z].appendChild(elLink);
+
+                }
+              }
+
+            }
+
+          }
+
+        }
+
+        for (var i = 0; i < righe_array.length; i++) {
+
+          for (var j = 0; j < column_value_external_medatata_array.length; j++) {
+
+            if (column_value_external_medatata_array[j][1] == righe_array[i]) {
+
+              //console.log(righe_array[i]);
+              //console.log(rows.length);
+
+              for (var z = 0; z < rows.length; z++) {
+
+                if (rows[z].cells.length == max_numero_colonne) {
+                  indice = i;
+                }
+                  else
+                {
+                  indice = 0;
+                };
+
+                //console.log(column_value_external_medatata_array[j][2]);
+                //console.log(rows[z].cells[indice].innerText);
+
+                if (column_value_external_medatata_array[j][2] == rows[z].cells[indice].innerText) {
+
+                    //console.log('eccolo');
+                    //add_tooltip(rows[z], indice, '', '', column_value_external_medatata_array[j][4] + ': ' + column_value_external_medatata_array[j][3]);
+
+                    var elLink = document.createElement('a');
+                    elLink.href = href;
+                    elLink.innerHTML = testo_link;
+
+                    rows[z].cells[indice].appendChild(elLink);
+
+                }
+
+              }
+
+            }
+
+          }
+
+        }
+
+    }
+      else
+    {
+
+        for (var i = 0; i < colonne_array.length; i++) {
+
+          for (var j = 0; j < column_value_external_medatata_array.length; j++) {
+
+            if (column_value_external_medatata_array[j][1] == colonne_array[i]) {
+
+              //console.log(colonne_array[i]);
+              //console.log(rows[i+1].cells.length);
+
+              for (var z = 0; z < rows[i].cells.length; z++) {
+
+                //console.log(column_value_external_medatata_array[j][2]);
+                //console.log(rows[i+1].cells[z].innerText);
+
+                if (column_value_external_medatata_array[j][2] == rows[i].cells[z].innerText) {
+
+                    //add_tooltip(rows[i], z, '', '', column_value_external_medatata_array[j][4] + ': ' + column_value_external_medatata_array[j][3]);
+
+                    var elLink = document.createElement('a');
+                    elLink.href = href;
+                    elLink.innerHTML = testo_link;
+
+                    rows[i].cells[z].appendChild(elLink);
+
+                }
+              }
+
+            }
+
+          }
+
+        }
+
+        for (var i = 0; i < righe_array.length; i++) {
+
+          for (var j = 0; j < column_value_external_medatata_array.length; j++) {
+
+            if (column_value_external_medatata_array[j][1] == righe_array[i]) {
+
+              //console.log(righe_array[i]);
+              //console.log(rows.length);
+
+              for (var z = 0; z < rows.length; z++) {
+
+                if (rows[z].cells.length == max_numero_colonne) {
+                  indice = i;
+                }
+                  else
+                {
+                  indice = 0;
+                };
+
+                //console.log(column_value_external_medatata_array[j][2]);
+                //console.log(rows[z].cells[indice].innerText);
+
+                if (column_value_external_medatata_array[j][2] == rows[z].cells[indice].innerText) {
+
+                    //console.log('eccolo');
+                    //add_tooltip(rows[z], indice, '', '', column_value_external_medatata_array[j][4] + ': ' + column_value_external_medatata_array[j][3]);
+
+                    var elLink = document.createElement('a');
+                    elLink.href = href;
+                    elLink.innerHTML = testo_link;
+
+                    rows[z].cells[indice].appendChild(elLink);
 
                 }
 

@@ -121,7 +121,10 @@ from web.utils import get_variable_dictionary, \
     column_with_same_description, \
     build_table_external_medatata, \
     build_column_external_medatata, \
-    build_column_value_external_medatata
+    build_column_value_external_medatata , \
+    build_column_external_medatata_new, \
+    build_column_value_external_medatata_new
+
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
     apply_stat_secret_plain, \
@@ -1209,6 +1212,31 @@ def privacy_policy(request):
     return render_to_response("l4s/privacy_policy.html", context)
 
 
+def query_editor_external_metadata(request):
+
+    context = RequestContext(request)
+
+    table_name = request.REQUEST.get('table')
+
+    column_external_metadata = build_column_external_medatata_new(table_name)
+    column_value_external_metadata = build_column_value_external_medatata_new(table_name)
+
+    """
+    print "column_external_metadata", column_external_metadata
+    print "column_value_external_metadata", column_value_external_metadata
+    print "column", request.REQUEST.get('columns')
+    print "rows", request.REQUEST.get('rows')
+    """
+
+    context['column_external_metadata'] = column_external_metadata
+    context['column_value_external_metadata'] = column_value_external_metadata
+
+    context['columns'] = request.REQUEST.get('columns')
+    context['rows'] = request.REQUEST.get('rows')
+    context['tipo'] = request.REQUEST.get('tipo')
+
+    return render_to_response("l4s/query_editor_external_metadata.html", context)
+
 def query_editor_customize(request):
     """
     Customize the default query in editor.
@@ -1763,6 +1791,8 @@ def query_editor_view(request):
     context['description'] = description
     context['sel_tab'] = sel_tab
     context['agg_col'] = agg_col
+
+    #print "df", df
 
     if df is None:
 
