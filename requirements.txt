@@ -25,7 +25,7 @@ pyodbc
 django-pyodbc
 
 # In order to use bopotstrap in the django admin site
-django-admin-bootstrapped
+django-admin-bootstrapped==1.6.5
 
 # Used for rdf export.
 rdflib
