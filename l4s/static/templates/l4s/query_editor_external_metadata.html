@@ -62,10 +62,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
     <tr>
         <th colspan="4" align="center">
+
             {% if tipo = '1' %}
                 {% trans "Warnings" %}
-            {% else %}
+            {% endif %}
+
+            {% if tipo = '2' %}
                 {% trans "Definitions" %}
+            {% endif %}
+
+            {% if tipo = '3' %}
+                {% trans "Table definitions" %}
             {% endif %}
 
         </th>
@@ -87,9 +94,29 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
         {% endfor %}
 
-    {% else %}
+    {% endif %}
+
+    {% if tipo = '2' %}
 
         {% for column in column_external_metadata %}
+
+            <tr style="width:100%">
+
+                {% for element in column %}
+                <td>
+                   {{ element }}
+                </td>
+                {% endfor %}
+
+            </tr>
+
+        {% endfor %}
+
+    {% endif %}
+
+    {% if tipo = '3' %}
+
+        {% for column in table_external_metadata %}
 
             <tr style="width:100%">
 

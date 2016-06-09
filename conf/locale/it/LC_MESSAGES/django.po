@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-03 16:20+0200\n"
+"POT-Creation-Date: 2016-06-09 15:55+0200\n"
 "PO-Revision-Date: 2014-12-19 13:48+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -372,7 +372,7 @@ msgstr "Accedi per poter usare questa funzione"
 #: l4s/static/templates/l4s/manual_request_view.html:36
 #: l4s/static/templates/l4s/query_editor_view.html:188
 #: l4s/static/templates/l4s/query_editor_view.html:203
-#: l4s/static/templates/l4s/query_editor_view.html:346
+#: l4s/static/templates/l4s/query_editor_view.html:333
 msgid "Manual request"
 msgstr "Richiesta manuale"
 
@@ -603,8 +603,7 @@ msgstr "Carica una ontologia rdf"
 msgid "Upload file"
 msgstr "Carica file"
 
-#: l4s/static/templates/l4s/base.html:67
-#: l4s/static/templates/l4s/index.html:27
+#: l4s/static/templates/l4s/base.html:67 l4s/static/templates/l4s/index.html:27
 msgid "Home"
 msgstr "Pagina iniziale"
 
@@ -896,7 +895,7 @@ msgid "key"
 msgstr "chiave"
 
 #: l4s/static/templates/l4s/metadata.html:100 web/exceptions.py:36
-#: web/utils.py:4056
+#: web/utils.py:4057
 msgid "and"
 msgstr "e"
 
@@ -914,7 +913,7 @@ msgid "Edit new metadata"
 msgstr "Aggiungi metadato"
 
 #: l4s/static/templates/l4s/metadata_add.html:48
-#: l4s/static/templates/l4s/metadata_edit.html:26 web/views.py:1422
+#: l4s/static/templates/l4s/metadata_edit.html:26 web/views.py:1428
 msgid "for table"
 msgstr "per la tabella"
 
@@ -1052,7 +1051,17 @@ msgid "you can select only one unless you drag it in line or column"
 msgstr ""
 "puoi selezionarne solo uno a meno che non lo trascini in riga o in colonna"
 
-#: l4s/static/templates/l4s/query_editor_external_metadata.html:76
+#: l4s/static/templates/l4s/query_editor_external_metadata.html:66
+#: l4s/static/templates/l4s/query_editor_view.html:212
+msgid "Warnings"
+msgstr "Avvertenze"
+
+#: l4s/static/templates/l4s/query_editor_external_metadata.html:68
+#: l4s/static/templates/l4s/query_editor_view.html:220
+msgid "Definitions"
+msgstr "Definizioni"
+
+#: l4s/static/templates/l4s/query_editor_external_metadata.html:111
 msgid "Close"
 msgstr "Chiudi"
 
@@ -1078,7 +1087,7 @@ msgid "values"
 msgstr "valori"
 
 #: l4s/static/templates/l4s/query_editor_view.html:82
-#: l4s/static/templates/l4s/query_editor_view.html:413
+#: l4s/static/templates/l4s/query_editor_view.html:400
 msgid "See more"
 msgstr "Vedi più dettagli"
 
@@ -1123,24 +1132,25 @@ msgstr ""
 msgid "Show warnings"
 msgstr "Visualizza avvertenze"
 
-#: l4s/static/templates/l4s/query_editor_view.html:212
-msgid "Warnings"
-msgstr "Avvertenze"
-
 #: l4s/static/templates/l4s/query_editor_view.html:215
 #: l4s/static/templates/l4s/query_editor_view.html:216
 msgid "Show definitions"
 msgstr "Visualizza definizioni"
 
-#: l4s/static/templates/l4s/query_editor_view.html:220
-msgid "Definitions"
-msgstr "Definizioni"
+#: l4s/static/templates/l4s/query_editor_view.html:223
+#: l4s/static/templates/l4s/query_editor_view.html:224
+msgid "Show table definitions"
+msgstr "Visualizza informazioni tabella"
 
-#: l4s/static/templates/l4s/query_editor_view.html:225
+#: l4s/static/templates/l4s/query_editor_view.html:228
+msgid "Table definitions"
+msgstr "Informazioni tabella"
+
+#: l4s/static/templates/l4s/query_editor_view.html:233
 msgid "Result set preview"
 msgstr "Anteprima del risultato dell'interrogazione"
 
-#: l4s/static/templates/l4s/query_editor_view.html:413
+#: l4s/static/templates/l4s/query_editor_view.html:400
 msgid "See less"
 msgstr "Vedi meno dettagli"
 
@@ -1263,11 +1273,11 @@ msgstr "Argomento"
 msgid "Title"
 msgstr "Nome"
 
-#: web/exceptions.py:34 web/views.py:1420
+#: web/exceptions.py:34 web/views.py:1426
 msgid "Please add the metadata "
 msgstr "Per favore aggiungi il metadato"
 
-#: web/exceptions.py:35 web/views.py:1421
+#: web/exceptions.py:35 web/views.py:1427
 msgid "with key"
 msgstr "con chiave"
 
@@ -1443,8 +1453,7 @@ msgid "Some value are asterisked to preserve the statistical secret"
 msgstr ""
 "Alcuni valori sono stati asteriscati per preservare il segreto statistico"
 
-#: web/statistical_secret.py:185 web/statistical_secret.py:290
-#: web/utils.py:875
+#: web/statistical_secret.py:185 web/statistical_secret.py:290 web/utils.py:875
 msgid "I can not pivot the table"
 msgstr "Non è possibile pivotare la tabella"
 
@@ -1486,111 +1495,111 @@ msgstr "Hai selezionato più di una aggregazione sulla colonna"
 msgid "with description"
 msgstr "con descrizione"
 
-#: web/utils.py:2721
+#: web/utils.py:2722
 msgid "The statistical service"
 msgstr "Il Servizio Statistica"
 
-#: web/utils.py:2722
+#: web/utils.py:2723
 msgid "is handling"
 msgstr "ha preso in carico"
 
-#: web/utils.py:2723
+#: web/utils.py:2724
 msgid "the request"
 msgstr "la richiesta"
 
-#: web/utils.py:2724
+#: web/utils.py:2725
 msgid "with subject"
 msgstr "con oggetto"
 
-#: web/utils.py:2726
+#: web/utils.py:2727
 msgid "Your request will be dispatched as soon as possible"
 msgstr ""
 "La richiesta verrà evasa al più presto compatibilmente con l'attività del "
 "Servizio"
 
-#: web/utils.py:2744 web/utils.py:2746
+#: web/utils.py:2745 web/utils.py:2747
 msgid "new manual request"
 msgstr "Nuova richiesta manuale"
 
-#: web/utils.py:2745
+#: web/utils.py:2746
 msgid "with id"
 msgstr "con il codice"
 
-#: web/utils.py:3000
+#: web/utils.py:3001
 msgid "Invalid syntax: "
 msgstr "Sintassi non corretta:"
 
-#: web/utils.py:3001
+#: web/utils.py:3002
 msgid "Usage"
 msgstr "Utilizzo"
 
-#: web/utils.py:3005
+#: web/utils.py:3006
 msgid "Invalid Token "
 msgstr "Carattere non corretto"
 
-#: web/utils.py:3006
+#: web/utils.py:3007
 msgid " expected token is "
 msgstr "carattere atteso"
 
-#: web/utils.py:3882
+#: web/utils.py:3883
 msgid "group by"
 msgstr "raggruppato per"
 
-#: web/utils.py:4037
+#: web/utils.py:4038
 msgid "Selected values"
 msgstr "Valori selezionati"
 
-#: web/utils.py:4055
+#: web/utils.py:4056
 msgid "for"
 msgstr "per"
 
-#: web/views.py:189
+#: web/views.py:192
 msgid "No --JOIN statements specified in SQL"
 msgstr "Non hai specificato le istruzioni --JOIN  in SQL"
 
-#: web/views.py:190
+#: web/views.py:193
 msgid "the table is shown as-is"
 msgstr "la tabella è mostrata così com'è"
 
-#: web/views.py:191
+#: web/views.py:194
 msgid "without preserving statistical secret"
 msgstr "senza preservare il segreto statistico"
 
-#: web/views.py:230
+#: web/views.py:233
 msgid "Can not give you the result set"
 msgstr "Non è possibile  mostrare il risultato"
 
-#: web/views.py:231
+#: web/views.py:234
 msgid "in order to preserve the statistical secret"
 msgstr "per preservare il segreto statistico"
 
-#: web/views.py:232
+#: web/views.py:235
 msgid "please chose a pivot and push the Apply button"
 msgstr ""
 "per favore scegli come costruire la tabella pivot e premi il bottone Applica"
 
-#: web/views.py:348 web/views.py:464
+#: web/views.py:351 web/views.py:467
 msgid "The Query could not be saved because the data didn't validate."
 msgstr "L'interrogazione non può essere salvata perchè incorretta."
 
-#: web/views.py:363 web/views.py:488
+#: web/views.py:366 web/views.py:491
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
 
-#: web/views.py:1036 web/views.py:1400
+#: web/views.py:1039 web/views.py:1406
 msgid "The table does not exist"
 msgstr "La tabella non esiste"
 
-#: web/views.py:1410
+#: web/views.py:1416
 msgid "The table must have at least 3 columns"
 msgstr "La tabella deve avere almeno tre colonne"
 
-#: web/views.py:1434
+#: web/views.py:1440
 msgid "All columns mast have description metadata"
 msgstr ""
 "Tutte le colonne della tabella devono avere il metadato per la descrizione"
 
-#: web/views.py:1444
+#: web/views.py:1450
 #, python-format
 msgid ""
 "There are one ore plus fields on table %s with same description metadata"
@@ -1598,24 +1607,24 @@ msgstr ""
 "Ci sono una o piu colonne dalla tabella %s con lo stesso metadato della "
 "descrizione"
 
-#: web/views.py:1794
+#: web/views.py:1800
 msgid "Table name can not contain DELETE, INSERT o UPDATE string"
 msgstr ""
 "Il nome della tabella non puo' contenere le stringe DELETE, INSERT o UPDATE"
 
-#: web/views.py:1796
+#: web/views.py:1802
 msgid "Can not display the requested content"
 msgstr "Impossibile mostrare il contenuto richiesto"
 
-#: web/views.py:1889
+#: web/views.py:1895
 msgid "here"
 msgstr "qui"
 
-#: web/views.py:1890
+#: web/views.py:1896
 msgid "The query has been saved"
 msgstr "L'interrogazione è stata salvata"
 
-#: web/views.py:1892
+#: web/views.py:1898
 msgid "In order to see the saved queries click"
 msgstr "Per vedere the interrogazioni salvate clicca"
 

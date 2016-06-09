@@ -2561,6 +2561,7 @@ def get_table_metadata_value(table_name, key):
     query = "SELECT value from %s " % METADATA
     query += "WHERE table_name='%s' " % table_name
     query += "and upper(key)=upper('%s') " % key
+    #print "query", query
     rows = execute_query_on_django_db(query)
     return rows
 
@@ -4558,6 +4559,9 @@ def grouped_by_in_query(table_name, column_description):
 
     secret = get_table_metadata_value(table_name, SECRET)
 
+    #print "table_name", table_name
+    #print "secret", secret
+
     result = dict()
 
     for index in column_description:
@@ -4576,58 +4580,6 @@ def grouped_by_in_query(table_name, column_description):
 
     return result
 
-
-def build_table_external_medatata(table_name):
-
-    result = dict()
-
-    query =  "select a.key, a.value, b.concept \n"
-    query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
-    query += "where a.table_name = '%s' and \n" % table_name
-    query += "      a.column_name is null "
-
-    rows = execute_query_on_django_db(query)
-
-    for row in rows:
-        result[row[2]] = row[1]
-
-    #print result
-
-    return result
-
-
-def build_column_external_medatata(table_name):
-
-    query =  "select a.table_name, a.column_name, a.value, b.concept \n"
-    query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
-    query += "where a.table_name = '%s' and \n" % table_name
-    query += "      not a.column_name is null and \n"
-    query += "      a.id_value is null"
-
-    result = execute_query_on_django_db(query)
-
-    foreign_keys = build_foreign_keys(table_name)
-
-    #print get_color()
-    #print "foreign_keys" , foreign_keys
-
-    for row in foreign_keys:
-
-        tabella_foreign_keys = foreign_keys[row][0]
-        colonna_foreign_keys = foreign_keys[row][1]
-
-        query =  "select '%s' as table_name, '%s' as column_name, a.value, b.concept \n" % (table_name, row)
-        query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
-        query += "where a.table_name = '%s' and \n" % tabella_foreign_keys
-        query += "      a.column_name = '%s' and \n" % colonna_foreign_keys
-        query += "      a.id_value is null"
-
-        result = result + execute_query_on_django_db(query)
-
-    #print get_color()
-    #print "column_external_medatata" , result
-
-    return result
 
 def build_column_value_external_medatata(table_name):
 
@@ -4684,6 +4636,17 @@ def build_column_value_external_medatata(table_name):
 
     #print get_color()
     #print "column_value_external_medatata", result, type(result)
+
+    return result
+
+def build_table_external_medatata_new(table_name):
+
+    query =  "select b.concept, a.value \n"
+    query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
+    query += "where a.table_name = '%s' and \n" % table_name
+    query += "      a.column_name is null "
+
+    result = execute_query_on_django_db(query)
 
     return result
 
