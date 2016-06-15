@@ -91,6 +91,7 @@ THRESHOLD = 'http://dbpedia.org/ontology/threshold'
 CONSTRAINT = 'http://dbpedia.org/ontology/constraint'
 SECONDARY = 'http://dbpedia.org/ontology/secondary'
 NUOVI_CONFINI_COMUNE = 'http://it.dbpedia.org/data/Nuovi_confini_comune'
+AVVERTENZE = 'http://purl.org/ontology/warnings'
 
 DESCRIPTION_TOKEN = "--INCLUDE_DESCRIPTIONS"
 JOIN_TOKEN = '--JOIN'
@@ -4580,66 +4581,7 @@ def grouped_by_in_query(table_name, column_description):
 
     return result
 
-
-def build_column_value_external_medatata(table_name):
-
-    query =  "select a.table_name, a.column_name, a.id_value, a.value, b.concept \n"
-    query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
-    query += "where a.table_name = '%s' and \n" % table_name
-    query += "      not a.column_name is null and \n"
-    query += "      not a.id_value is null"
-
-    result = execute_query_on_django_db(query)
-
-    foreign_keys = build_foreign_keys(table_name)
-
-    #print get_color()
-    #print "foreign_keys" , foreign_keys
-
-    for row in foreign_keys:
-
-        tabella_foreign_keys = foreign_keys[row][0]
-        colonna_foreign_keys = foreign_keys[row][1]
-
-        query =  "select a.id_value \n"
-        query += "from %s a  \n" % EXTERNAL_METADATA
-        query += "where a.table_name = '%s' and \n" % tabella_foreign_keys
-        query += "      a.column_name = '%s' and \n" % colonna_foreign_keys
-        query += "      not a.id_value is null"
-
-        #print query
-
-        rows_app = execute_query_on_django_db(query)
-
-        for row_app in rows_app:
-            colonna_descrizione = find_table_description_column(tabella_foreign_keys)
-
-            query =  "select %s \n" % colonna_descrizione
-            query += "from %s \n" % tabella_foreign_keys
-            query += "where %s = %s" % (colonna_foreign_keys,row_app[0])
-
-            #print query
-
-            rows_app2 = execute_query_on_main_db(query)
-
-            for row_app2 in rows_app2:
-                query =  "select '%s' as table_name, '%s' as column_name, '%s' as id_value, a.value, b.concept \n" % (table_name, row, row_app2[0].strip())
-                query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
-                query += "where a.table_name = '%s' and \n" % tabella_foreign_keys
-                query += "      a.column_name = '%s' and \n" % colonna_foreign_keys
-                query += "      a.id_value = '%s' " % row_app[0]
-
-                #print query
-
-                result = result + execute_query_on_django_db(query)
-
-
-    #print get_color()
-    #print "column_value_external_medatata", result, type(result)
-
-    return result
-
-def build_table_external_medatata_new(table_name):
+def build_table_external_medatata(table_name):
 
     query =  "select b.concept, a.value \n"
     query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
@@ -4650,124 +4592,136 @@ def build_table_external_medatata_new(table_name):
 
     return result
 
-def build_column_external_medatata_new(table_name):
+def build_column_warnings_and_definitions(table_name, warnings, header):
 
-    query =  "select c.value, b.concept, a.value \n"
-    query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
-    query += "     left join %s c on (c.table_name = a.table_name and \n" % METADATA
-    query += "                        c.column_name = a.column_name and \n"
-    query += "                        c.key = '%s') \n" % DESCRIPTION
-    query += "where a.table_name = '%s' and \n" % table_name
-    query += "      not a.column_name is null and \n"
-    query += "      a.id_value is null and \n"
-    query += "      a.key <> '%s' \n"  % DESCRIPTION
-    query += "order by c.value \n"
-
-    result = execute_query_on_django_db(query)
+    risultato = []
 
     foreign_keys = build_foreign_keys(table_name)
 
-    #print get_color()
-    #print "foreign_keys" , foreign_keys
+    query =  "select a.column_name, COALESCE(a.id_value,''), a.value, b.concept \n"
+    query += "from %s a join %s  b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
+    query += "where  a.table_name = '%s' and \n" % table_name
+    query += "       not a.column_name is null and \n"
 
-    for row in foreign_keys:
-
-        tabella_foreign_keys = foreign_keys[row][0]
-        colonna_foreign_keys = foreign_keys[row][1]
-
-        query =  "select d.value, b.concept, a.value \n"
-        query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
-
-        query += "     left join %s c on (c.table_name = a.table_name and \n" % METADATA
-        query += "                        c.key = '%s' and \n" % SAME_AS
-        query += "                        c.value = '%s') \n" % VALUE_DESCRIPTION
-        query += "     left join %s d on (d.table_name = a.table_name and \n" % METADATA
-        query += "                        d.column_name = c.column_name and \n"
-        query += "                        d.key = '%s') \n" % DESCRIPTION
-
-        query += "where a.table_name = '%s' and \n" % tabella_foreign_keys
-        query += "      a.column_name = '%s' and \n" % colonna_foreign_keys
-        query += "      a.id_value is null and \n"
-        query += "      a.key <> '%s' \n"  % DESCRIPTION
-        query += "order by c.value \n"
-
-        result = result + execute_query_on_django_db(query)
-
-    #print get_color()
-    #print "column_external_medatata" , result
-
-    return result
-
-def build_column_value_external_medatata_new(table_name):
-
-    query =  "select c.value, a.id_value, b.concept, a.value \n"
-    query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
-    query += "     left join %s c on (c.table_name = a.table_name and \n" % METADATA
-    query += "                        c.column_name = a.column_name and \n"
-    query += "                        c.key = '%s') \n" % DESCRIPTION
-    query += "where a.table_name = '%s' and \n" % table_name
-    query += "      not a.column_name is null and \n"
-    query += "      not a.id_value is null \n"
-    query += "order by c.value \n"
-
-    #print query
+    if (warnings):
+        query += "       b.key = '%s' \n" % AVVERTENZE
+    else:
+        query += "       b.key <> '%s' and \n" % AVVERTENZE
+        query += "       b.key <> '%s' \n" % DESCRIPTION
 
     result = execute_query_on_django_db(query)
-
-    foreign_keys = build_foreign_keys(table_name)
+    #print result
+    #print type(result)
 
     #print get_color()
-    #print "foreign_keys" , foreign_keys
 
-    for row in foreign_keys:
+    for row in result:
+        column_name = row[0]
+        #print type(row)
+        #print "row", row
+        #print "row[0]" , row[0]
 
-        tabella_foreign_keys = foreign_keys[row][0]
-        colonna_foreign_keys = foreign_keys[row][1]
+        if (column_name in foreign_keys):
+            #print foreign_keys[column_name]
 
-        query =  "select a.id_value \n"
-        query += "from %s a  \n" % EXTERNAL_METADATA
-        query += "where a.table_name = '%s' and \n" % tabella_foreign_keys
-        query += "      a.column_name = '%s' and \n" % colonna_foreign_keys
-        query += "      not a.id_value is null"
+            tabella_foreign_keys = foreign_keys[column_name][0]
+            colonna_foreign_keys = foreign_keys[column_name][1]
 
-        #print query
-
-        rows_app = execute_query_on_django_db(query)
-
-        for row_app in rows_app:
             colonna_descrizione = find_table_description_column(tabella_foreign_keys)
 
-            query =  "select %s \n" % colonna_descrizione
+            descrizione = get_column_description(tabella_foreign_keys, colonna_descrizione)
+
+            query = "select %s \n" % colonna_descrizione
             query += "from %s \n" % tabella_foreign_keys
-            query += "where %s = %s" % (colonna_foreign_keys,row_app[0])
+            query += "where %s = %s" % (colonna_foreign_keys, row[1])
 
             #print query
 
             rows_app2 = execute_query_on_main_db(query)
 
-            for row_app2 in rows_app2:
-                query =  "select d.value, '%s' as id_value, b.concept, a.value \n" % row_app2[0].strip()
-                query += "from %s a join %s b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
+            if (header):
+                lista = (table_name, column_name, rows_app2[0][0].strip(), row[2])
+            else:
+                if (warnings):
+                    lista = (descrizione, rows_app2[0][0].strip(), row[2])
+                else:
+                    lista = (descrizione, rows_app2[0][0].strip(), row[2], row[3])
+            #print "rows_app2" , rows_app2[0]
 
-                query += "     left join %s c on (c.table_name = a.table_name and \n" % METADATA
-                query += "                        c.key = '%s' and \n" % SAME_AS
-                query += "                        c.value = '%s') \n" % VALUE_DESCRIPTION
-                query += "     left join %s d on (d.table_name = a.table_name and \n" % METADATA
-                query += "                        d.column_name = c.column_name and \n"
-                query += "                        d.key = '%s') \n" % DESCRIPTION
+        else:
 
-                query += "where a.table_name = '%s' and \n" % tabella_foreign_keys
-                query += "      a.column_name = '%s' and \n" % colonna_foreign_keys
-                query += "      a.id_value = '%s' \n" % row_app[0]
-                query += "order by c.value \n"
+            descrizione = get_column_description(table_name, column_name)
 
-                #print query
+            if (header):
+                lista = (table_name, column_name, row[1], row[2])
+            else:
+                if (warnings):
+                    lista = (descrizione, row[1], row[2])
+                else:
+                    lista = (descrizione, row[1], row[2], row[3])
 
-                result = result + execute_query_on_django_db(query)
+        risultato.append(lista)
 
+    for row in foreign_keys:
+
+        tabella_foreign_keys = foreign_keys[row][0]
+        colonna_foreign_keys = foreign_keys[row][1]
+
+        query = "select COALESCE(a.id_value,''), a.value, b.concept \n"
+        query += "from %s a join %s  b on (b.key = a.key) \n" % (EXTERNAL_METADATA, WEB_CONCEPT)
+        query += "where a.table_name = '%s' and \n" % tabella_foreign_keys
+        query += "      a.column_name = '%s' and \n" % colonna_foreign_keys
+
+        if (warnings):
+            query += "       b.key = '%s' \n" % AVVERTENZE
+        else:
+            query += "       b.key <> '%s' and \n" % AVVERTENZE
+            query += "       b.key <> '%s' \n" % DESCRIPTION
+
+        #print query
+
+        result = execute_query_on_django_db(query)
+
+        for rows_app in result:
+
+            colonna_descrizione = find_table_description_column(tabella_foreign_keys)
+
+            descrizione = get_column_description(tabella_foreign_keys, colonna_descrizione)
+
+            if (rows_app[0] == ''):
+
+                if (header):
+                    lista = (table_name, row, '', rows_app[1])
+                else:
+                    if (warnings):
+                        lista = (descrizione, '', rows_app[1])
+                    else:
+                        lista = (descrizione, '', rows_app[1], rows_app[2])
+
+            else:
+
+                query = "select %s \n" % colonna_descrizione
+                query += "from %s \n" % tabella_foreign_keys
+                query += "where %s = %s" % (colonna_foreign_keys, rows_app[0])
+
+                rows_app2 = execute_query_on_main_db(query)
+
+                if (header):
+                    lista = (table_name, row, rows_app2[0][0].strip(), rows_app[1])
+                else:
+                    if (warnings):
+                        lista = (descrizione, rows_app2[0][0].strip(), rows_app[1])
+                    else:
+                        lista = (descrizione, rows_app2[0][0].strip(), rows_app[1], rows_app[2])
+
+            risultato.append(lista)
+
+    #print "result", result
+
+    #print "foreign_keys" , foreign_keys
 
     #print get_color()
-    #print "column_value_external_medatata", result, type(result)
+    #print risultato
 
-    return result
+    return risultato
 

@@ -48,7 +48,7 @@ SENDER = "SSPAT"
 SENDER_NAME = "Servizio Statistica: Provincia Autonoma di Trento"
 
 
-ALLOWED_HOSTS = ['l4s.trentinosistemi.com', '*']
+ALLOWED_HOSTS = ['l4s.trentinosistemi.com', 'www.l4s.ispat.provincia.tn.it', '*']
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`

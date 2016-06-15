@@ -119,10 +119,8 @@ from web.utils import get_variable_dictionary, \
     SECONDARY, \
     groupedby_value_to_column, \
     column_with_same_description, \
-    build_column_value_external_medatata , \
-    build_column_external_medatata_new, \
-    build_column_value_external_medatata_new, \
-    build_table_external_medatata_new
+    build_column_warnings_and_definitions, \
+    build_table_external_medatata
 
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
@@ -1217,18 +1215,18 @@ def query_editor_external_metadata(request):
 
     table_name = request.REQUEST.get('table')
 
-    column_external_metadata = build_column_external_medatata_new(table_name)
-    column_value_external_metadata = build_column_value_external_medatata_new(table_name)
-    table_external_metadata = build_table_external_medatata_new(table_name)
+    column_warnings = build_column_warnings_and_definitions(table_name, True, False)
+    column_definitions = build_column_warnings_and_definitions(table_name, False, False)
+    table_external_metadata = build_table_external_medatata(table_name)
 
     """
-    print "column_external_metadata", column_external_metadata
-    print "column_value_external_metadata", column_value_external_metadata
+    print "column_warnings", column_warnings
+    print "column_definitions", column_definitions
     print "table_external_metadata", table_external_metadata
     """
 
-    context['column_external_metadata'] = column_external_metadata
-    context['column_value_external_metadata'] = column_value_external_metadata
+    context['column_warnings'] = column_warnings
+    context['column_definitions'] = column_definitions
     context['table_external_metadata'] = table_external_metadata
 
     context['tipo'] = request.REQUEST.get('tipo')
@@ -1765,7 +1763,10 @@ def query_editor_view(request):
     #print "agg_col", agg_col
     #print "sel_tab" , sel_tab
 
-    column_value_external_metadata = build_column_value_external_medatata(table_name)
+    column_value_external_metadata = build_column_warnings_and_definitions(table_name, True, True)
+
+    #print get_color()
+    #print "column_value_external_metadata", column_value_external_metadata
 
     title = build_query_title(column_description,
                               selected_obs_values,
