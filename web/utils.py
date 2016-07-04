@@ -2305,6 +2305,14 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     #print "foreign_keys ", foreign_keys
 
     orig_column = ''
+    destination_column = ''
+
+    """
+    print metadata.table_name
+    print metadata.column_name
+    print metadata.value
+    print metadata.key
+    """
 
     for id, column in enumerate(foreign_keys):
 
@@ -2314,6 +2322,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
         if elements[0] == metadata.table_name and elements[1] == metadata.column_name:
             orig_column = column
+            destination_column = metadata.column_name
 
     """
     print "metadata.table_name " , metadata.table_name
@@ -2325,8 +2334,11 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     print "cols " , cols
     print "agg_filters " , agg_filters
 
-    print "orig_column ", orig_column
     """
+
+    #print "orig_column ", orig_column
+    #print "destination_column ", destination_column
+
 
     query = "SELECT "
     params = ""
@@ -2385,7 +2397,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
     query += "\nFROM (%s) %s JOIN %s" % (inner_sql, new_table, ref_table)
     query += "\nON (%s.%s=" % (new_table, orig_column)
-    query += "%s.%s" % (ref_table, orig_column)
+    query += "%s.%s" % (ref_table, destination_column)
 
     pk = str(metadata.pk)
 

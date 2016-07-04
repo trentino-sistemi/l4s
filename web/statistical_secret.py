@@ -3789,6 +3789,8 @@ def headers_and_data(user,
     old_cols = st.cols
     #print "st.threshold ", st.threshold
 
+    #print query.sql
+
     if len(aggregation) > 0:
         query.sql, err = build_aggregation_query(query.sql,
                                                  st.cols,
@@ -3796,6 +3798,7 @@ def headers_and_data(user,
                                                  agg_filters,
                                                  st.threshold,
                                                  [])
+        #print query.sql
         st = detect_special_columns(query.sql)
 
     #print "agg_filters " , agg_filters
