@@ -1445,7 +1445,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
             foreign_keys = fk_hash[table]
 
         """
-        if (field == 'dmc1copr'):
+        if (field == 'pendtem0'):
             print "foreign_keys ", foreign_keys
         """
 
