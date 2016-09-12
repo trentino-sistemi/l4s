@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-08 16:20+0200\n"
+"POT-Creation-Date: 2016-09-12 11:30+0200\n"
 "PO-Revision-Date: 2014-12-19 13:48+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,8 +81,8 @@ msgstr "Cambia password"
 
 #: l4s/static/templates/account/password_reset.html:27
 #: l4s/static/templates/account/password_reset.html:35
-#: l4s/static/templates/account/password_reset_done.html:6
-#: l4s/static/templates/account/password_reset_done.html:9
+#: l4s/static/templates/account/password_reset_done.html:26
+#: l4s/static/templates/account/password_reset_done.html:29
 msgid "Password Reset"
 msgstr "Ripristino della password"
 
@@ -98,14 +98,13 @@ msgstr ""
 msgid "Reset My Password"
 msgstr "Resetta la password"
 
-#: l4s/static/templates/account/password_reset_done.html:15
+#: l4s/static/templates/account/password_reset_done.html:35
 msgid ""
 "We have sent you an e-mail. Please contact us if you do not receive it "
 "within a few minutes."
 msgstr ""
-"Ti e' stata inviata una email; "
-"Per favore contattaci nel caso in cui non ti arrivi la email "
-"in pochi minuti. "
+"Ti e' stata inviata una email; Per favore contattaci nel caso in cui non ti "
+"arrivi la email in pochi minuti. "
 
 #: l4s/static/templates/account/password_reset_from_key.html:28
 msgid "Bad Token"
@@ -924,7 +923,7 @@ msgid "Edit new metadata"
 msgstr "Aggiungi metadato"
 
 #: l4s/static/templates/l4s/metadata_add.html:48
-#: l4s/static/templates/l4s/metadata_edit.html:26 web/views.py:1415
+#: l4s/static/templates/l4s/metadata_edit.html:26 web/views.py:1416
 msgid "for table"
 msgstr "per la tabella"
 
@@ -1281,11 +1280,11 @@ msgstr "Argomento"
 msgid "Title"
 msgstr "Nome"
 
-#: web/exceptions.py:34 web/views.py:1413
+#: web/exceptions.py:34 web/views.py:1414
 msgid "Please add the metadata "
 msgstr "Per favore aggiungi il metadato"
 
-#: web/exceptions.py:35 web/views.py:1414
+#: web/exceptions.py:35 web/views.py:1415
 msgid "with key"
 msgstr "con chiave"
 
@@ -1561,53 +1560,53 @@ msgstr "Valori selezionati"
 msgid "for"
 msgstr "per"
 
-#: web/views.py:189
+#: web/views.py:190
 msgid "No --JOIN statements specified in SQL"
 msgstr "Non hai specificato le istruzioni --JOIN  in SQL"
 
-#: web/views.py:190
+#: web/views.py:191
 msgid "the table is shown as-is"
 msgstr "la tabella è mostrata così com'è"
 
-#: web/views.py:191
+#: web/views.py:192
 msgid "without preserving statistical secret"
 msgstr "senza preservare il segreto statistico"
 
-#: web/views.py:230
+#: web/views.py:231
 msgid "Can not give you the result set"
 msgstr "Non è possibile  mostrare il risultato"
 
-#: web/views.py:231
+#: web/views.py:232
 msgid "in order to preserve the statistical secret"
 msgstr "per preservare il segreto statistico"
 
-#: web/views.py:232
+#: web/views.py:233
 msgid "please chose a pivot and push the Apply button"
 msgstr ""
 "per favore scegli come costruire la tabella pivot e premi il bottone Applica"
 
-#: web/views.py:348 web/views.py:464
+#: web/views.py:349 web/views.py:465
 msgid "The Query could not be saved because the data didn't validate."
 msgstr "L'interrogazione non può essere salvata perchè incorretta."
 
-#: web/views.py:363 web/views.py:488
+#: web/views.py:364 web/views.py:489
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
 
-#: web/views.py:1036 web/views.py:1393
+#: web/views.py:1037 web/views.py:1394
 msgid "The table does not exist"
 msgstr "La tabella non esiste"
 
-#: web/views.py:1403
-msgid "The table must have at least 3 columns"
-msgstr "La tabella deve avere almeno tre colonne"
+#: web/views.py:1404
+msgid "The table must have at least 2 columns not obs_value"
+msgstr "La tabella deve avere almeno due colonne non obsValue"
 
-#: web/views.py:1427
+#: web/views.py:1428
 msgid "All columns mast have description metadata"
 msgstr ""
 "Tutte le colonne della tabella devono avere il metadato per la descrizione"
 
-#: web/views.py:1437
+#: web/views.py:1438
 #, python-format
 msgid ""
 "There are one ore plus fields on table %s with same description metadata"
@@ -1615,24 +1614,24 @@ msgstr ""
 "Ci sono una o piu colonne dalla tabella %s con lo stesso metadato della "
 "descrizione"
 
-#: web/views.py:1788
+#: web/views.py:1789
 msgid "Table name can not contain DELETE, INSERT o UPDATE string"
 msgstr ""
 "Il nome della tabella non puo' contenere le stringe DELETE, INSERT o UPDATE"
 
-#: web/views.py:1790
+#: web/views.py:1791
 msgid "Can not display the requested content"
 msgstr "Impossibile mostrare il contenuto richiesto"
 
-#: web/views.py:1883
+#: web/views.py:1884
 msgid "here"
 msgstr "qui"
 
-#: web/views.py:1884
+#: web/views.py:1885
 msgid "The query has been saved"
 msgstr "L'interrogazione è stata salvata"
 
-#: web/views.py:1886
+#: web/views.py:1887
 msgid "In order to see the saved queries click"
 msgstr "Per vedere the interrogazioni salvate clicca"
 

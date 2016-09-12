@@ -677,6 +677,9 @@ def all_obs_value_column(table_name, table_description, hidden_fields):
     query = "SELECT column_name FROM %s \n" % METADATA
     query += "WHERE table_name='%s' \n" % table_name
     query += "and upper(key)=upper('%s') " % MEASURE
+
+    #print query
+
     rows = execute_query_on_django_db(query)
     obs_set = []
     if not rows is None:
@@ -4508,6 +4511,38 @@ def count_of_columns_table (table_schema, table_name):
 
     for row in rows:
       return row[0]
+
+def count_of_columns_no_obs_value (table_schema, table_name):
+
+    query = "select count(*) \n"
+    query += "from information_schema.columns \n"
+    query += "WHERE  table_schema = '%s' \n" % table_schema
+    query += " AND    table_name = '%s' \n" % table_name
+
+    rows = execute_query_on_main_db(query)
+
+    numero_colonne_tabella = 0
+
+    for row in rows:
+      numero_colonne_tabella =  row[0]
+
+    query = "select count(distinct column_name)  \n"
+    query += "from web_metadata \n"
+    query += "WHERE  table_name = '%s' \n" % table_name
+    query += " and key = '%s'  \n" % MEASURE
+    query += " and value = '%s'  \n" % OBS_VALUE
+
+    rows = execute_query_on_django_db(query)
+
+    numero_colonne_con_obs_value = 0
+
+    for row in rows:
+      numero_colonne_con_obs_value =  row[0]
+
+    #print numero_colonne_tabella
+    #print numero_colonne_con_obs_value
+
+    return numero_colonne_tabella - numero_colonne_con_obs_value
 
 def all_columns_have_metadata_description (table_schema, table_name):
 

@@ -120,7 +120,8 @@ from web.utils import get_variable_dictionary, \
     groupedby_value_to_column, \
     column_with_same_description, \
     build_column_warnings_and_definitions, \
-    build_table_external_medatata
+    build_table_external_medatata, \
+    count_of_columns_no_obs_value
 
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
@@ -1398,9 +1399,9 @@ def query_editor_view(request):
                   unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
         return render_to_response("l4s/error.html", context)
 
-    if count_of_columns_table('public', table_name) < 3:
+    if count_of_columns_no_obs_value('public', table_name) < 2:
         context = RequestContext(request)
-        context['error_string'] = _("The table must have at least 3 columns")
+        context['error_string'] = _("The table must have at least 2 columns not obs_value")
         send_mail('Errore Lod4Stat (' +
                   str(request.user) + ') ' +
                   ''.join(ALLOWED_HOSTS) +
