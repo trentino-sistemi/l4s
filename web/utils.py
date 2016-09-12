@@ -4603,7 +4603,7 @@ def stampa_symtobltabel(st):
     print st.threshold
 
 
-def grouped_by_in_query(table_name, column_description):
+def grouped_by_in_query(user, table_name, column_description):
 
     secret = get_table_metadata_value(table_name, SECRET)
 
@@ -4618,8 +4618,8 @@ def grouped_by_in_query(table_name, column_description):
 
         value = dict()
 
-        if secret == []:
-            if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> []:
+        if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> []:
+            if user.is_superuser == True or user.is_staff == True or secret == []:  # per super user e membri di staff nessuna limitazione riguardo a secret
                 value['table_name'] = column_description[index]['table_name']
                 value['column_name'] = column_description[index]['name']
                 value['valore'] = '2' #confini attuali
