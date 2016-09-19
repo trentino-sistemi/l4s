@@ -174,8 +174,9 @@ def add_slice_triples(g, subject_t_ref, data_frame, col_dict):
     :param col_dict: The column dictionary.
     :return:The Rdflib Graph enriched with slices triples.
     """
+
     for c, column in enumerate(data_frame.columns):
-        column = to_utf8(column)
+        #column = to_utf8(column) sembra che non ci vada perche da eccezzione
         g.add((subject_t_ref, component_ref, Literal(column.strip())))
         if c not in col_dict:
             continue
