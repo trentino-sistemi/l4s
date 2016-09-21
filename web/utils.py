@@ -249,7 +249,10 @@ def order_tables_by_topic_and_descriptions(tables):
             ret_tables.extend(ord_tables)
             arg_tables = []
 
-        arg_tables.append(table_name)
+        #print "ret_tables", ret_tables
+        if table_name not in ret_tables:
+            #print "table_name" , table_name
+            arg_tables.append(table_name)
         old_arg = curr_arg
 
         #print "ret_tables", ret_tables
