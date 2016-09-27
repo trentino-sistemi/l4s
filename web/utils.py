@@ -3277,9 +3277,11 @@ def all_visible_tables(request):
     query = "SELECT DISTINCT(table_name) FROM %s \n" % METADATA
 
     if request.user.is_staff:
-      query += "WHERE upper(key)=upper('%s') and upper(value)=upper('%s') \n" % (VISIBLE, TRUE)
+      query += "WHERE column_name = 'NULL' and upper(key)=upper('%s') and upper(value)=upper('%s') \n" % (VISIBLE, TRUE)
 
     query += "order by table_name"
+
+    #print query
 
     rows = execute_query_on_django_db(query)
     ret_tables = []
@@ -3298,7 +3300,7 @@ def exclude_invisible_tables(tables):
     """
     table_names = "'" + "','".join(tables) + "'"
     query = "SELECT DISTINCT(table_name) FROM %s \n" % METADATA
-    query += "WHERE upper(key)=upper('%s') and upper(value)=upper('%s') " % (VISIBLE, TRUE)
+    query += "WHERE column_name = 'NULL' and upper(key)=upper('%s') and upper(value)=upper('%s') " % (VISIBLE, TRUE)
     query += "and table_name IN(%s)" % table_names
     #print "query " , query
     rows = execute_query_on_django_db(query)

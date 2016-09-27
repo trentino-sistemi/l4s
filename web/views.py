@@ -1985,6 +1985,7 @@ def query_editor(request):
     topic_mapping = build_topics_decoder_dict()
     table_description = dict()
     tables = all_visible_tables(request)
+    #print tables
 
     # Filter tables matching descriptions and table_name.
     if search:
