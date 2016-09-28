@@ -1621,7 +1621,7 @@ msgstr ""
 
 #: web/views.py:1791
 msgid "Can not display the requested content"
-msgstr "Impossibile mostrare il contenuto richiesto"
+msgstr "La tabella non contiene nessun dato"
 
 #: web/views.py:1884
 msgid "here"
