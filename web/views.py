@@ -1792,6 +1792,13 @@ def query_editor_view(request):
 
         context['dataframe'] = no_display
 
+        send_mail('Errore Lod4Stat (' +
+                  str(request.user) + ') ' +
+                  ''.join(ALLOWED_HOSTS) +
+                  '/query_editor_view/?table=' +
+                  ''.join(request.GET.getlist("table")), unicode(no_display), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL,
+                  fail_silently=False)
+
         return render_to_response("l4s/query_editor_view.html", context)
 
     store = store_data_frame(df)
