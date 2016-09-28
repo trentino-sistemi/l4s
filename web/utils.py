@@ -422,7 +422,7 @@ def max_distinct_values_column(table_name,
     :param exclude: Column index to be neglected.
     :return: index_column, column_name
     """
-    ret = -1
+    ret = -1, None
     max_occurrences = 0
     for c, field in enumerate(table_description):
         if c in exclude:
@@ -854,27 +854,33 @@ def choose_default_axis(table_name, ref_periods, hidden_fields):
     index, column_name = first_secret_column(table_name,
                                              table_schema,
                                              neglected_index)
+
+    #print "column_name 1" , column_name
     if column_name is None:
         index, column_name = first_ref_area_column(table_name,
                                                    table_schema,
                                                    neglected_index)
 
+    #print "column_name 2" , column_name
     if column_name is None:
         index, column_name = metadata_default_pivot_values_column(table_name,
                                                                   table_schema,
                                                                   neglected_index)
 
+    #print "column_name 3" , column_name
     if column_name is None:
         index, column_name = max_distinct_values_column(table_name,
                                                         table_schema,
                                                         neglected_index)
 
     #print "index " , index
-    #print "column_name " , column_name
+    #print "column_name 4" , column_name
 
     if column_name is None:
         index, column_name = first_column(table_schema,
                                           neglected_index)
+    #print "column_name 5", column_name
+
     if not column_name is None:
         rows.append(column_name)
 

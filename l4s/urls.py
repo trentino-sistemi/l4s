@@ -264,6 +264,7 @@ if settings.DEBUG is False:   #if DEBUG is True it will be served automatically
     )
 
 
+'''
 def handler500(request):
 
     POST = {k:v if len(v) > 1 else v[0] for k,v in request.POST.iterlists()}
@@ -278,4 +279,4 @@ def handler500(request):
     response = render_to_response('l4s/500.html', {}, context_instance=RequestContext(request))
     response.status_code = 500
     return response
-
+'''
