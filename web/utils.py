@@ -2176,13 +2176,25 @@ def detect_special_columns(sql):
     #print "sql ", sql
 
     for line in sql.splitlines():
-        left_stripped_line = line.lstrip(' ')
+        left_stripped_line = line.strip(' ')
         words = left_stripped_line.split(' ')
 
-        #print "words " , words
+        #print "words " , words, len(words)
 
         first_word = words[0]
         if first_word == JOIN_TOKEN:
+
+            if len(words) > 3: #per nomi di colonna con gli spazi
+                #print get_color()
+                #print "qui"
+                nuovo_elemento = ''
+                for a in xrange(1, len(words) - 1):
+                    nuovo_elemento += words[a] + ' '
+                    #print words[a]
+                #print nuovo_elemento
+                words = [words[0], nuovo_elemento.rstrip(' '), words[len(words) - 1]]
+                #print words
+
             table_and_column = words[1]
             table_name = table_and_column
             column_name = None
