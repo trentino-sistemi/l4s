@@ -1649,7 +1649,7 @@ def apply_constraint_pivot(data,
 
         #print query
 
-        send_mail('tracking lod4stat', query, settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
+        #send_mail('tracking lod4stat', query, settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
 
         if query is None:
             return data
