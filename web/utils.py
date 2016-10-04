@@ -2283,6 +2283,14 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
     for a, aggregation in enumerate(aggregations):
         metadata = Metadata.objects.get(id=aggregation)
 
+        """
+        print metadata.column_name
+        print metadata.key
+        print metadata.value
+        print metadata.table_name
+        print a
+        """
+
         if a != 0:
             st = detect_special_columns(sql)
             cols = st.cols
@@ -2316,6 +2324,9 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     :param sql: The sql text.
     :return: The new query to aggregate to an higher level.
     """
+
+    #print get_color(),  "sql prima", sql
+    #print get_color(),  "threshold", threshold
 
     #print "threshold " , threshold
     #print "cols " , cols
@@ -2466,7 +2477,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
     query = header + query
 
-    #print "query ", query
+    #print get_color(), "query dopo ", query
 
     return query
 
@@ -4431,12 +4442,13 @@ def drop_codes_and_totals(df, include_code, pivot, cols, table_name, table_schem
             df = remove_code_from_data_frame(df)
             #df = df
 
+        #print "cols", cols
         #print "st.pivot " , pivot
         #print "st.cols " , cols
         #print "df.shape ", df.shape[0], df.shape[1]
 
         ref_periods = list_ref_period(table_name, table_schema)
-        #print len(ref_periods)
+        #print ref_periods
 
         if len(ref_periods) == 0:
             #print "a"

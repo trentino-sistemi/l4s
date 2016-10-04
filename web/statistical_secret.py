@@ -3649,9 +3649,16 @@ def apply_stat_secret(headers,
 
         if not sec is None and len(sec) > 0:
             tot_asterisked = 1
+            ast_c = 0
+            ast_r = 0
             while tot_asterisked > 0:  #secondaria per tabelle collegate (turismo)
 
+                #print "col_dict", col_dict
+                #print contains_ref_period(pivot_dict, col_dict, axis=0)
+                #print contains_ref_period(pivot_dict, col_dict, axis=1)
 
+                #if contains_ref_period(pivot_dict, col_dict, axis=1) == True: non fa la secondaria se c'e un refperiodo perche non abbiamo il totale in quel caso e quindi per differenza non si viola il segreto
+                #prima di abilitare asepttiamo conferma da Vincenzo 04-10-2016
                 data_frame = data_frame_from_tuples(data_frame, data)
 
                 data, ast_r = secondary_row_suppression_constraint(data,
@@ -3669,6 +3676,7 @@ def apply_stat_secret(headers,
                                                                    range)
 
 
+                #if contains_ref_period(pivot_dict, col_dict, axis=0) == True:
                 data_frame = data_frame_from_tuples(data_frame, data)
 
                 data, ast_c = secondary_col_suppression_constraint(data,
@@ -3816,7 +3824,7 @@ def headers_and_data(user,
                                                pivot_cols,
                                                False,
                                                include_code)
-        #print query.sql
+        #print get_color(),  query.sql
         st = detect_special_columns(query.sql)
 
 
