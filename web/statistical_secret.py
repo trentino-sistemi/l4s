@@ -19,6 +19,8 @@
 Routines to preserve statistical secret.
 """
 
+from django.core.mail import send_mail
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from web.utils import execute_query_on_main_db, \
     build_constraint_query, \
@@ -1646,6 +1648,8 @@ def apply_constraint_pivot(data,
         #print "1 --------------------------------------------------------------------------"
 
         #print query
+
+        send_mail('tracking lod4stat', query, settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
 
         if query is None:
             return data
