@@ -1725,6 +1725,8 @@ def apply_constraint_pivot(data,
 
         for row in dest_data:  #cicla sulla query con i dati delle strutture collegate
 
+            logger.error(row)
+
             """
             print bcolors.WARNING
             print row
