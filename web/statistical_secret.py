@@ -1758,11 +1758,11 @@ def apply_constraint_pivot(data,
             #print bcolors.HEADER
             #print "key_colonna " , key_colonna
 
-            logger.error(key_colonna)
+            logger.error("key_colonna %s" % key_colonna)
 
             col_tuples = list(itertools.product(*key_colonna))
 
-            logger.error(col_tuples)
+            logger.error("col_tuples %s" % col_tuples)
 
             #print "col_tuples " , col_tuples
 
