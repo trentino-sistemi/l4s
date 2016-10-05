@@ -1760,6 +1760,8 @@ def apply_constraint_pivot(data,
 
             col_tuples = list(itertools.product(*key_colonna))
 
+            logger.error(col_tuples)
+
             #print "col_tuples " , col_tuples
 
             key_riga = []
