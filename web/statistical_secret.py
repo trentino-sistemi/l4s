@@ -19,6 +19,7 @@
 Routines to preserve statistical secret.
 """
 
+import logging
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -1554,6 +1555,9 @@ def apply_constraint_pivot(data,
     :return: The pivoted table applying constraints.
     """
 
+    logger = logging.getLogger(__name__)
+    logger.error("Giansandro 2")
+
     """
     print "pivot_cols " , pivot_cols
     print "rows " , rows
@@ -1717,7 +1721,7 @@ def apply_constraint_pivot(data,
         print new_header
         """
 
-        send_mail('tracking lod4stat', query, settings.DEFAULT_FROM_EMAIL, ['m.voltolini@trentinosistemi.com'], fail_silently=False)
+        #send_mail('tracking lod4stat', query, settings.DEFAULT_FROM_EMAIL, ['m.voltolini@trentinosistemi.com'], fail_silently=False)
 
         dest_data = execute_query_on_main_db(query)
 
