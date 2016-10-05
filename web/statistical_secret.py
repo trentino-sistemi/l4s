@@ -1553,7 +1553,7 @@ def apply_constraint_pivot(data,
     :return: The pivoted table applying constraints.
     """
 
-    logger = logging.getLogger(__name__)
+    #logger = logging.getLogger(__name__)
 
     """
     print "pivot_cols " , pivot_cols
@@ -1568,7 +1568,7 @@ def apply_constraint_pivot(data,
     """
 
     constraint_dict = build_constraint_dict(constraint_cols)
-    logger.error(constraint_dict)
+    #logger.error(constraint_dict)
 
     """
     print "constraint_dict ", constraint_dict
@@ -1651,7 +1651,7 @@ def apply_constraint_pivot(data,
 
         #print query
 
-        logger.error(query)
+        #logger.error(query)
 
         if query is None:
             return data
@@ -1719,13 +1719,13 @@ def apply_constraint_pivot(data,
         print new_header
         """
 
-        logger.error(query)
+        #logger.error(query)
 
         dest_data = execute_query_on_main_db(query)
 
         for row in dest_data:  #cicla sulla query con i dati delle strutture collegate
 
-            logger.error(row)
+            #logger.error(row)
 
             """
             print bcolors.WARNING
@@ -1760,11 +1760,11 @@ def apply_constraint_pivot(data,
             #print bcolors.HEADER
             #print "key_colonna " , key_colonna
 
-            logger.error("key_colonna %s" % key_colonna)
+            #logger.error("key_colonna %s" % key_colonna)
 
             col_tuples = list(itertools.product(*key_colonna))
 
-            logger.error("col_tuples %s" % col_tuples)
+            #logger.error("col_tuples %s" % col_tuples)
 
             #print "col_tuples " , col_tuples
 
