@@ -1719,7 +1719,7 @@ def apply_constraint_pivot(data,
         print new_header
         """
 
-        #send_mail('tracking lod4stat', query, settings.DEFAULT_FROM_EMAIL, ['m.voltolini@trentinosistemi.com'], fail_silently=False)
+        logger.error(query)
 
         dest_data = execute_query_on_main_db(query)
 
