@@ -267,9 +267,12 @@ if settings.DEBUG is False:   #if DEBUG is True it will be served automatically
 
 def handler500(request):
 
-    POST = {k:v if len(v) > 1 else v[0] for k,v in request.POST.iterlists()}
-
     url = request.method + ' ' + request.get_full_path()
+
+    if request.method == 'GET':
+        elementi = {k: v if len(v) > 1 else v[0] for k, v in request.GET.iterlists()}
+    elif request.method == 'POST':
+        elementi = {k: v if len(v) > 1 else v[0] for k, v in request.POST.iterlists()}
 
     '''
     if 'HTTP_REFERER' in request.META.keys():
@@ -278,7 +281,7 @@ def handler500(request):
         url = ' URL not recognized '
     '''
 
-    send_mail('Errore Lod4Stat (' + str(request.user) + ') ' + url, json.dumps(POST), settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
+    send_mail('Errore Lod4Stat (' + str(request.user) + ') ' + url, json.dumps(elementi), settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
 
     response = render_to_response('l4s/500.html', {}, context_instance=RequestContext(request))
     response.status_code = 500
