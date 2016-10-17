@@ -269,10 +269,17 @@ def handler500(request):
 
     POST = {k:v if len(v) > 1 else v[0] for k,v in request.POST.iterlists()}
 
+    url = request.get_full_path()
+
+    '''
     if 'HTTP_REFERER' in request.META.keys():
         url = request.META['HTTP_REFERER']
     else:
-        url = ''
+        if "path" in request:
+            url = request.path
+        else:
+            url = ' URL not recognized '
+    '''
 
     send_mail('Errore Lod4Stat (' + str(request.user) + ') ' + url, json.dumps(POST), settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
 
