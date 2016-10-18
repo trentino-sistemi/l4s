@@ -43,6 +43,7 @@ import ast
 import six
 from datetime import datetime
 import json
+import locale
 
 ASTERISK = '*'
 
@@ -4216,6 +4217,9 @@ def data_frame_to_html(df, visible, pivot):
     :param pivot: Columns in pivot.
     :return: Html code to be rendered in a html page.
     """
+
+    locale.setlocale(locale.LC_ALL, '')
+
     html = ""
     index_v = False
     if df is not None:
@@ -4228,11 +4232,14 @@ def data_frame_to_html(df, visible, pivot):
             html = df.to_html(classes="table table-striped",
                               index=index_v,
                               max_cols=EXPLORER_DEFAULT_COLS,
-                              max_rows=EXPLORER_DEFAULT_ROWS)
+                              max_rows=EXPLORER_DEFAULT_ROWS,
+                              float_format="{:n}".format)
         else:
             html = df.to_html(classes="table table-striped",
-                              index=index_v)
+                              index=index_v,
+                              float_format="{:n}".format)
         #html = html.replace("...", "")
+
     return html
 
 def save_value(nome_file, stringa):

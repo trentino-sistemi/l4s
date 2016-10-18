@@ -169,7 +169,7 @@ def format_value(x):
     else:
         return x
 
-def pivot(data, headers, columns, rows, value, col_dict):
+def pivot(data, headers, columns, rows, value, col_dict, secret_column_dict):
     """
     Pivot the table.
 
@@ -188,6 +188,8 @@ def pivot(data, headers, columns, rows, value, col_dict):
 
         error = "%s: %s" % (unicode(error), unicode(e_value))
         return None, None, error
+
+    #print data
 
     df = pd.DataFrame(data, columns=headers)
 
@@ -224,14 +226,13 @@ def pivot(data, headers, columns, rows, value, col_dict):
         for c, d in enumerate(df.index):
             contatore += 1
             #print  b, d
-            #print df[b][d]
-            #print type(df[b][d])
-            if type(df[b][d]) == decimal.Decimal:
-                if not b in lista:
-                    lista.append(b)
-                    break
+            print df[b][d]
+            print type(df[b][d])
+            #if type(df[b][d]) == decimal.Decimal:
+            #    if not b in lista:
+            #        lista.append(b)
+            #        break
                 #df[b][d] = np.float64(df[b][d])
-
     """
 
     #print "contatore " , contatore
@@ -304,16 +305,21 @@ def pivot(data, headers, columns, rows, value, col_dict):
 
     #print pivot_df.to_string()
 
-
     #pivot_df = pivot_df.applymap(
     #    lambda a: str(a).replace(".0", "", 1).replace("nan", "0"))
 
     #print "lista", lista
+    #print "secret_column_dict", len(secret_column_dict)
 
-    if len(lista) > 0:
-        pivot_df = pivot_df.applymap(lambda a: str(a));
+    if len(lista) > 0: #ci sono valori float
+        if (len(secret_column_dict) > 0): #se c'e segreto converto in stringa per poter mettere gli asterischi dopo
+            pivot_df = pivot_df.applymap(lambda a: str(a));
     else:
         pivot_df = pivot_df.applymap(lambda a: str(a).replace(".0", "", 1));
+
+
+    #if len(lista) == 0:
+    #    pivot_df = pivot_df.applymap(lambda a: str(a).replace(".0", "", 1));
 
     #print bcolors.ENDC
 
@@ -3615,7 +3621,8 @@ def apply_stat_secret(headers,
                                       pivot_cols,
                                       rows,
                                       pivot_values,
-                                      col_dict)
+                                      col_dict,
+                                      secret_column_dict)
 
         #print "data_frame", data_frame
 
