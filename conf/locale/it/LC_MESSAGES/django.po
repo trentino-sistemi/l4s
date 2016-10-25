@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-12 11:30+0200\n"
+"POT-Creation-Date: 2016-10-25 12:10+0200\n"
 "PO-Revision-Date: 2014-12-19 13:48+0100\n"
 "Last-Translator: Pilolli Pietro <p.pilolli@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -905,7 +905,7 @@ msgid "key"
 msgstr "chiave"
 
 #: l4s/static/templates/l4s/metadata.html:100 web/exceptions.py:36
-#: web/utils.py:4070
+#: web/utils.py:4108
 msgid "and"
 msgstr "e"
 
@@ -1003,7 +1003,7 @@ msgstr "Seleziona"
 #: l4s/static/templates/l4s/query_editor_customize.html:433
 #: l4s/static/templates/l4s/query_editor_customize.html:516
 #: l4s/static/templates/l4s/query_editor_customize.html:651
-#: l4s/static/templates/l4s/query_editor_customize.html:736 web/utils.py:106
+#: l4s/static/templates/l4s/query_editor_customize.html:736 web/utils.py:107
 msgid "All"
 msgstr "Tutti"
 
@@ -1455,108 +1455,108 @@ msgstr "utente"
 msgid "users"
 msgstr "utenti"
 
-#: web/statistical_secret.py:71
+#: web/statistical_secret.py:72
 msgid "Some value are asterisked to preserve the statistical secret"
 msgstr ""
 "Alcuni valori sono stati asteriscati per preservare il segreto statistico"
 
-#: web/statistical_secret.py:185 web/statistical_secret.py:290 web/utils.py:876
+#: web/statistical_secret.py:186 web/statistical_secret.py:292 web/utils.py:889
 msgid "I can not pivot the table"
 msgstr "Non è possibile pivotare la tabella"
 
-#: web/statistical_secret.py:186
+#: web/statistical_secret.py:187
 msgid "the query return an empty result set"
 msgstr "l'interrogazione ritorna come risultato una tabella vuota"
 
-#: web/statistical_secret.py:293
+#: web/statistical_secret.py:295
 msgid "All objects passed were None"
 msgstr "Il risultato contiene solo valori nulli"
 
-#: web/statistical_secret.py:321 web/statistical_secret.py:2000
-#: web/utils.py:105
+#: web/statistical_secret.py:328 web/statistical_secret.py:2020
+#: web/utils.py:106
 msgid "Total"
 msgstr "Totale"
 
-#: web/statistical_secret.py:3580
+#: web/statistical_secret.py:3600
 msgid "Can not pivot the table; missing numerosity!"
 msgstr "Non è possibile pivotare la tabella; manca la numerosità!"
 
-#: web/statistical_secret.py:3591
+#: web/statistical_secret.py:3611
 msgid "Can not pivot the table; missing rows!"
 msgstr ""
 "Non è possibile pivotare la tabella; lascia uno o più valori per le righe!"
 
-#: web/utils.py:104
+#: web/utils.py:105
 msgid "Code"
 msgstr "Codice"
 
-#: web/utils.py:2246
+#: web/utils.py:2271
 msgid "You can aggregate for a single criterion for each column only."
 msgstr "Puoi aggregare solo per un singolo criterio per ciascuna colonna."
 
-#: web/utils.py:2247
+#: web/utils.py:2272
 msgid "You have selected more than one aggregation on column"
 msgstr "Hai selezionato più di una aggregazione sulla colonna"
 
-#: web/utils.py:2250
+#: web/utils.py:2275
 msgid "with description"
 msgstr "con descrizione"
 
-#: web/utils.py:2735
+#: web/utils.py:2771
 msgid "The statistical service"
 msgstr "Il Servizio Statistica"
 
-#: web/utils.py:2736
+#: web/utils.py:2772
 msgid "is handling"
 msgstr "ha preso in carico"
 
-#: web/utils.py:2737
+#: web/utils.py:2773
 msgid "the request"
 msgstr "la richiesta"
 
-#: web/utils.py:2738
+#: web/utils.py:2774
 msgid "with subject"
 msgstr "con oggetto"
 
-#: web/utils.py:2740
+#: web/utils.py:2776
 msgid "Your request will be dispatched as soon as possible"
 msgstr ""
 "La richiesta verrà evasa al più presto compatibilmente con l'attività del "
 "Servizio"
 
-#: web/utils.py:2758 web/utils.py:2760
+#: web/utils.py:2794 web/utils.py:2796
 msgid "new manual request"
 msgstr "Nuova richiesta manuale"
 
-#: web/utils.py:2759
+#: web/utils.py:2795
 msgid "with id"
 msgstr "con il codice"
 
-#: web/utils.py:3014
+#: web/utils.py:3050
 msgid "Invalid syntax: "
 msgstr "Sintassi non corretta:"
 
-#: web/utils.py:3015
+#: web/utils.py:3051
 msgid "Usage"
 msgstr "Utilizzo"
 
-#: web/utils.py:3019
+#: web/utils.py:3055
 msgid "Invalid Token "
 msgstr "Carattere non corretto"
 
-#: web/utils.py:3020
+#: web/utils.py:3056
 msgid " expected token is "
 msgstr "carattere atteso"
 
-#: web/utils.py:3896
+#: web/utils.py:3934
 msgid "group by"
 msgstr "raggruppato per"
 
-#: web/utils.py:4051
+#: web/utils.py:4089
 msgid "Selected values"
 msgstr "Valori selezionati"
 
-#: web/utils.py:4069
+#: web/utils.py:4107
 msgid "for"
 msgstr "per"
 
@@ -1614,24 +1614,28 @@ msgstr ""
 "Ci sono una o piu colonne dalla tabella %s con lo stesso metadato della "
 "descrizione"
 
-#: web/views.py:1789
+#: web/views.py:1791
 msgid "Table name can not contain DELETE, INSERT o UPDATE string"
 msgstr ""
 "Il nome della tabella non puo' contenere le stringe DELETE, INSERT o UPDATE"
 
-#: web/views.py:1791
+#: web/views.py:1794
 msgid "Can not display the requested content"
 msgstr "La tabella non contiene nessun dato"
 
-#: web/views.py:1884
+#: web/views.py:1796
+msgid "The requested content is empty"
+msgstr "L'interrogazione ha restituito un dataset vuoto"
+
+#: web/views.py:1896
 msgid "here"
 msgstr "qui"
 
-#: web/views.py:1885
+#: web/views.py:1897
 msgid "The query has been saved"
 msgstr "L'interrogazione è stata salvata"
 
-#: web/views.py:1887
+#: web/views.py:1899
 msgid "In order to see the saved queries click"
 msgstr "Per vedere the interrogazioni salvate clicca"
 

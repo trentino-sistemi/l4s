@@ -1780,15 +1780,22 @@ def query_editor_view(request):
     context['description'] = description
     context['sel_tab'] = sel_tab
     context['agg_col'] = agg_col
+    context['column_description'] = column_description
 
     #print "df", df
 
     if df is None:
 
         if (err == MSG_FAILED_BLACKLIST):
+            elementi_request = ''
             no_display = _("Table name can not contain DELETE, INSERT o UPDATE string")
         else:
-            no_display = _("Can not display the requested content")
+            if selected_obs_values_s is None: #devo ancora passare dal personalizza
+                elementi_request = ''
+                no_display = _("Can not display the requested content")
+            else:
+                elementi_request = "<br>".join(['%s:: %s' % (key, value) for (key, value) in request.REQUEST.items()])
+                no_display = _("The requested content is empty")
 
         context['dataframe'] = no_display
 
@@ -1796,7 +1803,7 @@ def query_editor_view(request):
                   str(request.user) + ') ' +
                   ''.join(ALLOWED_HOSTS) +
                   '/query_editor_view/?table=' +
-                  ''.join(request.GET.getlist("table")), unicode(no_display), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL,
+                  table_name, unicode(no_display) + elementi_request, DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL,
                   fail_silently=False)
 
         return render_to_response("l4s/query_editor_view.html", context)
@@ -1805,8 +1812,6 @@ def query_editor_view(request):
     html = data_frame_to_html(df, visible, pivot)
 
     url = '/query_editor_view/?table=%s' % table_name
-
-    context['column_description'] = column_description
 
     context['dataframe'] = html
     context['store'] = store
