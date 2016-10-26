@@ -269,9 +269,12 @@ def to_json_stat(input_df, value="value"):
     else:
         data = input_df
     result = []
+
     for row, dataframe in enumerate(data):
-        dims = data[row].filter([item for item in data[row].columns.values
-                                 if item not in value])
+
+        if not type(value) is list:
+            value = [value]
+        dims = data[row].filter([item for item in data[row].columns.values if item not in value])
         if len(dims.columns.values) != len(set(dims.columns.values)):
             raise ValueError('Non-value columns must constitute a unique ID')
         dim_names = list(dims)
