@@ -24,11 +24,12 @@ from django.template import RequestContext
 from django.core.mail import send_mail
 import json
 from web.utils import get_client_ip
+from django.http import HttpResponse
 
 admin.autodiscover()
 
-
 urlpatterns = patterns('',
+                       (r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nDisallow: /", mimetype="text/plain")),
                        # Url for admin interface.
                        url(r'^admin/',
                            include(admin.site.urls)),
