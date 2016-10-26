@@ -23,6 +23,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.mail import send_mail
 import json
+from web.utils import get_client_ip
 
 admin.autodiscover()
 
@@ -267,12 +268,7 @@ if settings.DEBUG is False:   #if DEBUG is True it will be served automatically
 
 def handler500(request):
 
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-
-    if x_forwarded_for:
-        ip_address = x_forwarded_for.split(',')[0]
-    else:
-        ip_address = request.META.get('REMOTE_ADDR')
+    ip_address = get_client_ip(request)
 
     url = request.method + ' ' + request.get_full_path()
 

@@ -49,7 +49,8 @@ from web.utils import execute_query_on_main_db, \
     condition_for_secondary_suppression, \
     is_int, \
     data_type, \
-    SECONDARY
+    SECONDARY, \
+    get_client_ip
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -4024,7 +4025,7 @@ def load_data_frame(request):
                                                    include_code,
                                                    False,
                                                    range,
-                                                   request.environ['REMOTE_ADDR'],
+                                                   get_client_ip(request),
                                                    table_name,
                                                    table_schema)
             return df

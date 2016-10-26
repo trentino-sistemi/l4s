@@ -121,7 +121,8 @@ from web.utils import get_variable_dictionary, \
     column_with_same_description, \
     build_column_warnings_and_definitions, \
     build_table_external_medatata, \
-    count_of_columns_no_obs_value
+    count_of_columns_no_obs_value, \
+    get_client_ip
 
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
@@ -1692,7 +1693,7 @@ def query_editor_view(request):
                                            include_code,
                                            visible,
                                            range,
-                                           request.environ['REMOTE_ADDR'],
+                                           get_client_ip(request),
                                            table_name,
                                            table_schema)
 
