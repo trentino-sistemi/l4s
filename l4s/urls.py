@@ -29,7 +29,7 @@ from django.http import HttpResponse
 admin.autodiscover()
 
 urlpatterns = patterns('',
-                       (r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nDisallow: /", mimetype="text/plain")),
+                       (r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nAllow: /about\nDisallow: /", mimetype="text/plain")),
                        # Url for admin interface.
                        url(r'^admin/',
                            include(admin.site.urls)),
