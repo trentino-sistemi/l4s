@@ -267,6 +267,13 @@ if settings.DEBUG is False:   #if DEBUG is True it will be served automatically
 
 def handler500(request):
 
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+
+    if x_forwarded_for:
+        ip_address = x_forwarded_for.split(',')[0]
+    else:
+        ip_address = request.META.get('REMOTE_ADDR')
+
     url = request.method + ' ' + request.get_full_path()
 
     if request.method == 'GET':
@@ -281,7 +288,7 @@ def handler500(request):
         url = ' URL not recognized '
     '''
 
-    send_mail('Errore Lod4Stat (' + str(request.user) + ') ' + url, json.dumps(elementi), settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
+    send_mail('Errore Lod4Stat (' + ip_address + ' ' + str(request.user) + ') ' + url, json.dumps(elementi), settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
 
     response = render_to_response('l4s/500.html', {}, context_instance=RequestContext(request))
     response.status_code = 500
