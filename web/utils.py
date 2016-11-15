@@ -1117,32 +1117,38 @@ def build_query(table_name,
 
     filtered = False
 
-    #print "filters ", filters
+    #print get_color(), "filters ", filters
 
     for field in filters:
         filter_vals = filters[field]
 
         if len(values[field]) != len(filter_vals):
-            #print "field " , field
-
-            selected_vals = [str(val[0]) for val in filter_vals]
-
-            """
-            print "selected_vals ", selected_vals
-            print type(selected_vals[0])
-            print is_int(selected_vals[0])
-            """
 
             if filter_vals is not None and len(filter_vals) > 0:
+
+                #print "field ", field
+
+                #print type(filter_vals[0][0]), is_int(filter_vals[0][0]), filter_vals[0][0]
+
+                selected_vals = [val[0] for val in filter_vals]
+
+                #print type(selected_vals[0])
+                #print is_int(selected_vals[0])
+
+                #print selected_vals, type(selected_vals[0])
+
                 if filtered:
                     query += '\nAND'
                 else:
                     query += '\nWHERE'
                 query += ' %s."%s" IN (' % (table_name, field)
 
-                if (is_int(selected_vals[0]) == True): # perche il codice a volte puo essere stringa ......
-                    comma_sep_vals = ", ".join(selected_vals)
+                if (type(selected_vals[0]) == int): # perche il codice a volte puo essere stringa ...... attenzione a codice del tipo '099393' che sembrano int ma sono stringhe
+                    #print "intero"
+                    #comma_sep_vals = ", ".join(selected_vals)
+                    comma_sep_vals = ', '.join(str(x) for x in selected_vals)
                 else:
+                    #print "stringa"
                     comma_sep_vals = "'" + "', '".join(selected_vals) + "'"
 
                 #print "comma_sep_vals ", comma_sep_vals

@@ -3933,6 +3933,7 @@ def headers_and_data(user,
 
     #query_title, query_body, executed_by, ip_address
 
+    #print query.sql
     log = ExecutedQueryLog.create(query.title, query.sql, id, ip_adress)
     log.save()
 
