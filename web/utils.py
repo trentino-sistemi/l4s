@@ -990,7 +990,7 @@ def build_query(table_name,
 
     position = 0
     for obs_value in obs_values:
-        sum_s = "SUM(%s.\"%s\") \"%s\"" % (table_name, obs_value, obs_value)
+        sum_s = "SUM(coalesce(%s.\"%s\", 0)) \"%s\"" % (table_name, obs_value, obs_value)
         obs_fields.append(sum_s)
         annotation += "%s " % JOIN_TOKEN
         annotation += "%s.%s %d\n" % (table_name, obs_value, position)
