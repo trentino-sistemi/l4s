@@ -719,7 +719,7 @@ def get_all_field_values(table_name, column_name, select):
     #print "prima 2 ", datetime.now().strftime("%H:%M:%S.%f")
 
     """
-    if column_name == 'dmc1copr':
+    if column_name == 'cl_adde_ul':
         print "table_name ", table_name
         print "column_name ", column_name
         print "foreign_keys ", foreign_keys
@@ -736,7 +736,7 @@ def get_all_field_values(table_name, column_name, select):
             fk_col = foreign_keys[column_name][1]
 
             """
-            if column_name == 'ttarga':
+            if column_name == 'cl_adde_ul':
                 print "fk_tab" , fk_tab
                 print "fk_col " , fk_col
             """
@@ -756,7 +756,7 @@ def get_all_field_values(table_name, column_name, select):
         """
 
         """
-        if column_name == 'ttarga':
+        if column_name == 'cl_adde_ul':
             print bcolors.OKBLUE
             print query
             print st.cols
@@ -772,7 +772,7 @@ def get_all_field_values(table_name, column_name, select):
         #print "prima  ", datetime.now().strftime("%H:%M:%S.%f")
 
         """
-        if column_name == 'ttarga':
+        if column_name == 'cl_adde_ul':
             print bcolors.FAIL
             print query
             print bcolors.ENDC
@@ -1464,13 +1464,15 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
             foreign_keys = fk_hash[table]
 
         """
-        if (field == 'pendtem0'):
+        if (field == 'cl_adde_ul'):
             print "foreign_keys ", foreign_keys
         """
 
         if field in foreign_keys:
             fk = foreign_keys[field]
             dest_table = fk[0]
+
+            #print "decoder" , is_decoder_table(dest_table)
 
             if is_decoder_table(dest_table):
 
@@ -1486,7 +1488,7 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
                     alias = get_column_description(dest_table, desc_column)
 
                 """
-                if (field == 'dmc1copr'):
+                if (field == 'cl_adde_ul'):
                     print "dest_table " + dest_table
                     print "dest_column " + dest_column
                     print "desc_column " + desc_column
@@ -3312,7 +3314,7 @@ def all_visible_tables(request):
     """
     query = "SELECT DISTINCT(table_name) FROM %s \n" % METADATA
 
-    if request.user.is_staff:
+    if not request.user.is_staff:
       query += "WHERE column_name = 'NULL' and upper(key)=upper('%s') and upper(value)=upper('%s') \n" % (VISIBLE, TRUE)
 
     query += "order by table_name"
