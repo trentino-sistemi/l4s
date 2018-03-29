@@ -4577,7 +4577,7 @@ def count_of_columns_no_obs_value (table_schema, table_name):
       numero_colonne_tabella =  row[0]
 
     query = "select count(distinct column_name)  \n"
-    query += "from web_metadata \n"
+    query += "from %s \n" % METADATA
     query += "WHERE  table_name = '%s' \n" % table_name
     query += " and key = '%s'  \n" % MEASURE
     query += " and value = '%s'  \n" % OBS_VALUE
@@ -4829,3 +4829,18 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+def table_visible (table_name):
+
+    query = "SELECT value FROM %s \n" % METADATA
+    query += "WHERE table_name = '%s' and \n" % table_name
+    query += "      column_name = 'NULL' and \n"
+    query += "      key = '%s' " % VISIBLE
+
+
+    #print query
+
+    rows = execute_query_on_django_db(query)
+
+    for row in rows:
+      return row[0] == TRUE

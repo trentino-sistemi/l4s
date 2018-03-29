@@ -110,6 +110,7 @@ from web.utils import get_variable_dictionary, \
     execute_query_on_main_db, \
     get_color, \
     exists_table, \
+    table_visible, \
     get_table_description, \
     DESCRIPTION, \
     count_of_columns_table, \
@@ -1389,54 +1390,37 @@ def query_editor_view(request):
     #print datetime.now().strftime("%H:%M:%S.%f")
 
     table_name = request.REQUEST.get('table')
+    context = RequestContext(request)
+    context['error_string'] = ''
 
     if exists_table('public', table_name) == False:
-        context = RequestContext(request)
         context['error_string'] = _("The table does not exist")
-        send_mail('Errore Lod4Stat (' +
-                  str(request.user) + ') ' +
-                  ''.join(ALLOWED_HOSTS) +
-                  '/query_editor_view/?table=' + table_name,
-                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-        return render_to_response("l4s/error.html", context)
 
-    if count_of_columns_no_obs_value('public', table_name) < 2:
-        context = RequestContext(request)
-        context['error_string'] = _("The table must have at least 2 columns not obs_value")
-        send_mail('Errore Lod4Stat (' +
-                  str(request.user) + ') ' +
-                  ''.join(ALLOWED_HOSTS) +
-                  '/query_editor_view/?table=' + table_name,
-                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-        return render_to_response("l4s/error.html", context)
+    if context['error_string'] == '':
+        if table_visible(table_name) == False:
+            context['error_string'] = _("The table are not visible")
 
-    if get_table_description(table_name) == None:
-        context = RequestContext(request)
-        error = unicode(_("Please add the metadata "))
-        error += " " + unicode(_("with key")) + " '" + DESCRIPTION + "' "
-        error += unicode(_("for table"))
-        error += " '" + table_name + "'"
-        context['error_string'] = error
-        send_mail('Errore Lod4Stat (' +
-                  str(request.user) + ') ' +
-                  ''.join(ALLOWED_HOSTS) +
-                  '/query_editor_view/?table=' + table_name,
-                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-        return render_to_response("l4s/error.html", context)
+    if context['error_string'] == '':
+        if count_of_columns_no_obs_value('public', table_name) < 2:
+            context['error_string'] = _("The table must have at least 2 columns not obs_value")
 
-    if all_columns_have_metadata_description('public', table_name) == False:
-        context = RequestContext(request)
-        context['error_string'] = _("All columns mast have description metadata")
-        send_mail('Errore Lod4Stat (' +
-                  str(request.user) + ') ' +
-                  ''.join(ALLOWED_HOSTS) +
-                  '/query_editor_view/?table=' + table_name,
-                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-        return render_to_response("l4s/error.html", context)
+    if context['error_string'] == '':
+        if get_table_description(table_name) == None:
+            error = unicode(_("Please add the metadata "))
+            error += " " + unicode(_("with key")) + " '" + DESCRIPTION + "' "
+            error += unicode(_("for table"))
+            error += " '" + table_name + "'"
+            context['error_string'] = error
 
-    if column_with_same_description('public', table_name) == True:
-        context = RequestContext(request)
-        context['error_string'] = _("There are one ore plus fields on table %s with same description metadata") % table_name.upper()
+    if context['error_string'] == '':
+        if all_columns_have_metadata_description('public', table_name) == False:
+            context['error_string'] = _("All columns mast have description metadata")
+
+    if context['error_string'] == '':
+        if column_with_same_description('public', table_name) == True:
+            context['error_string'] = _("There are one ore plus fields on table %s with same description metadata") % table_name.upper()
+
+    if context['error_string'] != '':
         send_mail('Errore Lod4Stat (' +
                   str(request.user) + ') ' +
                   ''.join(ALLOWED_HOSTS) +
@@ -1446,7 +1430,6 @@ def query_editor_view(request):
 
     topic = get_topic_description(table_name)
     topic_id = get_topic_id(table_name)
-    context = RequestContext(request)
     context['table_name'] = table_name
     table_description_dict = build_description_table_dict([table_name])
     context['table_description'] = table_description_dict[table_name]
