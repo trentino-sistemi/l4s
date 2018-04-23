@@ -208,7 +208,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </a>
         </td>
         <td>
-            <a href=javascript:open_query("{{ table }}")>{{ table_description|lookup:table }}</a></p>
+            <a data-table="{{ table }}" href="javascript:void(0);" onclick="open_query(this);" >{{ table_description|lookup:table }}</a></p>
         </td>
         </tr>
         {% endif %}
@@ -225,7 +225,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </a>
         </td>
         <td>
-            <a href=javascript:open_query("{{ table }}")>{{ table_description|lookup:table }}</a></p>
+            <a data-table="{{ table }}" href="javascript:void(0);" onclick="open_query(this);" >{{ table_description|lookup:table }}</a></p>
         </td>
         </tr>
         {% endif %}
@@ -246,10 +246,21 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="/static/js/spin.min.js"></script>
 <script type="text/javascript" src="/static/js/query_editor.js"></script>
 <script>
-function open_query(table) {
-   url="/query_editor_view?table=" + table
+function open_query(element) {
+
+   /*url="/query_editor_view?table=" + table
    $('#table_list').spin("modal");
-   location.href=url
+   location.href=url*/
+
+   $('#table_list').spin("modal");
+   $.get( "/query_editor_view", { table: element.dataset.table }, function( data ) {
+
+      var newDoc = document.open("text/html", "replace");
+      newDoc.write(data);
+      newDoc.close();
+
+   });
+
 }
 $(document).ready(function(){
     initToken();
