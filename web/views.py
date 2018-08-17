@@ -2335,7 +2335,7 @@ def sync(request):
     table = request.POST.getlist('table[]')
 
     f = open("blah.txt", "w")
-    result = subprocess.call(shlex.split('./synct.sh ' + ",".join(table)), stdout=f)
+    result = subprocess.call(shlex.split('./sync.sh ' + ",".join(table)), stdout=f)
 
     send_mail("Result", str(result), DEFAULT_FROM_EMAIL, ['m.voltolini@trentinosistemi.com'], fail_silently=False)
 
