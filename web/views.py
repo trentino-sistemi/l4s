@@ -2334,10 +2334,12 @@ def sync(request):
 
     table = request.POST.getlist('table[]')
 
-    f = open("blah.txt", "w")
-    result = subprocess.call(shlex.split('./sync.sh ' + ",".join(table)), stdout=f)
+    #f = open("blah.txt", "w")
+    #result = subprocess.call(shlex.split('./sync.sh ' + ",".join(table)), stdout=f)
 
-    send_mail("Result", str(result), DEFAULT_FROM_EMAIL, ['m.voltolini@trentinosistemi.com'], fail_silently=False)
+    result = subprocess.call(shlex.split('./sync.sh ' + ",".join(table)))
+
+    #send_mail("Result", str(result), DEFAULT_FROM_EMAIL, ['m.voltolini@trentinosistemi.com'], fail_silently=False)
 
     query = "SELECT success FROM %s \n" % SYNCHRONIZATION
     query += "ORDER BY start_time DESC \n"
