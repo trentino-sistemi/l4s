@@ -2351,8 +2351,8 @@ def sync(request):
 
     for row in rows:
         if (row[0] == True):
-            stringa = "Sincronizzazione avvenuta con successo !"
+            stringa = _("Synchronization completed successfully !")
         else:
-            stringa = "Sincronizzazione NON avvenuta con successo !"
+            stringa = _("Synchronization NOT successful !")
 
     return HttpResponse(stringa)
