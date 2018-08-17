@@ -123,7 +123,8 @@ from web.utils import get_variable_dictionary, \
     build_column_warnings_and_definitions, \
     build_table_external_medatata, \
     count_of_columns_no_obs_value, \
-    get_client_ip
+    get_client_ip, \
+    SYNCHRONIZATION
 
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
@@ -155,7 +156,8 @@ import json
 import ast
 import calendar
 from explorer.models import MSG_FAILED_BLACKLIST
-
+import subprocess
+import shlex
 
 def execute_query_viewmodel(request,
                             query,
@@ -2328,3 +2330,24 @@ def manual_view(request):
         return response
     pdf.closed
 
+def sync(request):
+
+    table = request.POST.getlist('table[]')
+
+    subprocess.call(shlex.split('./sync.sh ' + ",".join(table)))
+
+    query = "SELECT success FROM %s \n" % SYNCHRONIZATION
+    query += "ORDER BY start_time DESC \n"
+    query += "LIMIT 1"
+
+    #print query
+
+    rows = execute_query_on_main_db(query)
+
+    for row in rows:
+        if (row[0] == True):
+            stringa = "Sincronizzazione avvenuta con successo !"
+        else:
+            stringa = "Sincronizzazione NON avvenuta con successo !"
+
+    return HttpResponse(stringa)

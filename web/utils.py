@@ -57,6 +57,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+SYNCHRONIZATION = 'synchronization'
 METADATA = 'web_metadata'
 EXTERNAL_METADATA = 'web_external_metadata'
 WEB_CONCEPT = 'web_concept'

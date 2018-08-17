@@ -255,6 +255,10 @@ urlpatterns = patterns('',
                        url(r'^manual/',
                            'web.views.manual_view',
                            name='manual_view'),
+                       url(r'^sync/',
+                           'web.views.sync',
+                           name='sync'),
+
                        )
 
 
