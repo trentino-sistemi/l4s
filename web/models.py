@@ -27,7 +27,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 from datetime import datetime
-
+from django.conf import settings
+from django.contrib.sites.models import Site
 
 class Test3(models.Model):
     """
@@ -360,6 +361,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         send_mail(subject, message, from_email, [self.email])
 
+    def delete(self, *args, **kwargs):
+        current_site = Site.objects.get_current()
+        send_mail('[' + current_site.domain + '] ' + unicode(_('Your account has been deleted')),
+                  unicode(_('Your account has been inactive for 2 years. As required by law, we have taken steps to remove yours from our database.')),
+                  settings.DEFAULT_FROM_EMAIL,
+                  [self.email])
 
 class Synonym(models.Model):
     """

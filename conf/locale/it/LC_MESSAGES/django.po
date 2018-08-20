@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 17:06+0200\n"
+"POT-Creation-Date: 2018-08-20 12:48+0200\n"
 "PO-Revision-Date: 2014-12-19 13:48+0100\n"
 "Last-Translator: Voltolini Manuel <m.voltolini@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1862,6 +1862,18 @@ msgstr "utente"
 msgid "users"
 msgstr "utenti"
 
+#: web/models.py:364
+msgid "Your account has been deleted"
+msgstr "Il tuo account è stato cancellato"
+
+#: web/models.py:365
+msgid ""
+"Your account has been inactive for 2 years. As required by law, we have "
+"taken steps to remove yours from our database."
+msgstr ""
+"Il tuo account è inattivo da 2 anni. Come previsto dalla legge, abbiamo "
+"provveduto a rimuovere i tuoi dal nostro database."
+
 #: web/statistical_secret.py:73
 msgid "Some value are asterisked to preserve the statistical secret"
 msgstr ""
@@ -2057,4 +2069,3 @@ msgstr "Sincronizzazione avvenuta con successo !"
 #: web/views.py:2356
 msgid "Synchronization NOT successful !"
 msgstr "Sincronizzazione NON avvenuta con successo !"
-
