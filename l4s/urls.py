@@ -214,6 +214,9 @@ urlpatterns = patterns('',
                        url(r'^accounts/logout/$',
                            'django.contrib.auth.views.logout',
                            {'next_page': '/'}),
+                       url(r'^accounts/password/change/$',
+                           'web.views.redirect_after_password_change',
+                           name='account_change_password'),  # Place before allauth urls to override
                        # Django registration urls.
                        url(r'^accounts/',
                            include('allauth.urls')),
@@ -258,7 +261,6 @@ urlpatterns = patterns('',
                        url(r'^sync/',
                            'web.views.sync',
                            name='sync'),
-
                        )
 
 

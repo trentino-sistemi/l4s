@@ -18,7 +18,6 @@
 """
 Django views for l4s project.
 """
-
 from django.core.mail import send_mail
 from copy import deepcopy
 from django.db import connections
@@ -39,7 +38,8 @@ from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
     LEGEND, DL_ART, \
     DEFAULT_FROM_EMAIL, \
     ADMINISTRATOR_EMAIL, \
-    ALLOWED_HOSTS
+    ALLOWED_HOSTS, \
+    PASSWORD_DURATION_DAYS
 from explorer.models import Query
 from explorer.utils import url_get_rows
 from explorer.views import ExplorerContextMixin, \
@@ -149,7 +149,7 @@ from web.actions import query_title,\
     generate_report_action_turtle, \
     generate_report_action_json_stat,\
     generate_usage_report_action_xls
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from collections import OrderedDict
 from utils import ALL
 import json
@@ -158,6 +158,9 @@ import calendar
 from explorer.models import MSG_FAILED_BLACKLIST
 import subprocess
 import shlex
+from django.utils import timezone
+from allauth.account.views import PasswordChangeView
+from django.core.urlresolvers import reverse_lazy
 
 def execute_query_viewmodel(request,
                             query,
@@ -1189,8 +1192,17 @@ def index(request):
 
     context = RequestContext(request)
     context['object_list'] = objects
-    return render_to_response("l4s/index_new.html", context)
 
+    if request.user.is_superuser == False and request.user.is_authenticated() == True:
+        date_change_password = request.user.get_date_change_password()
+        if timezone.now() - date_change_password > timedelta(days=PASSWORD_DURATION_DAYS):
+            return redirect("/accounts/password/change/")
+        else:
+            return render_to_response("l4s/index_new.html", context)
+    else:
+        return render_to_response("l4s/index_new.html", context)
+
+    #return render_to_response("l4s/index_new.html", context)
 
 def legal_notes(request):
     """
@@ -2356,3 +2368,11 @@ def sync(request):
             stringa = _("Synchronization NOT successful !")
 
     return HttpResponse(stringa)
+
+class LoginAfterPasswordChangeView(PasswordChangeView):
+    @property
+    def success_url(self):
+        #return reverse_lazy('account_login')
+        return "/"
+
+redirect_after_password_change = login_required(LoginAfterPasswordChangeView.as_view())

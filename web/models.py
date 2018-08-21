@@ -243,6 +243,7 @@ class UserManager(BaseUserManager):
                           is_superuser=is_superuser,
                           last_login=now,
                           date_joined=now,
+                          date_change_password=now,
                           **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -315,7 +316,10 @@ class User(AbstractBaseUser, PermissionsMixin):
                                     help_text=is_active_hlp)
 
     date_joined = models.DateTimeField(_('date joined'),
-                                       default=timezone.now)
+                                       default=timezone.now())
+
+    date_change_password = models.DateTimeField(_('date change password'),
+                                       default=timezone.now())
 
     objects = UserManager()
 
@@ -367,6 +371,27 @@ class User(AbstractBaseUser, PermissionsMixin):
                   unicode(_('Your account has been inactive for 2 years. As required by law, we have taken steps to remove yours from our database.')),
                   settings.DEFAULT_FROM_EMAIL,
                   [self.email])
+        super(User,self).delete()
+
+    __original_password = None
+
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        self.__original_password = self.password
+
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if self.password != self.__original_password:
+            self.date_change_password = timezone.now()
+            self.__original_password = self.password
+        super(User, self).save(force_insert, force_update, *args, **kwargs)
+
+    def get_date_change_password(self):
+        """
+        Returns the date change password
+
+        :return: The date change password.
+        """
+        return self.date_change_password
 
 class Synonym(models.Model):
     """
