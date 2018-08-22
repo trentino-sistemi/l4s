@@ -46,9 +46,9 @@ TEMPLATE_DEBUG = True
 
 SENDER = "SSPAT"
 SENDER_NAME = "Servizio Statistica: Provincia Autonoma di Trento"
+PASSWORD_DURATION_DAYS = 90
 
-
-ALLOWED_HOSTS = ['l4s.trentinosistemi.com', 'www.l4s.ispat.provincia.tn.it', '*']
+ALLOWED_HOSTS = ['www.l4s.ispat.provincia.tn.it', '*']
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -208,6 +208,11 @@ STATICFILES_FINDERS = (
     #'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
+# sudo (2018-03-27): runserver, find static files when DEBUG = True
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "l4s/static"),
+)
+
 # Template location
 TEMPLATE_DIRS = (
     os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -215,7 +220,11 @@ TEMPLATE_DIRS = (
                  "templates"),
 )
 
-STATIC_ROOT= os.path.join(BASE_DIR, "l4s/static")
+# sudo (2018-03-27): STATIC_ROOT is where collectstatic writes
+#                    django.views.static.serve looks there (DEBUG = False)
+#                    webserver needs to look here
+# STATIC_ROOT = os.path.join(BASE_DIR, "l4s/static")  # 2018-03-27, wrong
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 LOCALE_PATHS = ('conf/locale',)
 
