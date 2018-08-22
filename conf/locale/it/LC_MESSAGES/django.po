@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lod4Stat v.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-20 12:48+0200\n"
+"POT-Creation-Date: 2018-08-22 16:22+0200\n"
 "PO-Revision-Date: 2014-12-19 13:48+0100\n"
 "Last-Translator: Voltolini Manuel <m.voltolini@trentinosistemi.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1175,8 +1175,8 @@ msgid "Are you sure you want to delete the metadata with"
 msgstr "Sei sicuro di voler cancellare il metadato con"
 
 #: l4s/static/templates/l4s/metadata.html:100
-#: static/templates/l4s/metadata.html:100 web/models.py:102 web/models.py:112
-#: web/models.py:119
+#: static/templates/l4s/metadata.html:100 web/models.py:103 web/models.py:113
+#: web/models.py:120
 msgid "key"
 msgstr "chiave"
 
@@ -1188,7 +1188,7 @@ msgstr "e"
 
 #: l4s/static/templates/l4s/metadata.html:101
 #: static/templates/l4s/metadata.html:101 web/exceptions.py:37
-#: web/models.py:103 web/models.py:113
+#: web/models.py:104 web/models.py:114
 msgid "value"
 msgstr "valore"
 
@@ -1205,7 +1205,7 @@ msgstr "Aggiungi metadato"
 #: l4s/static/templates/l4s/metadata_add.html:48
 #: l4s/static/templates/l4s/metadata_edit.html:26
 #: static/templates/l4s/metadata_add.html:48
-#: static/templates/l4s/metadata_edit.html:26 web/views.py:1413
+#: static/templates/l4s/metadata_edit.html:26 web/views.py:1425
 msgid "for table"
 msgstr "per la tabella"
 
@@ -1611,7 +1611,7 @@ msgstr "Numero di interrogazioni salvate per tipologia di utente"
 #: static/templates/l4s/usage_report.html:112
 #: static/templates/l4s/usage_report.html:129
 #: static/templates/l4s/usage_report.html:149 web/actions.py:796
-#: web/actions.py:822 web/actions.py:850 web/forms.py:320 web/models.py:293
+#: web/actions.py:822 web/actions.py:850 web/forms.py:320 web/models.py:295
 msgid "User type"
 msgstr "Tipologia utente"
 
@@ -1683,15 +1683,15 @@ msgstr "Modifica il profilo utente"
 msgid "Argomento"
 msgstr "Argomento"
 
-#: web/actions.py:148 web/actions.py:321 web/models.py:126
+#: web/actions.py:148 web/actions.py:321 web/models.py:127
 msgid "Title"
 msgstr "Nome"
 
-#: web/exceptions.py:34 web/views.py:1411
+#: web/exceptions.py:34 web/views.py:1423
 msgid "Please add the metadata "
 msgstr "Per favore aggiungi il metadato"
 
-#: web/exceptions.py:35 web/views.py:1412
+#: web/exceptions.py:35 web/views.py:1424
 msgid "with key"
 msgstr "con chiave"
 
@@ -1736,109 +1736,109 @@ msgstr "es."
 msgid "Invalid Phone Number."
 msgstr "Numero di telefono non valido."
 
-#: web/models.py:38 web/models.py:48 web/models.py:59
+#: web/models.py:39 web/models.py:49 web/models.py:60
 msgid "numerosity"
 msgstr "numerosità"
 
-#: web/models.py:100 web/models.py:109
+#: web/models.py:101 web/models.py:110
 msgid "table name"
 msgstr "nome tabella"
 
-#: web/models.py:101 web/models.py:110 web/models.py:111
+#: web/models.py:102 web/models.py:111 web/models.py:112
 msgid "column name"
 msgstr "nome colonna"
 
-#: web/models.py:120
+#: web/models.py:121
 msgid "concept"
 msgstr "Concetto"
 
-#: web/models.py:127
+#: web/models.py:128
 msgid "Body"
 msgstr ""
 
-#: web/models.py:130
+#: web/models.py:131
 msgid "IP"
 msgstr ""
 
-#: web/models.py:172
+#: web/models.py:173
 msgid "subject"
 msgstr "oggetto"
 
-#: web/models.py:173
+#: web/models.py:174
 msgid "goal"
 msgstr "finalità"
 
-#: web/models.py:174
+#: web/models.py:175
 msgid "topic"
 msgstr "settore"
 
-#: web/models.py:175
+#: web/models.py:176
 msgid "requested data"
 msgstr "dati richiesti"
 
-#: web/models.py:178
+#: web/models.py:179
 msgid "referenced years"
 msgstr "anni di riferimento"
 
-#: web/models.py:181
+#: web/models.py:182
 msgid "territorial level"
 msgstr "livello territoriale"
 
-#: web/models.py:185
+#: web/models.py:186
 msgid "other territorial level (specify)"
 msgstr "altro livello territoriale (specifica)"
 
-#: web/models.py:189
+#: web/models.py:190
 msgid "specific territorial level"
 msgstr "specifiche livello territoriale"
 
-#: web/models.py:192
+#: web/models.py:193
 msgid "url"
 msgstr "url"
 
-#: web/models.py:203
+#: web/models.py:204
 msgid "user type"
 msgstr "tipologia utente"
 
-#: web/models.py:236
+#: web/models.py:237
 msgid "The given email must be set"
 msgstr "Sevi inserire la email"
 
-#: web/models.py:282
+#: web/models.py:284
 msgid "email address"
 msgstr "indirizzo email"
 
-#: web/models.py:287
+#: web/models.py:289
 msgid "first name"
 msgstr "nome"
 
-#: web/models.py:288
+#: web/models.py:290
 msgid "last name"
 msgstr "cognome"
 
-#: web/models.py:289
+#: web/models.py:291
 msgid "phone_number"
 msgstr "numero di telefono"
 
-#: web/models.py:296
+#: web/models.py:298
 msgid "Designates whether the user can loginto this admin site."
 msgstr "Indica se l'utente può accedere al sito di amministrazione."
 
-#: web/models.py:298
+#: web/models.py:300
 msgid "staff status"
 msgstr "utente interno"
 
-#: web/models.py:303
+#: web/models.py:305
 msgid "Designates whether the user can receive manual request nofications."
 msgstr ""
 "Indica se l'utente riceverà le mail di notifica delle nuove richieste "
 "manuali."
 
-#: web/models.py:306
+#: web/models.py:308
 msgid "manual request dispatcher status"
 msgstr "Evasore delle richieste manuali"
 
-#: web/models.py:310
+#: web/models.py:312
 msgid ""
 "Designates whether this user should be treated as active. Unselect this "
 "instead of deleting accounts."
@@ -1846,33 +1846,49 @@ msgstr ""
 "Indica se l'utente deve essere trattato come attivo. Deselezionare questa "
 "proprietà invece di eliminare gli account."
 
-#: web/models.py:312
+#: web/models.py:314
 msgid "active"
 msgstr "attivo"
 
-#: web/models.py:316
+#: web/models.py:318
 msgid "date joined"
 msgstr "data iscrizione"
 
-#: web/models.py:325
+#: web/models.py:321
+msgid "date change password"
+msgstr "data cambia password"
+
+#: web/models.py:330
 msgid "user"
 msgstr "utente"
 
-#: web/models.py:326
+#: web/models.py:331
 msgid "users"
 msgstr "utenti"
 
-#: web/models.py:364
-msgid "Your account has been deleted"
-msgstr "Il tuo account è stato cancellato"
+#: web/models.py:369
+msgid "Unused ISPAT LOD4STAT application account"
+msgstr "Inutilizzo account applicazione ISPAT LOD4STAT"
 
-#: web/models.py:365
+#: web/models.py:370
+#, python-format
 msgid ""
-"Your account has been inactive for 2 years. As required by law, we have "
-"taken steps to remove yours from our database."
+"Your account (username %s) for access to the ISPAT LOD4STAT data "
+"dissemination web application (http://www.l4s.ispat.provincia.tn.it/) we are "
+"not used for more than two years. Therefore, considering that its interest "
+"has failed, we have canceled the account. If you would like to use the app "
+"in the future, please register again."
 msgstr ""
-"Il tuo account è inattivo da 2 anni. Come previsto dalla legge, abbiamo "
-"provveduto a rimuovere i tuoi dal nostro database."
+"Il suo account (username %s) per l'accesso all'applicazione web di "
+"diffusione dati dell'ISPAT LOD4STAT (http://www.l4s.ispat.provincia.tn.it/) "
+"ci risulta essere inutilizzato da oltre due anni.\r\nRitenendo pertanto che sia "
+"venuto meno il suo interesse, abbiamo provveduto alla cancellazione "
+"dell'account.\r\nQualora in futuro volesse utilizzare l'applicazione, la "
+"invitiamo a registrarsi nuovamente.\r\n"
+"\r\n"
+"Distinti saluti\r\n"
+"\r\n"
+"Lo staff ISPAT LOD4STAT"
 
 #: web/statistical_secret.py:73
 msgid "Some value are asterisked to preserve the statistical secret"
@@ -1979,57 +1995,57 @@ msgstr "Valori selezionati"
 msgid "for"
 msgstr "per"
 
-#: web/views.py:194
+#: web/views.py:197
 msgid "No --JOIN statements specified in SQL"
 msgstr "Non hai specificato le istruzioni --JOIN  in SQL"
 
-#: web/views.py:195
+#: web/views.py:198
 msgid "the table is shown as-is"
 msgstr "la tabella è mostrata così com'è"
 
-#: web/views.py:196
+#: web/views.py:199
 msgid "without preserving statistical secret"
 msgstr "senza preservare il segreto statistico"
 
-#: web/views.py:235
+#: web/views.py:238
 msgid "Can not give you the result set"
 msgstr "Non è possibile  mostrare il risultato"
 
-#: web/views.py:236
+#: web/views.py:239
 msgid "in order to preserve the statistical secret"
 msgstr "per preservare il segreto statistico"
 
-#: web/views.py:237
+#: web/views.py:240
 msgid "please chose a pivot and push the Apply button"
 msgstr ""
 "per favore scegli come costruire la tabella pivot e premi il bottone Applica"
 
-#: web/views.py:353 web/views.py:469
+#: web/views.py:356 web/views.py:472
 msgid "The Query could not be saved because the data didn't validate."
 msgstr "L'interrogazione non può essere salvata perchè incorretta."
 
-#: web/views.py:368 web/views.py:493
+#: web/views.py:371 web/views.py:496
 msgid "The Query could not be executed because the data didn't validate."
 msgstr "L'interrogazione non può essere eseguita perchè incorretta."
 
-#: web/views.py:1041 web/views.py:1399
+#: web/views.py:1044 web/views.py:1411
 msgid "The table does not exist"
 msgstr "La tabella non esiste"
 
-#: web/views.py:1403
+#: web/views.py:1415
 msgid "The table are not visible"
 msgstr "La tabella non è visibile"
 
-#: web/views.py:1407
+#: web/views.py:1419
 msgid "The table must have at least 2 columns not obs_value"
 msgstr "La tabella deve avere almeno due colonne non obsValue"
 
-#: web/views.py:1419
+#: web/views.py:1431
 msgid "All columns mast have description metadata"
 msgstr ""
 "Tutte le colonne della tabella devono avere il metadato per la descrizione"
 
-#: web/views.py:1423
+#: web/views.py:1435
 #, python-format
 msgid ""
 "There are one ore plus fields on table %s with same description metadata"
@@ -2037,35 +2053,45 @@ msgstr ""
 "Ci sono una o piu colonne dalla tabella %s con lo stesso metadato della "
 "descrizione"
 
-#: web/views.py:1777
+#: web/views.py:1789
 msgid "Table name can not contain DELETE, INSERT o UPDATE string"
 msgstr ""
 "Il nome della tabella non puo' contenere le stringe DELETE, INSERT o UPDATE"
 
-#: web/views.py:1781
+#: web/views.py:1793
 msgid "Can not display the requested content"
 msgstr "La tabella non contiene nessun dato"
 
-#: web/views.py:1784
+#: web/views.py:1796
 msgid "The requested content is empty"
 msgstr "L'interrogazione ha restituito un dataset vuoto"
 
-#: web/views.py:1882
+#: web/views.py:1894
 msgid "here"
 msgstr "qui"
 
-#: web/views.py:1883
+#: web/views.py:1895
 msgid "The query has been saved"
 msgstr "L'interrogazione è stata salvata"
 
-#: web/views.py:1885
+#: web/views.py:1897
 msgid "In order to see the saved queries click"
 msgstr "Per vedere the interrogazioni salvate clicca"
 
-#: web/views.py:2354
+#: web/views.py:2366
 msgid "Synchronization completed successfully !"
 msgstr "Sincronizzazione avvenuta con successo !"
 
-#: web/views.py:2356
+#: web/views.py:2368
 msgid "Synchronization NOT successful !"
 msgstr "Sincronizzazione NON avvenuta con successo !"
+
+#~ msgid "Your account has been deleted"
+#~ msgstr "Il tuo account è stato cancellato"
+
+#~ msgid ""
+#~ "Your account has been inactive for 2 years. As required by law, we have "
+#~ "taken steps to remove yours from our database."
+#~ msgstr ""
+#~ "Il tuo account è inattivo da 2 anni. Come previsto dalla legge, abbiamo "
+#~ "provveduto a rimuovere i tuoi dal nostro database."

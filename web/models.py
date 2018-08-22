@@ -366,12 +366,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         send_mail(subject, message, from_email, [self.email])
 
     def delete(self, *args, **kwargs):
-        current_site = Site.objects.get_current()
-        send_mail('[' + current_site.domain + '] ' + unicode(_('Your account has been deleted')),
-                  unicode(_('Your account has been inactive for 2 years. As required by law, we have taken steps to remove yours from our database.')),
+        send_mail(unicode(_('Unused ISPAT LOD4STAT application account')),
+                  unicode(_("Your account (username %s) for access to the ISPAT LOD4STAT data dissemination web application (http://www.l4s.ispat.provincia.tn.it/) we are not used for more than two years. Therefore, considering that its interest has failed, we have canceled the account. If you would like to use the app in the future, please register again.")) % self.email,
                   settings.DEFAULT_FROM_EMAIL,
                   [self.email])
-        super(User,self).delete()
+        #super(User,self).delete()
 
     __original_password = None
 
