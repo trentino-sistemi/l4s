@@ -370,7 +370,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                   unicode(_("Your account (username %s) for access to the ISPAT LOD4STAT data dissemination web application (http://www.l4s.ispat.provincia.tn.it/) we are not used for more than two years. Therefore, considering that its interest has failed, we have canceled the account. If you would like to use the app in the future, please register again.")) % self.email,
                   settings.DEFAULT_FROM_EMAIL,
                   [self.email])
-        #super(User,self).delete()
+        super(User,self).delete()
 
     __original_password = None
 
