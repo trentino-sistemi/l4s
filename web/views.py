@@ -1193,7 +1193,7 @@ def index(request):
     context = RequestContext(request)
     context['object_list'] = objects
 
-    if request.user.is_superuser == False and request.user.is_authenticated() == True:
+    if request.user.is_superuser == False and request.user.is_authenticated() == True and request.user.is_staff == False:
         date_change_password = request.user.get_date_change_password()
         if timezone.now() - date_change_password > timedelta(days=PASSWORD_DURATION_DAYS):
             return redirect("/accounts/password/change/")
