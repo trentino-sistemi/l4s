@@ -39,7 +39,8 @@ from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
     DEFAULT_FROM_EMAIL, \
     ADMINISTRATOR_EMAIL, \
     ALLOWED_HOSTS, \
-    PASSWORD_DURATION_DAYS
+    PASSWORD_DURATION_DAYS, \
+    PRIVACY_POLICY_PDF
 from explorer.models import Query
 from explorer.utils import url_get_rows
 from explorer.views import ExplorerContextMixin, \
@@ -1222,7 +1223,7 @@ def privacy_policy(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    context = RequestContext(request)
+    context = {'PRIVACY_POLICY_PDF': PRIVACY_POLICY_PDF}
     return render_to_response("l4s/privacy_policy.html", context)
 
 

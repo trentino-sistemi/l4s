@@ -47,6 +47,7 @@ TEMPLATE_DEBUG = True
 SENDER = "SSPAT"
 SENDER_NAME = "Servizio Statistica: Provincia Autonoma di Trento"
 PASSWORD_DURATION_DAYS = 90
+PRIVACY_POLICY_PDF = "InformativaPrivacyGenericaISPAT_2018.pdf"
 
 ALLOWED_HOSTS = ['www.l4s.ispat.provincia.tn.it', '*']
 

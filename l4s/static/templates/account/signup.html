@@ -283,7 +283,7 @@ function show_privacy_policy(check) {
                         }
                     }
                 }
-            });
+            }).find("div.modal-dialog").css({ "width": "1000px", "height": "100%" });
 	    },
         error: function(xhr, status) {
             bootbox.alert(xhr.responseText);
