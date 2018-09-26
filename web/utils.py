@@ -1735,9 +1735,18 @@ def build_constraint_query(constraints,
     table = constraints[0]['table']
     enum_column = constraints[0]['column']
 
+    #print "table ", table
+
     dest_table_description = get_table_schema(table)
 
-    dest_columns = [field.name for field in dest_table_description]
+    #dest_columns = [field.name for field in dest_table_description]
+
+    dest_columns = []
+    for field in dest_table_description:
+        if not is_obs_value(table, field.name):
+            dest_columns.append(field.name)
+
+    #print "dest_columns " , dest_columns
 
     columns = []
     for col in old_cols:
@@ -1756,6 +1765,8 @@ def build_constraint_query(constraints,
         if col_name in dest_columns:
             columns.append(col_name)
     """
+
+    #print "columns " , columns
 
     if len(columns) == 0:
         return None, None
@@ -1930,7 +1941,12 @@ def build_secondary_query(secondary,
     enum_column = tpc[1]
 
     dest_table_description = get_table_schema(table)
-    dest_columns = [field.name for field in dest_table_description]
+    #dest_columns = [field.name for field in dest_table_description]
+
+    dest_columns = []
+    for field in dest_table_description:
+        if not is_obs_value(table, field.name):
+            dest_columns.append(field.name)
 
     columns = []
     for col in old_cols:
@@ -1947,6 +1963,8 @@ def build_secondary_query(secondary,
     for c, column in enumerate(columns):
         query += "%s %s.%s %d \n" % (JOIN_TOKEN, table, column, c)
     query += "%s %s.%s %d \n\n" % (JOIN_TOKEN, table, enum_column, c+1)
+
+    #print "1----" , query
 
     fields = ','.join([k for k in columns])
     query += "SELECT %s, " % fields
@@ -1989,6 +2007,7 @@ def build_secondary_query(secondary,
     query += "\nORDER BY %s \n" % enum_column
     query += "\nDESC "
 
+    #print query
 
     return constraint_values, table, enum_column, query, header
 
