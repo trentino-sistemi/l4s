@@ -906,10 +906,25 @@ def source_table_list(request):
     tables = connection.introspection.table_names()
     table_description_dict = build_description_table_dict(tables)
 
+    query = "select start_time, updated_tables " \
+            "from synchronization " \
+            "where success = TRUE and " \
+            "      start_time = (select max(start_time) " \
+            "                    from synchronization " \
+            "                    where success = TRUE)"
+
+    rows= execute_query_on_main_db(query)
+
+    for row in rows:
+        data_ultima_sincronizzazione = row[0]
+        updated_tables = row[1]
+
     context = Context({'table_list': tables})
     context['request'] = request
     context['table_description_dict'] = table_description_dict
     context['topics'] = build_topics_decoder_dict()
+    context['data_ultima_sincronizzazione'] = data_ultima_sincronizzazione
+    context['updated_tables'] = updated_tables
     return render_to_response("l4s/source_table_list.html", context)
 
 
