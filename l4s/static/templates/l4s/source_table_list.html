@@ -34,8 +34,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <div class="container"
      data-position="left"
      data-intro="{% trans " List of source database tables" %}">
-    <h4>{% trans "Data ultima sincronizzazione" %} <b>{{ data_ultima_sincronizzazione }}</b></h4>
-    <h4>{% trans "Numero tabelle sincronizzazione" %} <b>{{ updated_tables }}</b></h4>
+    <h4>{% trans "Data ultima sincronizzazione" %}<br>  <b> {% for item in last_sync %}  {{ item.1 }}  {% endfor %} </b></h4>
+    <h4>{% trans "Tabelle sincronizzate" %}<br> <b>{% for item in updated_tables %}  {{ item.0 }} <br> {% endfor %} </b></h4>
+    <h4>{% trans "Errori" %}<br>  <font color="red">{% for item in errors %}  {{ item.0 }} {{ item.1 }} {% endfor %} </font></h4>
     <br>
     <h4>{% trans "List of source database tables" %}</h4>
     <table class="table table-striped" id="table_list">

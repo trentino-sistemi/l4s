@@ -906,25 +906,29 @@ def source_table_list(request):
     tables = connection.introspection.table_names()
     table_description_dict = build_description_table_dict(tables)
 
-    query = "select start_time, updated_tables " \
+    query = "select * " \
             "from synchronization " \
-            "where success = TRUE and " \
-            "      start_time = (select max(start_time) " \
-            "                    from synchronization " \
-            "                    where success = TRUE)"
+            "order by start_time desc " \
+            "limit 1"
+    last_sync = execute_query_on_main_db(query)
 
-    rows= execute_query_on_main_db(query)
+    query = "select table_name " \
+            "from synchronization_log " \
+            "where  id > 4 and log = 'Data copied successfully'" #con id > 4 escludo le tabelle dei metadatai
+    updated_tables = execute_query_on_main_db(query)
 
-    for row in rows:
-        data_ultima_sincronizzazione = row[0]
-        updated_tables = row[1]
+    query = "select table_name, log " \
+            "from synchronization_log " \
+            "where success = False"
+    errors = execute_query_on_main_db(query)
 
     context = Context({'table_list': tables})
     context['request'] = request
     context['table_description_dict'] = table_description_dict
     context['topics'] = build_topics_decoder_dict()
-    context['data_ultima_sincronizzazione'] = data_ultima_sincronizzazione
+    context['last_sync'] = last_sync
     context['updated_tables'] = updated_tables
+    context['errors'] = errors
     return render_to_response("l4s/source_table_list.html", context)
 
 
