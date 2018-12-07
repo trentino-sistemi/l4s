@@ -1462,7 +1462,7 @@ def protect_secret(data, threshold_columns_dict, debug):
     return data, warning
 
 
-def item_constraint(constraint):
+def item_constraint(constraint, logican):
     """
     Take a constraint string and return a lazy structure
     representing the item.
@@ -1498,10 +1498,11 @@ def item_constraint(constraint):
     column_name = words[0]
     value = words[1]
     item = dict()
-    item['table'] = table_name
-    item['column'] = column_name
+    item['table'] = table_name.replace(' ','')
+    item['column'] = column_name.replace(' ','')
     item['operator'] = operator
     item['value'] = value
+    item['logican'] = logican
     return item
 
 
@@ -1512,19 +1513,38 @@ def build_constraint_dict(constraint_cols):
     """
     constraint_dict = dict()
     and_s = "AND"
+    or_s = "OR"
+
+    #print bcolors.WARNING
 
     for c in constraint_cols:
+        #print constraint_cols[c]
         res = []
         value = constraint_cols[c]
-        if and_s in value:
-            constraints = value.split(and_s)
-            for constraint in constraints:
-                item = item_constraint(constraint)
-                res.append(item)
+        constraints_or = []
+        if or_s in value:
+            constraints_or = value.split(or_s)
+            #print constraints_or
         else:
-            item = item_constraint(value)
-            res.append(item)
-        constraint_dict[c] = res
+            constraints_or.append(value)
+
+        #print constraints_or
+
+        for d, value in enumerate(constraints_or):
+            #print "value", value
+            value = value.replace('(','')
+            value = value.replace(')', '')
+            if and_s in value:
+                constraints = value.split(and_s)
+                for constraint in constraints:
+                    item = item_constraint(constraint, "AND")
+                    res.append(item)
+            else:
+                item = item_constraint(value, "AND")
+                res.append(item)
+            constraint_dict[c] = res
+
+    #print "constraint_dict", constraint_dict
 
     return constraint_dict
 
@@ -1577,10 +1597,10 @@ def apply_constraint_pivot(data,
     constraint_dict = build_constraint_dict(constraint_cols)
     #logger.error(constraint_dict)
 
+    #print "constraint_dict ", constraint_dict
+    #print len(constraint_dict)
+    
     """
-    print "constraint_dict ", constraint_dict
-    print len(constraint_dict)
-
     print bcolors.OKBLUE
     print "data_frame "
     print data_frame.columns
@@ -1716,6 +1736,7 @@ def apply_constraint_pivot(data,
                                                     pivot_cols,
                                                     False,
                                                     include_code)
+
 
 
 

@@ -1720,6 +1720,8 @@ def build_constraint_query(constraints,
                            filters,
                            aggregations,
                            old_cols):
+
+
     """
     Build ad hoc query on related table.
 
@@ -1732,8 +1734,26 @@ def build_constraint_query(constraints,
     #print filters
     #print "old_cols " , old_cols
 
-    table = constraints[0]['table']
-    enum_column = constraints[0]['column']
+    #print bcolors.WARNING, "constraints", constraints
+    relation = []
+
+    for constraint in constraints:
+
+        find = False
+
+        for p in relation:
+            if p['table'] == constraint['table'] and p['column'] == constraint['column']:
+                find = True
+
+        if not find:
+            item = dict()
+            item['table'] = constraint['table']
+            item['column'] = constraint['column']
+            relation.append(item)
+
+    #print "relation",relation
+
+    table = relation[0]['table']
 
     #print "table ", table
 
@@ -1741,7 +1761,7 @@ def build_constraint_query(constraints,
 
     #dest_columns = [field.name for field in dest_table_description]
 
-    dest_columns = []
+    dest_columns = [] #colonne non osb value della tabella che detiene il numero di strutture
     for field in dest_table_description:
         if not is_obs_value(table, field.name):
             dest_columns.append(field.name)
@@ -1749,26 +1769,16 @@ def build_constraint_query(constraints,
     #print "dest_columns " , dest_columns
 
     columns = []
-    for col in old_cols:
+    for col in old_cols: #join tra le colonne della tabella e le colonne della tabella che detiene il numero di struttore
 
         col_name = old_cols[col]['column']
 
         if col_name in dest_columns:
             columns.append(col_name)
 
-    """
-    for col in col_dict:
-        col_name = col_dict[col]['column']
-
-        print col_name
-
-        if col_name in dest_columns:
-            columns.append(col_name)
-    """
-
     #print "columns " , columns
 
-    if len(columns) == 0:
+    if len(columns) == 0: # se non c'e' nulla in comune esce
         return None, None
 
     header = []
@@ -1776,34 +1786,32 @@ def build_constraint_query(constraints,
     c = 0
 
     for c, column in enumerate(columns):  #mette il --join all'inizio della query
-        query += "%s %s.%s %d \n" % (JOIN_TOKEN, table, column, c)
-    query += "%s %s.%s %d \n\n" % (JOIN_TOKEN, table, enum_column, c+1)
+        query += "%s %s.%s %d \n" % (JOIN_TOKEN, table, column, c) #va bene usare table ... tanto le column sta in entrambe le tabelle
+
+    for d, p in enumerate(relation):
+        query += "%s %s.%s %d \n" % (JOIN_TOKEN, p["table"], p["column"], c + d + 1)
 
     fields = ','.join([k for k in columns])  #mette il select dei campi che servono
     query += "SELECT %s, " % fields
     for col in columns:
         header.append(col)
 
-    #for enum_column in enum_columns:
-    query += "SUM(%s) %s \n" % (enum_column, enum_column)  #mette il sum del campo che detiene il numero degli alberghi
+    for d, p in enumerate(relation):
+        query += "SUM(%s) %s " % (p["column"], p["column"])  #mette il sum del campo che detiene il numero degli alberghi
+        if d + 1 != len(relation):
+            query += ','
 
-    header.append(enum_column)
-    query += "FROM %s \n" % table  #aggiunge il from
+     #print query
+
+    for p in relation:
+        header.append(p["column"])
+
+    #print header
+
+    query += "\nFROM %s \n" % table  #aggiunge il from
     counter = 0
 
-    """
-    for i, k in enumerate(columns):  #questo non lo capisco
-        src_table = col_dict[i]['table']
-        if counter == 0:
-            query += "WHERE "
-        else:
-            query += "AND "
-        counter += 1
-        query += "%s IN (SELECT DISTINCT %s from %s ) \n" % (k, k, src_table)
-    """
-
     #print "dest_columns " , dest_columns
-
 
     for f in filters:
 
@@ -1825,8 +1833,6 @@ def build_constraint_query(constraints,
 
                 counter += 1
 
-    #print query
-
     query += "GROUP BY %s \n" % fields
 
     if len(aggregations) == 0:
@@ -1834,12 +1840,15 @@ def build_constraint_query(constraints,
 
         for c, constraint in enumerate(constraints):
             if c != 0:
-                query += " AND "
+                query += " %s " % constraint["logican"]
             operator = constraint["operator"]
             value = constraint["value"]
-            query += "SUM(%s)%s%s" % (enum_column, operator, value)
+            column = constraint["column"]
+            query += "SUM(%s)%s%s" % (column, operator, value)
 
     query += "\nORDER BY %s" % fields
+
+    #print query
 
     return query, header
 
