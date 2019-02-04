@@ -95,7 +95,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% else %}
 <h5>{% trans "This is a preview" %}: {% trans "in order to get the full result set click on 'Export' and choose a format." %}</h5>
 {% if show_legend == True %}
-<h6>{{ legend }} (<a target="_blank" href="http://en.istat.it/dlgs322.pdf">{{dl_art}}</a>)</h6>
+<h6>{{ legend }} (<a target="_blank" href="{{link_dl_art}}">{{dl_art}}</a>)</h6>
 {% endif %}
  <div class="btn-group">
      <button title="{% trans "Allow to choose fields, perform aggregations and filter result set" %}"

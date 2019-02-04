@@ -35,7 +35,7 @@ from django.contrib.auth.decorators import login_required, \
     user_passes_test
 from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
     EXPLORER_CONNECTION_NAME, \
-    LEGEND, DL_ART, \
+    LEGEND, DL_ART, LINK_DL_ART, \
     DEFAULT_FROM_EMAIL, \
     ADMINISTRATOR_EMAIL, \
     ALLOWED_HOSTS, \
@@ -1738,6 +1738,7 @@ def query_editor_view(request):
     context['ref_periods'] = ",".join(ref_periods.values())
     context['legend'] = LEGEND
     context['dl_art'] = DL_ART
+    context['link_dl_art'] = LINK_DL_ART
 
     context['not_sel_aggregations'] = not_sel_aggregations
     context['not_agg_selection_value'] = not_agg_selection_value
