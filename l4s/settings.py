@@ -233,7 +233,7 @@ CONTENT_TYPES = ['application/rdf+xml']
 
 LEGEND = "* = dato coperto da segreto statistico"
 DL_ART = "art. 9 D.L. 322/89"
-LINK_DL_ART = "http://en.istat.it/dlgs322.pdf"
+LINK_DL_ART = "https://www.istat.it/it/files/2011/04/dlgs322.pdf"
 
 
 # Only defined in settings_local.py.
