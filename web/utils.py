@@ -2291,9 +2291,11 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
 
     #print "cols_s ", cols_s
 
-    query = "SELECT table_name, column_name, count(id) FROM %s \n" % METADATA
+    query = "SELECT table_name, column_name, count(id) \n"
+    query += "FROM %s \n" % METADATA
     query += "WHERE id IN(%s) \n" % cols_s
-    query += "GROUP BY table_name, column_name ORDER BY count(id) DESC "
+    query += "GROUP BY table_name, column_name \n"
+    query += "ORDER BY count(id) DESC "
 
     #print "query " , query
 
@@ -2321,13 +2323,13 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
     for a, aggregation in enumerate(aggregations):
         metadata = Metadata.objects.get(id=aggregation)
 
-        """
-        print metadata.column_name
-        print metadata.key
-        print metadata.value
-        print metadata.table_name
-        print a
-        """
+
+        #print "column_name", metadata.column_name
+        #print "key", metadata.key
+        #print "value", metadata.value
+        #print "table_name", metadata.table_name
+        #print a
+
 
         if a != 0:
             st = detect_special_columns(sql)
@@ -2347,10 +2349,10 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
             sql = build_located_in_area_query(sql, cols, metadata, agg_filters,
                                               threshold, constraints)
 
-
+    #print bcolors.ENDC
     #print "metadata_value ", metadata_value
     #print "query aggregazione dopo ", sql
-    #print bcolors.ENDC
+
 
     return sql, err
 
@@ -2367,6 +2369,8 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     #print get_color(),  "threshold", threshold
 
     #print "threshold " , threshold
+
+    #print bcolors.OKBLUE
     #print "cols " , cols
 
     ref_table, ref_column = located_in_area(metadata.table_name,
@@ -2376,6 +2380,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     foreign_keys = build_foreign_keys(cols[0]['table'])
 
     #print "foreign_keys ", foreign_keys
+    #print bcolors.ENDC
 
     orig_column = ''
     destination_column = ''
@@ -2412,108 +2417,116 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     #print "orig_column ", orig_column
     #print "destination_column ", destination_column
 
+    if orig_column <> '' and destination_column <> '':
+        query = "SELECT "
+        params = ""
+        new_table = metadata.table_name + "_" + ref_table
+        old_header, inner_sql = extract_header(sql)
 
-    query = "SELECT "
-    params = ""
-    new_table = metadata.table_name + "_" + ref_table
-    old_header, inner_sql = extract_header(sql)
+        #print "inner_sql ", inner_sql
 
-    #print "inner_sql ", inner_sql
+        header = ""
+        if DESCRIPTION_TOKEN in old_header:
+            header += DESCRIPTION_TOKEN + "\n"
 
-    header = ""
-    if DESCRIPTION_TOKEN in old_header:
-        header += DESCRIPTION_TOKEN + "\n"
-
-    header += "%s " % JOIN_TOKEN
-    header += "%s.%s\n" % (metadata.table_name, metadata.column_name)
-
-    """
-    print "cols ", cols
-    print "threshold ", threshold
-    """
-    groupby = False
-
-    for c in cols:
-        table = cols[c]['table']
-        column = cols[c]['column']
-        if c != 0:
-            query += ", "
-
-
-        if c in threshold:
-            #print get_color()
-            #print "prrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
-            query += "SUM(%s.%s) %s " % (new_table, column, column)
-            header += "%s " % JOIN_TOKEN
-            header += "%s.%s %s\n" % (table, column, c)
-            groupby = True
-            continue
-
-
-        if column == orig_column:
-            query += ref_table + "." + ref_column
-            header += "%s " % JOIN_TOKEN
-            header += "%s.%s" % (ref_table, ref_column)
-            header += " %s\n" % c
-            if params != "":
-                params += ','
-            params += "%s.%s " % (ref_table, ref_column)
-            continue
-
-        query += "%s.%s" % (new_table, column)
-        if params != "":
-            params += ', '
-        params += "%s.%s" % (new_table, column)
         header += "%s " % JOIN_TOKEN
-        header += "%s.%s " % (table, column)
-        header += str(c) + "\n"
+        header += "%s.%s\n" % (metadata.table_name, metadata.column_name)
 
-    query += "\nFROM (%s) %s JOIN %s" % (inner_sql, new_table, ref_table)
-    query += "\nON (%s.%s=" % (new_table, orig_column)
-    query += "%s.%s" % (ref_table, destination_column)
+        """
+        print "cols ", cols
+        print "threshold ", threshold
+        """
+        groupby = False
 
-    pk = str(metadata.pk)
-
-    #print "pk ", pk
-
-    if pk in agg_filters:
-        ag_vals = []
-        agg = agg_filters[pk]
-        for n, ag in enumerate(agg):
-            val = "%s" % ag[0]
-            ag_vals.append(val)
-        if len(ag_vals) > 0:
-            comma_sep_ag_vals = ", ".join(ag_vals)
-            query += " AND %s.%s " % (ref_table, ref_column)
-            query += "IN (%s)" % comma_sep_ag_vals
-
-    query += ")"
-
-    if groupby:
-        query += "\nGROUP BY %s" % params
-
-    #print "constraints", constraints
-
-    if len(constraints) != 0:
-
-        # data non verificabile GROUP BY spostato da prima del if a qui
-        # 01/06/2016 GROUP BY rispostato fuori ... nel caso dmdstres aggrega stato per continente va fuori perche serve il group by
-
-        query += " HAVING "
-
-        for c, constraint in enumerate(constraints):
+        for c in cols:
+            table = cols[c]['table']
+            column = cols[c]['column']
             if c != 0:
-                query += " AND "
-            operator = constraint["operator"]
-            value = constraint["value"]
-            enum_column = constraint['column']
-
-            query += "SUM(%s)%s%s" % (enum_column, operator, value)
+                query += ", "
 
 
-    query += "\nORDER BY %s" % params
+            if c in threshold:
+                #print get_color()
+                #print "prrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+                query += "SUM(%s.%s) %s " % (new_table, column, column)
+                header += "%s " % JOIN_TOKEN
+                header += "%s.%s %s\n" % (table, column, c)
+                groupby = True
+                continue
 
-    query = header + query
+
+            if column == orig_column:
+                query += ref_table + "." + ref_column
+                header += "%s " % JOIN_TOKEN
+                header += "%s.%s" % (ref_table, ref_column)
+                header += " %s\n" % c
+                if params != "":
+                    params += ','
+                params += "%s.%s " % (ref_table, ref_column)
+                continue
+
+            query += "%s.%s" % (new_table, column)
+            if params != "":
+                params += ', '
+            params += "%s.%s" % (new_table, column)
+            header += "%s " % JOIN_TOKEN
+            header += "%s.%s " % (table, column)
+            header += str(c) + "\n"
+
+        #print bcolors.WARNING
+        #print query
+        #print get_color()
+
+        query += "\nFROM (%s) %s " % (inner_sql, new_table)
+
+        query += "JOIN %s" % (ref_table)
+        query += "\nON (%s.%s=" % (new_table, orig_column)
+        query += "%s.%s" % (ref_table, destination_column)
+
+        pk = str(metadata.pk)
+
+        #print "pk ", pk
+
+        if pk in agg_filters:
+            ag_vals = []
+            agg = agg_filters[pk]
+            for n, ag in enumerate(agg):
+                val = "%s" % ag[0]
+                ag_vals.append(val)
+            if len(ag_vals) > 0:
+                comma_sep_ag_vals = ", ".join(ag_vals)
+                query += " AND %s.%s " % (ref_table, ref_column)
+                query += "IN (%s)" % comma_sep_ag_vals
+
+        query += ")"
+
+        if groupby:
+            query += "\nGROUP BY %s" % params
+
+        #print "constraints", constraints
+
+        if len(constraints) != 0:
+
+            # data non verificabile GROUP BY spostato da prima del if a qui
+            # 01/06/2016 GROUP BY rispostato fuori ... nel caso dmdstres aggrega stato per continente va fuori perche serve il group by
+
+            query += " HAVING "
+
+            for c, constraint in enumerate(constraints):
+                if c != 0:
+                    query += " AND "
+                operator = constraint["operator"]
+                value = constraint["value"]
+                enum_column = constraint['column']
+
+                query += "SUM(%s)%s%s" % (enum_column, operator, value)
+
+
+        query += "\nORDER BY %s" % params
+
+        query = header + query
+    else:
+        query = sql
 
     #print get_color(), "query dopo ", query
 
