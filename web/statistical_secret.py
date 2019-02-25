@@ -2127,6 +2127,7 @@ def secondary_row_suppression_constraint(data,
 
     #return  data, 0
 
+    #print data
     asterisk_global_count = 0
     constraint_values, table, enum_column, query, new_header = build_secondary_query(secondary,
                                                                   col_dict,
@@ -2136,7 +2137,7 @@ def secondary_row_suppression_constraint(data,
 
     st = detect_special_columns(query)
 
-    #print query
+    #print get_color(), query
     #print "new_header " , new_header
     #print "constraint_values " , constraint_values
 
@@ -2208,14 +2209,31 @@ def secondary_row_suppression_constraint(data,
     else:
         slice_da_preservare = len(data_frame_appoggio.columns.levels) - 1  #  1 per l'ultimo slices
 
-    #print "slice_da_preservare row ", slice_da_preservare
+    #print "data_frame_appoggio.columns prima", (data_frame_appoggio.columns)
+
+    if len(obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
+        data_frame_appoggio.drop((','.join(data_frame_appoggio.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+    else:
+        data_frame_appoggio.drop(TOTAL, axis=1,inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+
+    #print "data_frame_appoggio.columns dopo", len(data_frame_appoggio.columns)
+
+    if len(data_frame_appoggio.columns) == 1: #se dopo aver droppato il totale rimane una sola colonna .... non serve la sopressione di riga
+        return data, 0
+
+    #print "data_frame_appoggio.columns.levels", data_frame_appoggio.columns.levels
+    #print "data_frame_appoggio.columns", data_frame_appoggio.columns
+    #print "slice_da_preservare", slice_da_preservare
+
+    #print "dataset prima"
+    #print data_frame_appoggio
 
     """
     if has_data_frame_multi_level_columns(data_frame):  #riordina le colonne .......
         data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)
     else:
         data_frame_appoggio_colonne = data_frame.sort_index(axis=1)
-
+    
     if len(obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
         data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
     else:
@@ -2244,7 +2262,11 @@ def secondary_row_suppression_constraint(data,
     print "index_tuples " , index_tuples
     """
 
+    #print "data_frame_appoggio.columns", data_frame_appoggio.columns
+
     #print "slice_da_preservare righe ", slice_da_preservare
+
+    #print "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", TOTAL
 
     if slice_da_preservare == 0:
 
@@ -2477,6 +2499,8 @@ def secondary_row_suppression_constraint(data,
 
         column_tuples = tuple(data_frame_appoggio.columns.levels[slice_da_preservare-1])
 
+        #print "column_tuples", column_tuples
+
         column_tuples = tuple([x for x in column_tuples if x != TOTAL])
 
         for ct, row_tup in enumerate(data_frame_appoggio.index):
@@ -2488,9 +2512,12 @@ def secondary_row_suppression_constraint(data,
 
             for c, col_tup in enumerate(column_tuples):
 
+                #print get_color()
                 #print "col_tup",col_tup
 
                 start_col, stop_col = find_in_not_sorted_index(data_frame_appoggio.columns, col_tup)
+
+                #print "start_col", start_col, "stop_col", stop_col
 
                 sel_col = start_col
                 asterisk_count = 0
@@ -2796,6 +2823,9 @@ def secondary_row_suppression_constraint(data,
 
 
     #print "finito"
+
+    #print "dataset dopo"
+    #print data
 
     return data, asterisk_global_count
 
@@ -3633,7 +3663,7 @@ def apply_stat_secret(headers,
             return rows, headers, None, warn, err
 
         #print "headers " , headers
-        #print data
+        #print "prima", data
 
         #print "pivot_cols ", pivot_cols
 
@@ -3649,7 +3679,7 @@ def apply_stat_secret(headers,
 
         """
         print err
-        print data
+        print "dopo", data
         print data_frame
         print "columns " , data_frame.columns
         print "index ", data_frame.index
@@ -3703,6 +3733,10 @@ def apply_stat_secret(headers,
                 #prima di abilitare asepttiamo conferma da Vincenzo 04-10-2016
                 data_frame = data_frame_from_tuples(data_frame, data)
 
+                #print get_color()
+                #print "1"
+                #print data_frame
+
                 data, ast_r = secondary_row_suppression_constraint(data,
                                                                    data_frame,
                                                                    pivot_dict,
@@ -3721,6 +3755,11 @@ def apply_stat_secret(headers,
                 #if contains_ref_period(pivot_dict, col_dict, axis=0) == True:
                 data_frame = data_frame_from_tuples(data_frame, data)
 
+                #print get_color()
+                #print "2"
+                #print "ast_r", ast_r
+                #print data_frame
+
                 data, ast_c = secondary_col_suppression_constraint(data,
                                                                    data_frame,
                                                                    pivot_dict,
@@ -3737,16 +3776,24 @@ def apply_stat_secret(headers,
 
                 tot_asterisked = ast_c + ast_r
 
+                #print "ast_c", ast_c
+
+                if tot_asterisked == 0:
+                    data_frame = data_frame_from_tuples(data_frame, data)
+                    #print get_color()
+                    #print "3"
+                    #print data_frame
+
                 #tot_asterisked = 0
 
-                """
-                print get_color()
-                print "ast_c " , ast_c
-                print "ast_r " , ast_r
-                print datetime.now().strftime("%H:%M:%S.%f")
-                print bcolors.ENDC
+
+                #print get_color()
+                #print "ast_c " , ast_c
+                #print "ast_r " , ast_r
+                #print datetime.now().strftime("%H:%M:%S.%f")
+                #print bcolors.ENDC
                 #time.sleep(5.5)
-                """
+
 
         else:
             data = protect_pivoted_table(data,

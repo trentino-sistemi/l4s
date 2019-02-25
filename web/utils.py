@@ -4464,10 +4464,10 @@ def find_in_not_sorted_index(lista, elemento_da_cercare, debug=False):
             else:
                 for a, b in enumerate(lista):
 
-                    """
-                    if elemento_da_cercare.strip() == 'Bulgaria':
-                        print a, b
-                    """
+
+                    #if elemento_da_cercare.strip() == 'Numero presenze':
+                    #    print "bareeeaaaaaaaaa", a, b
+
 
                     if elemento_da_cercare in b:
 
@@ -4483,6 +4483,7 @@ def find_in_not_sorted_index(lista, elemento_da_cercare, debug=False):
             inizio = lista.tolist().index(elemento_da_cercare)
             fine = inizio
 
+    #print "elemento_da_cercare", elemento_da_cercare
     return inizio, fine
 
 def is_int(v):
