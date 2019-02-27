@@ -2229,10 +2229,15 @@ def secondary_row_suppression_constraint(data,
     #print data_frame_appoggio
 
     """
-    if has_data_frame_multi_level_columns(data_frame):  #riordina le colonne .......
-        data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)
+    print "data_frame_appoggio.columns prima", data_frame_appoggio.columns
+
+    if has_data_frame_multi_level_columns(data_frame_appoggio):  #riordina le colonne .......
+        data_frame_appoggio = data_frame_appoggio.sortlevel(axis=1)
     else:
-        data_frame_appoggio_colonne = data_frame.sort_index(axis=1)
+        data_frame_appoggio = data_frame_appoggio.sort_index(axis=1)
+
+    print "data_frame_appoggio.columns dopo", data_frame_appoggio.columns
+
     
     if len(obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
         data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne

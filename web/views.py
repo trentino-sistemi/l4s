@@ -1,4 +1,5 @@
 # This file is part of Lod4Stat.
+# This file is part of Lod4Stat.
 #
 # Copyright (C) 2014 Provincia autonoma di Trento
 #
@@ -1218,9 +1219,9 @@ def index(request):
         if timezone.now() - date_change_password > timedelta(days=PASSWORD_DURATION_DAYS):
             return redirect("/accounts/password/change/")
         else:
-            return render_to_response("l4s/index_new.html", context)
+            return render_to_response("l4s/pagina_di_cortesia.html", context)
     else:
-        return render_to_response("l4s/index_new.html", context)
+        return render_to_response("l4s/pagina_di_cortesia.html", context)
 
     #return render_to_response("l4s/index_new.html", context)
 
