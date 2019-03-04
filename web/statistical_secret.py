@@ -20,6 +20,8 @@ Routines to preserve statistical secret.
 """
 
 import logging
+from webbrowser import get
+
 from django.utils.translation import ugettext_lazy as _
 from web.utils import execute_query_on_main_db, \
     build_constraint_query, \
@@ -1613,21 +1615,26 @@ def apply_constraint_pivot(data,
 
         #se ce' un solo obsvalue finisce in colonna, se ce ne sono di piu finiscono in riga
 
+        #print get_color()
+        #print "data_frame.columns ", data_frame.columns
+
         if has_data_frame_multi_level_columns(data_frame):  #riordina le colonne .......
             data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)
         else:
             data_frame_appoggio_colonne = data_frame.sort_index(axis=1)
 
-        """
-        print bcolors.OKGREEN
-        print "data_frame_appoggio_colonne.columns "
-        print data_frame_appoggio_colonne.columns
-        """
+        #print get_color()
+        #print "data_frame_appoggio_colonne.columns 1 ", data_frame_appoggio_colonne.columns
+
 
         if len(obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
             data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL),axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
         else:
             data_frame_appoggio_colonne.drop(TOTAL, axis=1,inplace=True)  # e poi tolgo la label TOTALE sulle colonne
+
+        #print get_color()
+        #print "data_frame_appoggio_colonne.columns 2 ", data_frame_appoggio_colonne.columns
+
 
         """
         print bcolors.HEADER
@@ -1689,6 +1696,7 @@ def apply_constraint_pivot(data,
         #stampa_symtobltabel(st)
         #print "+++++++++++++++++++++++++++++++++++++++++++++++++"
 
+        #print "aggregation", aggregation
 
         if len(aggregation) > 0:
 
@@ -2210,6 +2218,7 @@ def secondary_row_suppression_constraint(data,
         slice_da_preservare = len(data_frame_appoggio.columns.levels) - 1  #  1 per l'ultimo slices
 
     #print "data_frame_appoggio.columns prima", (data_frame_appoggio.columns)
+
 
     if len(obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
         data_frame_appoggio.drop((','.join(data_frame_appoggio.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
@@ -3680,6 +3689,7 @@ def apply_stat_secret(headers,
                                       col_dict,
                                       secret_column_dict)
 
+        #print "data_frame.columns", data_frame.columns
         #print "data_frame", data_frame
 
         """
@@ -3697,14 +3707,46 @@ def apply_stat_secret(headers,
         #print "data_frame prima", data_frame
 
         if len(obs_vals) > 1:
-            data_frame = data_frame.stack(0) #questa operazione cambia l'ordine dei osb value mettendoli in ordine alfabetico
+            #print get_color()
+            #print "data_frame.columns prima", data_frame.columns
+
+            indice = data_frame.columns.droplevel(0)
+
+            #print "indice", indice
+
+            cols = []
+            for col in indice:
+                if not col in cols:
+                    cols.append(col)
+                    #print col
+
+            data_frame = data_frame.stack(0) #questa operazione sposta gli obs value (arrivi, partenze) da colonne alle righe
+
+            #questo perche lo stack(0) fa perdere l'ordine giusto delle colonne e il totale si mischia
+
+            #print "cols", cols
+
+            if type(indice) == pd.MultiIndex:
+                multi_cols = pd.MultiIndex.from_tuples(cols, names=indice.names)
+            else:
+                multi_cols = pd.Index(cols, name=indice.name)
+
+            data_frame = pd.DataFrame(data_frame, columns=multi_cols)
+
+            #print get_color()
+            #print "data_frame.columns dopo", data_frame.columns
+
             data = get_data_from_data_frame(data_frame)
+
 
         #print get_color()
         #print "data_frame dopo", data_frame
 
         #visible = vedi tutto, se vedi tutto ritorna il dataset cosi come e' senza asterischi
         #debug = analizza
+        #print "visible", visible
+        #print "debug", debug
+
         if visible and not debug:
             return data, headers, data_frame, warn, err
 

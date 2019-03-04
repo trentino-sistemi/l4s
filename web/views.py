@@ -41,7 +41,9 @@ from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
     ADMINISTRATOR_EMAIL, \
     ALLOWED_HOSTS, \
     PASSWORD_DURATION_DAYS, \
-    PRIVACY_POLICY_PDF
+    PRIVACY_POLICY_PDF, \
+    MAINTENANCE_MODE, \
+    MAINTENANCE_MODE_LABEL
 from explorer.models import Query
 from explorer.utils import url_get_rows
 from explorer.views import ExplorerContextMixin, \
@@ -1213,15 +1215,21 @@ def index(request):
 
     context = RequestContext(request)
     context['object_list'] = objects
+    context['MAINTENANCE_MODE_LABEL'] = MAINTENANCE_MODE_LABEL
+
+    if MAINTENANCE_MODE == True:
+        url = 'pagina_di_cortesia.html'
+    else:
+        url = "index_new.html"
 
     if request.user.is_superuser == False and request.user.is_authenticated() == True and request.user.is_staff == False:
         date_change_password = request.user.get_date_change_password()
         if timezone.now() - date_change_password > timedelta(days=PASSWORD_DURATION_DAYS):
             return redirect("/accounts/password/change/")
         else:
-            return render_to_response("l4s/pagina_di_cortesia.html", context)
+            return render_to_response("l4s/" + url, context)
     else:
-        return render_to_response("l4s/pagina_di_cortesia.html", context)
+        return render_to_response("l4s/" + url, context)
 
     #return render_to_response("l4s/index_new.html", context)
 
