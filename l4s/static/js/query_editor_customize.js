@@ -249,6 +249,7 @@ function checkByParent(aId, aChecked) {
 }
 
 function create_selection(values, too_many) {
+
     var selection_obj = new Object();
     var value_hash = eval('(' + values + ')');
     for (var key in value_hash) {
@@ -264,16 +265,20 @@ function create_selection(values, too_many) {
         if (sp != null ) {
             cl = sp.parentNode.parentNode.getAttribute("id");
         }
+
         sel_ref_period_count = 0;
         if (coll != null) {
              for (var x=0; x<coll.length; x++) {
                 if (coll[x].checked) {
+
                     ref_period = coll[x].getAttribute("ref_period");
+
                     if (ref_period  != null  && ref_period == "true"){
                        if (cl != null && cl == "unselectedFields" ) {
                            sel_ref_period_count += 1;
                        }
                     }
+
                     if (sel_ref_period_count > 1) {
                         name = sp.getAttribute("name");
                         bootbox.alert(name + "; " + too_many);
@@ -411,7 +416,9 @@ function submit_popup (obs_values,
                        no_rows,
                        no_columns,
                        no_values,
-                       too_many) {
+                       too_many,
+                       aggregations,
+                       secondary) {
 						   
     selected_obs = create_obs_selection(obs_values);
     if (selected_obs == "") {
@@ -428,13 +435,23 @@ function submit_popup (obs_values,
         bootbox.alert(no_rows);
         return;
     }
-    selection = create_selection(values, too_many);
 
-    //alert(cols)
+    selection = create_selection(values, too_many);
 
     if (selection == null) {
         return
     }
+
+    //25-03-2019   troppo complesso farlo nel codice ... limitato al turismo
+    if (secondary == 'True')  {
+      agg_id_not_selected = get_aggregations(false);
+
+      if (agg_id_not_selected.length > 0) {
+        bootbox.alert(aggregations);
+        return null;
+      };
+    };
+
     spinner = $('#wrap').spin("modal");
     filter_value = JSON.stringify(selection);
     selected_obs_values = selected_obs.join(",")

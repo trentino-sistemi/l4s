@@ -1563,7 +1563,9 @@ def apply_constraint_pivot(data,
                            obs_vals,
                            include_code,
                            old_cols,
-                           range):
+                           range,
+                           not_sel_aggregations,
+                           not_agg_selection_value):
     """
     Apply a constraint limit to the result set.
 
@@ -1696,7 +1698,7 @@ def apply_constraint_pivot(data,
         #stampa_symtobltabel(st)
         #print "+++++++++++++++++++++++++++++++++++++++++++++++++"
 
-        #print "aggregation", aggregation
+        #aggregation = not_sel_aggregations
 
         if len(aggregation) > 0:
 
@@ -1726,6 +1728,16 @@ def apply_constraint_pivot(data,
                     cols[indice]['column'] = old_cols[col]['column']
                     indice += 1
 
+            """
+            print "aggregation", aggregation
+            print "not_sel_aggregations", not_sel_aggregations
+            print "not_agg_selection_value", not_agg_selection_value
+            print "cols", cols
+            print "filters", filters
+            print "elemento", elemento
+            print "constraint_values", constraint_values
+            """
+
             query, err = build_aggregation_query(query,
                                                  cols,
                                                  aggregation,
@@ -1734,10 +1746,12 @@ def apply_constraint_pivot(data,
                                                  constraint_values)
             st = detect_special_columns(query)
 
-        #print "2 --------------------------------------------------------------------------"
-        #print query
+        """
+        print "2 --------------------------------------------------------------------------"
+        print query
 
-        #print "3 --------------------------------------------------------------------------"
+        print "3 --------------------------------------------------------------------------"
+        """
 
         query, new_header = build_description_query(query,
                                                     st.cols,
@@ -3611,7 +3625,9 @@ def apply_stat_secret(headers,
                       include_code,
                       old_cols,
                       agg_filters,
-                      range):
+                      range,
+                      not_sel_aggregations,
+                      not_agg_selection_value):
     """
     Take in input the full data set and the column descriptions
     and return the data set statistical secret free.
@@ -3762,7 +3778,9 @@ def apply_stat_secret(headers,
                                       obs_vals,
                                       include_code,
                                       old_cols,
-                                      range)
+                                      range,
+                                      not_sel_aggregations,
+                                      not_agg_selection_value)
 
         sec = get_table_metadata_value(col_dict[0]['table'], SECONDARY)
 
@@ -3888,7 +3906,9 @@ def headers_and_data(user,
                      range,
                      ip_adress,
                      table_name,
-                     table_schema):
+                     table_schema,
+                     not_sel_aggregations,
+                     not_agg_selection_value):
     """
     Execute query, get headers, data, duration, error
     and filter result set to preserve the statistical secret.
@@ -3934,6 +3954,10 @@ def headers_and_data(user,
     #print "st.threshold ", st.threshold
 
     #print query.sql
+
+    #aggregation.append(26371)
+
+    #print "not_sel_aggregations", not_sel_aggregations
 
     if len(aggregation) > 0:
         query.sql, err = build_aggregation_query(query.sql,
@@ -4030,7 +4054,9 @@ def headers_and_data(user,
                                                               include_code,
                                                               old_cols,
                                                               agg_filters, # serve per le tabelle del turismo per costruire la query secondaria
-                                                              range)
+                                                              range,
+                                                              not_sel_aggregations,
+                                                              not_agg_selection_value)
 
 
     #print old_head
@@ -4142,7 +4168,8 @@ def load_data_frame(request):
                                                    range,
                                                    get_client_ip(request),
                                                    table_name,
-                                                   table_schema)
+                                                   table_schema,
+                                                   [])
             return df
     df = pd.read_pickle(store_name)
 

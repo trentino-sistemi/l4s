@@ -747,7 +747,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                          class="div_scroll">
                     {% for val in values|lookup:field %}
                         <input type="checkbox"
-                               {% if field.1 in ref_periods %}
+                               {% if field in ref_periods %}
                                ref_period="true"
                                {% endif %}
                                name="input_{{ field }}"
@@ -906,7 +906,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             '{% trans "The table must have at least one field in row" %}',
                             '{% trans "The table must have at least one field in column" %}',
                             '{% trans "The table must have at least one field in value" %}',
-                            '{% trans "you can select only one unless you drag it in line or column" %}');"
+                            '{% trans "you can select only one unless you drag it in line or column" %}',
+                            '{% trans "All aggreagation fields must drag it in line or column " %}',
+                            '{{ secondary }}');"
                    value="{% trans "Submit" %}"/>
         </td>
     </tr>

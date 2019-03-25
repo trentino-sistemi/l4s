@@ -1412,10 +1412,7 @@ def query_editor_customize(request):
 
     sec = get_table_metadata_value(table_name, SECONDARY)
 
-    if not sec is None and len(sec) > 0:
-        context['secondary'] = True
-    else:
-        context['secondary'] = False
+    context['secondary'] = not sec is None and len(sec) > 0;
 
     return render_to_response("l4s/query_editor_customize.html", context)
 
@@ -1721,9 +1718,13 @@ def query_editor_view(request):
                                            range,
                                            get_client_ip(request),
                                            table_name,
-                                           table_schema)
+                                           table_schema,
+                                           not_sel_aggregations_ids,
+                                           not_agg_selection_value)
 
     #print datetime.now().strftime("%H:%M:%S.%f")
+
+    #print "secondary", sec
 
     context['values'] = values
     context['obs_values'] = obs_values
