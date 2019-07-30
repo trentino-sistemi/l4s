@@ -4501,9 +4501,11 @@ def drop_codes_and_totals(df, include_code, pivot, cols, table_name, table_schem
             #df = df
 
         #print "cols", cols
-        #print "st.pivot " , pivot
-        #print "st.cols " , cols
+        #print "pivot " , pivot
+        #print pivot[0] * 2
         #print "df.shape ", df.shape[0], df.shape[1]
+
+        obs_value = pivot[0]
 
         ref_periods = list_ref_period(table_name, table_schema)
         #print ref_periods
@@ -4522,10 +4524,11 @@ def drop_codes_and_totals(df, include_code, pivot, cols, table_name, table_schem
                 df = drop_total_row(df)
             else:
                 #print "d"
-                if contains_ref_period(pivot, cols, axis=0) or df.shape[1] == 2:   # df.shape[1] = quante colonne ...2 va bene ... vuol dire una colonna e un totale e quindi il totale va tolto
+                #print df.shape
+                if contains_ref_period(pivot, cols, axis=0) or df.shape[1] == obs_value * 2:   # df.shape[1] = quante colonne ...2 va bene ... vuol dire una colonna e un totale e quindi il totale va tolto
                     df = drop_total_column(df)
 
-                if contains_ref_period(pivot, cols, axis=1) or df.shape[0] == 2:
+                if contains_ref_period(pivot, cols, axis=1) or df.shape[0] == obs_value * 2:
                     df = drop_total_row(df)
 
     return df
