@@ -1565,7 +1565,8 @@ def apply_constraint_pivot(data,
                            old_cols,
                            range,
                            not_sel_aggregations,
-                           not_agg_selection_value):
+                           not_agg_selection_value,
+                           query_iniziale):
     """
     Apply a constraint limit to the result set.
 
@@ -1680,7 +1681,8 @@ def apply_constraint_pivot(data,
                                                    col_dict,
                                                    filters,
                                                    aggregation,
-                                                   old_cols)
+                                                   old_cols,
+                                                   query_iniziale)
 
 
         #print "1 --------------------------------------------------------------------------"
@@ -3627,7 +3629,8 @@ def apply_stat_secret(headers,
                       agg_filters,
                       range,
                       not_sel_aggregations,
-                      not_agg_selection_value):
+                      not_agg_selection_value,
+                      query_iniziale):
     """
     Take in input the full data set and the column descriptions
     and return the data set statistical secret free.
@@ -3780,7 +3783,8 @@ def apply_stat_secret(headers,
                                       old_cols,
                                       range,
                                       not_sel_aggregations,
-                                      not_agg_selection_value)
+                                      not_agg_selection_value,
+                                      query_iniziale)
 
         sec = get_table_metadata_value(col_dict[0]['table'], SECONDARY)
 
@@ -3948,6 +3952,8 @@ def headers_and_data(user,
     print "1-----"
     """
 
+    query_iniziale = query.sql
+
     #stampa_symtobltabel(st)
 
     old_cols = st.cols
@@ -4056,7 +4062,8 @@ def headers_and_data(user,
                                                               agg_filters, # serve per le tabelle del turismo per costruire la query secondaria
                                                               range,
                                                               not_sel_aggregations,
-                                                              not_agg_selection_value)
+                                                              not_agg_selection_value,
+                                                              query_iniziale)
 
 
     #print old_head

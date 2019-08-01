@@ -1719,6 +1719,170 @@ def build_constraint_query(constraints,
                            col_dict,
                            filters,
                            aggregations,
+                           old_cols,
+                           query_iniziale):
+
+
+    """
+    LA VECCHIA VERSIONE E' SOTTO !!!!!
+
+    Build ad hoc query on related table.
+
+    :param constraints: Constraints.
+    :param col_dict: Column dictionary.
+    :param filters: Filters.
+    :return: The new query applying constraints.
+    """
+
+    #print "filters", filters
+    #print "col_dict", col_dict
+    #print "old_cols " , old_cols
+
+    #print bcolors.WARNING, "constraints", constraints
+    relation = []
+
+    for constraint in constraints:
+
+        find = False
+
+        for p in relation:
+            if p['table'] == constraint['table'] and p['column'] == constraint['column']:
+                find = True
+
+        if not find:
+            item = dict()
+            item['table'] = constraint['table']
+            item['column'] = constraint['column']
+            relation.append(item)
+
+    #print "relation",relation
+
+    table = relation[0]['table']
+    origin_table = old_cols[0]["table"]
+
+    #print "tabella_con_i_Dati ", tabella_con_i_Dati
+    #print "table ", table
+
+    dest_table_description = get_table_schema(table)
+    origin_table_description = get_table_schema(origin_table)
+
+    #dest_columns = [field.name for field in dest_table_description]
+
+    common_fields = [] #colonne in comune tra le due tabelle
+    for field in origin_table_description:
+        if field in dest_table_description:
+            common_fields.append(field.name)
+
+    dest_columns = [] #colonne non osb value della tabella che detiene il numero di strutture
+    for field in dest_table_description:
+        if not is_obs_value(table, field.name):
+            dest_columns.append(field.name)
+
+    #print "dest_columns " , dest_columns
+
+    columns = []
+    for col in old_cols: #join tra le colonne selezionate della tabella origine e le colonne della tabella che detiene il numero di strutture
+
+        col_name = old_cols[col]['column']
+
+        if col_name in dest_columns:
+            columns.append(col_name)
+
+    #print "columns " , columns
+
+    if len(columns) == 0: # se non c'e' nulla in comune esce
+        return None, None
+
+    header = []
+    query = ""
+    c = 0
+
+    for c, column in enumerate(columns):  #mette il --join all'inizio della query
+        query += "%s %s.%s %d \n" % (JOIN_TOKEN, table, column, c) #va bene usare table ... tanto le column sta in entrambe le tabelle
+
+    for d, p in enumerate(relation):
+        query += "%s %s.%s %d \n" % (JOIN_TOKEN, p["table"], p["column"], c + d + 1)
+
+    fields = ','.join([table + "." + k for k in columns])  #mette il select dei campi che servono
+    query += "SELECT %s, " % fields
+    for col in columns:
+        header.append(col)
+
+    for d, p in enumerate(relation):
+        query += "SUM(%s) %s " % (table + "." + p["column"], p["column"])  #mette il sum del campo che detiene il numero degli alberghi
+        if d + 1 != len(relation):
+            query += ','
+
+     #print query
+
+    for p in relation:
+        header.append(p["column"])
+
+    #print header
+
+    query += "\nFROM %s \n" % table  #aggiunge il from
+    counter = 0
+
+    #print "dest_columns " , dest_columns
+
+    """
+    
+    al posto dei filti usiamo una join con la tabella dei dati per arginare casi tipo terragnolo che ha un solo albergo ma 91 seconde case che pero non hanno movimenti
+    
+    for f in filters:
+
+        #print f
+
+        #if not f in columns and f in dest_columns:
+        if f in dest_columns:
+            filter_value = filters[f]
+
+            #print filter_value
+
+            if len(filter_value) > 0:
+                values = ','.join(["%s" % k[0] for k in filter_value])
+                if counter == 0:
+                    query += "WHERE "
+                else:
+                    query += "AND "
+                query += " %s IN (%s)\n" % (table + "." + f, values)
+
+                counter += 1
+    """
+
+    from_position = query_iniziale.find("FROM")
+    group_by_position = query_iniziale.find("GROUP BY")
+
+    #print query_iniziale[from_position:group_by_position]
+
+    query += "join (select distinct %s \n " % (','.join([origin_table + "." + k for k in common_fields]))
+    query += query_iniziale[from_position:group_by_position]
+    query += ") %s on (%s) \n" % (origin_table, ' and '.join([origin_table + "." + k + "=" + table + "." + k for k in common_fields]))
+
+    query += "GROUP BY %s \n" % fields
+
+    if len(aggregations) == 0:
+        query += "HAVING "
+
+        for c, constraint in enumerate(constraints):
+            if c != 0:
+                query += " %s " % constraint["logican"]
+            operator = constraint["operator"]
+            value = constraint["value"]
+            column = constraint["column"]
+            query += "SUM(%s)%s%s" % (table + "." + column, operator, value)
+
+    query += "\nORDER BY %s" % fields
+
+    #print bcolors.WARNING, query_iniziale
+    #print bcolors.OKBLUE, query
+
+    return query, header
+
+def build_constraint_query_old(constraints,
+                           col_dict,
+                           filters,
+                           aggregations,
                            old_cols):
 
 
@@ -1731,7 +1895,8 @@ def build_constraint_query(constraints,
     :return: The new query applying constraints.
     """
 
-    #print filters
+    #print "filters", filters
+    #print "col_dict", col_dict
     #print "old_cols " , old_cols
 
     #print bcolors.WARNING, "constraints", constraints
@@ -1848,7 +2013,8 @@ def build_constraint_query(constraints,
 
     query += "\nORDER BY %s" % fields
 
-    #print query
+    print bcolors.WARNING, query_iniziale
+    print bcolors.OKBLUE, query
 
     return query, header
 
