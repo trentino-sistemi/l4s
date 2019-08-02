@@ -452,8 +452,24 @@ function submit_popup (obs_values,
       };
     };
 
+    var obj_values = JSON.parse(values)
+
+    for (var key in obj_values) { //02-08-2019 controllo che se seleziono un valore allora devo portare il campo in riga o colonna
+      if (obj_values[key].length != selection[key].length ) {
+        sp = document.getElementById(key)
+        name = sp.getAttribute("name");
+        cl = sp.parentNode.parentNode.getAttribute("id");
+        if (cl == "unselectedFields" ) {
+          bootbox.alert("E' stato selezionato un valore per '" + name + "'; Deve quindi essere trascinato in riga o colonna !");
+          return null;
+        };
+        //console.log( key + ' ' + obj_values[key].length )
+      };
+    };
+
     spinner = $('#wrap').spin("modal");
     filter_value = JSON.stringify(selection);
+
     selected_obs_values = selected_obs.join(",")
 
     //Campi aggregati in riga o colonna
