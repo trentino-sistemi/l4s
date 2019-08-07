@@ -52,7 +52,8 @@ from web.utils import execute_query_on_main_db, \
     is_int, \
     data_type, \
     SECONDARY, \
-    get_client_ip
+    get_client_ip, \
+    stampa_symtobltabel
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -3878,11 +3879,27 @@ def apply_stat_secret(headers,
                                          rows,
                                          debug)
 
-        #print data_frame
+        """
+        print "data_frame",data_frame
+        print "data_frame.columns", data_frame.index
+        print "secret_column_dict", secret_column_dict
+        print "sec_ref", sec_ref
+        print "threshold_columns_dict", threshold_columns_dict
+        print "constraint_cols", constraint_cols
+        print "obs_vals", obs_vals
+        print "pivot_dict", pivot_dict
+        print "col_dict", col_dict
+        print "rows", rows
+        print "debug", debug
+        """
+
+        protect_total(data, data_frame, obs_vals, debug)
 
         data_frame = data_frame_from_tuples(data_frame, data)
 
         return data, headers, data_frame, warn, err
+
+
 
     #print data_frame
 
@@ -4196,4 +4213,47 @@ def store_data_frame(df):
         os.remove(store_name)
     df.to_pickle(store_name)
     return store_name
+
+def protect_total(data, data_frame, obs_value, debug):
+
+    data_frame_appoggio = pd.DataFrame(data_frame.values.copy(), data_frame.index.copy(), data_frame.columns.copy())
+
+    data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
+
+    for c, col in enumerate(data_frame_appoggio.columns):
+
+        asterisk_count = 0
+
+        for r, row in enumerate(data_frame_appoggio.index):
+            #print r, c, data[r][c]
+            if data[r][c].find('*') > -1:
+                asterisk_count += 1
+
+        #print "asterisk_count", asterisk_count
+        if asterisk_count > 0 and asterisk_count < 3 * len(obs_value):
+            for o, obs in enumerate(obs_value):
+                data[ len(data_frame_appoggio.index) - (o + 1) ][c] = '*'
+                if debug:
+                    data[len(data_frame_appoggio.index) - (o + 1)][c] += '(Meno di ' + str(3 * len(obs_value)) + ' asterischi sulla colonna)'
+
+            #print bcolors.WARNING, "soppressa su totale", bcolors.ENDC
+
+    for r, row in enumerate(data_frame_appoggio.index):
+
+        asterisk_count = 0
+
+        for c, col in enumerate(data_frame_appoggio.columns):
+            #print data[r][c]
+            if data[r][c].find('*') > -1:
+                asterisk_count += 1
+
+        #print "asterisk_count", asterisk_count
+        if asterisk_count > 0 and asterisk_count < 3 * len(obs_value):
+            data[ r ][ len(data_frame_appoggio.columns) - 1] = '*' #diversa da quella di sopra perche qui c'e un errore sul drop della colonna totale
+            if debug:
+                data[r][len(data_frame_appoggio.columns) - 1] += '(Meno di ' + str(3 * len(obs_value)) + ' asterischi sulla riga)'
+
+            #print bcolors.WARNING, "soppressa su totale", bcolors.ENDC
+
+
 

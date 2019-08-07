@@ -548,6 +548,38 @@ def contains_ref_period(pivot, cols, axis=None):
 
     return False
 
+def contains_ref_area(pivot, cols, axis=None):
+    """
+    Get the pivot list and the columns structure and the axis to be checked.
+    It returns if the table defined contains ref area values.
+
+    :param pivot: Pivot cols.
+    :param cols: Columns.
+    :param axis: Axis where looking for.
+    :return: Boolean.
+    """
+    if axis == 0:
+        for c in pivot:
+            table_name = cols[c]["table"]
+            column_name = cols[c]["column"]
+            if is_ref_area(table_name, column_name):
+                return True
+    if axis == 1:
+        for c in cols:
+            if not c in pivot:
+                table_name = cols[c]["table"]
+                column_name = cols[c]["column"]
+                if is_ref_area(table_name, column_name):
+                    return True
+    if axis == None:
+        for c in cols:
+            table_name = cols[c]["table"]
+            column_name = cols[c]["column"]
+            if is_ref_area(table_name, column_name):
+                return True
+
+    return False
+
 
 def all_hidden_fields(table_name,
                       table_description):
@@ -4698,7 +4730,6 @@ def drop_codes_and_totals(df, include_code, pivot, cols, table_name, table_schem
                     df = drop_total_row(df)
 
     return df
-
 
 def condition_for_secondary_suppression(data, apply_range):
 
