@@ -4248,10 +4248,10 @@ def protect_total(data, data_frame, obs_value, debug):
                 asterisk_count += 1
 
         #print "asterisk_count", asterisk_count
-        if asterisk_count > 0 and asterisk_count < 3 * len(obs_value):
-            data[ r ][ len(data_frame_appoggio.columns) - 1] = '*' #diversa da quella di sopra perche qui c'e un errore sul drop della colonna totale
+        if asterisk_count > 0 and asterisk_count < 3:
+            data[ r ][ len(data_frame_appoggio.columns) - 1] = '*'
             if debug:
-                data[r][len(data_frame_appoggio.columns) - 1] += '(Meno di ' + str(3 * len(obs_value)) + ' asterischi sulla riga)'
+                data[r][len(data_frame_appoggio.columns) - 1] += '(Meno di ' + str(3) + ' asterischi sulla riga)'
 
             #print bcolors.WARNING, "soppressa su totale", bcolors.ENDC
 
