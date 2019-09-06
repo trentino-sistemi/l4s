@@ -4225,8 +4225,8 @@ def protect_total(data, data_frame, obs_value, debug):
         asterisk_count = 0
 
         for r, row in enumerate(data_frame_appoggio.index):
-            #print r, c, data[r][c]
-            if data[r][c].find('*') > -1:
+            #print r, c, data[r][c], type(data[r][c])
+            if str(data[r][c]).find('*') > -1:
                 asterisk_count += 1
 
         #print "asterisk_count", asterisk_count
@@ -4244,7 +4244,7 @@ def protect_total(data, data_frame, obs_value, debug):
 
         for c, col in enumerate(data_frame_appoggio.columns):
             #print data[r][c]
-            if data[r][c].find('*') > -1:
+            if str(data[r][c]).find('*') > -1:
                 asterisk_count += 1
 
         #print "asterisk_count", asterisk_count
@@ -4254,6 +4254,4 @@ def protect_total(data, data_frame, obs_value, debug):
                 data[r][len(data_frame_appoggio.columns) - 1] += '(Meno di ' + str(3) + ' asterischi sulla riga)'
 
             #print bcolors.WARNING, "soppressa su totale", bcolors.ENDC
-
-
 
