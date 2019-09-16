@@ -1288,6 +1288,7 @@ def query_editor_customize(request):
     """
 
     context = RequestContext(request)
+
     debug = False
     if request.user.is_staff:
         debug_s = request.REQUEST.get('debug')
@@ -1428,6 +1429,8 @@ def query_editor_view(request):
     #save_value('manuel', 'fino qui arrivo')
 
     #print datetime.now().strftime("%H:%M:%S.%f")
+
+    #print request.REQUEST
 
     table_name = request.REQUEST.get('table')
     context = RequestContext(request)
@@ -1720,7 +1723,8 @@ def query_editor_view(request):
                                            table_name,
                                            table_schema,
                                            not_sel_aggregations_ids,
-                                           not_agg_selection_value)
+                                           not_agg_selection_value,
+                                           rows)
 
     #print datetime.now().strftime("%H:%M:%S.%f")
 

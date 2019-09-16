@@ -22,6 +22,7 @@ Routines to preserve statistical secret.
 import logging
 from webbrowser import get
 
+from django.template.defaultfilters import length
 from django.utils.translation import ugettext_lazy as _
 from web.utils import execute_query_on_main_db, \
     build_constraint_query, \
@@ -53,7 +54,8 @@ from web.utils import execute_query_on_main_db, \
     data_type, \
     SECONDARY, \
     get_client_ip, \
-    stampa_symtobltabel
+    stampa_symtobltabel, \
+    is_ref_area
 from web.models import ExecutedQueryLog
 from utils import to_utf8
 from explorer.models import Query
@@ -185,6 +187,18 @@ def pivot(data, headers, columns, rows, value, col_dict, secret_column_dict):
     :return: Data and Pandas data frame.
     """
     #print "headers", headers
+
+    """
+    print bcolors.OKBLUE
+    print "data", data, "\r\n"
+    print "headers", headers, "\r\n"
+    print "columns", columns, "\r\n"
+    print "rows", rows, "\r\n"
+    print "value", value, "\r\n"
+    print "col_dict", col_dict, "\r\n"
+    print "secret_column_dict", secret_column_dict, "\r\n"
+    print bcolors.ENDC
+    """
 
     if len(data) == 0:
         error = _("I can not pivot the table")
@@ -3631,7 +3645,9 @@ def apply_stat_secret(headers,
                       range,
                       not_sel_aggregations,
                       not_agg_selection_value,
-                      query_iniziale):
+                      query_iniziale,
+                      rows_fields,
+                      table_name):
     """
     Take in input the full data set and the column descriptions
     and return the data set statistical secret free.
@@ -3654,15 +3670,25 @@ def apply_stat_secret(headers,
     """
 
     """
-    print "col_dict " , col_dict
-    print "pivot_dict " , pivot_dict
-    print "secret_column_dict " , secret_column_dict
-    print "sec_ref " ,sec_ref
-    print "threshold_columns_dict " , threshold_columns_dict
-    print "constraint_cols " , constraint_cols
-    print "filters " , filters
-    print "aggregation " , aggregation
-    print "include_code " , include_code
+    print "headers ", headers
+    #print "data ", data,
+    print "col_dict ", col_dict,
+    print "pivot_dict ", pivot_dict,
+    print "secret_column_dict ", secret_column_dict,
+    print "sec_ref ", sec_ref,
+    print "threshold_columns_dict ", threshold_columns_dict,
+    print "constraint_cols ", constraint_cols,
+    #print "filters ", filters,
+    print "aggregation ", aggregation,
+    print "debug ", debug,
+    print "visible ", visible,
+    print "include_code ", include_code,
+    print "old_cols ", old_cols,
+    print "agg_filters ", agg_filters,
+    print "range ", range,
+    print "not_sel_aggregations ", not_sel_aggregations,
+    print "not_agg_selection_value ", not_agg_selection_value,
+    #print "query_iniziale ", query_iniziale
     """
 
     warn = None
@@ -3891,9 +3917,11 @@ def apply_stat_secret(headers,
         print "col_dict", col_dict
         print "rows", rows
         print "debug", debug
+        print "old_cols", old_cols
+        print "headers", headers
         """
 
-        protect_total(data, data_frame, obs_vals, debug)
+        protect_total(data, data_frame, obs_vals, debug, rows_fields, table_name)
 
         data_frame = data_frame_from_tuples(data_frame, data)
 
@@ -3929,7 +3957,8 @@ def headers_and_data(user,
                      table_name,
                      table_schema,
                      not_sel_aggregations,
-                     not_agg_selection_value):
+                     not_agg_selection_value,
+                     rows):
     """
     Execute query, get headers, data, duration, error
     and filter result set to preserve the statistical secret.
@@ -4080,7 +4109,9 @@ def headers_and_data(user,
                                                               range,
                                                               not_sel_aggregations,
                                                               not_agg_selection_value,
-                                                              query_iniziale)
+                                                              query_iniziale,
+                                                              rows,
+                                                              table_name)
 
 
     #print old_head
@@ -4193,6 +4224,7 @@ def load_data_frame(request):
                                                    get_client_ip(request),
                                                    table_name,
                                                    table_schema,
+                                                   [],
                                                    [])
             return df
     df = pd.read_pickle(store_name)
@@ -4214,23 +4246,56 @@ def store_data_frame(df):
     df.to_pickle(store_name)
     return store_name
 
-def protect_total(data, data_frame, obs_value, debug):
+def protect_total(data, data_frame, obs_value, debug, rows_fields, table_name):
+
+    #arrivati qui il totale c'e ancora sia in riga che in colonna ... viene droppato dopo
+
+    #print "----------------------------------------" , rows_fields
+
+    #print data_frame.index
+    #print rows_fields, table_name, length(rows_fields)
 
     data_frame_appoggio = pd.DataFrame(data_frame.values.copy(), data_frame.index.copy(), data_frame.columns.copy())
 
     data_frame_appoggio = remove_code_from_data_frame(data_frame_appoggio)
 
+    colonne_ref_area = []
+    for c, row in enumerate(data_frame_appoggio.index.names):
+        if c < length(rows_fields):
+            if is_ref_area(table_name, rows_fields[c]):
+                colonne_ref_area.append(c)
+
+    #print colonne_ref_area
+    #print data_frame_appoggio.index.names
+    #print data_frame_appoggio.columns.names
+
     for c, col in enumerate(data_frame_appoggio.columns):
 
         asterisk_count = 0
 
+        #print c, col
+
+        lista = []
+
         for r, row in enumerate(data_frame_appoggio.index):
-            #print r, c, data[r][c], type(data[r][c])
-            if str(data[r][c]).find('*') > -1:
-                asterisk_count += 1
+
+            #print "riga", r, row
+
+            for f, field in enumerate(row):
+
+                #print "elemrnti della riga", f, field
+
+                if f in colonne_ref_area:
+
+                    if (not (field in lista)):
+                        lista.append(field)
+
+                        #print r, c, data[r][c], type(data[r][c])
+                        if str(data[r][c]).find('*') > -1:
+                            asterisk_count += 1
 
         #print "asterisk_count", asterisk_count
-        if asterisk_count > 0 and asterisk_count < 3 * len(obs_value):
+        if asterisk_count > 0 and asterisk_count < 3:
             for o, obs in enumerate(obs_value):
                 data[ len(data_frame_appoggio.index) - (o + 1) ][c] = '*'
                 if debug:
