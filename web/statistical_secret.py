@@ -1717,6 +1717,8 @@ def apply_constraint_pivot(data,
 
         #aggregation = not_sel_aggregations
 
+        #print "aggregation", aggregation
+
         if len(aggregation) > 0:
 
             #torno agli elementi originali perche qui le colonne sono gia' raggruppate
@@ -1763,12 +1765,12 @@ def apply_constraint_pivot(data,
                                                  constraint_values)
             st = detect_special_columns(query)
 
-        """
-        print "2 --------------------------------------------------------------------------"
-        print query
 
-        print "3 --------------------------------------------------------------------------"
-        """
+        #print "2 --------------------------------------------------------------------------"
+        #print query
+
+        #print "3 --------------------------------------------------------------------------"
+
 
         query, new_header = build_description_query(query,
                                                     st.cols,
@@ -3905,6 +3907,7 @@ def apply_stat_secret(headers,
                                          rows,
                                          debug)
 
+
         """
         print "data_frame",data_frame
         print "data_frame.columns", data_frame.index
@@ -4299,7 +4302,7 @@ def protect_total(data, data_frame, obs_value, debug, rows_fields, table_name):
             for o, obs in enumerate(obs_value):
                 data[ len(data_frame_appoggio.index) - (o + 1) ][c] = '*'
                 if debug:
-                    data[len(data_frame_appoggio.index) - (o + 1)][c] += '(Meno di ' + str(3 * len(obs_value)) + ' asterischi sulla colonna)'
+                    data[len(data_frame_appoggio.index) - (o + 1)][c] += '(Meno di 3 ref area tutelate sulla colonna)'
 
             #print bcolors.WARNING, "soppressa su totale", bcolors.ENDC
 
@@ -4316,7 +4319,7 @@ def protect_total(data, data_frame, obs_value, debug, rows_fields, table_name):
         if asterisk_count > 0 and asterisk_count < 3:
             data[ r ][ len(data_frame_appoggio.columns) - 1] = '*'
             if debug:
-                data[r][len(data_frame_appoggio.columns) - 1] += '(Meno di ' + str(3) + ' asterischi sulla riga)'
+                data[r][len(data_frame_appoggio.columns) - 1] += '(Meno di 3 ref area tutelate sulla riga)'
 
             #print bcolors.WARNING, "soppressa su totale", bcolors.ENDC
 

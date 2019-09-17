@@ -1893,7 +1893,10 @@ def build_constraint_query(constraints,
 
     query += "GROUP BY %s \n" % fields
 
-    if len(aggregations) == 0:
+    # 17-09-2019 tolto if
+    # caso tudmolab - 2017 - nago torbole - provincia aggregata per regione
+    #if len(aggregations) == 0:
+    if True:
         query += "HAVING "
 
         for c, constraint in enumerate(constraints):
@@ -2571,6 +2574,8 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     #print bcolors.OKBLUE
     #print "cols " , cols
 
+    #print bcolors.OKGREEN, "cazone constraints", constraints
+
     ref_table, ref_column = located_in_area(metadata.table_name,
                                             metadata.column_name,
                                             metadata.value)
@@ -2615,7 +2620,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     #print "orig_column ", orig_column
     #print "destination_column ", destination_column
 
-    if orig_column <> '' and destination_column <> '':
+    if orig_column <> '' and destination_column <> '': #questo significa che ho una foreign key
         query = "SELECT "
         params = ""
         new_table = metadata.table_name + "_" + ref_table
@@ -2702,6 +2707,8 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
             query += "\nGROUP BY %s" % params
 
         #print "constraints", constraints
+
+        #print bcolors.OKBLUE, "cazone constraints", constraints
 
         if len(constraints) != 0:
 
