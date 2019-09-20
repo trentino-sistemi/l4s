@@ -3649,6 +3649,7 @@ def apply_stat_secret(headers,
                       not_agg_selection_value,
                       query_iniziale,
                       rows_fields,
+                      cols_fields,
                       table_name):
     """
     Take in input the full data set and the column descriptions
@@ -3924,7 +3925,7 @@ def apply_stat_secret(headers,
         print "headers", headers
         """
 
-        protect_total(data, data_frame, obs_vals, debug, rows_fields, table_name)
+        protect_total(data, data_frame, obs_vals, debug, rows_fields, cols_fields, table_name)
 
         data_frame = data_frame_from_tuples(data_frame, data)
 
@@ -3961,7 +3962,8 @@ def headers_and_data(user,
                      table_schema,
                      not_sel_aggregations,
                      not_agg_selection_value,
-                     rows):
+                     rows,
+                     cols):
     """
     Execute query, get headers, data, duration, error
     and filter result set to preserve the statistical secret.
@@ -4114,6 +4116,7 @@ def headers_and_data(user,
                                                               not_agg_selection_value,
                                                               query_iniziale,
                                                               rows,
+                                                              cols,
                                                               table_name)
 
 
@@ -4249,7 +4252,7 @@ def store_data_frame(df):
     df.to_pickle(store_name)
     return store_name
 
-def protect_total(data, data_frame, obs_value, debug, rows_fields, table_name):
+def protect_total(data, data_frame, obs_value, debug, rows_fields, cols_fields, table_name):
 
     #arrivati qui il totale c'e ancora sia in riga che in colonna ... viene droppato dopo
 
@@ -4272,54 +4275,90 @@ def protect_total(data, data_frame, obs_value, debug, rows_fields, table_name):
     #print data_frame_appoggio.index.names
     #print data_frame_appoggio.columns.names
 
-    for c, col in enumerate(data_frame_appoggio.columns):
+    if length(colonne_ref_area) > 0:
+        for c, col in enumerate(data_frame_appoggio.columns):
 
-        asterisk_count = 0
+            asterisk_count = 0
 
-        #print c, col
+            #print c, col
 
-        lista = []
+            lista = []
 
+            for r, row in enumerate(data_frame_appoggio.index):
+
+                #print "riga", r, row, type(row)
+
+                if type(row) is tuple:
+                    for f, field in enumerate(row):
+
+                        #print "elemrnti della riga", f, field
+
+                        if f in colonne_ref_area:
+
+                            if (not (field in lista)):
+                                lista.append(field)
+
+                                #print r, c, data[r][c], type(data[r][c])
+                                if str(data[r][c]).find('*') > -1:
+                                    asterisk_count += 1
+                else:
+                    if 0 in colonne_ref_area: #giusto lo 0 perche e il primo e unico elemento della riga
+
+                        if (not (row in lista)):
+                            lista.append(row)
+
+                            # print r, c, data[r][c], type(data[r][c])
+                            if str(data[r][c]).find('*') > -1:
+                                asterisk_count += 1
+
+            #print "asterisk_count", asterisk_count
+            if asterisk_count > 0 and asterisk_count < 3:
+                for o, obs in enumerate(obs_value):
+                    data[ len(data_frame_appoggio.index) - (o + 1) ][c] = '*'
+                    if debug:
+                        data[len(data_frame_appoggio.index) - (o + 1)][c] += '(Meno di 3 ref area tutelate sulla colonna)'
+
+                #print bcolors.WARNING, "soppressa su totale", bcolors.ENDC
+
+    righe_ref_area = []
+    for c, row in enumerate(data_frame_appoggio.columns.names):
+        if c < length(cols_fields):
+            if is_ref_area(table_name, cols_fields[c]):
+                if len(obs_value) == 1:
+                    righe_ref_area.append(c+1)
+                else:
+                    righe_ref_area.append(c)
+
+
+    #print righe_ref_area
+
+    if length(righe_ref_area) > 0:
         for r, row in enumerate(data_frame_appoggio.index):
 
-            #print "riga", r, row
+            asterisk_count = 0
 
-            for f, field in enumerate(row):
+            lista = []
 
-                #print "elemrnti della riga", f, field
+            for c, col in enumerate(data_frame_appoggio.columns):
 
-                if f in colonne_ref_area:
+                for f, field in enumerate(col): #qui non serve verificare se sono tuple perche lo sono sempre
 
-                    if (not (field in lista)):
-                        lista.append(field)
+                    #print "elemrnti della colonna", f, field
 
-                        #print r, c, data[r][c], type(data[r][c])
-                        if str(data[r][c]).find('*') > -1:
-                            asterisk_count += 1
+                    if f in righe_ref_area:
 
-        #print "asterisk_count", asterisk_count
-        if asterisk_count > 0 and asterisk_count < 3:
-            for o, obs in enumerate(obs_value):
-                data[ len(data_frame_appoggio.index) - (o + 1) ][c] = '*'
+                        if (not (field in lista)):
+                            lista.append(field)
+
+                            #print data[r][c]
+                            if str(data[r][c]).find('*') > -1:
+                                asterisk_count += 1
+
+            #print "asterisk_count", asterisk_count
+            if asterisk_count > 0 and asterisk_count < 3:
+                data[ r ][ len(data_frame_appoggio.columns) - 1] = '*'
                 if debug:
-                    data[len(data_frame_appoggio.index) - (o + 1)][c] += '(Meno di 3 ref area tutelate sulla colonna)'
+                    data[r][len(data_frame_appoggio.columns) - 1] += '(Meno di 3 ref area tutelate sulla riga)'
 
-            #print bcolors.WARNING, "soppressa su totale", bcolors.ENDC
-
-    for r, row in enumerate(data_frame_appoggio.index):
-
-        asterisk_count = 0
-
-        for c, col in enumerate(data_frame_appoggio.columns):
-            #print data[r][c]
-            if str(data[r][c]).find('*') > -1:
-                asterisk_count += 1
-
-        #print "asterisk_count", asterisk_count
-        if asterisk_count > 0 and asterisk_count < 3:
-            data[ r ][ len(data_frame_appoggio.columns) - 1] = '*'
-            if debug:
-                data[r][len(data_frame_appoggio.columns) - 1] += '(Meno di 3 ref area tutelate sulla riga)'
-
-            #print bcolors.WARNING, "soppressa su totale", bcolors.ENDC
+                #print bcolors.WARNING, "soppressa su totale", bcolors.ENDC
 

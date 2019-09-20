@@ -1724,7 +1724,8 @@ def query_editor_view(request):
                                            table_schema,
                                            not_sel_aggregations_ids,
                                            not_agg_selection_value,
-                                           rows)
+                                           rows,
+                                           cols)
 
     #print datetime.now().strftime("%H:%M:%S.%f")
 
