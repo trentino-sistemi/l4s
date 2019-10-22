@@ -1700,9 +1700,7 @@ def apply_constraint_pivot(data,
                                                    query_iniziale)
 
 
-        #print "1 --------------------------------------------------------------------------"
-
-        #print query
+        #print bcolors.FAIL, "Query sulla tabelle delle strutture PRIMA dell'aggreazione", query
 
         #logger.error(query)
 
@@ -1765,8 +1763,8 @@ def apply_constraint_pivot(data,
                                                  constraint_values)
             st = detect_special_columns(query)
 
+            #print bcolors.OKGREEN, "Query sulla tabelle delle strutture DOPO l'aggreazione", query
 
-        #print "2 --------------------------------------------------------------------------"
         #print query
 
         #print "3 --------------------------------------------------------------------------"

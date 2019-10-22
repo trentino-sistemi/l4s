@@ -1766,11 +1766,14 @@ def build_constraint_query(constraints,
     :return: The new query applying constraints.
     """
 
-    #print "filters", filters
-    #print "col_dict", col_dict
-    #print "old_cols " , old_cols
+    """
+    print bcolors.WARNING, "constraints", constraints
+    print "col_dict", col_dict
+    print "filters", filters
+    print "aggregations", aggregations
+    print "old_cols " , old_cols
+    """
 
-    #print bcolors.WARNING, "constraints", constraints
     relation = []
 
     for constraint in constraints:
@@ -1894,9 +1897,31 @@ def build_constraint_query(constraints,
     query += "GROUP BY %s \n" % fields
 
     # 17-09-2019 tolto if
-    # caso tudmolab - 2017 - nago torbole - provincia aggregata per regione
-    #if len(aggregations) == 0:
-    if True:
+    # caso tudmoalb - anno=2017 - comu=nago torbole - provincia aggregata per regione
+
+    # 21-10-2019 rimesso if
+    #caso tudmoex1, riga(anno=2018, comu=arco, nago torbole), colonna=(esercizio extralergieri ragiuppato 4 livello)
+    # in questo caso non va bene la clausola having
+
+    foreign_keys = build_foreign_keys(table)
+
+    for a, aggregation in enumerate(aggregations):
+        metadata = Metadata.objects.get(id=aggregation)
+
+    orig_column = ''
+    destination_column = ''
+
+    for id, column in enumerate(foreign_keys):
+
+        elements = foreign_keys[column]
+
+        #print "elements " , elements
+
+        if elements[0] == metadata.table_name and elements[1] == metadata.column_name:
+            orig_column = column
+            destination_column = metadata.column_name
+
+    if orig_column == '' and destination_column == '':  # questo significa che ho una foreign key VALIDE ... perche ce ne sono anche che non vanno prese in considerazione
         query += "HAVING "
 
         for c, constraint in enumerate(constraints):
@@ -2582,7 +2607,13 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
     foreign_keys = build_foreign_keys(cols[0]['table'])
 
-    #print "foreign_keys ", foreign_keys
+    """
+    print cols[0]['table']
+    print "foreign_keys ", foreign_keys
+    print "metadata.table_name ", metadata.table_name
+    print "metadata.column_name ", metadata.column_name
+    print "metadata.value ", metadata.value
+    """
     #print bcolors.ENDC
 
     orig_column = ''
@@ -2620,7 +2651,8 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     #print "orig_column ", orig_column
     #print "destination_column ", destination_column
 
-    if orig_column <> '' and destination_column <> '': #questo significa che ho una foreign key
+    if orig_column <> '' and destination_column <> '': #questo significa che ho una foreign key VALIDE ... perche ce ne sono anche che non vanno prese in considerazione
+        #print "punto 1"
         query = "SELECT "
         params = ""
         new_table = metadata.table_name + "_" + ref_table
@@ -2731,6 +2763,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
         query = header + query
     else:
+        #print "punto 2"
         query = sql
 
     #print get_color(), "query dopo ", query
