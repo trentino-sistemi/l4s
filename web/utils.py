@@ -1903,25 +1903,29 @@ def build_constraint_query(constraints,
     #caso tudmoex1, riga(anno=2018, comu=arco, nago torbole), colonna=(esercizio extralergieri ragiuppato 4 livello)
     # in questo caso non va bene la clausola having
 
-    foreign_keys = build_foreign_keys(table)
-
-    for a, aggregation in enumerate(aggregations):
-        metadata = Metadata.objects.get(id=aggregation)
-
     orig_column = ''
     destination_column = ''
 
-    for id, column in enumerate(foreign_keys):
+    if len(aggregations) > 0:
 
-        elements = foreign_keys[column]
+        foreign_keys = build_foreign_keys(table)
 
-        #print "elements " , elements
+        for a, aggregation in enumerate(aggregations):
+            metadata = Metadata.objects.get(id=aggregation)
 
-        if elements[0] == metadata.table_name and elements[1] == metadata.column_name:
-            orig_column = column
-            destination_column = metadata.column_name
+        for id, column in enumerate(foreign_keys):
+
+            elements = foreign_keys[column]
+
+            #print "elements " , elements
+
+            if elements[0] == metadata.table_name and elements[1] == metadata.column_name:
+                orig_column = column
+                destination_column = metadata.column_name
 
     if orig_column == '' and destination_column == '':  # questo significa che ho una foreign key VALIDE ... perche ce ne sono anche che non vanno prese in considerazione
+        #oppure che NON ho aggregazioni
+
         query += "HAVING "
 
         for c, constraint in enumerate(constraints):
