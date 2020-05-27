@@ -1293,20 +1293,21 @@ def total_is_visible(table_name):
 
     :return: the column name with description.
     """
-    query = "SELECT value\n"
+    query = "SELECT count(*) \n"
     query += "FROM %s\n" % METADATA
     query += "WHERE column_name = 'NULL'"
     query += "and table_name='%s' " % table_name
     query += "and upper(key) = upper('%s') " % VISIBLE_TOTAL
+    query += "and upper(value) = upper('%s') " % FALSE
 
     #print "find_table_description_column ", query
 
     rows = execute_query_on_django_db(query)
+
     if not rows is None:
         for row in rows:
-            return row[0] == TRUE
-    else:
-        return True
+            return row[0] == 0
+
     #raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, table_name)
 
 
