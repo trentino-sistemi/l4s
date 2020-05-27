@@ -94,6 +94,7 @@ CONSTRAINT = 'http://dbpedia.org/ontology/constraint'
 SECONDARY = 'http://dbpedia.org/ontology/secondary'
 NUOVI_CONFINI_COMUNE = 'http://it.dbpedia.org/data/Nuovi_confini_comune'
 AVVERTENZE = 'http://purl.org/ontology/warnings'
+VISIBLE_TOTAL = 'http://dbpedia.org/ontology/total'
 
 DESCRIPTION_TOKEN = "--INCLUDE_DESCRIPTIONS"
 JOIN_TOKEN = '--JOIN'
@@ -1284,6 +1285,28 @@ def find_table_description_column(table_name):
     if not rows is None:
         for row in rows:
             return row[0]
+    #raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, table_name)
+
+def total_is_visible(table_name):
+    """
+    Get the column name with description.
+
+    :return: the column name with description.
+    """
+    query = "SELECT value\n"
+    query += "FROM %s\n" % METADATA
+    query += "WHERE column_name = 'NULL'"
+    query += "and table_name='%s' " % table_name
+    query += "and upper(key) = upper('%s') " % VISIBLE_TOTAL
+
+    #print "find_table_description_column ", query
+
+    rows = execute_query_on_django_db(query)
+    if not rows is None:
+        for row in rows:
+            return row[0] == TRUE
+    else:
+        return True
     #raise MissingMetadataException(SAME_AS, VALUE_DESCRIPTION, table_name)
 
 
@@ -4747,31 +4770,36 @@ def drop_codes_and_totals(df, include_code, pivot, cols, table_name, table_schem
         #print pivot[0] * 2
         #print "df.shape ", df.shape[0], df.shape[1]
 
-        obs_value = pivot[0]
+        if total_is_visible(table_name):
+            obs_value = pivot[0]
 
-        ref_periods = list_ref_period(table_name, table_schema)
-        #print ref_periods
+            ref_periods = list_ref_period(table_name, table_schema)
+            #print ref_periods
 
-        if len(ref_periods) == 0:
-            #print "a"
-            if df.shape[1] == 2:
-                df = drop_total_column(df)
-            if df.shape[0] == 2:
-                df = drop_total_row(df)
-        else:
-            #print "b"
-            if (contains_ref_period(pivot, cols, axis=0) == False) and (contains_ref_period(pivot, cols, axis=1) == False):
-                #print "c"
-                df = drop_total_column(df)
-                df = drop_total_row(df)
-            else:
-                #print "d"
-                #print df.shape
-                if contains_ref_period(pivot, cols, axis=0) or df.shape[1] == obs_value * 2:   # df.shape[1] = quante colonne ...2 va bene ... vuol dire una colonna e un totale e quindi il totale va tolto
+            if len(ref_periods) == 0: #non credo accada mai, l'anno c'e sempre
+                #print "a"
+                if df.shape[1] == 2:
                     df = drop_total_column(df)
-
-                if contains_ref_period(pivot, cols, axis=1) or df.shape[0] == obs_value * 2:
+                if df.shape[0] == 2:
                     df = drop_total_row(df)
+            else:
+                #print "b"
+                if (contains_ref_period(pivot, cols, axis=0) == False) and (contains_ref_period(pivot, cols, axis=1) == False): #anche questo credo che non accada mai, l'anno deve sempre essere trascinato o in riga o in colonna
+                    #print "c"
+                    df = drop_total_column(df)
+                    df = drop_total_row(df)
+                else:
+                    #print "d"
+                    #print df.shape
+                    if contains_ref_period(pivot, cols, axis=0) or df.shape[1] == obs_value * 2:   # df.shape[1] = quante colonne ...2 va bene ... vuol dire una colonna e un totale e quindi il totale va tolto
+                        df = drop_total_column(df)
+
+                    if contains_ref_period(pivot, cols, axis=1) or df.shape[0] == obs_value * 2:
+                        df = drop_total_row(df)
+        else:
+            df = drop_total_column(df)
+            df = drop_total_row(df)
+
 
     return df
 

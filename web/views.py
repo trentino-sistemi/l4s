@@ -2087,6 +2087,8 @@ def query_editor(request):
     context['queries'] = queries
 
     #print "topics ", topic_mapping
+    #print "icons ", icons
+    #print "keywords", keywords
     #print "topics_counter ", context['topics_counter']
 
     """
