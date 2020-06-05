@@ -1,4 +1,4 @@
-Django==1.6.11
+Django==1.11.29
 
 # PostgreSQL adapter
 psycopg2==2.5.2
