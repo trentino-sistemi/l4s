@@ -234,8 +234,6 @@ CONTENT_TYPES = ['application/rdf+xml']
 LEGEND = "* = dato coperto da segreto statistico"
 DL_ART = "art. 9 D.L. 322/89"
 LINK_DL_ART = "https://www.istat.it/it/files/2011/04/dlgs322.pdf"
-MAINTENANCE_MODE = False
-MAINTENANCE_MODE_LABEL = 'SOSPESO, per adeguamento ai termini di legge per la privacy'
 
 # Only defined in settings_local.py.
 LOCAL_APPS = ()

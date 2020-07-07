@@ -30,6 +30,13 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.sites.models import Site
 
+class CustomSite(Site):
+    in_manutenzione = models.BooleanField()
+    label = models.CharField(max_length=255)
+    class Meta:
+        verbose_name = 'Sito in manutenzione'
+        verbose_name_plural = 'Sito in manutenzione'
+
 class Test3(models.Model):
     """
     Test with 3 columns.
