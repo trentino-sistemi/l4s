@@ -2101,8 +2101,9 @@ def build_constraint_query_old(constraints,
 
     query += "\nORDER BY %s" % fields
 
-    print bcolors.WARNING, query_iniziale
-    print bcolors.OKBLUE, query
+    if debug == True:
+        print bcolors.WARNING, query_iniziale
+        print bcolors.OKBLUE, query
 
     return query, header
 
@@ -4091,11 +4092,18 @@ def drop_total_column(data_frame):
     :param data_frame:
     :return: Data frame.
     """
+    #print data_frame.columns
     col = data_frame.columns[len(data_frame.columns)-1]
+    #print "col", col
     if isinstance(col, tuple):
-        last_col = col[len(col)-1]
+        last_col = col[0] #sembra che nel esempio nella todmotot il totale sia alla prima posizione
+        #print "a"
     else:
         last_col = col
+        #print "b"
+
+    #print "dddddddddddd", last_col
+
     if last_col != TOTAL:
         return data_frame
     data_frame = data_frame.drop(col, axis=1)

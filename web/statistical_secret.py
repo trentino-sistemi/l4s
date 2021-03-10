@@ -1779,13 +1779,13 @@ def apply_constraint_pivot(data,
 
 
 
-        """
-        print "4 --------------------------------------------------------------------------"
-        print query
-        print new_header
-        """
 
-        #logger.error(query)
+        #print "4 --------------------------------------------------------------------------"
+        #print query
+        #print new_header
+
+
+        #print query
 
         dest_data = execute_query_on_main_db(query)
 
