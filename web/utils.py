@@ -4096,17 +4096,19 @@ def drop_total_column(data_frame):
     col = data_frame.columns[len(data_frame.columns)-1]
     #print "col", col
     if isinstance(col, tuple):
-        last_col = col[0] #sembra che nel esempio nella todmotot il totale sia alla prima posizione
+        drop_column = False
+        for x in col:
+            if x == TOTAL:
+                drop_column = True
         #print "a"
     else:
-        last_col = col
+        drop_column = (col == TOTAL)
         #print "b"
 
-    #print "dddddddddddd", last_col
+    #print "drop_column", drop_column
 
-    if last_col != TOTAL:
-        return data_frame
-    data_frame = data_frame.drop(col, axis=1)
+    if drop_column:
+        data_frame = data_frame.drop(col, axis=1)
 
     return data_frame
 
