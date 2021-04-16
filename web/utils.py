@@ -1488,6 +1488,9 @@ def build_description_query(query, fields, pivot_cols, order, include_code):
     :return: query with descriptions.
     """
 
+    #print "-----------------"
+    #print query
+
     query_header = []
     header, inner_sql = extract_header(query)
     new_sql_header = ""
@@ -2680,7 +2683,7 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
     #print "orig_column ", orig_column
     #print "destination_column ", destination_column
 
-    if orig_column <> '' and destination_column <> '': #questo significa che ho una foreign key VALIDE ... perche ce ne sono anche che non vanno prese in considerazione
+    if orig_column != '' and destination_column != '': #questo significa che ho una foreign key VALIDE ... perche ce ne sono anche che non vanno prese in considerazione
         #print "punto 1"
         query = "SELECT "
         params = ""
@@ -2771,10 +2774,11 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
         #print bcolors.OKBLUE, "cazone constraints", constraints
 
-        if len(constraints) != 0:
+        if len(constraints) != 0 and groupby:
 
             # data non verificabile GROUP BY spostato da prima del if a qui
             # 01/06/2016 GROUP BY rispostato fuori ... nel caso dmdstres aggrega stato per continente va fuori perche serve il group by
+            # 15/04/2021 aggiungo il groupby nell'if per tudmoex1 in colonna anni in riga comune ragruppato per ambito turistico e Strutture extra raggruppato per terzo livello
 
             query += " HAVING "
 
