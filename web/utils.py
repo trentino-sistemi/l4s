@@ -119,6 +119,9 @@ def get_class_range(val):
 
     rows = execute_query_on_django_db(query)
 
+    if count(rows) == 0:
+        raise Exception("Non è definito nessun range per il valore " + val)
+
     for row in rows:
         class_from = row[0]
         class_to = row[1]
