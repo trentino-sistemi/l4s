@@ -36,4 +36,4 @@ pandas==0.18.1
 numpy==1.11.0
 
 # To export images in excel 2007.
-Pillow==2.6.1
+Pillow==8.2.0
