@@ -32,6 +32,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import translation
 from django.shortcuts import render_to_response, \
     get_object_or_404, redirect
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, \
     user_passes_test
 from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
@@ -324,17 +325,17 @@ class CreateQueryView(ExplorerContextMixin, CreateView):
         :param request: Django request.
         :return: The request response.
         """
-        save = request.REQUEST.get('save')
+        save = request.POST.get('save')
         to_be_saved = False
         if not save is None and save == 'true':
             to_be_saved = True
 
-        pivot_column = request.REQUEST.get('pivot_column')
+        pivot_column = request.POST.get('pivot_column')
         pivot_cols = []
         if not pivot_column is None and pivot_column != "":
             pivot_cols = [ast.literal_eval(x) for x in pivot_column.split(',')]
 
-        aggregation = request.REQUEST.get('aggregate')
+        aggregation = request.POST.get('aggregate')
         aggregation_ids = []
         if not aggregation is None and aggregation != "":
             aggregation_ids = [ast.literal_eval(x) for x in
@@ -342,7 +343,7 @@ class CreateQueryView(ExplorerContextMixin, CreateView):
 
         debug = False
         if request.user.is_staff:
-            debug_s = request.REQUEST.get('debug')
+            debug_s = request.POST.get('debug')
             if not debug_s is None and debug_s == 'true':
                 debug = True
 
@@ -438,12 +439,12 @@ class QueryView(ExplorerContextMixin, View):
         :return: The request response.
         """
 
-        save = request.REQUEST.get('save')
+        save = request.POST.get('save')
         to_be_saved = False
         if not save is None and save == 'true':
             to_be_saved = True
 
-        aggregation = request.REQUEST.get('aggregate')
+        aggregation = request.POST.get('aggregate')
         aggregation_ids = []
         if not aggregation is None and aggregation != "":
             aggregation_ids = [ast.literal_eval(x) for x in
@@ -451,11 +452,11 @@ class QueryView(ExplorerContextMixin, View):
 
         debug = False
         if request.user.is_staff:
-            debug_s = request.REQUEST.get('debug')
+            debug_s = request.POST.get('debug')
             if not debug_s is None and debug_s == 'true':
                 debug = True
 
-        pivot_column = request.REQUEST.get('pivot_column')
+        pivot_column = request.POST.get('pivot_column')
         pivot_cols = []
         if not pivot_column is None and pivot_column != "":
             pivot_cols = [ast.literal_eval(x) for x in pivot_column.split(',')]
@@ -526,7 +527,8 @@ class QueryView(ExplorerContextMixin, View):
         :param query: Explore query.
         :return:
         """
-        if user.is_authenticated() and user.email == query.created_by:
+        if user.is_authenticated(
+        ) and user.email == query.created_by_user.email:
             return True
         return False
 
@@ -672,7 +674,7 @@ def delete_query(request, pk):
     :return: The request response.
     """
     query = Query.objects.get(pk=pk)
-    if request.user.email == query.created_by:
+    if request.user.email == query.created_by_user.email:
         query.delete()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -767,7 +769,7 @@ def table_edit_metadata(request):
     :return: The request response.
     """
     context = RequestContext(request)
-    metadata_id = request.REQUEST.get('id')
+    metadata_id = request.POST.get('id') or request.GET.get('id')
     metadata = Metadata.objects.get(id=metadata_id)
     if request.method == 'POST':
         form = MetadataChangeForm(request.POST, instance=metadata)
@@ -1108,7 +1110,7 @@ def query_list(request):
         # Topic 0 means that all the topics will be displayed.
         selected_topic = 0
 
-    queries = (Query.objects.filter(created_by=request.user) |
+    queries = (Query.objects.filter(created_by_user=request.user) |
                Query.objects.filter(is_public='true'))
 
     """
@@ -1163,7 +1165,7 @@ def recent_queries(request):
     :return: The Django request response.
     """
     search = request.GET.get('search')
-    objects = Query.objects
+    objects = Query.objects.all()
     if not search is None and search != "":
         objects = objects & (Query.objects.filter(title__icontains=search) |
                              Query.objects.filter(description__icontains=search))
@@ -1191,7 +1193,7 @@ def query_copy(request):
         new_query.id = None
         new_query.is_public = False
         # The author of the new copied query is the authenticated user.
-        new_query.created_by = request.user
+        new_query.created_by_user = request.user
         new_query.save()
     url = '/explorer'
     return redirect(url)
@@ -1259,7 +1261,7 @@ def query_editor_external_metadata(request):
 
     context = RequestContext(request)
 
-    table_name = request.REQUEST.get('table')
+    table_name = request.POST.get('table') or request.GET.get('table')
 
     column_warnings = build_column_warnings_and_definitions(table_name, True, False)
     column_definitions = build_column_warnings_and_definitions(table_name, False, False)
@@ -1275,7 +1277,7 @@ def query_editor_external_metadata(request):
     context['column_definitions'] = column_definitions
     context['table_external_metadata'] = table_external_metadata
 
-    context['tipo'] = request.REQUEST.get('tipo')
+    context['tipo'] = request.POST.get('tipo') or request.GET.get('tipo')
 
     return render_to_response("l4s/query_editor_external_metadata.html", context)
 
@@ -1291,48 +1293,53 @@ def query_editor_customize(request):
 
     debug = False
     if request.user.is_staff:
-        debug_s = request.REQUEST.get('debug')
+        debug_s = request.POST.get('debug') or request.GET.get('debug')
         if not debug_s is None and debug_s == 'true':
             debug = True
 
     include_code = False
-    include_code_s = request.REQUEST.get('include_code')
+    include_code_s = request.POST.get('include_code') or request.GET.get(
+        'include_code')
     if not include_code_s is None and include_code_s == 'true':
         include_code = True
 
     range = False
     if request.user.is_staff:
-        range_s = request.REQUEST.get('range')
+        range_s = request.POST.get('range') or request.GET.get('range')
         if not range_s is None and range_s == 'true':
             range = True
 
-    selected_obs_values_s = request.REQUEST.get('selected_obs_values')
+    selected_obs_values_s = request.POST.get(
+        'selected_obs_values') or request.GET.get('selected_obs_values')
     selected_obs_values = []
     if not selected_obs_values_s is None and selected_obs_values != "":
         selected_obs_values = [x for x in selected_obs_values_s.split(',')]
 
-    table_name = request.REQUEST.get('table')
+    table_name = request.POST.get('table') or request.GET.get('table')
     table_schema = get_table_schema(table_name)
 
-    columns = request.REQUEST.get('columns')
+    columns = request.POST.get('columns') or request.GET.get('columns')
     cols = OrderedDict()
     if not columns is None and columns != "":
         for x in columns.split(','):
             cols[found_column_position(x, table_schema)] = x
 
-    rows_s = request.REQUEST.get('rows')
+    rows_s = request.POST.get('rows') or request.GET.get('rows')
     rows = OrderedDict()
     if not rows_s is None and rows_s != "":
         for x in rows_s.split(','):
             rows[found_column_position(x, table_schema)] = x
 
-    ref_periods = request.REQUEST.get('ref_periods')
+    ref_periods = request.POST.get('ref_periods') or request.GET.get(
+        'ref_periods')
     periods = []
     if not ref_periods is None and ref_periods != "":
         periods = [x for x in ref_periods.split(',')]
 
-    sel_aggregation = request.REQUEST.get('aggregate')
-    not_sel_aggregations = request.REQUEST.get('not_sel_aggregations')
+    sel_aggregation = request.POST.get('aggregate') or request.GET.get(
+        'aggregate')
+    not_sel_aggregations = request.POST.get(
+        'not_sel_aggregations') or request.GET.get('not_sel_aggregations')
 
     not_sel_aggregation_ids = []
     if not_sel_aggregations is not None and not_sel_aggregations != "":
@@ -1342,10 +1349,13 @@ def query_editor_customize(request):
     if sel_aggregation is not None and sel_aggregation != "":
         sel_aggregation_ids = [x for x in sel_aggregation.split(',')]
 
-    column_description = request.REQUEST.get('column_description')
-    grouped_by_in_query = request.REQUEST.get('grouped_by_in_query')
+    column_description = request.POST.get(
+        'column_description') or request.GET.get('column_description')
+    grouped_by_in_query = request.POST.get(
+        'grouped_by_in_query') or request.GET.get('grouped_by_in_query')
 
-    hidden_fields = request.REQUEST.get('hidden_fields')
+    hidden_fields = request.POST.get('hidden_fields') or request.GET.get(
+        'hidden_fields')
 
     fields = [field.name for field in table_schema]
 
@@ -1360,15 +1370,20 @@ def query_editor_customize(request):
     context['include_code'] = include_code
     context['range'] = range
 
-    values = request.REQUEST.get('values')
-    agg_values = request.REQUEST.get('agg_values')
-    not_agg_selection_value = request.REQUEST.get('not_agg_selection_value')
-    aggregations = request.REQUEST.get('aggregations')
+    values = request.POST.get('values') or request.GET.get('values')
+    agg_values = request.POST.get('agg_values') or request.GET.get(
+        'agg_values')
+    not_agg_selection_value = request.POST.get(
+        'not_agg_selection_value') or request.GET.get(
+            'not_agg_selection_value')
+    aggregations = request.POST.get('aggregations') or request.GET.get(
+        'aggregations')
 
 
-    filters = request.REQUEST.get('filters')
+    filters = request.POST.get('filters') or request.GET.get('filters')
 
-    agg_filters = request.REQUEST.get('agg_filters')
+    agg_filters = request.POST.get('agg_filters') or request.GET.get(
+        'agg_filters')
 
     """
     print "agg_values ", agg_values
@@ -1430,9 +1445,7 @@ def query_editor_view(request):
 
     #print datetime.now().strftime("%H:%M:%S.%f")
 
-    #print request.REQUEST
-
-    table_name = request.REQUEST.get('table')
+    table_name = request.POST.get('table') or request.GET.get('table')
     context = RequestContext(request)
     context['error_string'] = ''
 
@@ -1477,21 +1490,25 @@ def query_editor_view(request):
     table_description_dict = build_description_table_dict([table_name])
     context['table_description'] = table_description_dict[table_name]
 
-    selected_obs_values_s = request.REQUEST.get('selected_obs_values')
+    selected_obs_values_s = request.POST.get(
+        'selected_obs_values') or request.GET.get('selected_obs_values')
     selected_obs_values = []
     if not selected_obs_values_s is None and selected_obs_values != "":
         selected_obs_values = [x for x in selected_obs_values_s.split(',')]
 
-    filters_s = request.REQUEST.get('filters')
-    agg_filters_s = request.REQUEST.get('agg_filters')
-    not_agg_selection_value_s = request.REQUEST.get('not_agg_selection_value')
+    filters_s = request.POST.get('filters') or request.GET.get('filters')
+    agg_filters_s = request.POST.get('agg_filters') or request.GET.get(
+        'agg_filters')
+    not_agg_selection_value_s = request.POST.get(
+        'not_agg_selection_value') or request.GET.get(
+            'not_agg_selection_value')
 
-    columns = request.REQUEST.get('columns')
+    columns = request.POST.get('columns') or request.GET.get('columns')
     cols = []
     if not columns is None and columns != "":
         cols = [x for x in columns.split(',')]
 
-    rows_s = request.REQUEST.get('rows')
+    rows_s = request.POST.get('rows') or request.GET.get('rows')
     rows = []
     if not rows_s is None and rows_s != "":
         rows = [x for x in rows_s.split(',')]
@@ -1499,25 +1516,29 @@ def query_editor_view(request):
     debug = False
     visible = False
     if request.user.is_staff:
-        debug_s = request.REQUEST.get('debug')
+        debug_s = request.POST.get('debug') or request.GET.get('debug')
         if not debug_s is None and debug_s == 'true':
             debug = True
-        visible_s = request.REQUEST.get('visible')
+        visible_s = request.POST.get('visible') or request.GET.get('visible')
         if not visible_s is None and visible_s == 'true':
             visible = True
 
     include_code = False
-    include_code_s = request.REQUEST.get('include_code')
+    include_code_s = request.POST.get('include_code') or request.GET.get(
+        'include_code')
     if not include_code_s is None and include_code_s == 'true':
         include_code = True
 
     range = False
-    range_s = request.REQUEST.get('range')
+    range_s = request.POST.get('range') or request.GET.get('range')
     if not range_s is None and range_s == 'true':
         range = True
 
-    aggregation = request.REQUEST.get('aggregate', "")
-    not_sel_aggregations = request.REQUEST.get('not_sel_aggregations', "")
+    aggregation = request.POST.get('aggregate', "") or request.GET.get(
+        'aggregate', "")
+    not_sel_aggregations = request.POST.get('not_sel_aggregations',
+                                            "") or request.GET.get(
+                                                'not_sel_aggregations', "")
 
     #print "aggregation " ,aggregation
 
@@ -1645,7 +1666,9 @@ def query_editor_view(request):
 
     #print column_description
 
-    if request.REQUEST.get('get_grouped_by_value') == None: #se non sono ancora passato dal personalizza prendo il default
+    get_grouped_by_value = request.POST.get(
+        'get_grouped_by_value') or request.GET.get('get_grouped_by_value')
+    if get_grouped_by_value == None: #se non sono ancora passato dal personalizza prendo il default
         context['grouped_by_in_query'] = grouped_by_in_query(request.user, table_name, column_description)
     else:
 
@@ -1655,7 +1678,7 @@ def query_editor_view(request):
 
             value = dict()
 
-            for index2 in json.loads(request.REQUEST.get('get_grouped_by_value')):
+            for index2 in json.loads(get_grouped_by_value):
 
                 if column_description[index1]['table_name'] == index2["table_name"]:
                     if column_description[index1]['name'] == index2["column_name"]:
@@ -1828,7 +1851,10 @@ def query_editor_view(request):
                 elementi_request = ''
                 no_display = _("Can not display the requested content")
             else:
-                elementi_request = "<br>".join(['%s:: %s' % (key, value) for (key, value) in request.REQUEST.items()])
+                items = request.POST.get(
+                    'get_grouped_by_value') or request.GET.get(
+                        'get_grouped_by_value')
+                elementi_request = "<br>".join(['%s:: %s' % (key, value) for (key, value) in items])
                 no_display = _("The requested content is empty")
 
         context['dataframe'] = no_display
@@ -1916,8 +1942,14 @@ def query_editor_save_done(request):
     """
     context = RequestContext(request)
     form = CreateQueryEditorForm(request.POST)
+    User = get_user_model()
+    user = User.objects.get(id=request.POST.get('created_by_user'))
+    _mutable = request.POST._mutable
+    request.POST._mutable = True  # temporarily make POST mutable
+    request.POST['created_by_user'] = user.id
+    request.POST._mutable = _mutable
     if form.is_valid():
-        pk = request.REQUEST.get('pk')
+        pk = request.POST.get('pk') or request.GET.get('pk')
         if pk == "-1":
             form.save()
         else:
@@ -1954,10 +1986,12 @@ def query_editor_save_check(request):
     :return: pk in HttpResponse.
     """
 
-    title = request.REQUEST.get('title')
-    author = request.REQUEST.get('created_by')
+    title = request.POST.get('title')
+    author = request.POST.get('created_by_user')
+    User = get_user_model()
+    user = User.objects.get(id=author)
     try:
-        query = Query.objects.get(title=title, created_by=author)
+        query = Query.objects.get(title=title, created_by_user=user.id)
         pk = query.pk
     except ObjectDoesNotExist:
         pk = -1
@@ -1976,30 +2010,40 @@ def query_editor_save(request):
 
     context = RequestContext(request)
 
-    sql = request.REQUEST.get('sql', '')
-    title = request.REQUEST.get('title')
-    description = request.REQUEST.get('description')
-    table_name = request.REQUEST.get('table')
-    columns = request.REQUEST.get('columns')
-    rows = request.REQUEST.get('rows')
-    obs_values = request.REQUEST.get('obs_values')
-    aggregations = request.REQUEST.get('aggregations')
-    filters = request.REQUEST.get('filters')
-    agg_filters = request.REQUEST.get('agg_filters')
-    include_code = request.REQUEST.get('include_code')
-    range = request.REQUEST.get('range')
-    not_sel_aggregations = request.REQUEST.get('not_sel_aggregations')
-    not_agg_selection_value = request.REQUEST.get('not_agg_selection_value')
+    sql = request.POST.get('sql', '') or request.GET.get('sql', '')
+    title = request.POST.get('title') or request.GET.get('title')
+    description = request.POST.get('description') or request.GET.get(
+        'description')
+    table_name = request.POST.get('table') or request.GET.get('table')
+    columns = request.POST.get('columns') or request.GET.get('columns')
+    rows = request.POST.get('rows') or request.GET.get('rows')
+    obs_values = request.POST.get('obs_values') or request.GET.get(
+        'obs_values')
+    aggregations = request.POST.get('aggregations') or request.GET.get(
+        'aggregations')
+    filters = request.POST.get('filters') or request.GET.get('filters')
+    agg_filters = request.POST.get('agg_filters') or request.GET.get(
+        'agg_filters')
+    include_code = request.POST.get('include_code') or request.GET.get(
+        'include_code')
+    range = request.POST.get('range') or request.GET.get('range')
+    not_sel_aggregations = request.POST.get(
+        'not_sel_aggregations') or request.GET.get('not_sel_aggregations')
+    not_agg_selection_value = request.POST.get(
+        'not_agg_selection_value') or request.GET.get(
+            'not_agg_selection_value')
 
     #print "agg_filters '",agg_filters,"'"
     #print "not_agg_selection_value '",not_agg_selection_value,"'"
 
 
+    User = get_user_model()
+    user = User.objects.get(email=request.user.email)
     form = CreateQueryEditorForm(
         initial={'sql': sql,
                  'title': title,
                  'description': description,
-                 'created_by': request.user.email,
+                 'created_by_user': user,
                  'query_editor': True,
                  'table': table_name,
                  'columns': columns,
@@ -2226,9 +2270,9 @@ def manual_request(request):
     """
     context = RequestContext(request)
 
-    subject = request.REQUEST.get('title')
-    url = request.REQUEST.get('url')
-    topic = request.REQUEST.get('topic')
+    subject = request.POST.get('title') or request.GET.get('title')
+    url = request.POST.get('url') or request.GET.get('url')
+    topic = request.POST.get('topic') or request.GET.get('topic')
     if topic is None:
         topic_id = 1
     else:
@@ -2375,7 +2419,7 @@ def manual_view(request):
                 nome_file = 'Manuale_Utente_Registrato_LOD4STAT.pdf'
 
     with open(path + nome_file, 'r') as pdf:
-        response = HttpResponse(pdf.read(), mimetype='application/pdf')
+        response = HttpResponse(pdf.read(), content_type='application/pdf')
         response['Content-Disposition'] = 'inline;filename=' + nome_file
         return response
     pdf.closed

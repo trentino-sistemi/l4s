@@ -37,7 +37,7 @@ class CreateQueryEditorForm(ModelForm):
 
     class Meta:
         model = Query
-        fields = ['title', 'sql', 'description', 'created_by', 'is_public',
+        fields = ['title', 'sql', 'description', 'created_by_user', 'is_public',
                   'query_editor', 'table', 'columns', 'rows', 'obs_values',
                   'aggregations', 'filters', 'agg_filters', 'include_code',
                   'range', 'not_sel_aggregations', 'not_agg_selection_value']
@@ -47,7 +47,7 @@ class CreateQueryEditorForm(ModelForm):
             'sql': forms.HiddenInput(),
             'description': forms.Textarea(
                 attrs={'style': 'width: 100%', 'rows': 7}),
-            'created_by': forms.HiddenInput(),
+            'created_by_user': forms.HiddenInput(),
             'is_public': forms.HiddenInput(),
             'query_editor': forms.HiddenInput(),
             'table': forms.HiddenInput(),
@@ -70,7 +70,7 @@ class CreateQueryForm(ModelForm):
 
     class Meta:
         model = Query
-        fields = ['title', 'sql', 'description', 'created_by', 'is_public',
+        fields = ['title', 'sql', 'description', 'created_by_user', 'is_public',
                   'open_data']
 
 
@@ -137,6 +137,7 @@ class ManualRequestForm(forms.ModelForm):
     class Meta:
 
         model = ManualRequest
+        fields = '__all__'
         widgets = {
             'inquirer': forms.HiddenInput(),
             'dispatcher': forms.HiddenInput(),
@@ -229,6 +230,7 @@ class MetadataForm(forms.ModelForm):
     """
     class Meta:
         model = Metadata
+        fields = '__all__'
         widgets = {
             'table_name': forms.HiddenInput(),
             'column_name': forms.HiddenInput(),
@@ -244,6 +246,7 @@ class MetadataChangeForm(forms.ModelForm):
     """
     class Meta:
         model = Metadata
+        fields = '__all__'
         widgets = {
             'table_name': forms.HiddenInput(),
             'column_name': forms.HiddenInput(),
@@ -259,6 +262,7 @@ class UserTypeForm(forms.Form):
     """
     class Meta:
         model = UserType
+        fields = '__all__'
 
 
 class UserCreationForm(_UserCreationForm):
@@ -277,6 +281,7 @@ class UserCreationForm(_UserCreationForm):
 
     class Meta:
         model = get_user_model()
+        fields = '__all__'
 
 
 class UserChangeForm(forms.ModelForm):

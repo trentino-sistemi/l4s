@@ -1,0 +1,34 @@
+---
+version: "2.4"
+
+services:
+  app:
+    build:
+      context: .
+    image: 'l4s-py2'
+    cpu_quota: 100000
+    cpu_shares: 64
+    mem_limit: 512000000
+    memswap_limit: 512000000
+    ports:
+      - 8000:8000
+    volumes:
+      - ./requirements.txt:/srv/app/requirements.txt:ro
+      - ./l4s:/srv/app/l4s:rw
+      - ./web:/srv/app/web:rw
+  db:
+    image: 'postgres:9.6-buster'
+    cpu_quota: 100000
+    cpu_shares: 128
+    mem_limit: 256000000
+    memswap_limit: 256000000
+    restart: "unless-stopped"
+    environment:
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+volumes:
+  db:

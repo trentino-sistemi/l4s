@@ -1693,7 +1693,7 @@ def saved_queries_grouped_by_user_type(year, month):
 
     query = "SELECT UT.name, count(UT.name) \n"
     query += "FROM %s EQ join %s U \n" % (QUERY, USER)
-    query += "ON (U.email = EQ.created_by) \n"
+    query += "ON (U.id = EQ.created_by_user_id) \n"
     query += "JOIN %s UT ON (UT.id = U.user_type_id) \n" % USER_TYPE
     query += "WHERE extract('year' from EQ.created_at) = '%d' \n" % year
     if not month is None:

@@ -271,8 +271,11 @@ def generate_report_action_xls(request):
 
         #shutil.copyfile(f.name, 'manuel.xls')
 
-        show_legend = request.REQUEST.get('show_legend', '')
-        table_description = request.REQUEST.get('table_description', '')
+        show_legend = request.POST.get('show_legend', '') or request.GET.get(
+            'show_legend', '')
+        table_description = request.POST.get('table_description',
+                                             '') or request.GET.get(
+                                                 'table_description', '')
 
         add_header_and_footer(f.name, title, description, show_legend, table_description)
 
@@ -475,8 +478,11 @@ def generate_report_action_xlsx(request):
         df.to_excel(ew)
         ew.save()
 
-        show_legend = request.REQUEST.get('show_legend', '')
-        table_description = request.REQUEST.get('table_description', '')
+        show_legend = request.POST.get('show_legend', '') or request.GET.get(
+            'show_legend', '')
+        table_description = request.POST.get('table_description',
+                                             '') or request.GET.get(
+                                                 'table_description', '')
 
         add_header_and_footer(f.name, title, description, show_legend, table_description)
 
@@ -693,9 +699,9 @@ def query_title(request):
     :param request: Django request.
     :return: title
     """
-    title = request.REQUEST.get('title')
+    title = request.POST.get('title') or request.GET.get('title')
     if title is None:
-        query_id = request.REQUEST.get('id')
+        query_id = request.POST.get('id') or request.GET.get('id')
         try:
             query = Query.objects.get(id=query_id)
             title = query.title
@@ -712,9 +718,10 @@ def query_description(request):
 
     :param request:
     """
-    description = request.REQUEST.get('description')
+    description = request.POST.get('description') or request.GET.get(
+        'description')
     if description is None:
-        query_id = request.REQUEST.get('id')
+        query_id = request.POST.get('id') or request.GET.get('id')
         try:
             query = Query.objects.get(id=query_id)
             description = query.description
@@ -731,9 +738,9 @@ def query_sql(request):
 
     :param request:
     """
-    sql = request.REQUEST.get('sql')
+    sql = request.POST.get('sql') or request.GET.get('sql')
     if sql is None:
-        query_id = request.REQUEST.get('id')
+        query_id = request.POST.get('id') or request.GET.get('id')
         try:
             query = Query.objects.get(id=query_id)
             sql = query.sql
@@ -750,13 +757,16 @@ def generate_usage_report_action_xls(request):
 
         content_type = 'application/vnd.ms-excel'
         # Setup response
-        queries_s = request.REQUEST.get('queries')
+        queries_s = request.POST.get('queries') or request.GET.get('queries')
         queries = eval("[%s]" % queries_s)[0]
-        manual_request_s = request.REQUEST.get('manual_requests')
+        manual_request_s = request.POST.get(
+            'manual_requests') or request.GET.get('manual_requests')
         manual_requests = eval("[%s]" % manual_request_s)[0]
-        run_queries_auth_s = request.REQUEST.get('run_queries_auth')
+        run_queries_auth_s = request.POST.get(
+            'run_queries_auth') or request.GET.get('run_queries_auth')
         run_queries_auth = eval("[%s]" % run_queries_auth_s)[0]
-        run_queries_anon_s = request.REQUEST.get('run_queries_anon')
+        run_queries_anon_s = request.POST.get(
+            'run_queries_anon') or request.GET.get('run_queries_anon')
         run_queries_anon = eval("[%s]" % run_queries_anon_s)[0]
 
         new_workbook = new_xlwt_colored_workbook()
@@ -768,8 +778,8 @@ def generate_usage_report_action_xls(request):
         head_cell = easyxf(head_cfg)
         header_len = 5
         us_title = unicode(_('Usage report'))
-        year = request.REQUEST.get('year')
-        month = request.REQUEST.get('month')
+        year = request.POST.get('year') or request.GET.get('year')
+        month = request.POST.get('month') or request.GET.get('month')
         us_title += " " + unicode(_('Year')) + " " + year
         if month != "None":
             month_name = calendar.month_name[ast.literal_eval(month)]

@@ -31,7 +31,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 
 class CustomSite(Site):
-    in_manutenzione = models.BooleanField()
+    in_manutenzione = models.BooleanField(default=False)
     label = models.CharField(max_length=255)
     class Meta:
         verbose_name = 'Sito in manutenzione'
@@ -277,7 +277,7 @@ class UserManager(BaseUserManager):
         :param extra_fields:
         :return:The created User with super user privileges.
         """
-        return self._create_user(email, password, True, True,
+        return self._create_user(email, password, True, True, True,
                                  **extra_fields)
 
 
@@ -323,10 +323,10 @@ class User(AbstractBaseUser, PermissionsMixin):
                                     help_text=is_active_hlp)
 
     date_joined = models.DateTimeField(_('date joined'),
-                                       default=timezone.now())
+                                       auto_now_add=True)
 
     date_change_password = models.DateTimeField(_('date change password'),
-                                       default=timezone.now())
+                                       auto_now_add=True)
 
     objects = UserManager()
 

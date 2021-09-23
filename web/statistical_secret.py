@@ -22,6 +22,7 @@ Routines to preserve statistical secret.
 import logging
 from webbrowser import get
 
+from django.db import DatabaseError
 from django.template.defaultfilters import length
 from django.utils.translation import ugettext_lazy as _
 from web.utils import execute_query_on_main_db, \
@@ -4059,7 +4060,20 @@ def headers_and_data(user,
     print "query.headers_and_data", query.headers_and_data
     """
 
-    old_head, data, duration, err = query.headers_and_data()
+    # old_head, data, duration, err = query.execute()
+    old_head = []
+    data = []
+    duration = None
+    err = None
+    try:
+        executed = query.execute()
+        # print 'executed type: ', type(executed)
+        # print 'executed dir: ', dir(executed)
+        old_head = executed.headers
+        data = executed.data
+        duration = executed.duration
+    except DatabaseError, e:
+        err = e
 
     #print "old_head", old_head
 
@@ -4094,6 +4108,8 @@ def headers_and_data(user,
         # Check if I can give the full result set.
         elif (len(st.secret) + len(st.constraint) + len(st.secret_ref) == 0) or (pivot_cols is not None and len(pivot_cols) > 0):
             #print "bla2 bla2 bla2"
+            # convert list of ColumnHeaders back to title list
+            old_head = [ch.title for ch in old_head]
             data, old_head, df, warn, err = apply_stat_secret(old_head,
                                                               data,
                                                               st.cols,
@@ -4169,12 +4185,12 @@ def load_data_frame(request):
     :param request: Http request.
     :return: Data frame.
     """
-    store_name = request.REQUEST.get('store', '')
+    store_name = request.POST.get('store', '') or request.GET.get('store', '')
 
     #print "store_name ", store_name
 
     if store_name is "":
-        query_id = request.REQUEST.get('id')
+        query_id = request.POST.get('id') or request.GET.get('id')
         query = Query.objects.get(id=query_id)
         if query.open_data:
             st = detect_special_columns(query.sql)
@@ -4184,22 +4200,29 @@ def load_data_frame(request):
                                                    [],
                                                    False,
                                                    True)
-            head, data, duration, err = query.headers_and_data()
-            df = pd.DataFrame(data, columns=head)
-            return df
+            try:
+                executed = query.execute()
+                columns = [ch.title for ch in executed.headers]
+                df = pd.DataFrame(executed.data, columns=columns)
+                return df
+            except DatabaseError, e:
+                err = e
         else:
             if not query.is_public:
                 return None
-            filters = request.REQUEST.get('filters')
+            filters = request.POST.get('filters') or request.GET.get(
+                'filters')
             if filters is None and query.query_editor:
                 filters = json.loads(query.filters)
-            agg_filters = request.REQUEST.get('agg_filters')
+            agg_filters = request.POST.get(
+                'agg_filters') or request.GET.get('agg_filters')
             if agg_filters is None and query.query_editor:
                 agg_filters = json.loads(query.agg_filters)
 
             # Preform standard pivot.
             pivot_cols = None
-            aggregation = request.REQUEST.get('aggregate', "")
+            aggregation = request.POST.get('aggregate', "") or request.GET.get(
+                'aggregate', "")
             if query.query_editor and \
                     (aggregation is None or aggregation == ""):
                 aggregation = query.aggregations

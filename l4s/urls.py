@@ -26,10 +26,8 @@ import json
 from web.utils import get_client_ip
 from django.http import HttpResponse
 
-admin.autodiscover()
-
 urlpatterns = patterns('',
-                       (r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nAllow: /about\nDisallow: /", mimetype="text/plain")),
+                       (r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nAllow: /about\nDisallow: /", content_type="text/plain")),
                        # Url for admin interface.
                        url(r'^admin/',
                            include(admin.site.urls)),

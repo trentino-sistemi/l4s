@@ -75,7 +75,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         </label>
                         <div class="col-sm-10">
                             <input class="form-control"
-                            {% if query.created_by and query.created_by != request.user.email or not can_change %}
+                            {% if query.created_by_user and query.created_by_user.email != request.user.email or not can_change %}
                                    readonly="true"
                             {% endif %}
                                    id="id_title"
@@ -94,7 +94,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         </label>
                         <div  class="col-sm-10">
                             <textarea class="form-control"
-                        {% if query.created_by and query.created_by != request.user.email or not can_change %}
+                        {% if query.created_by_user and query.created_by_user.email != request.user.email or not can_change %}
                                       readonly="true"
                         {% endif %}
                                       id="id_description"
@@ -105,18 +105,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <div data-position="left"
                          class="form-group"
                          data-intro="{% trans "Query owner" %}">
-                        {{ form.created_by.errors }}
+                        {{ form.created_by_user.errors }}
                         <label class="col-sm-2 control-label">
                             {% trans "Owner" %}
                         </label>
                         <div class="col-sm-10">
                             <input readonly
                                    class="form-control"
-                                   id="id_created_by"
+                                   id="id_created_by_user"
                                    maxlength="255"
-                                   name="created_by"
+                                   name="created_by_user"
                                    type="text"
-                                   value="{% firstof form.created_by.value request.user %}" />
+                                   value="{% firstof form.created_by_user.value request.user %}" />
                         </div>
                     </div>
                     {% if form.sql.errors %}{% for error in form.sql.errors %}
@@ -135,7 +135,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         </div>
                         <div class="panel-content">
                             <textarea class="form-control"
-                            {% if query.created_by and  query.created_by != request.user.email or not can_change %}
+                            {% if query.created_by_user and query.created_by_user.email != request.user.email or not can_change %}
                                       readonly="true"
                             {% endif %}
                                       style="display: not none;"
@@ -151,7 +151,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     <table class="table">
                         <tr>
                         {% if can_change %}
-                        {% if not query.created_by or query.created_by == request.user.email %}
+                        {% if not query.created_by_user or query.created_by_user.email == request.user.email %}
                             <td>
                                 <label class="control-label ">
                                     {% trans "Is public" %}
@@ -227,7 +227,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                             </div>
                             {%  endif %}
                             {% if can_change %}
-                            {% if not query.created_by or query.created_by == request.user.email %}
+                            {% if not query.created_by_user or query.created_by_user.email == request.user.email %}
                             <input type="submit"
                                    class="btn btn-default"
                                    id="refresh_button_save"
@@ -370,7 +370,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 {% endblock %}
 
 {% block sql_explorer_scripts %}
-    {% include 'explorer/preview_pane_scripts.html' %}
+    {% comment %}{% include 'explorer/preview_pane_scripts.html' %}{% endcomment %}
     {% include 'explorer/sql_advanced_editor_scripts.html' %}
 <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
