@@ -85,7 +85,7 @@ def parsexml_(*args, **kwargs):
 
 try:
     from generatedssuper import GeneratedsSuper
-except ImportError, exp:
+except ImportError as exp:
 
     class GeneratedsSuper(object):
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
@@ -187,7 +187,7 @@ except ImportError, exp:
                     input_data.hour,
                     input_data.minute,
                     input_data.second,
-                    ('%f' % (float(input_data.microsecond) / 1000000))[2:],
+                    ('%f' % (float(input_data.microsecond) // 1000000))[2:],
                 )
             if input_data.tzinfo is not None:
                 tzoff = input_data.tzinfo.utcoffset(input_data)
@@ -292,7 +292,7 @@ except ImportError, exp:
                     input_data.hour,
                     input_data.minute,
                     input_data.second,
-                    ('%f' % (float(input_data.microsecond) / 1000000))[2:],
+                    ('%f' % (float(input_data.microsecond) // 1000000))[2:],
                 )
             if input_data.tzinfo is not None:
                 tzoff = input_data.tzinfo.utcoffset(input_data)
@@ -364,7 +364,7 @@ except ImportError, exp:
             return None
         @classmethod
         def gds_reverse_node_mapping(cls, mapping):
-            return dict(((v, k) for k, v in mapping.iteritems()))
+            return dict(((v, k) for k, v in mapping.items()))
 
 
 #
@@ -386,7 +386,6 @@ except ImportError, exp:
 # Globals
 #
 
-ExternalEncoding = 'ascii'
 Tag_pattern_ = re_.compile(r'({.*})?(.*)')
 String_cleanup_pat_ = re_.compile(r"[\n\r\s]+")
 Namespace_extract_pat_ = re_.compile(r'{(.*)}(.*)')
@@ -405,7 +404,7 @@ def showIndent(outfile, level, pretty_print=True):
 def quote_xml(inStr):
     if not inStr:
         return ''
-    s1 = (isinstance(inStr, basestring) and inStr or
+    s1 = (isinstance(inStr, str) and inStr or
           '%s' % inStr)
     s1 = s1.replace('&', '&amp;')
     s1 = s1.replace('<', '&lt;')
@@ -414,7 +413,7 @@ def quote_xml(inStr):
 
 
 def quote_attrib(inStr):
-    s1 = (isinstance(inStr, basestring) and inStr or
+    s1 = (isinstance(inStr, str) and inStr or
           '%s' % inStr)
     s1 = s1.replace('&', '&amp;')
     s1 = s1.replace('<', '&lt;')
@@ -2049,7 +2048,7 @@ class MessageGroupType(MessageType):
         super(MessageGroupType, self).exportAttributes(outfile, level, already_processed, namespace_, name_='MessageGroupType')
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id=%s' % (self.gds_format_string(quote_attrib(self.id).encode(ExternalEncoding), input_name='id'), ))
+            outfile.write(' id=%s' % (self.gds_format_string(quote_attrib(self.id), input_name='id'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='MessageGroupType', fromsubclass_=False, pretty_print=True):
         super(MessageGroupType, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
         if pretty_print:
@@ -2256,7 +2255,7 @@ class HeaderType(GeneratedsSuper):
         self.DataSetAgency = DataSetAgency
         self.DataSetID = DataSetID
         self.DataSetAction = DataSetAction
-        if isinstance(Extracted, basestring):
+        if isinstance(Extracted, str):
             initvalue_ = datetime_.datetime.strptime(Extracted, '%Y-%m-%dT%H:%M:%S')
         else:
             initvalue_ = Extracted
@@ -2375,7 +2374,7 @@ class HeaderType(GeneratedsSuper):
             eol_ = ''
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.Test is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sTest>%s</%sTest>%s' % (namespace_, self.gds_format_boolean(self.Test, input_name='Test'), namespace_, eol_))
@@ -2386,35 +2385,35 @@ class HeaderType(GeneratedsSuper):
             Name_.export(outfile, level, namespace_, name_='Name', pretty_print=pretty_print)
         if self.Prepared is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPrepared>%s</%sPrepared>%s' % (namespace_, self.gds_format_string(quote_xml(self.Prepared).encode(ExternalEncoding), input_name='Prepared'), namespace_, eol_))
+            outfile.write('<%sPrepared>%s</%sPrepared>%s' % (namespace_, self.gds_format_string(quote_xml(self.Prepared), input_name='Prepared'), namespace_, eol_))
         for Sender_ in self.Sender:
             Sender_.export(outfile, level, namespace_, name_='Sender', pretty_print=pretty_print)
         for Receiver_ in self.Receiver:
             Receiver_.export(outfile, level, namespace_, name_='Receiver', pretty_print=pretty_print)
         if self.KeyFamilyRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamilyRef>%s</%sKeyFamilyRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamilyRef).encode(ExternalEncoding), input_name='KeyFamilyRef'), namespace_, eol_))
+            outfile.write('<%sKeyFamilyRef>%s</%sKeyFamilyRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamilyRef), input_name='KeyFamilyRef'), namespace_, eol_))
         if self.KeyFamilyAgency is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamilyAgency>%s</%sKeyFamilyAgency>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamilyAgency).encode(ExternalEncoding), input_name='KeyFamilyAgency'), namespace_, eol_))
+            outfile.write('<%sKeyFamilyAgency>%s</%sKeyFamilyAgency>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamilyAgency), input_name='KeyFamilyAgency'), namespace_, eol_))
         if self.DataSetAgency is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataSetAgency>%s</%sDataSetAgency>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataSetAgency).encode(ExternalEncoding), input_name='DataSetAgency'), namespace_, eol_))
+            outfile.write('<%sDataSetAgency>%s</%sDataSetAgency>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataSetAgency), input_name='DataSetAgency'), namespace_, eol_))
         if self.DataSetID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataSetID>%s</%sDataSetID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataSetID).encode(ExternalEncoding), input_name='DataSetID'), namespace_, eol_))
+            outfile.write('<%sDataSetID>%s</%sDataSetID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataSetID), input_name='DataSetID'), namespace_, eol_))
         if self.DataSetAction is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataSetAction>%s</%sDataSetAction>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataSetAction).encode(ExternalEncoding), input_name='DataSetAction'), namespace_, eol_))
+            outfile.write('<%sDataSetAction>%s</%sDataSetAction>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataSetAction), input_name='DataSetAction'), namespace_, eol_))
         if self.Extracted is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sExtracted>%s</%sExtracted>%s' % (namespace_, self.gds_format_datetime(self.Extracted, input_name='Extracted'), namespace_, eol_))
         if self.ReportingBegin is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sReportingBegin>%s</%sReportingBegin>%s' % (namespace_, self.gds_format_string(quote_xml(self.ReportingBegin).encode(ExternalEncoding), input_name='ReportingBegin'), namespace_, eol_))
+            outfile.write('<%sReportingBegin>%s</%sReportingBegin>%s' % (namespace_, self.gds_format_string(quote_xml(self.ReportingBegin), input_name='ReportingBegin'), namespace_, eol_))
         if self.ReportingEnd is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sReportingEnd>%s</%sReportingEnd>%s' % (namespace_, self.gds_format_string(quote_xml(self.ReportingEnd).encode(ExternalEncoding), input_name='ReportingEnd'), namespace_, eol_))
+            outfile.write('<%sReportingEnd>%s</%sReportingEnd>%s' % (namespace_, self.gds_format_string(quote_xml(self.ReportingEnd), input_name='ReportingEnd'), namespace_, eol_))
         for Source_ in self.Source:
             Source_.export(outfile, level, namespace_, name_='Source', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='HeaderType'):
@@ -2428,7 +2427,7 @@ class HeaderType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.Test is not None:
             showIndent(outfile, level)
             outfile.write('Test=%s,\n' % self.Test)
@@ -2449,7 +2448,7 @@ class HeaderType(GeneratedsSuper):
         outfile.write('],\n')
         if self.Prepared is not None:
             showIndent(outfile, level)
-            outfile.write('Prepared=%s,\n' % quote_python(self.Prepared).encode(ExternalEncoding))
+            outfile.write('Prepared=%s,\n' % quote_python(self.Prepared))
         showIndent(outfile, level)
         outfile.write('Sender=[\n')
         level += 1
@@ -2476,28 +2475,28 @@ class HeaderType(GeneratedsSuper):
         outfile.write('],\n')
         if self.KeyFamilyRef is not None:
             showIndent(outfile, level)
-            outfile.write('KeyFamilyRef=%s,\n' % quote_python(self.KeyFamilyRef).encode(ExternalEncoding))
+            outfile.write('KeyFamilyRef=%s,\n' % quote_python(self.KeyFamilyRef))
         if self.KeyFamilyAgency is not None:
             showIndent(outfile, level)
-            outfile.write('KeyFamilyAgency=%s,\n' % quote_python(self.KeyFamilyAgency).encode(ExternalEncoding))
+            outfile.write('KeyFamilyAgency=%s,\n' % quote_python(self.KeyFamilyAgency))
         if self.DataSetAgency is not None:
             showIndent(outfile, level)
-            outfile.write('DataSetAgency=%s,\n' % quote_python(self.DataSetAgency).encode(ExternalEncoding))
+            outfile.write('DataSetAgency=%s,\n' % quote_python(self.DataSetAgency))
         if self.DataSetID is not None:
             showIndent(outfile, level)
-            outfile.write('DataSetID=%s,\n' % quote_python(self.DataSetID).encode(ExternalEncoding))
+            outfile.write('DataSetID=%s,\n' % quote_python(self.DataSetID))
         if self.DataSetAction is not None:
             showIndent(outfile, level)
-            outfile.write('DataSetAction=%s,\n' % quote_python(self.DataSetAction).encode(ExternalEncoding))
+            outfile.write('DataSetAction=%s,\n' % quote_python(self.DataSetAction))
         if self.Extracted is not None:
             showIndent(outfile, level)
             outfile.write('Extracted=model_.GeneratedsSuper.gds_parse_datetime("%s"),\n' % self.gds_format_datetime(self.Extracted, input_name='Extracted'))
         if self.ReportingBegin is not None:
             showIndent(outfile, level)
-            outfile.write('ReportingBegin=%s,\n' % quote_python(self.ReportingBegin).encode(ExternalEncoding))
+            outfile.write('ReportingBegin=%s,\n' % quote_python(self.ReportingBegin))
         if self.ReportingEnd is not None:
             showIndent(outfile, level)
-            outfile.write('ReportingEnd=%s,\n' % quote_python(self.ReportingEnd).encode(ExternalEncoding))
+            outfile.write('ReportingEnd=%s,\n' % quote_python(self.ReportingEnd))
         showIndent(outfile, level)
         outfile.write('Source=[\n')
         level += 1
@@ -2672,7 +2671,7 @@ class PartyType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='PartyType'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id=%s' % (self.gds_format_string(quote_attrib(self.id).encode(ExternalEncoding), input_name='id'), ))
+            outfile.write(' id=%s' % (self.gds_format_string(quote_attrib(self.id), input_name='id'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='PartyType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2876,19 +2875,19 @@ class ContactType(GeneratedsSuper):
             Role_.export(outfile, level, namespace_, name_='Role', pretty_print=pretty_print)
         for Telephone_ in self.Telephone:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTelephone>%s</%sTelephone>%s' % (namespace_, self.gds_format_string(quote_xml(Telephone_).encode(ExternalEncoding), input_name='Telephone'), namespace_, eol_))
+            outfile.write('<%sTelephone>%s</%sTelephone>%s' % (namespace_, self.gds_format_string(quote_xml(Telephone_), input_name='Telephone'), namespace_, eol_))
         for Fax_ in self.Fax:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFax>%s</%sFax>%s' % (namespace_, self.gds_format_string(quote_xml(Fax_).encode(ExternalEncoding), input_name='Fax'), namespace_, eol_))
+            outfile.write('<%sFax>%s</%sFax>%s' % (namespace_, self.gds_format_string(quote_xml(Fax_), input_name='Fax'), namespace_, eol_))
         for X400_ in self.X400:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX400>%s</%sX400>%s' % (namespace_, self.gds_format_string(quote_xml(X400_).encode(ExternalEncoding), input_name='X400'), namespace_, eol_))
+            outfile.write('<%sX400>%s</%sX400>%s' % (namespace_, self.gds_format_string(quote_xml(X400_), input_name='X400'), namespace_, eol_))
         for URI_ in self.URI:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURI>%s</%sURI>%s' % (namespace_, self.gds_format_string(quote_xml(URI_).encode(ExternalEncoding), input_name='URI'), namespace_, eol_))
+            outfile.write('<%sURI>%s</%sURI>%s' % (namespace_, self.gds_format_string(quote_xml(URI_), input_name='URI'), namespace_, eol_))
         for Email_ in self.Email:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEmail>%s</%sEmail>%s' % (namespace_, self.gds_format_string(quote_xml(Email_).encode(ExternalEncoding), input_name='Email'), namespace_, eol_))
+            outfile.write('<%sEmail>%s</%sEmail>%s' % (namespace_, self.gds_format_string(quote_xml(Email_), input_name='Email'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ContactType'):
         level += 1
         already_processed = set()
@@ -2939,7 +2938,7 @@ class ContactType(GeneratedsSuper):
         level += 1
         for Telephone_ in self.Telephone:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Telephone_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Telephone_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -2948,7 +2947,7 @@ class ContactType(GeneratedsSuper):
         level += 1
         for Fax_ in self.Fax:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Fax_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Fax_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -2957,7 +2956,7 @@ class ContactType(GeneratedsSuper):
         level += 1
         for X400_ in self.X400:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(X400_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(X400_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -2966,7 +2965,7 @@ class ContactType(GeneratedsSuper):
         level += 1
         for URI_ in self.URI:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(URI_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(URI_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -2975,7 +2974,7 @@ class ContactType(GeneratedsSuper):
         level += 1
         for Email_ in self.Email:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Email_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Email_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -3270,16 +3269,16 @@ class OrganisationSchemeType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -3937,16 +3936,16 @@ class OrganisationType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='OrganisationType'):
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.parentOrganisation is not None and 'parentOrganisation' not in already_processed:
             already_processed.add('parentOrganisation')
             outfile.write(' parentOrganisation=%s' % (quote_attrib(self.parentOrganisation), ))
@@ -4398,16 +4397,16 @@ class DataflowType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -4676,16 +4675,16 @@ class KeyFamilyRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.KeyFamilyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamilyID>%s</%sKeyFamilyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamilyID).encode(ExternalEncoding), input_name='KeyFamilyID'), namespace_, eol_))
+            outfile.write('<%sKeyFamilyID>%s</%sKeyFamilyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamilyID), input_name='KeyFamilyID'), namespace_, eol_))
         if self.KeyFamilyAgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamilyAgencyID>%s</%sKeyFamilyAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamilyAgencyID).encode(ExternalEncoding), input_name='KeyFamilyAgencyID'), namespace_, eol_))
+            outfile.write('<%sKeyFamilyAgencyID>%s</%sKeyFamilyAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamilyAgencyID), input_name='KeyFamilyAgencyID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='KeyFamilyRefType'):
         level += 1
         already_processed = set()
@@ -4697,16 +4696,16 @@ class KeyFamilyRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.KeyFamilyID is not None:
             showIndent(outfile, level)
-            outfile.write('KeyFamilyID=%s,\n' % quote_python(self.KeyFamilyID).encode(ExternalEncoding))
+            outfile.write('KeyFamilyID=%s,\n' % quote_python(self.KeyFamilyID))
         if self.KeyFamilyAgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('KeyFamilyAgencyID=%s,\n' % quote_python(self.KeyFamilyAgencyID).encode(ExternalEncoding))
+            outfile.write('KeyFamilyAgencyID=%s,\n' % quote_python(self.KeyFamilyAgencyID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4810,16 +4809,16 @@ class CategoryRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.CategorySchemeID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCategorySchemeID>%s</%sCategorySchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.CategorySchemeID).encode(ExternalEncoding), input_name='CategorySchemeID'), namespace_, eol_))
+            outfile.write('<%sCategorySchemeID>%s</%sCategorySchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.CategorySchemeID), input_name='CategorySchemeID'), namespace_, eol_))
         if self.CategorySchemeAgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCategorySchemeAgencyID>%s</%sCategorySchemeAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.CategorySchemeAgencyID).encode(ExternalEncoding), input_name='CategorySchemeAgencyID'), namespace_, eol_))
+            outfile.write('<%sCategorySchemeAgencyID>%s</%sCategorySchemeAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.CategorySchemeAgencyID), input_name='CategorySchemeAgencyID'), namespace_, eol_))
         if self.CategorySchemeVersion is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCategorySchemeVersion>%s</%sCategorySchemeVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.CategorySchemeVersion).encode(ExternalEncoding), input_name='CategorySchemeVersion'), namespace_, eol_))
+            outfile.write('<%sCategorySchemeVersion>%s</%sCategorySchemeVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.CategorySchemeVersion), input_name='CategorySchemeVersion'), namespace_, eol_))
         if self.CategoryID is not None:
             self.CategoryID.export(outfile, level, namespace_, name_='CategoryID', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='CategoryRefType'):
@@ -4833,16 +4832,16 @@ class CategoryRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.CategorySchemeID is not None:
             showIndent(outfile, level)
-            outfile.write('CategorySchemeID=%s,\n' % quote_python(self.CategorySchemeID).encode(ExternalEncoding))
+            outfile.write('CategorySchemeID=%s,\n' % quote_python(self.CategorySchemeID))
         if self.CategorySchemeAgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('CategorySchemeAgencyID=%s,\n' % quote_python(self.CategorySchemeAgencyID).encode(ExternalEncoding))
+            outfile.write('CategorySchemeAgencyID=%s,\n' % quote_python(self.CategorySchemeAgencyID))
         if self.CategorySchemeVersion is not None:
             showIndent(outfile, level)
-            outfile.write('CategorySchemeVersion=%s,\n' % quote_python(self.CategorySchemeVersion).encode(ExternalEncoding))
+            outfile.write('CategorySchemeVersion=%s,\n' % quote_python(self.CategorySchemeVersion))
         if self.CategoryID is not None:
             showIndent(outfile, level)
             outfile.write('CategoryID=model_.CategoryIDType(\n')
@@ -4953,10 +4952,10 @@ class CategoryIDType(GeneratedsSuper):
             eol_ = ''
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.CategoryVersion is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCategoryVersion>%s</%sCategoryVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.CategoryVersion).encode(ExternalEncoding), input_name='CategoryVersion'), namespace_, eol_))
+            outfile.write('<%sCategoryVersion>%s</%sCategoryVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.CategoryVersion), input_name='CategoryVersion'), namespace_, eol_))
         if self.CategoryID is not None:
             self.CategoryID.export(outfile, level, namespace_, name_='CategoryID', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='CategoryIDType'):
@@ -4970,10 +4969,10 @@ class CategoryIDType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.CategoryVersion is not None:
             showIndent(outfile, level)
-            outfile.write('CategoryVersion=%s,\n' % quote_python(self.CategoryVersion).encode(ExternalEncoding))
+            outfile.write('CategoryVersion=%s,\n' % quote_python(self.CategoryVersion))
         if self.CategoryID is not None:
             showIndent(outfile, level)
             outfile.write('CategoryID=model_.CategoryIDType(\n')
@@ -5232,16 +5231,16 @@ class MetadataflowType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -5509,16 +5508,16 @@ class MetadataStructureRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.MetadataStructureID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructureID>%s</%sMetadataStructureID>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructureID).encode(ExternalEncoding), input_name='MetadataStructureID'), namespace_, eol_))
+            outfile.write('<%sMetadataStructureID>%s</%sMetadataStructureID>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructureID), input_name='MetadataStructureID'), namespace_, eol_))
         if self.MetadataStructureAgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructureAgencyID>%s</%sMetadataStructureAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructureAgencyID).encode(ExternalEncoding), input_name='MetadataStructureAgencyID'), namespace_, eol_))
+            outfile.write('<%sMetadataStructureAgencyID>%s</%sMetadataStructureAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructureAgencyID), input_name='MetadataStructureAgencyID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='MetadataStructureRefType'):
         level += 1
         already_processed = set()
@@ -5530,16 +5529,16 @@ class MetadataStructureRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.MetadataStructureID is not None:
             showIndent(outfile, level)
-            outfile.write('MetadataStructureID=%s,\n' % quote_python(self.MetadataStructureID).encode(ExternalEncoding))
+            outfile.write('MetadataStructureID=%s,\n' % quote_python(self.MetadataStructureID))
         if self.MetadataStructureAgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('MetadataStructureAgencyID=%s,\n' % quote_python(self.MetadataStructureAgencyID).encode(ExternalEncoding))
+            outfile.write('MetadataStructureAgencyID=%s,\n' % quote_python(self.MetadataStructureAgencyID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5792,16 +5791,16 @@ class CategorySchemeType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -6109,16 +6108,16 @@ class CategoryType(GeneratedsSuper):
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (quote_attrib(self.id), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='CategoryType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6509,16 +6508,16 @@ class CodeListType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -6775,7 +6774,7 @@ class CodeType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='CodeType'):
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.parentCode is not None and 'parentCode' not in already_processed:
             already_processed.add('parentCode')
             outfile.write(' parentCode=%s' % (quote_attrib(self.parentCode), ))
@@ -7096,16 +7095,16 @@ class HierarchicalCodelistType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -7432,13 +7431,13 @@ class HierarchyType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (quote_attrib(self.id), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.validFrom is not None and 'validFrom' not in already_processed:
             already_processed.add('validFrom')
             outfile.write(' validFrom=%s' % (quote_attrib(self.validFrom), ))
@@ -7701,7 +7700,7 @@ class LevelType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='LevelType'):
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (quote_attrib(self.id), ))
@@ -7807,7 +7806,7 @@ class LevelType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires integer: %s' % exp)
             ival_ = self.gds_validate_integer(ival_, node, 'Order')
             self.Order = ival_
@@ -7903,19 +7902,19 @@ class CodelistRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.CodelistID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCodelistID>%s</%sCodelistID>%s' % (namespace_, self.gds_format_string(quote_xml(self.CodelistID).encode(ExternalEncoding), input_name='CodelistID'), namespace_, eol_))
+            outfile.write('<%sCodelistID>%s</%sCodelistID>%s' % (namespace_, self.gds_format_string(quote_xml(self.CodelistID), input_name='CodelistID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
         if self.Alias is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAlias>%s</%sAlias>%s' % (namespace_, self.gds_format_string(quote_xml(self.Alias).encode(ExternalEncoding), input_name='Alias'), namespace_, eol_))
+            outfile.write('<%sAlias>%s</%sAlias>%s' % (namespace_, self.gds_format_string(quote_xml(self.Alias), input_name='Alias'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='CodelistRefType'):
         level += 1
         already_processed = set()
@@ -7927,19 +7926,19 @@ class CodelistRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.CodelistID is not None:
             showIndent(outfile, level)
-            outfile.write('CodelistID=%s,\n' % quote_python(self.CodelistID).encode(ExternalEncoding))
+            outfile.write('CodelistID=%s,\n' % quote_python(self.CodelistID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
         if self.Alias is not None:
             showIndent(outfile, level)
-            outfile.write('Alias=%s,\n' % quote_python(self.Alias).encode(ExternalEncoding))
+            outfile.write('Alias=%s,\n' % quote_python(self.Alias))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8091,30 +8090,30 @@ class CodeRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.CodelistAliasRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCodelistAliasRef>%s</%sCodelistAliasRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.CodelistAliasRef).encode(ExternalEncoding), input_name='CodelistAliasRef'), namespace_, eol_))
+            outfile.write('<%sCodelistAliasRef>%s</%sCodelistAliasRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.CodelistAliasRef), input_name='CodelistAliasRef'), namespace_, eol_))
         if self.CodeID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCodeID>%s</%sCodeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.CodeID).encode(ExternalEncoding), input_name='CodeID'), namespace_, eol_))
+            outfile.write('<%sCodeID>%s</%sCodeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.CodeID), input_name='CodeID'), namespace_, eol_))
         for CodeRef_ in self.CodeRef:
             CodeRef_.export(outfile, level, namespace_, name_='CodeRef', pretty_print=pretty_print)
         if self.LevelRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLevelRef>%s</%sLevelRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.LevelRef).encode(ExternalEncoding), input_name='LevelRef'), namespace_, eol_))
+            outfile.write('<%sLevelRef>%s</%sLevelRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.LevelRef), input_name='LevelRef'), namespace_, eol_))
         if self.NodeAliasID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sNodeAliasID>%s</%sNodeAliasID>%s' % (namespace_, self.gds_format_string(quote_xml(self.NodeAliasID).encode(ExternalEncoding), input_name='NodeAliasID'), namespace_, eol_))
+            outfile.write('<%sNodeAliasID>%s</%sNodeAliasID>%s' % (namespace_, self.gds_format_string(quote_xml(self.NodeAliasID), input_name='NodeAliasID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
         if self.ValidFrom is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sValidFrom>%s</%sValidFrom>%s' % (namespace_, self.gds_format_string(quote_xml(self.ValidFrom).encode(ExternalEncoding), input_name='ValidFrom'), namespace_, eol_))
+            outfile.write('<%sValidFrom>%s</%sValidFrom>%s' % (namespace_, self.gds_format_string(quote_xml(self.ValidFrom), input_name='ValidFrom'), namespace_, eol_))
         if self.ValidTo is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sValidTo>%s</%sValidTo>%s' % (namespace_, self.gds_format_string(quote_xml(self.ValidTo).encode(ExternalEncoding), input_name='ValidTo'), namespace_, eol_))
+            outfile.write('<%sValidTo>%s</%sValidTo>%s' % (namespace_, self.gds_format_string(quote_xml(self.ValidTo), input_name='ValidTo'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='CodeRefType'):
         level += 1
         already_processed = set()
@@ -8126,13 +8125,13 @@ class CodeRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.CodelistAliasRef is not None:
             showIndent(outfile, level)
-            outfile.write('CodelistAliasRef=%s,\n' % quote_python(self.CodelistAliasRef).encode(ExternalEncoding))
+            outfile.write('CodelistAliasRef=%s,\n' % quote_python(self.CodelistAliasRef))
         if self.CodeID is not None:
             showIndent(outfile, level)
-            outfile.write('CodeID=%s,\n' % quote_python(self.CodeID).encode(ExternalEncoding))
+            outfile.write('CodeID=%s,\n' % quote_python(self.CodeID))
         showIndent(outfile, level)
         outfile.write('CodeRef=[\n')
         level += 1
@@ -8147,19 +8146,19 @@ class CodeRefType(GeneratedsSuper):
         outfile.write('],\n')
         if self.LevelRef is not None:
             showIndent(outfile, level)
-            outfile.write('LevelRef=%s,\n' % quote_python(self.LevelRef).encode(ExternalEncoding))
+            outfile.write('LevelRef=%s,\n' % quote_python(self.LevelRef))
         if self.NodeAliasID is not None:
             showIndent(outfile, level)
-            outfile.write('NodeAliasID=%s,\n' % quote_python(self.NodeAliasID).encode(ExternalEncoding))
+            outfile.write('NodeAliasID=%s,\n' % quote_python(self.NodeAliasID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
         if self.ValidFrom is not None:
             showIndent(outfile, level)
-            outfile.write('ValidFrom=%s,\n' % quote_python(self.ValidFrom).encode(ExternalEncoding))
+            outfile.write('ValidFrom=%s,\n' % quote_python(self.ValidFrom))
         if self.ValidTo is not None:
             showIndent(outfile, level)
-            outfile.write('ValidTo=%s,\n' % quote_python(self.ValidTo).encode(ExternalEncoding))
+            outfile.write('ValidTo=%s,\n' % quote_python(self.ValidTo))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8499,13 +8498,13 @@ class ConceptType(GeneratedsSuper):
             outfile.write(' agencyID=%s' % (quote_attrib(self.agencyID), ))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -8811,16 +8810,16 @@ class ConceptSchemeType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -9235,16 +9234,16 @@ class MetadataStructureDefinitionType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -9690,13 +9689,13 @@ class FullTargetIdentifierType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='FullTargetIdentifierType'):
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (quote_attrib(self.id), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='FullTargetIdentifierType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -9909,13 +9908,13 @@ class IdentifierComponentType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='IdentifierComponentType'):
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (quote_attrib(self.id), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='IdentifierComponentType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -9927,7 +9926,7 @@ class IdentifierComponentType(GeneratedsSuper):
             Description_.export(outfile, level, namespace_, name_='Description', pretty_print=pretty_print)
         if self.TargetObjectClass is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTargetObjectClass>%s</%sTargetObjectClass>%s' % (namespace_, self.gds_format_string(quote_xml(self.TargetObjectClass).encode(ExternalEncoding), input_name='TargetObjectClass'), namespace_, eol_))
+            outfile.write('<%sTargetObjectClass>%s</%sTargetObjectClass>%s' % (namespace_, self.gds_format_string(quote_xml(self.TargetObjectClass), input_name='TargetObjectClass'), namespace_, eol_))
         if self.RepresentationScheme is not None:
             self.RepresentationScheme.export(outfile, level, namespace_, name_='RepresentationScheme', pretty_print=pretty_print)
         if self.Annotations is not None:
@@ -9978,7 +9977,7 @@ class IdentifierComponentType(GeneratedsSuper):
         outfile.write('],\n')
         if self.TargetObjectClass is not None:
             showIndent(outfile, level)
-            outfile.write('TargetObjectClass=%s,\n' % quote_python(self.TargetObjectClass).encode(ExternalEncoding))
+            outfile.write('TargetObjectClass=%s,\n' % quote_python(self.TargetObjectClass))
         if self.RepresentationScheme is not None:
             showIndent(outfile, level)
             outfile.write('RepresentationScheme=model_.RepresentationSchemeType(\n')
@@ -10131,13 +10130,13 @@ class PartialTargetIdentifierType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='PartialTargetIdentifierType'):
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (quote_attrib(self.id), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='PartialTargetIdentifierType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -10149,7 +10148,7 @@ class PartialTargetIdentifierType(GeneratedsSuper):
             Description_.export(outfile, level, namespace_, name_='Description', pretty_print=pretty_print)
         for IdentifierComponentRef_ in self.IdentifierComponentRef:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sIdentifierComponentRef>%s</%sIdentifierComponentRef>%s' % (namespace_, self.gds_format_string(quote_xml(IdentifierComponentRef_).encode(ExternalEncoding), input_name='IdentifierComponentRef'), namespace_, eol_))
+            outfile.write('<%sIdentifierComponentRef>%s</%sIdentifierComponentRef>%s' % (namespace_, self.gds_format_string(quote_xml(IdentifierComponentRef_), input_name='IdentifierComponentRef'), namespace_, eol_))
         if self.Annotations is not None:
             self.Annotations.export(outfile, level, namespace_, name_='Annotations', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='PartialTargetIdentifierType'):
@@ -10201,7 +10200,7 @@ class PartialTargetIdentifierType(GeneratedsSuper):
         level += 1
         for IdentifierComponentRef_ in self.IdentifierComponentRef:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(IdentifierComponentRef_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(IdentifierComponentRef_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -10462,7 +10461,7 @@ class ReportStructureType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='ReportStructureType'):
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.target is not None and 'target' not in already_processed:
             already_processed.add('target')
             outfile.write(' target=%s' % (quote_attrib(self.target), ))
@@ -10471,7 +10470,7 @@ class ReportStructureType(GeneratedsSuper):
             outfile.write(' id=%s' % (quote_attrib(self.id), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='ReportStructureType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -10727,7 +10726,7 @@ class MetadataAttributeType(GeneratedsSuper):
             outfile.write(' conceptSchemeRef=%s' % (quote_attrib(self.conceptSchemeRef), ))
         if self.conceptVersion is not None and 'conceptVersion' not in already_processed:
             already_processed.add('conceptVersion')
-            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion).encode(ExternalEncoding), input_name='conceptVersion'), ))
+            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion), input_name='conceptVersion'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='MetadataAttributeType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -10953,7 +10952,7 @@ class TextFormatType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='TextFormatType'):
         if self.timeInterval is not None and 'timeInterval' not in already_processed:
             already_processed.add('timeInterval')
-            outfile.write(' timeInterval=%s' % (self.gds_format_string(quote_attrib(self.timeInterval).encode(ExternalEncoding), input_name='timeInterval'), ))
+            outfile.write(' timeInterval=%s' % (self.gds_format_string(quote_attrib(self.timeInterval), input_name='timeInterval'), ))
         if self.minLength is not None and 'minLength' not in already_processed:
             already_processed.add('minLength')
             outfile.write(' minLength="%s"' % self.gds_format_integer(self.minLength, input_name='minLength'))
@@ -10974,7 +10973,7 @@ class TextFormatType(GeneratedsSuper):
             outfile.write(' maxLength="%s"' % self.gds_format_integer(self.maxLength, input_name='maxLength'))
         if self.pattern is not None and 'pattern' not in already_processed:
             already_processed.add('pattern')
-            outfile.write(' pattern=%s' % (self.gds_format_string(quote_attrib(self.pattern).encode(ExternalEncoding), input_name='pattern'), ))
+            outfile.write(' pattern=%s' % (self.gds_format_string(quote_attrib(self.pattern), input_name='pattern'), ))
         if self.decimals is not None and 'decimals' not in already_processed:
             already_processed.add('decimals')
             outfile.write(' decimals="%s"' % self.gds_format_integer(self.decimals, input_name='decimals'))
@@ -11049,14 +11048,14 @@ class TextFormatType(GeneratedsSuper):
             already_processed.add('minLength')
             try:
                 self.minLength = int(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
         value = find_attr_value_('interval', node)
         if value is not None and 'interval' not in already_processed:
             already_processed.add('interval')
             try:
                 self.interval = float(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise ValueError('Bad float/double attribute (interval): %s' % exp)
         value = find_attr_value_('isSequence', node)
         if value is not None and 'isSequence' not in already_processed:
@@ -11072,21 +11071,21 @@ class TextFormatType(GeneratedsSuper):
             already_processed.add('startValue')
             try:
                 self.startValue = float(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise ValueError('Bad float/double attribute (startValue): %s' % exp)
         value = find_attr_value_('endValue', node)
         if value is not None and 'endValue' not in already_processed:
             already_processed.add('endValue')
             try:
                 self.endValue = float(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise ValueError('Bad float/double attribute (endValue): %s' % exp)
         value = find_attr_value_('maxLength', node)
         if value is not None and 'maxLength' not in already_processed:
             already_processed.add('maxLength')
             try:
                 self.maxLength = int(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
         value = find_attr_value_('pattern', node)
         if value is not None and 'pattern' not in already_processed:
@@ -11097,7 +11096,7 @@ class TextFormatType(GeneratedsSuper):
             already_processed.add('decimals')
             try:
                 self.decimals = int(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
         value = find_attr_value_('textType', node)
         if value is not None and 'textType' not in already_processed:
@@ -11317,16 +11316,16 @@ class KeyFamilyType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -11932,7 +11931,7 @@ class DimensionType(GeneratedsSuper):
             outfile.write(' isIdentityDimension="%s"' % self.gds_format_boolean(self.isIdentityDimension, input_name='isIdentityDimension'))
         if self.codelistVersion is not None and 'codelistVersion' not in already_processed:
             already_processed.add('codelistVersion')
-            outfile.write(' codelistVersion=%s' % (self.gds_format_string(quote_attrib(self.codelistVersion).encode(ExternalEncoding), input_name='codelistVersion'), ))
+            outfile.write(' codelistVersion=%s' % (self.gds_format_string(quote_attrib(self.codelistVersion), input_name='codelistVersion'), ))
         if self.crossSectionalAttachObservation is not None and 'crossSectionalAttachObservation' not in already_processed:
             already_processed.add('crossSectionalAttachObservation')
             outfile.write(' crossSectionalAttachObservation="%s"' % self.gds_format_boolean(self.crossSectionalAttachObservation, input_name='crossSectionalAttachObservation'))
@@ -11941,7 +11940,7 @@ class DimensionType(GeneratedsSuper):
             outfile.write(' conceptSchemeRef=%s' % (quote_attrib(self.conceptSchemeRef), ))
         if self.conceptVersion is not None and 'conceptVersion' not in already_processed:
             already_processed.add('conceptVersion')
-            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion).encode(ExternalEncoding), input_name='conceptVersion'), ))
+            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion), input_name='conceptVersion'), ))
         if self.crossSectionalAttachGroup is not None and 'crossSectionalAttachGroup' not in already_processed:
             already_processed.add('crossSectionalAttachGroup')
             outfile.write(' crossSectionalAttachGroup="%s"' % self.gds_format_boolean(self.crossSectionalAttachGroup, input_name='crossSectionalAttachGroup'))
@@ -12321,13 +12320,13 @@ class TimeDimensionType(GeneratedsSuper):
             outfile.write(' conceptAgency=%s' % (quote_attrib(self.conceptAgency), ))
         if self.codelistVersion is not None and 'codelistVersion' not in already_processed:
             already_processed.add('codelistVersion')
-            outfile.write(' codelistVersion=%s' % (self.gds_format_string(quote_attrib(self.codelistVersion).encode(ExternalEncoding), input_name='codelistVersion'), ))
+            outfile.write(' codelistVersion=%s' % (self.gds_format_string(quote_attrib(self.codelistVersion), input_name='codelistVersion'), ))
         if self.conceptSchemeRef is not None and 'conceptSchemeRef' not in already_processed:
             already_processed.add('conceptSchemeRef')
             outfile.write(' conceptSchemeRef=%s' % (quote_attrib(self.conceptSchemeRef), ))
         if self.conceptVersion is not None and 'conceptVersion' not in already_processed:
             already_processed.add('conceptVersion')
-            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion).encode(ExternalEncoding), input_name='conceptVersion'), ))
+            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion), input_name='conceptVersion'), ))
         if self.crossSectionalAttachGroup is not None and 'crossSectionalAttachGroup' not in already_processed:
             already_processed.add('crossSectionalAttachGroup')
             outfile.write(' crossSectionalAttachGroup="%s"' % self.gds_format_boolean(self.crossSectionalAttachGroup, input_name='crossSectionalAttachGroup'))
@@ -12609,10 +12608,10 @@ class GroupType(GeneratedsSuper):
             eol_ = ''
         for DimensionRef_ in self.DimensionRef:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDimensionRef>%s</%sDimensionRef>%s' % (namespace_, self.gds_format_string(quote_xml(DimensionRef_).encode(ExternalEncoding), input_name='DimensionRef'), namespace_, eol_))
+            outfile.write('<%sDimensionRef>%s</%sDimensionRef>%s' % (namespace_, self.gds_format_string(quote_xml(DimensionRef_), input_name='DimensionRef'), namespace_, eol_))
         if self.AttachmentConstraintRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAttachmentConstraintRef>%s</%sAttachmentConstraintRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.AttachmentConstraintRef).encode(ExternalEncoding), input_name='AttachmentConstraintRef'), namespace_, eol_))
+            outfile.write('<%sAttachmentConstraintRef>%s</%sAttachmentConstraintRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.AttachmentConstraintRef), input_name='AttachmentConstraintRef'), namespace_, eol_))
         for Description_ in self.Description:
             Description_.export(outfile, level, namespace_, name_='Description', pretty_print=pretty_print)
         if self.Annotations is not None:
@@ -12634,13 +12633,13 @@ class GroupType(GeneratedsSuper):
         level += 1
         for DimensionRef_ in self.DimensionRef:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DimensionRef_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DimensionRef_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
         if self.AttachmentConstraintRef is not None:
             showIndent(outfile, level)
-            outfile.write('AttachmentConstraintRef=%s,\n' % quote_python(self.AttachmentConstraintRef).encode(ExternalEncoding))
+            outfile.write('AttachmentConstraintRef=%s,\n' % quote_python(self.AttachmentConstraintRef))
         showIndent(outfile, level)
         outfile.write('Description=[\n')
         level += 1
@@ -12776,7 +12775,7 @@ class AttachmentConstraintRefType(GeneratedsSuper):
             self.ProvisionAgreementRef.export(outfile, level, namespace_, name_='ProvisionAgreementRef', pretty_print=pretty_print)
         if self.ConstraintRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConstraintRef>%s</%sConstraintRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.ConstraintRef).encode(ExternalEncoding), input_name='ConstraintRef'), namespace_, eol_))
+            outfile.write('<%sConstraintRef>%s</%sConstraintRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.ConstraintRef), input_name='ConstraintRef'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='AttachmentConstraintRefType'):
         level += 1
         already_processed = set()
@@ -12812,7 +12811,7 @@ class AttachmentConstraintRefType(GeneratedsSuper):
             outfile.write('),\n')
         if self.ConstraintRef is not None:
             showIndent(outfile, level)
-            outfile.write('ConstraintRef=%s,\n' % quote_python(self.ConstraintRef).encode(ExternalEncoding))
+            outfile.write('ConstraintRef=%s,\n' % quote_python(self.ConstraintRef))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -12943,28 +12942,28 @@ class ProvisionAgreementRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.OrganisationSchemeAgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOrganisationSchemeAgencyID>%s</%sOrganisationSchemeAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeAgencyID).encode(ExternalEncoding), input_name='OrganisationSchemeAgencyID'), namespace_, eol_))
+            outfile.write('<%sOrganisationSchemeAgencyID>%s</%sOrganisationSchemeAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeAgencyID), input_name='OrganisationSchemeAgencyID'), namespace_, eol_))
         if self.OrganisationSchemeID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOrganisationSchemeID>%s</%sOrganisationSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeID).encode(ExternalEncoding), input_name='OrganisationSchemeID'), namespace_, eol_))
+            outfile.write('<%sOrganisationSchemeID>%s</%sOrganisationSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeID), input_name='OrganisationSchemeID'), namespace_, eol_))
         if self.DataProviderID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataProviderID>%s</%sDataProviderID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataProviderID).encode(ExternalEncoding), input_name='DataProviderID'), namespace_, eol_))
+            outfile.write('<%sDataProviderID>%s</%sDataProviderID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataProviderID), input_name='DataProviderID'), namespace_, eol_))
         if self.DataProviderVersion is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataProviderVersion>%s</%sDataProviderVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataProviderVersion).encode(ExternalEncoding), input_name='DataProviderVersion'), namespace_, eol_))
+            outfile.write('<%sDataProviderVersion>%s</%sDataProviderVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataProviderVersion), input_name='DataProviderVersion'), namespace_, eol_))
         if self.DataflowAgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataflowAgencyID>%s</%sDataflowAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataflowAgencyID).encode(ExternalEncoding), input_name='DataflowAgencyID'), namespace_, eol_))
+            outfile.write('<%sDataflowAgencyID>%s</%sDataflowAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataflowAgencyID), input_name='DataflowAgencyID'), namespace_, eol_))
         if self.DataflowID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataflowID>%s</%sDataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataflowID).encode(ExternalEncoding), input_name='DataflowID'), namespace_, eol_))
+            outfile.write('<%sDataflowID>%s</%sDataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataflowID), input_name='DataflowID'), namespace_, eol_))
         if self.DataflowVersion is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataflowVersion>%s</%sDataflowVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataflowVersion).encode(ExternalEncoding), input_name='DataflowVersion'), namespace_, eol_))
+            outfile.write('<%sDataflowVersion>%s</%sDataflowVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataflowVersion), input_name='DataflowVersion'), namespace_, eol_))
         if self.Constraint is not None:
             self.Constraint.export(outfile, level, namespace_, name_='Constraint', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='ProvisionAgreementRefType'):
@@ -12978,28 +12977,28 @@ class ProvisionAgreementRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.OrganisationSchemeAgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('OrganisationSchemeAgencyID=%s,\n' % quote_python(self.OrganisationSchemeAgencyID).encode(ExternalEncoding))
+            outfile.write('OrganisationSchemeAgencyID=%s,\n' % quote_python(self.OrganisationSchemeAgencyID))
         if self.OrganisationSchemeID is not None:
             showIndent(outfile, level)
-            outfile.write('OrganisationSchemeID=%s,\n' % quote_python(self.OrganisationSchemeID).encode(ExternalEncoding))
+            outfile.write('OrganisationSchemeID=%s,\n' % quote_python(self.OrganisationSchemeID))
         if self.DataProviderID is not None:
             showIndent(outfile, level)
-            outfile.write('DataProviderID=%s,\n' % quote_python(self.DataProviderID).encode(ExternalEncoding))
+            outfile.write('DataProviderID=%s,\n' % quote_python(self.DataProviderID))
         if self.DataProviderVersion is not None:
             showIndent(outfile, level)
-            outfile.write('DataProviderVersion=%s,\n' % quote_python(self.DataProviderVersion).encode(ExternalEncoding))
+            outfile.write('DataProviderVersion=%s,\n' % quote_python(self.DataProviderVersion))
         if self.DataflowAgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('DataflowAgencyID=%s,\n' % quote_python(self.DataflowAgencyID).encode(ExternalEncoding))
+            outfile.write('DataflowAgencyID=%s,\n' % quote_python(self.DataflowAgencyID))
         if self.DataflowID is not None:
             showIndent(outfile, level)
-            outfile.write('DataflowID=%s,\n' % quote_python(self.DataflowID).encode(ExternalEncoding))
+            outfile.write('DataflowID=%s,\n' % quote_python(self.DataflowID))
         if self.DataflowVersion is not None:
             showIndent(outfile, level)
-            outfile.write('DataflowVersion=%s,\n' % quote_python(self.DataflowVersion).encode(ExternalEncoding))
+            outfile.write('DataflowVersion=%s,\n' % quote_python(self.DataflowVersion))
         if self.Constraint is not None:
             showIndent(outfile, level)
             outfile.write('Constraint=model_.ConstraintType(\n')
@@ -13147,19 +13146,19 @@ class DataProviderRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.OrganisationSchemeAgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOrganisationSchemeAgencyID>%s</%sOrganisationSchemeAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeAgencyID).encode(ExternalEncoding), input_name='OrganisationSchemeAgencyID'), namespace_, eol_))
+            outfile.write('<%sOrganisationSchemeAgencyID>%s</%sOrganisationSchemeAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeAgencyID), input_name='OrganisationSchemeAgencyID'), namespace_, eol_))
         if self.OrganisationSchemeID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOrganisationSchemeID>%s</%sOrganisationSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeID).encode(ExternalEncoding), input_name='OrganisationSchemeID'), namespace_, eol_))
+            outfile.write('<%sOrganisationSchemeID>%s</%sOrganisationSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeID), input_name='OrganisationSchemeID'), namespace_, eol_))
         if self.DataProviderID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataProviderID>%s</%sDataProviderID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataProviderID).encode(ExternalEncoding), input_name='DataProviderID'), namespace_, eol_))
+            outfile.write('<%sDataProviderID>%s</%sDataProviderID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataProviderID), input_name='DataProviderID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
         if self.Constraint is not None:
             self.Constraint.export(outfile, level, namespace_, name_='Constraint', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='DataProviderRefType'):
@@ -13173,19 +13172,19 @@ class DataProviderRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.OrganisationSchemeAgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('OrganisationSchemeAgencyID=%s,\n' % quote_python(self.OrganisationSchemeAgencyID).encode(ExternalEncoding))
+            outfile.write('OrganisationSchemeAgencyID=%s,\n' % quote_python(self.OrganisationSchemeAgencyID))
         if self.OrganisationSchemeID is not None:
             showIndent(outfile, level)
-            outfile.write('OrganisationSchemeID=%s,\n' % quote_python(self.OrganisationSchemeID).encode(ExternalEncoding))
+            outfile.write('OrganisationSchemeID=%s,\n' % quote_python(self.OrganisationSchemeID))
         if self.DataProviderID is not None:
             showIndent(outfile, level)
-            outfile.write('DataProviderID=%s,\n' % quote_python(self.DataProviderID).encode(ExternalEncoding))
+            outfile.write('DataProviderID=%s,\n' % quote_python(self.DataProviderID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
         if self.Constraint is not None:
             showIndent(outfile, level)
             outfile.write('Constraint=model_.ConstraintType(\n')
@@ -13463,7 +13462,7 @@ class AttributeType(GeneratedsSuper):
             outfile.write(' isIdentityAttribute="%s"' % self.gds_format_boolean(self.isIdentityAttribute, input_name='isIdentityAttribute'))
         if self.codelistVersion is not None and 'codelistVersion' not in already_processed:
             already_processed.add('codelistVersion')
-            outfile.write(' codelistVersion=%s' % (self.gds_format_string(quote_attrib(self.codelistVersion).encode(ExternalEncoding), input_name='codelistVersion'), ))
+            outfile.write(' codelistVersion=%s' % (self.gds_format_string(quote_attrib(self.codelistVersion), input_name='codelistVersion'), ))
         if self.assignmentStatus is not None and 'assignmentStatus' not in already_processed:
             already_processed.add('assignmentStatus')
             outfile.write(' assignmentStatus=%s' % (quote_attrib(self.assignmentStatus), ))
@@ -13472,7 +13471,7 @@ class AttributeType(GeneratedsSuper):
             outfile.write(' conceptSchemeRef=%s' % (quote_attrib(self.conceptSchemeRef), ))
         if self.conceptVersion is not None and 'conceptVersion' not in already_processed:
             already_processed.add('conceptVersion')
-            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion).encode(ExternalEncoding), input_name='conceptVersion'), ))
+            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion), input_name='conceptVersion'), ))
         if self.crossSectionalAttachGroup is not None and 'crossSectionalAttachGroup' not in already_processed:
             already_processed.add('crossSectionalAttachGroup')
             outfile.write(' crossSectionalAttachGroup="%s"' % self.gds_format_boolean(self.crossSectionalAttachGroup, input_name='crossSectionalAttachGroup'))
@@ -13485,10 +13484,10 @@ class AttributeType(GeneratedsSuper):
             self.TextFormat.export(outfile, level, namespace_, name_='TextFormat', pretty_print=pretty_print)
         for AttachmentGroup_ in self.AttachmentGroup:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAttachmentGroup>%s</%sAttachmentGroup>%s' % (namespace_, self.gds_format_string(quote_xml(AttachmentGroup_).encode(ExternalEncoding), input_name='AttachmentGroup'), namespace_, eol_))
+            outfile.write('<%sAttachmentGroup>%s</%sAttachmentGroup>%s' % (namespace_, self.gds_format_string(quote_xml(AttachmentGroup_), input_name='AttachmentGroup'), namespace_, eol_))
         for AttachmentMeasure_ in self.AttachmentMeasure:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAttachmentMeasure>%s</%sAttachmentMeasure>%s' % (namespace_, self.gds_format_string(quote_xml(AttachmentMeasure_).encode(ExternalEncoding), input_name='AttachmentMeasure'), namespace_, eol_))
+            outfile.write('<%sAttachmentMeasure>%s</%sAttachmentMeasure>%s' % (namespace_, self.gds_format_string(quote_xml(AttachmentMeasure_), input_name='AttachmentMeasure'), namespace_, eol_))
         if self.Annotations is not None:
             self.Annotations.export(outfile, level, namespace_, name_='Annotations', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='AttributeType'):
@@ -13590,7 +13589,7 @@ class AttributeType(GeneratedsSuper):
         level += 1
         for AttachmentGroup_ in self.AttachmentGroup:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AttachmentGroup_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AttachmentGroup_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -13599,7 +13598,7 @@ class AttributeType(GeneratedsSuper):
         level += 1
         for AttachmentMeasure_ in self.AttachmentMeasure:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AttachmentMeasure_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AttachmentMeasure_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -13869,13 +13868,13 @@ class PrimaryMeasureType(GeneratedsSuper):
             outfile.write(' conceptAgency=%s' % (quote_attrib(self.conceptAgency), ))
         if self.codelistVersion is not None and 'codelistVersion' not in already_processed:
             already_processed.add('codelistVersion')
-            outfile.write(' codelistVersion=%s' % (self.gds_format_string(quote_attrib(self.codelistVersion).encode(ExternalEncoding), input_name='codelistVersion'), ))
+            outfile.write(' codelistVersion=%s' % (self.gds_format_string(quote_attrib(self.codelistVersion), input_name='codelistVersion'), ))
         if self.conceptSchemeRef is not None and 'conceptSchemeRef' not in already_processed:
             already_processed.add('conceptSchemeRef')
             outfile.write(' conceptSchemeRef=%s' % (quote_attrib(self.conceptSchemeRef), ))
         if self.conceptVersion is not None and 'conceptVersion' not in already_processed:
             already_processed.add('conceptVersion')
-            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion).encode(ExternalEncoding), input_name='conceptVersion'), ))
+            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion), input_name='conceptVersion'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='PrimaryMeasureType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -14103,7 +14102,7 @@ class CrossSectionalMeasureType(GeneratedsSuper):
             outfile.write(' conceptAgency=%s' % (quote_attrib(self.conceptAgency), ))
         if self.codelistVersion is not None and 'codelistVersion' not in already_processed:
             already_processed.add('codelistVersion')
-            outfile.write(' codelistVersion=%s' % (self.gds_format_string(quote_attrib(self.codelistVersion).encode(ExternalEncoding), input_name='codelistVersion'), ))
+            outfile.write(' codelistVersion=%s' % (self.gds_format_string(quote_attrib(self.codelistVersion), input_name='codelistVersion'), ))
         if self.measureDimension is not None and 'measureDimension' not in already_processed:
             already_processed.add('measureDimension')
             outfile.write(' measureDimension=%s' % (quote_attrib(self.measureDimension), ))
@@ -14112,7 +14111,7 @@ class CrossSectionalMeasureType(GeneratedsSuper):
             outfile.write(' conceptSchemeRef=%s' % (quote_attrib(self.conceptSchemeRef), ))
         if self.conceptVersion is not None and 'conceptVersion' not in already_processed:
             already_processed.add('conceptVersion')
-            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion).encode(ExternalEncoding), input_name='conceptVersion'), ))
+            outfile.write(' conceptVersion=%s' % (self.gds_format_string(quote_attrib(self.conceptVersion), input_name='conceptVersion'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='CrossSectionalMeasureType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -14494,16 +14493,16 @@ class StructureSetType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -15063,16 +15062,16 @@ class CategorySchemeRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.CategorySchemeID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCategorySchemeID>%s</%sCategorySchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.CategorySchemeID).encode(ExternalEncoding), input_name='CategorySchemeID'), namespace_, eol_))
+            outfile.write('<%sCategorySchemeID>%s</%sCategorySchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.CategorySchemeID), input_name='CategorySchemeID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='CategorySchemeRefType'):
         level += 1
         already_processed = set()
@@ -15084,16 +15083,16 @@ class CategorySchemeRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.CategorySchemeID is not None:
             showIndent(outfile, level)
-            outfile.write('CategorySchemeID=%s,\n' % quote_python(self.CategorySchemeID).encode(ExternalEncoding))
+            outfile.write('CategorySchemeID=%s,\n' % quote_python(self.CategorySchemeID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -15192,16 +15191,16 @@ class ConceptSchemeRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ConceptSchemeID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConceptSchemeID>%s</%sConceptSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ConceptSchemeID).encode(ExternalEncoding), input_name='ConceptSchemeID'), namespace_, eol_))
+            outfile.write('<%sConceptSchemeID>%s</%sConceptSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ConceptSchemeID), input_name='ConceptSchemeID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ConceptSchemeRefType'):
         level += 1
         already_processed = set()
@@ -15213,16 +15212,16 @@ class ConceptSchemeRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ConceptSchemeID is not None:
             showIndent(outfile, level)
-            outfile.write('ConceptSchemeID=%s,\n' % quote_python(self.ConceptSchemeID).encode(ExternalEncoding))
+            outfile.write('ConceptSchemeID=%s,\n' % quote_python(self.ConceptSchemeID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -15321,16 +15320,16 @@ class OrganisationSchemeRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.OrganisationSchemeID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOrganisationSchemeID>%s</%sOrganisationSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeID).encode(ExternalEncoding), input_name='OrganisationSchemeID'), namespace_, eol_))
+            outfile.write('<%sOrganisationSchemeID>%s</%sOrganisationSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeID), input_name='OrganisationSchemeID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='OrganisationSchemeRefType'):
         level += 1
         already_processed = set()
@@ -15342,16 +15341,16 @@ class OrganisationSchemeRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.OrganisationSchemeID is not None:
             showIndent(outfile, level)
-            outfile.write('OrganisationSchemeID=%s,\n' % quote_python(self.OrganisationSchemeID).encode(ExternalEncoding))
+            outfile.write('OrganisationSchemeID=%s,\n' % quote_python(self.OrganisationSchemeID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -15450,16 +15449,16 @@ class HierarchicalCodelistRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.HierarchicalCodelistID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sHierarchicalCodelistID>%s</%sHierarchicalCodelistID>%s' % (namespace_, self.gds_format_string(quote_xml(self.HierarchicalCodelistID).encode(ExternalEncoding), input_name='HierarchicalCodelistID'), namespace_, eol_))
+            outfile.write('<%sHierarchicalCodelistID>%s</%sHierarchicalCodelistID>%s' % (namespace_, self.gds_format_string(quote_xml(self.HierarchicalCodelistID), input_name='HierarchicalCodelistID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='HierarchicalCodelistRefType'):
         level += 1
         already_processed = set()
@@ -15471,16 +15470,16 @@ class HierarchicalCodelistRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.HierarchicalCodelistID is not None:
             showIndent(outfile, level)
-            outfile.write('HierarchicalCodelistID=%s,\n' % quote_python(self.HierarchicalCodelistID).encode(ExternalEncoding))
+            outfile.write('HierarchicalCodelistID=%s,\n' % quote_python(self.HierarchicalCodelistID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -16130,10 +16129,10 @@ class CodeMapType(GeneratedsSuper):
             eol_ = ''
         if self.MapCodeRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMapCodeRef>%s</%sMapCodeRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MapCodeRef).encode(ExternalEncoding), input_name='MapCodeRef'), namespace_, eol_))
+            outfile.write('<%sMapCodeRef>%s</%sMapCodeRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MapCodeRef), input_name='MapCodeRef'), namespace_, eol_))
         if self.MapTargetCodeRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMapTargetCodeRef>%s</%sMapTargetCodeRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MapTargetCodeRef).encode(ExternalEncoding), input_name='MapTargetCodeRef'), namespace_, eol_))
+            outfile.write('<%sMapTargetCodeRef>%s</%sMapTargetCodeRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MapTargetCodeRef), input_name='MapTargetCodeRef'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='CodeMapType'):
         level += 1
         already_processed = set()
@@ -16148,10 +16147,10 @@ class CodeMapType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.MapCodeRef is not None:
             showIndent(outfile, level)
-            outfile.write('MapCodeRef=%s,\n' % quote_python(self.MapCodeRef).encode(ExternalEncoding))
+            outfile.write('MapCodeRef=%s,\n' % quote_python(self.MapCodeRef))
         if self.MapTargetCodeRef is not None:
             showIndent(outfile, level)
-            outfile.write('MapTargetCodeRef=%s,\n' % quote_python(self.MapTargetCodeRef).encode(ExternalEncoding))
+            outfile.write('MapTargetCodeRef=%s,\n' % quote_python(self.MapTargetCodeRef))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -16279,7 +16278,7 @@ class ComponentMapType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='ComponentMapType'):
         if self.preferredLanguage is not None and 'preferredLanguage' not in already_processed:
             already_processed.add('preferredLanguage')
-            outfile.write(' preferredLanguage=%s' % (self.gds_format_string(quote_attrib(self.preferredLanguage).encode(ExternalEncoding), input_name='preferredLanguage'), ))
+            outfile.write(' preferredLanguage=%s' % (self.gds_format_string(quote_attrib(self.preferredLanguage), input_name='preferredLanguage'), ))
         if self.componentAlias is not None and 'componentAlias' not in already_processed:
             already_processed.add('componentAlias')
             outfile.write(' componentAlias=%s' % (quote_attrib(self.componentAlias), ))
@@ -16290,17 +16289,17 @@ class ComponentMapType(GeneratedsSuper):
             eol_ = ''
         if self.MapConceptRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMapConceptRef>%s</%sMapConceptRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MapConceptRef).encode(ExternalEncoding), input_name='MapConceptRef'), namespace_, eol_))
+            outfile.write('<%sMapConceptRef>%s</%sMapConceptRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MapConceptRef), input_name='MapConceptRef'), namespace_, eol_))
         if self.MapTargetConceptRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMapTargetConceptRef>%s</%sMapTargetConceptRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MapTargetConceptRef).encode(ExternalEncoding), input_name='MapTargetConceptRef'), namespace_, eol_))
+            outfile.write('<%sMapTargetConceptRef>%s</%sMapTargetConceptRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MapTargetConceptRef), input_name='MapTargetConceptRef'), namespace_, eol_))
         if self.RepresentationMapRef is not None:
             self.RepresentationMapRef.export(outfile, level, namespace_, name_='RepresentationMapRef', pretty_print=pretty_print)
         if self.ToTextFormat is not None:
             self.ToTextFormat.export(outfile, level, namespace_, name_='ToTextFormat', pretty_print=pretty_print)
         if self.ToValueType is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sToValueType>%s</%sToValueType>%s' % (namespace_, self.gds_format_string(quote_xml(self.ToValueType).encode(ExternalEncoding), input_name='ToValueType'), namespace_, eol_))
+            outfile.write('<%sToValueType>%s</%sToValueType>%s' % (namespace_, self.gds_format_string(quote_xml(self.ToValueType), input_name='ToValueType'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ComponentMapType'):
         level += 1
         already_processed = set()
@@ -16319,10 +16318,10 @@ class ComponentMapType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.MapConceptRef is not None:
             showIndent(outfile, level)
-            outfile.write('MapConceptRef=%s,\n' % quote_python(self.MapConceptRef).encode(ExternalEncoding))
+            outfile.write('MapConceptRef=%s,\n' % quote_python(self.MapConceptRef))
         if self.MapTargetConceptRef is not None:
             showIndent(outfile, level)
-            outfile.write('MapTargetConceptRef=%s,\n' % quote_python(self.MapTargetConceptRef).encode(ExternalEncoding))
+            outfile.write('MapTargetConceptRef=%s,\n' % quote_python(self.MapTargetConceptRef))
         if self.RepresentationMapRef is not None:
             showIndent(outfile, level)
             outfile.write('RepresentationMapRef=model_.RepresentationMapRefType(\n')
@@ -16337,7 +16336,7 @@ class ComponentMapType(GeneratedsSuper):
             outfile.write('),\n')
         if self.ToValueType is not None:
             showIndent(outfile, level)
-            outfile.write('ToValueType=%s,\n' % quote_python(self.ToValueType).encode(ExternalEncoding))
+            outfile.write('ToValueType=%s,\n' % quote_python(self.ToValueType))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -16452,10 +16451,10 @@ class RepresentationMapRefType(GeneratedsSuper):
             eol_ = ''
         if self.RepresentationMapAgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sRepresentationMapAgencyID>%s</%sRepresentationMapAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.RepresentationMapAgencyID).encode(ExternalEncoding), input_name='RepresentationMapAgencyID'), namespace_, eol_))
+            outfile.write('<%sRepresentationMapAgencyID>%s</%sRepresentationMapAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.RepresentationMapAgencyID), input_name='RepresentationMapAgencyID'), namespace_, eol_))
         if self.RepresentationMapID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sRepresentationMapID>%s</%sRepresentationMapID>%s' % (namespace_, self.gds_format_string(quote_xml(self.RepresentationMapID).encode(ExternalEncoding), input_name='RepresentationMapID'), namespace_, eol_))
+            outfile.write('<%sRepresentationMapID>%s</%sRepresentationMapID>%s' % (namespace_, self.gds_format_string(quote_xml(self.RepresentationMapID), input_name='RepresentationMapID'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='RepresentationMapRefType'):
         level += 1
         already_processed = set()
@@ -16470,10 +16469,10 @@ class RepresentationMapRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.RepresentationMapAgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('RepresentationMapAgencyID=%s,\n' % quote_python(self.RepresentationMapAgencyID).encode(ExternalEncoding))
+            outfile.write('RepresentationMapAgencyID=%s,\n' % quote_python(self.RepresentationMapAgencyID))
         if self.RepresentationMapID is not None:
             showIndent(outfile, level)
-            outfile.write('RepresentationMapID=%s,\n' % quote_python(self.RepresentationMapID).encode(ExternalEncoding))
+            outfile.write('RepresentationMapID=%s,\n' % quote_python(self.RepresentationMapID))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -17122,10 +17121,10 @@ class ConceptMapType(GeneratedsSuper):
             eol_ = ''
         if self.ConceptID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConceptID>%s</%sConceptID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ConceptID).encode(ExternalEncoding), input_name='ConceptID'), namespace_, eol_))
+            outfile.write('<%sConceptID>%s</%sConceptID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ConceptID), input_name='ConceptID'), namespace_, eol_))
         if self.TargetConceptID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTargetConceptID>%s</%sTargetConceptID>%s' % (namespace_, self.gds_format_string(quote_xml(self.TargetConceptID).encode(ExternalEncoding), input_name='TargetConceptID'), namespace_, eol_))
+            outfile.write('<%sTargetConceptID>%s</%sTargetConceptID>%s' % (namespace_, self.gds_format_string(quote_xml(self.TargetConceptID), input_name='TargetConceptID'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ConceptMapType'):
         level += 1
         already_processed = set()
@@ -17140,10 +17139,10 @@ class ConceptMapType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.ConceptID is not None:
             showIndent(outfile, level)
-            outfile.write('ConceptID=%s,\n' % quote_python(self.ConceptID).encode(ExternalEncoding))
+            outfile.write('ConceptID=%s,\n' % quote_python(self.ConceptID))
         if self.TargetConceptID is not None:
             showIndent(outfile, level)
-            outfile.write('TargetConceptID=%s,\n' % quote_python(self.TargetConceptID).encode(ExternalEncoding))
+            outfile.write('TargetConceptID=%s,\n' % quote_python(self.TargetConceptID))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -17457,10 +17456,10 @@ class OrganisationMapType(GeneratedsSuper):
             eol_ = ''
         if self.OrganisationID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOrganisationID>%s</%sOrganisationID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationID).encode(ExternalEncoding), input_name='OrganisationID'), namespace_, eol_))
+            outfile.write('<%sOrganisationID>%s</%sOrganisationID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationID), input_name='OrganisationID'), namespace_, eol_))
         if self.TargetOrganisationID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTargetOrganisationID>%s</%sTargetOrganisationID>%s' % (namespace_, self.gds_format_string(quote_xml(self.TargetOrganisationID).encode(ExternalEncoding), input_name='TargetOrganisationID'), namespace_, eol_))
+            outfile.write('<%sTargetOrganisationID>%s</%sTargetOrganisationID>%s' % (namespace_, self.gds_format_string(quote_xml(self.TargetOrganisationID), input_name='TargetOrganisationID'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='OrganisationMapType'):
         level += 1
         already_processed = set()
@@ -17475,10 +17474,10 @@ class OrganisationMapType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.OrganisationID is not None:
             showIndent(outfile, level)
-            outfile.write('OrganisationID=%s,\n' % quote_python(self.OrganisationID).encode(ExternalEncoding))
+            outfile.write('OrganisationID=%s,\n' % quote_python(self.OrganisationID))
         if self.TargetOrganisationID is not None:
             showIndent(outfile, level)
-            outfile.write('TargetOrganisationID=%s,\n' % quote_python(self.TargetOrganisationID).encode(ExternalEncoding))
+            outfile.write('TargetOrganisationID=%s,\n' % quote_python(self.TargetOrganisationID))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -17751,16 +17750,16 @@ class ReportingTaxonomyType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -18064,16 +18063,16 @@ class MetadataflowRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.MetadataflowID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataflowID>%s</%sMetadataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataflowID).encode(ExternalEncoding), input_name='MetadataflowID'), namespace_, eol_))
+            outfile.write('<%sMetadataflowID>%s</%sMetadataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataflowID), input_name='MetadataflowID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='MetadataflowRefType'):
         level += 1
         already_processed = set()
@@ -18085,16 +18084,16 @@ class MetadataflowRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.MetadataflowID is not None:
             showIndent(outfile, level)
-            outfile.write('MetadataflowID=%s,\n' % quote_python(self.MetadataflowID).encode(ExternalEncoding))
+            outfile.write('MetadataflowID=%s,\n' % quote_python(self.MetadataflowID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -18204,16 +18203,16 @@ class DataflowRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.DataflowID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataflowID>%s</%sDataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataflowID).encode(ExternalEncoding), input_name='DataflowID'), namespace_, eol_))
+            outfile.write('<%sDataflowID>%s</%sDataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataflowID), input_name='DataflowID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='DataflowRefType'):
         level += 1
         already_processed = set()
@@ -18225,16 +18224,16 @@ class DataflowRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.DataflowID is not None:
             showIndent(outfile, level)
-            outfile.write('DataflowID=%s,\n' % quote_python(self.DataflowID).encode(ExternalEncoding))
+            outfile.write('DataflowID=%s,\n' % quote_python(self.DataflowID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -18488,16 +18487,16 @@ class ProcessType(GeneratedsSuper):
             outfile.write(' isFinal="%s"' % self.gds_format_boolean(self.isFinal, input_name='isFinal'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
-            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version).encode(ExternalEncoding), input_name='version'), ))
+            outfile.write(' version=%s' % (self.gds_format_string(quote_attrib(self.version), input_name='version'), ))
         if self.isExternalReference is not None and 'isExternalReference' not in already_processed:
             already_processed.add('isExternalReference')
             outfile.write(' isExternalReference="%s"' % self.gds_format_boolean(self.isExternalReference, input_name='isExternalReference'))
@@ -18829,10 +18828,10 @@ class ProcessStepType(GeneratedsSuper):
             Description_.export(outfile, level, namespace_, name_='Description', pretty_print=pretty_print)
         for Input_ in self.Input:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sInput>%s</%sInput>%s' % (namespace_, self.gds_format_string(quote_xml(Input_).encode(ExternalEncoding), input_name='Input'), namespace_, eol_))
+            outfile.write('<%sInput>%s</%sInput>%s' % (namespace_, self.gds_format_string(quote_xml(Input_), input_name='Input'), namespace_, eol_))
         for Output_ in self.Output:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOutput>%s</%sOutput>%s' % (namespace_, self.gds_format_string(quote_xml(Output_).encode(ExternalEncoding), input_name='Output'), namespace_, eol_))
+            outfile.write('<%sOutput>%s</%sOutput>%s' % (namespace_, self.gds_format_string(quote_xml(Output_), input_name='Output'), namespace_, eol_))
         for Computation_ in self.Computation:
             Computation_.export(outfile, level, namespace_, name_='Computation', pretty_print=pretty_print)
         for Transition_ in self.Transition:
@@ -18882,7 +18881,7 @@ class ProcessStepType(GeneratedsSuper):
         level += 1
         for Input_ in self.Input:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Input_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Input_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -18891,7 +18890,7 @@ class ProcessStepType(GeneratedsSuper):
         level += 1
         for Output_ in self.Output:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Output_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Output_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -19053,7 +19052,7 @@ class TransitionType(GeneratedsSuper):
             eol_ = ''
         if self.TargetStep is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTargetStep>%s</%sTargetStep>%s' % (namespace_, self.gds_format_string(quote_xml(self.TargetStep).encode(ExternalEncoding), input_name='TargetStep'), namespace_, eol_))
+            outfile.write('<%sTargetStep>%s</%sTargetStep>%s' % (namespace_, self.gds_format_string(quote_xml(self.TargetStep), input_name='TargetStep'), namespace_, eol_))
         if self.Condition is not None:
             self.Condition.export(outfile, level, namespace_, name_='Condition', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='TransitionType'):
@@ -19067,7 +19066,7 @@ class TransitionType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.TargetStep is not None:
             showIndent(outfile, level)
-            outfile.write('TargetStep=%s,\n' % quote_python(self.TargetStep).encode(ExternalEncoding))
+            outfile.write('TargetStep=%s,\n' % quote_python(self.TargetStep))
         if self.Condition is not None:
             showIndent(outfile, level)
             outfile.write('Condition=model_.TextType(\n')
@@ -19196,7 +19195,7 @@ class ConstraintType(GeneratedsSuper):
             eol_ = ''
         if self.ConstraintID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConstraintID>%s</%sConstraintID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ConstraintID).encode(ExternalEncoding), input_name='ConstraintID'), namespace_, eol_))
+            outfile.write('<%sConstraintID>%s</%sConstraintID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ConstraintID), input_name='ConstraintID'), namespace_, eol_))
         for CubeRegion_ in self.CubeRegion:
             CubeRegion_.export(outfile, level, namespace_, name_='CubeRegion', pretty_print=pretty_print)
         if self.MetadataConceptSet is not None:
@@ -19221,7 +19220,7 @@ class ConstraintType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.ConstraintID is not None:
             showIndent(outfile, level)
-            outfile.write('ConstraintID=%s,\n' % quote_python(self.ConstraintID).encode(ExternalEncoding))
+            outfile.write('ConstraintID=%s,\n' % quote_python(self.ConstraintID))
         showIndent(outfile, level)
         outfile.write('CubeRegion=[\n')
         level += 1
@@ -19621,7 +19620,7 @@ class MemberType(GeneratedsSuper):
             eol_ = ''
         if self.ComponentRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sComponentRef>%s</%sComponentRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.ComponentRef).encode(ExternalEncoding), input_name='ComponentRef'), namespace_, eol_))
+            outfile.write('<%sComponentRef>%s</%sComponentRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.ComponentRef), input_name='ComponentRef'), namespace_, eol_))
         for MemberValue_ in self.MemberValue:
             MemberValue_.export(outfile, level, namespace_, name_='MemberValue', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='MemberType'):
@@ -19638,7 +19637,7 @@ class MemberType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.ComponentRef is not None:
             showIndent(outfile, level)
-            outfile.write('ComponentRef=%s,\n' % quote_python(self.ComponentRef).encode(ExternalEncoding))
+            outfile.write('ComponentRef=%s,\n' % quote_python(self.ComponentRef))
         showIndent(outfile, level)
         outfile.write('MemberValue=[\n')
         level += 1
@@ -19733,7 +19732,7 @@ class MemberValueType(GeneratedsSuper):
             eol_ = ''
         if self.Value is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sValue>%s</%sValue>%s' % (namespace_, self.gds_format_string(quote_xml(self.Value).encode(ExternalEncoding), input_name='Value'), namespace_, eol_))
+            outfile.write('<%sValue>%s</%sValue>%s' % (namespace_, self.gds_format_string(quote_xml(self.Value), input_name='Value'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='MemberValueType'):
         level += 1
         already_processed = set()
@@ -19745,7 +19744,7 @@ class MemberValueType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.Value is not None:
             showIndent(outfile, level)
-            outfile.write('Value=%s,\n' % quote_python(self.Value).encode(ExternalEncoding))
+            outfile.write('Value=%s,\n' % quote_python(self.Value))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -19950,10 +19949,10 @@ class KeyType(GeneratedsSuper):
             eol_ = ''
         for ComponentRef_ in self.ComponentRef:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sComponentRef>%s</%sComponentRef>%s' % (namespace_, self.gds_format_string(quote_xml(ComponentRef_).encode(ExternalEncoding), input_name='ComponentRef'), namespace_, eol_))
+            outfile.write('<%sComponentRef>%s</%sComponentRef>%s' % (namespace_, self.gds_format_string(quote_xml(ComponentRef_), input_name='ComponentRef'), namespace_, eol_))
         for Value_ in self.Value:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sValue>%s</%sValue>%s' % (namespace_, self.gds_format_string(quote_xml(Value_).encode(ExternalEncoding), input_name='Value'), namespace_, eol_))
+            outfile.write('<%sValue>%s</%sValue>%s' % (namespace_, self.gds_format_string(quote_xml(Value_), input_name='Value'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='KeyType'):
         level += 1
         already_processed = set()
@@ -19968,7 +19967,7 @@ class KeyType(GeneratedsSuper):
         level += 1
         for ComponentRef_ in self.ComponentRef:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(ComponentRef_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(ComponentRef_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -19977,7 +19976,7 @@ class KeyType(GeneratedsSuper):
         level += 1
         for Value_ in self.Value:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Value_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Value_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -20065,13 +20064,13 @@ class ReleaseCalendarType(GeneratedsSuper):
             eol_ = ''
         if self.Periodicity is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPeriodicity>%s</%sPeriodicity>%s' % (namespace_, self.gds_format_string(quote_xml(self.Periodicity).encode(ExternalEncoding), input_name='Periodicity'), namespace_, eol_))
+            outfile.write('<%sPeriodicity>%s</%sPeriodicity>%s' % (namespace_, self.gds_format_string(quote_xml(self.Periodicity), input_name='Periodicity'), namespace_, eol_))
         if self.Offset is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOffset>%s</%sOffset>%s' % (namespace_, self.gds_format_string(quote_xml(self.Offset).encode(ExternalEncoding), input_name='Offset'), namespace_, eol_))
+            outfile.write('<%sOffset>%s</%sOffset>%s' % (namespace_, self.gds_format_string(quote_xml(self.Offset), input_name='Offset'), namespace_, eol_))
         if self.Tolerance is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTolerance>%s</%sTolerance>%s' % (namespace_, self.gds_format_string(quote_xml(self.Tolerance).encode(ExternalEncoding), input_name='Tolerance'), namespace_, eol_))
+            outfile.write('<%sTolerance>%s</%sTolerance>%s' % (namespace_, self.gds_format_string(quote_xml(self.Tolerance), input_name='Tolerance'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ReleaseCalendarType'):
         level += 1
         already_processed = set()
@@ -20083,13 +20082,13 @@ class ReleaseCalendarType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.Periodicity is not None:
             showIndent(outfile, level)
-            outfile.write('Periodicity=%s,\n' % quote_python(self.Periodicity).encode(ExternalEncoding))
+            outfile.write('Periodicity=%s,\n' % quote_python(self.Periodicity))
         if self.Offset is not None:
             showIndent(outfile, level)
-            outfile.write('Offset=%s,\n' % quote_python(self.Offset).encode(ExternalEncoding))
+            outfile.write('Offset=%s,\n' % quote_python(self.Offset))
         if self.Tolerance is not None:
             showIndent(outfile, level)
-            outfile.write('Tolerance=%s,\n' % quote_python(self.Tolerance).encode(ExternalEncoding))
+            outfile.write('Tolerance=%s,\n' % quote_python(self.Tolerance))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -20121,12 +20120,12 @@ class ReferencePeriodType(GeneratedsSuper):
     superclass = None
     def __init__(self, endTime=None, startTime=None):
         self.original_tagname_ = None
-        if isinstance(endTime, basestring):
+        if isinstance(endTime, str):
             initvalue_ = datetime_.datetime.strptime(endTime, '%Y-%m-%dT%H:%M:%S')
         else:
             initvalue_ = endTime
         self.endTime = initvalue_
-        if isinstance(startTime, basestring):
+        if isinstance(startTime, str):
             initvalue_ = datetime_.datetime.strptime(startTime, '%Y-%m-%dT%H:%M:%S')
         else:
             initvalue_ = startTime
@@ -20204,14 +20203,14 @@ class ReferencePeriodType(GeneratedsSuper):
             already_processed.add('endTime')
             try:
                 self.endTime = self.gds_parse_datetime(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise ValueError('Bad date-time attribute (endTime): %s' % exp)
         value = find_attr_value_('startTime', node)
         if value is not None and 'startTime' not in already_processed:
             already_processed.add('startTime')
             try:
                 self.startTime = self.gds_parse_datetime(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise ValueError('Bad date-time attribute (startTime): %s' % exp)
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
@@ -20257,7 +20256,7 @@ class TextType(GeneratedsSuper):
         self.exportAttributes(outfile, level, already_processed, namespace_, name_='TextType')
         if self.hasContent_():
             outfile.write('>')
-            outfile.write(str(self.valueOf_).encode(ExternalEncoding))
+            outfile.write(str(self.valueOf_))
             self.exportChildren(outfile, level + 1, namespace_='message:', name_='TextType', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
@@ -20265,7 +20264,7 @@ class TextType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='TextType'):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
-            outfile.write(' lang=%s' % (self.gds_format_string(quote_attrib(self.lang).encode(ExternalEncoding), input_name='lang'), ))
+            outfile.write(' lang=%s' % (self.gds_format_string(quote_attrib(self.lang), input_name='lang'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='TextType', fromsubclass_=False, pretty_print=True):
         pass
     def exportLiteral(self, outfile, level, name_='TextType'):
@@ -20371,13 +20370,13 @@ class AnnotationType(GeneratedsSuper):
             eol_ = ''
         if self.AnnotationTitle is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAnnotationTitle>%s</%sAnnotationTitle>%s' % (namespace_, self.gds_format_string(quote_xml(self.AnnotationTitle).encode(ExternalEncoding), input_name='AnnotationTitle'), namespace_, eol_))
+            outfile.write('<%sAnnotationTitle>%s</%sAnnotationTitle>%s' % (namespace_, self.gds_format_string(quote_xml(self.AnnotationTitle), input_name='AnnotationTitle'), namespace_, eol_))
         if self.AnnotationType is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAnnotationType>%s</%sAnnotationType>%s' % (namespace_, self.gds_format_string(quote_xml(self.AnnotationType).encode(ExternalEncoding), input_name='AnnotationType'), namespace_, eol_))
+            outfile.write('<%sAnnotationType>%s</%sAnnotationType>%s' % (namespace_, self.gds_format_string(quote_xml(self.AnnotationType), input_name='AnnotationType'), namespace_, eol_))
         if self.AnnotationURL is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAnnotationURL>%s</%sAnnotationURL>%s' % (namespace_, self.gds_format_string(quote_xml(self.AnnotationURL).encode(ExternalEncoding), input_name='AnnotationURL'), namespace_, eol_))
+            outfile.write('<%sAnnotationURL>%s</%sAnnotationURL>%s' % (namespace_, self.gds_format_string(quote_xml(self.AnnotationURL), input_name='AnnotationURL'), namespace_, eol_))
         for AnnotationText_ in self.AnnotationText:
             AnnotationText_.export(outfile, level, namespace_, name_='AnnotationText', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='AnnotationType'):
@@ -20391,13 +20390,13 @@ class AnnotationType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.AnnotationTitle is not None:
             showIndent(outfile, level)
-            outfile.write('AnnotationTitle=%s,\n' % quote_python(self.AnnotationTitle).encode(ExternalEncoding))
+            outfile.write('AnnotationTitle=%s,\n' % quote_python(self.AnnotationTitle))
         if self.AnnotationType is not None:
             showIndent(outfile, level)
-            outfile.write('AnnotationType=%s,\n' % quote_python(self.AnnotationType).encode(ExternalEncoding))
+            outfile.write('AnnotationType=%s,\n' % quote_python(self.AnnotationType))
         if self.AnnotationURL is not None:
             showIndent(outfile, level)
-            outfile.write('AnnotationURL=%s,\n' % quote_python(self.AnnotationURL).encode(ExternalEncoding))
+            outfile.write('AnnotationURL=%s,\n' % quote_python(self.AnnotationURL))
         showIndent(outfile, level)
         outfile.write('AnnotationText=[\n')
         level += 1
@@ -20679,7 +20678,7 @@ class DataSetType(GeneratedsSuper):
             outfile.write(' dataProviderSchemeId=%s' % (quote_attrib(self.dataProviderSchemeId), ))
         if self.publicationYear is not None and 'publicationYear' not in already_processed:
             already_processed.add('publicationYear')
-            outfile.write(' publicationYear=%s' % (self.gds_format_string(quote_attrib(self.publicationYear).encode(ExternalEncoding), input_name='publicationYear'), ))
+            outfile.write(' publicationYear=%s' % (self.gds_format_string(quote_attrib(self.publicationYear), input_name='publicationYear'), ))
         if self.reportingBeginDate is not None and 'reportingBeginDate' not in already_processed:
             already_processed.add('reportingBeginDate')
             outfile.write(' reportingBeginDate=%s' % (quote_attrib(self.reportingBeginDate), ))
@@ -20688,7 +20687,7 @@ class DataSetType(GeneratedsSuper):
             outfile.write(' publicationPeriod=%s' % (quote_attrib(self.publicationPeriod), ))
         if self.keyFamilyURI is not None and 'keyFamilyURI' not in already_processed:
             already_processed.add('keyFamilyURI')
-            outfile.write(' keyFamilyURI=%s' % (self.gds_format_string(quote_attrib(self.keyFamilyURI).encode(ExternalEncoding), input_name='keyFamilyURI'), ))
+            outfile.write(' keyFamilyURI=%s' % (self.gds_format_string(quote_attrib(self.keyFamilyURI), input_name='keyFamilyURI'), ))
         if self.validToDate is not None and 'validToDate' not in already_processed:
             already_processed.add('validToDate')
             outfile.write(' validToDate=%s' % (quote_attrib(self.validToDate), ))
@@ -20723,7 +20722,7 @@ class DataSetType(GeneratedsSuper):
             eol_ = ''
         if self.KeyFamilyRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamilyRef>%s</%sKeyFamilyRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamilyRef).encode(ExternalEncoding), input_name='KeyFamilyRef'), namespace_, eol_))
+            outfile.write('<%sKeyFamilyRef>%s</%sKeyFamilyRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamilyRef), input_name='KeyFamilyRef'), namespace_, eol_))
         if self.Attributes is not None:
             self.Attributes.export(outfile, level, namespace_, name_='Attributes', pretty_print=pretty_print)
         for Group_ in self.Group:
@@ -20798,7 +20797,7 @@ class DataSetType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.KeyFamilyRef is not None:
             showIndent(outfile, level)
-            outfile.write('KeyFamilyRef=%s,\n' % quote_python(self.KeyFamilyRef).encode(ExternalEncoding))
+            outfile.write('KeyFamilyRef=%s,\n' % quote_python(self.KeyFamilyRef))
         if self.Attributes is not None:
             showIndent(outfile, level)
             outfile.write('Attributes=model_.ValuesType(\n')
@@ -21293,7 +21292,7 @@ class ObsType(GeneratedsSuper):
             eol_ = ''
         if self.Time is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTime>%s</%sTime>%s' % (namespace_, self.gds_format_string(quote_xml(self.Time).encode(ExternalEncoding), input_name='Time'), namespace_, eol_))
+            outfile.write('<%sTime>%s</%sTime>%s' % (namespace_, self.gds_format_string(quote_xml(self.Time), input_name='Time'), namespace_, eol_))
         if self.ObsValue is not None:
             self.ObsValue.export(outfile, level, namespace_, name_='ObsValue', pretty_print=pretty_print)
         if self.Attributes is not None:
@@ -21311,7 +21310,7 @@ class ObsType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.Time is not None:
             showIndent(outfile, level)
-            outfile.write('Time=%s,\n' % quote_python(self.Time).encode(ExternalEncoding))
+            outfile.write('Time=%s,\n' % quote_python(self.Time))
         if self.ObsValue is not None:
             showIndent(outfile, level)
             outfile.write('ObsValue=model_.ObsValueType(\n')
@@ -21467,7 +21466,7 @@ class ValueType(GeneratedsSuper):
     def __init__(self, concept=None, startTime=None, value=None):
         self.original_tagname_ = None
         self.concept = _cast(None, concept)
-        if isinstance(startTime, basestring):
+        if isinstance(startTime, str):
             initvalue_ = datetime_.datetime.strptime(startTime, '%Y-%m-%dT%H:%M:%S')
         else:
             initvalue_ = startTime
@@ -21518,7 +21517,7 @@ class ValueType(GeneratedsSuper):
             outfile.write(' startTime="%s"' % self.gds_format_datetime(self.startTime, input_name='startTime'))
         if self.value is not None and 'value' not in already_processed:
             already_processed.add('value')
-            outfile.write(' value=%s' % (self.gds_format_string(quote_attrib(self.value).encode(ExternalEncoding), input_name='value'), ))
+            outfile.write(' value=%s' % (self.gds_format_string(quote_attrib(self.value), input_name='value'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='ValueType', fromsubclass_=False, pretty_print=True):
         pass
     def exportLiteral(self, outfile, level, name_='ValueType'):
@@ -21559,7 +21558,7 @@ class ValueType(GeneratedsSuper):
             already_processed.add('startTime')
             try:
                 self.startTime = self.gds_parse_datetime(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise ValueError('Bad date-time attribute (startTime): %s' % exp)
         value = find_attr_value_('value', node)
         if value is not None and 'value' not in already_processed:
@@ -21580,7 +21579,7 @@ class ObsValueType(GeneratedsSuper):
     superclass = None
     def __init__(self, startTime=None, value=None):
         self.original_tagname_ = None
-        if isinstance(startTime, basestring):
+        if isinstance(startTime, str):
             initvalue_ = datetime_.datetime.strptime(startTime, '%Y-%m-%dT%H:%M:%S')
         else:
             initvalue_ = startTime
@@ -21659,14 +21658,14 @@ class ObsValueType(GeneratedsSuper):
             already_processed.add('startTime')
             try:
                 self.startTime = self.gds_parse_datetime(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise ValueError('Bad date-time attribute (startTime): %s' % exp)
         value = find_attr_value_('value', node)
         if value is not None and 'value' not in already_processed:
             already_processed.add('value')
             try:
                 self.value = float(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise ValueError('Bad float/double attribute (value): %s' % exp)
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
@@ -22224,7 +22223,7 @@ class QueryType(GeneratedsSuper):
             already_processed.add('defaultLimit')
             try:
                 self.defaultLimit = int(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'DataWhere':
@@ -22414,10 +22413,10 @@ class DataWhereType(GeneratedsSuper):
             eol_ = ''
         if self.DataSet is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataSet>%s</%sDataSet>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataSet).encode(ExternalEncoding), input_name='DataSet'), namespace_, eol_))
+            outfile.write('<%sDataSet>%s</%sDataSet>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataSet), input_name='DataSet'), namespace_, eol_))
         if self.KeyFamily is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamily).encode(ExternalEncoding), input_name='KeyFamily'), namespace_, eol_))
+            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamily), input_name='KeyFamily'), namespace_, eol_))
         if self.Dimension is not None:
             self.Dimension.export(outfile, level, namespace_, name_='Dimension', pretty_print=pretty_print)
         if self.Attribute is not None:
@@ -22430,16 +22429,16 @@ class DataWhereType(GeneratedsSuper):
             self.Category.export(outfile, level, namespace_, name_='Category', pretty_print=pretty_print)
         if self.Concept is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(self.Concept).encode(ExternalEncoding), input_name='Concept'), namespace_, eol_))
+            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(self.Concept), input_name='Concept'), namespace_, eol_))
         if self.DataProvider is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataProvider>%s</%sDataProvider>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataProvider).encode(ExternalEncoding), input_name='DataProvider'), namespace_, eol_))
+            outfile.write('<%sDataProvider>%s</%sDataProvider>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataProvider), input_name='DataProvider'), namespace_, eol_))
         if self.Dataflow is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataflow>%s</%sDataflow>%s' % (namespace_, self.gds_format_string(quote_xml(self.Dataflow).encode(ExternalEncoding), input_name='Dataflow'), namespace_, eol_))
+            outfile.write('<%sDataflow>%s</%sDataflow>%s' % (namespace_, self.gds_format_string(quote_xml(self.Dataflow), input_name='Dataflow'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
         if self.Or is not None:
             self.Or.export(outfile, level, namespace_, name_='Or', pretty_print=pretty_print)
         if self.And is not None:
@@ -22455,10 +22454,10 @@ class DataWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.DataSet is not None:
             showIndent(outfile, level)
-            outfile.write('DataSet=%s,\n' % quote_python(self.DataSet).encode(ExternalEncoding))
+            outfile.write('DataSet=%s,\n' % quote_python(self.DataSet))
         if self.KeyFamily is not None:
             showIndent(outfile, level)
-            outfile.write('KeyFamily=%s,\n' % quote_python(self.KeyFamily).encode(ExternalEncoding))
+            outfile.write('KeyFamily=%s,\n' % quote_python(self.KeyFamily))
         if self.Dimension is not None:
             showIndent(outfile, level)
             outfile.write('Dimension=model_.DimensionType(\n')
@@ -22491,16 +22490,16 @@ class DataWhereType(GeneratedsSuper):
             outfile.write('),\n')
         if self.Concept is not None:
             showIndent(outfile, level)
-            outfile.write('Concept=%s,\n' % quote_python(self.Concept).encode(ExternalEncoding))
+            outfile.write('Concept=%s,\n' % quote_python(self.Concept))
         if self.DataProvider is not None:
             showIndent(outfile, level)
-            outfile.write('DataProvider=%s,\n' % quote_python(self.DataProvider).encode(ExternalEncoding))
+            outfile.write('DataProvider=%s,\n' % quote_python(self.DataProvider))
         if self.Dataflow is not None:
             showIndent(outfile, level)
-            outfile.write('Dataflow=%s,\n' % quote_python(self.Dataflow).encode(ExternalEncoding))
+            outfile.write('Dataflow=%s,\n' % quote_python(self.Dataflow))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
         if self.Or is not None:
             showIndent(outfile, level)
             outfile.write('Or=model_.OrType(\n')
@@ -22684,10 +22683,10 @@ class MetadataWhereType(GeneratedsSuper):
             eol_ = ''
         if self.MetadataSet is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataSet>%s</%sMetadataSet>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataSet).encode(ExternalEncoding), input_name='MetadataSet'), namespace_, eol_))
+            outfile.write('<%sMetadataSet>%s</%sMetadataSet>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataSet), input_name='MetadataSet'), namespace_, eol_))
         if self.MetadataStructure is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructure).encode(ExternalEncoding), input_name='MetadataStructure'), namespace_, eol_))
+            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructure), input_name='MetadataStructure'), namespace_, eol_))
         if self.StructureComponent is not None:
             self.StructureComponent.export(outfile, level, namespace_, name_='StructureComponent', pretty_print=pretty_print)
         if self.Attribute is not None:
@@ -22700,16 +22699,16 @@ class MetadataWhereType(GeneratedsSuper):
             self.Category.export(outfile, level, namespace_, name_='Category', pretty_print=pretty_print)
         if self.Concept is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(self.Concept).encode(ExternalEncoding), input_name='Concept'), namespace_, eol_))
+            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(self.Concept), input_name='Concept'), namespace_, eol_))
         if self.DataProvider is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataProvider>%s</%sDataProvider>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataProvider).encode(ExternalEncoding), input_name='DataProvider'), namespace_, eol_))
+            outfile.write('<%sDataProvider>%s</%sDataProvider>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataProvider), input_name='DataProvider'), namespace_, eol_))
         if self.Metadataflow is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataflow>%s</%sMetadataflow>%s' % (namespace_, self.gds_format_string(quote_xml(self.Metadataflow).encode(ExternalEncoding), input_name='Metadataflow'), namespace_, eol_))
+            outfile.write('<%sMetadataflow>%s</%sMetadataflow>%s' % (namespace_, self.gds_format_string(quote_xml(self.Metadataflow), input_name='Metadataflow'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
         if self.Or is not None:
             self.Or.export(outfile, level, namespace_, name_='Or', pretty_print=pretty_print)
         if self.And is not None:
@@ -22725,10 +22724,10 @@ class MetadataWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.MetadataSet is not None:
             showIndent(outfile, level)
-            outfile.write('MetadataSet=%s,\n' % quote_python(self.MetadataSet).encode(ExternalEncoding))
+            outfile.write('MetadataSet=%s,\n' % quote_python(self.MetadataSet))
         if self.MetadataStructure is not None:
             showIndent(outfile, level)
-            outfile.write('MetadataStructure=%s,\n' % quote_python(self.MetadataStructure).encode(ExternalEncoding))
+            outfile.write('MetadataStructure=%s,\n' % quote_python(self.MetadataStructure))
         if self.StructureComponent is not None:
             showIndent(outfile, level)
             outfile.write('StructureComponent=model_.StructureComponentType(\n')
@@ -22761,16 +22760,16 @@ class MetadataWhereType(GeneratedsSuper):
             outfile.write('),\n')
         if self.Concept is not None:
             showIndent(outfile, level)
-            outfile.write('Concept=%s,\n' % quote_python(self.Concept).encode(ExternalEncoding))
+            outfile.write('Concept=%s,\n' % quote_python(self.Concept))
         if self.DataProvider is not None:
             showIndent(outfile, level)
-            outfile.write('DataProvider=%s,\n' % quote_python(self.DataProvider).encode(ExternalEncoding))
+            outfile.write('DataProvider=%s,\n' % quote_python(self.DataProvider))
         if self.Metadataflow is not None:
             showIndent(outfile, level)
-            outfile.write('Metadataflow=%s,\n' % quote_python(self.Metadataflow).encode(ExternalEncoding))
+            outfile.write('Metadataflow=%s,\n' % quote_python(self.Metadataflow))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
         if self.Or is not None:
             showIndent(outfile, level)
             outfile.write('Or=model_.OrType(\n')
@@ -23084,16 +23083,16 @@ class AndType(GeneratedsSuper):
             eol_ = ''
         for DataSet_ in self.DataSet:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataSet>%s</%sDataSet>%s' % (namespace_, self.gds_format_string(quote_xml(DataSet_).encode(ExternalEncoding), input_name='DataSet'), namespace_, eol_))
+            outfile.write('<%sDataSet>%s</%sDataSet>%s' % (namespace_, self.gds_format_string(quote_xml(DataSet_), input_name='DataSet'), namespace_, eol_))
         for MetadataSet_ in self.MetadataSet:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataSet>%s</%sMetadataSet>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataSet_).encode(ExternalEncoding), input_name='MetadataSet'), namespace_, eol_))
+            outfile.write('<%sMetadataSet>%s</%sMetadataSet>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataSet_), input_name='MetadataSet'), namespace_, eol_))
         for KeyFamily_ in self.KeyFamily:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamily_).encode(ExternalEncoding), input_name='KeyFamily'), namespace_, eol_))
+            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamily_), input_name='KeyFamily'), namespace_, eol_))
         for MetadataStructure_ in self.MetadataStructure:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataStructure_).encode(ExternalEncoding), input_name='MetadataStructure'), namespace_, eol_))
+            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataStructure_), input_name='MetadataStructure'), namespace_, eol_))
         for Dimension_ in self.Dimension:
             Dimension_.export(outfile, level, namespace_, name_='Dimension', pretty_print=pretty_print)
         for StructureComponent_ in self.StructureComponent:
@@ -23108,22 +23107,22 @@ class AndType(GeneratedsSuper):
             Category_.export(outfile, level, namespace_, name_='Category', pretty_print=pretty_print)
         for Concept_ in self.Concept:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(Concept_).encode(ExternalEncoding), input_name='Concept'), namespace_, eol_))
+            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(Concept_), input_name='Concept'), namespace_, eol_))
         for AgencyID_ in self.AgencyID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(AgencyID_).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(AgencyID_), input_name='AgencyID'), namespace_, eol_))
         for DataProvider_ in self.DataProvider:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataProvider>%s</%sDataProvider>%s' % (namespace_, self.gds_format_string(quote_xml(DataProvider_).encode(ExternalEncoding), input_name='DataProvider'), namespace_, eol_))
+            outfile.write('<%sDataProvider>%s</%sDataProvider>%s' % (namespace_, self.gds_format_string(quote_xml(DataProvider_), input_name='DataProvider'), namespace_, eol_))
         for Dataflow_ in self.Dataflow:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataflow>%s</%sDataflow>%s' % (namespace_, self.gds_format_string(quote_xml(Dataflow_).encode(ExternalEncoding), input_name='Dataflow'), namespace_, eol_))
+            outfile.write('<%sDataflow>%s</%sDataflow>%s' % (namespace_, self.gds_format_string(quote_xml(Dataflow_), input_name='Dataflow'), namespace_, eol_))
         for Metadataflow_ in self.Metadataflow:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataflow>%s</%sMetadataflow>%s' % (namespace_, self.gds_format_string(quote_xml(Metadataflow_).encode(ExternalEncoding), input_name='Metadataflow'), namespace_, eol_))
+            outfile.write('<%sMetadataflow>%s</%sMetadataflow>%s' % (namespace_, self.gds_format_string(quote_xml(Metadataflow_), input_name='Metadataflow'), namespace_, eol_))
         for Version_ in self.Version:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(Version_).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(Version_), input_name='Version'), namespace_, eol_))
         for Or_ in self.Or:
             Or_.export(outfile, level, namespace_, name_='Or', pretty_print=pretty_print)
         for And_ in self.And:
@@ -23142,7 +23141,7 @@ class AndType(GeneratedsSuper):
         level += 1
         for DataSet_ in self.DataSet:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataSet_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataSet_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23151,7 +23150,7 @@ class AndType(GeneratedsSuper):
         level += 1
         for MetadataSet_ in self.MetadataSet:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataSet_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataSet_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23160,7 +23159,7 @@ class AndType(GeneratedsSuper):
         level += 1
         for KeyFamily_ in self.KeyFamily:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(KeyFamily_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(KeyFamily_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23169,7 +23168,7 @@ class AndType(GeneratedsSuper):
         level += 1
         for MetadataStructure_ in self.MetadataStructure:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataStructure_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataStructure_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23250,7 +23249,7 @@ class AndType(GeneratedsSuper):
         level += 1
         for Concept_ in self.Concept:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Concept_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Concept_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23259,7 +23258,7 @@ class AndType(GeneratedsSuper):
         level += 1
         for AgencyID_ in self.AgencyID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AgencyID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AgencyID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23268,7 +23267,7 @@ class AndType(GeneratedsSuper):
         level += 1
         for DataProvider_ in self.DataProvider:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataProvider_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataProvider_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23277,7 +23276,7 @@ class AndType(GeneratedsSuper):
         level += 1
         for Dataflow_ in self.Dataflow:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Dataflow_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Dataflow_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23286,7 +23285,7 @@ class AndType(GeneratedsSuper):
         level += 1
         for Metadataflow_ in self.Metadataflow:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Metadataflow_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Metadataflow_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23295,7 +23294,7 @@ class AndType(GeneratedsSuper):
         level += 1
         for Version_ in self.Version:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Version_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Version_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23645,16 +23644,16 @@ class OrType(GeneratedsSuper):
             eol_ = ''
         for DataSet_ in self.DataSet:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataSet>%s</%sDataSet>%s' % (namespace_, self.gds_format_string(quote_xml(DataSet_).encode(ExternalEncoding), input_name='DataSet'), namespace_, eol_))
+            outfile.write('<%sDataSet>%s</%sDataSet>%s' % (namespace_, self.gds_format_string(quote_xml(DataSet_), input_name='DataSet'), namespace_, eol_))
         for MetadataSet_ in self.MetadataSet:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataSet>%s</%sMetadataSet>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataSet_).encode(ExternalEncoding), input_name='MetadataSet'), namespace_, eol_))
+            outfile.write('<%sMetadataSet>%s</%sMetadataSet>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataSet_), input_name='MetadataSet'), namespace_, eol_))
         for KeyFamily_ in self.KeyFamily:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamily_).encode(ExternalEncoding), input_name='KeyFamily'), namespace_, eol_))
+            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamily_), input_name='KeyFamily'), namespace_, eol_))
         for MetadataStructure_ in self.MetadataStructure:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataStructure_).encode(ExternalEncoding), input_name='MetadataStructure'), namespace_, eol_))
+            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataStructure_), input_name='MetadataStructure'), namespace_, eol_))
         for Dimension_ in self.Dimension:
             Dimension_.export(outfile, level, namespace_, name_='Dimension', pretty_print=pretty_print)
         for StructureComponent_ in self.StructureComponent:
@@ -23669,22 +23668,22 @@ class OrType(GeneratedsSuper):
             Category_.export(outfile, level, namespace_, name_='Category', pretty_print=pretty_print)
         for Concept_ in self.Concept:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(Concept_).encode(ExternalEncoding), input_name='Concept'), namespace_, eol_))
+            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(Concept_), input_name='Concept'), namespace_, eol_))
         for AgencyID_ in self.AgencyID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(AgencyID_).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(AgencyID_), input_name='AgencyID'), namespace_, eol_))
         for DataProvider_ in self.DataProvider:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataProvider>%s</%sDataProvider>%s' % (namespace_, self.gds_format_string(quote_xml(DataProvider_).encode(ExternalEncoding), input_name='DataProvider'), namespace_, eol_))
+            outfile.write('<%sDataProvider>%s</%sDataProvider>%s' % (namespace_, self.gds_format_string(quote_xml(DataProvider_), input_name='DataProvider'), namespace_, eol_))
         for Dataflow_ in self.Dataflow:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataflow>%s</%sDataflow>%s' % (namespace_, self.gds_format_string(quote_xml(Dataflow_).encode(ExternalEncoding), input_name='Dataflow'), namespace_, eol_))
+            outfile.write('<%sDataflow>%s</%sDataflow>%s' % (namespace_, self.gds_format_string(quote_xml(Dataflow_), input_name='Dataflow'), namespace_, eol_))
         for Metadataflow_ in self.Metadataflow:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataflow>%s</%sMetadataflow>%s' % (namespace_, self.gds_format_string(quote_xml(Metadataflow_).encode(ExternalEncoding), input_name='Metadataflow'), namespace_, eol_))
+            outfile.write('<%sMetadataflow>%s</%sMetadataflow>%s' % (namespace_, self.gds_format_string(quote_xml(Metadataflow_), input_name='Metadataflow'), namespace_, eol_))
         for Version_ in self.Version:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(Version_).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(Version_), input_name='Version'), namespace_, eol_))
         for Or_ in self.Or:
             Or_.export(outfile, level, namespace_, name_='Or', pretty_print=pretty_print)
         for And_ in self.And:
@@ -23703,7 +23702,7 @@ class OrType(GeneratedsSuper):
         level += 1
         for DataSet_ in self.DataSet:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataSet_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataSet_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23712,7 +23711,7 @@ class OrType(GeneratedsSuper):
         level += 1
         for MetadataSet_ in self.MetadataSet:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataSet_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataSet_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23721,7 +23720,7 @@ class OrType(GeneratedsSuper):
         level += 1
         for KeyFamily_ in self.KeyFamily:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(KeyFamily_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(KeyFamily_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23730,7 +23729,7 @@ class OrType(GeneratedsSuper):
         level += 1
         for MetadataStructure_ in self.MetadataStructure:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataStructure_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataStructure_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23811,7 +23810,7 @@ class OrType(GeneratedsSuper):
         level += 1
         for Concept_ in self.Concept:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Concept_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Concept_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23820,7 +23819,7 @@ class OrType(GeneratedsSuper):
         level += 1
         for AgencyID_ in self.AgencyID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AgencyID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AgencyID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23829,7 +23828,7 @@ class OrType(GeneratedsSuper):
         level += 1
         for DataProvider_ in self.DataProvider:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataProvider_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataProvider_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23838,7 +23837,7 @@ class OrType(GeneratedsSuper):
         level += 1
         for Dataflow_ in self.Dataflow:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Dataflow_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Dataflow_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23847,7 +23846,7 @@ class OrType(GeneratedsSuper):
         level += 1
         for Metadataflow_ in self.Metadataflow:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Metadataflow_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Metadataflow_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -23856,7 +23855,7 @@ class OrType(GeneratedsSuper):
         level += 1
         for Version_ in self.Version:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Version_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Version_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -24023,7 +24022,7 @@ class StructureComponentType(GeneratedsSuper):
         self.exportAttributes(outfile, level, already_processed, namespace_, name_='StructureComponentType')
         if self.hasContent_():
             outfile.write('>')
-            outfile.write(str(self.valueOf_).encode(ExternalEncoding))
+            outfile.write(str(self.valueOf_))
             self.exportChildren(outfile, level + 1, namespace_='message:', name_='StructureComponentType', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
@@ -24031,7 +24030,7 @@ class StructureComponentType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='StructureComponentType'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id=%s' % (self.gds_format_string(quote_attrib(self.id).encode(ExternalEncoding), input_name='id'), ))
+            outfile.write(' id=%s' % (self.gds_format_string(quote_attrib(self.id), input_name='id'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='StructureComponentType', fromsubclass_=False, pretty_print=True):
         pass
     def exportLiteral(self, outfile, level, name_='StructureComponentType'):
@@ -24110,7 +24109,7 @@ class CodelistType(GeneratedsSuper):
         self.exportAttributes(outfile, level, already_processed, namespace_, name_='CodelistType')
         if self.hasContent_():
             outfile.write('>')
-            outfile.write(str(self.valueOf_).encode(ExternalEncoding))
+            outfile.write(str(self.valueOf_))
             self.exportChildren(outfile, level + 1, namespace_='message:', name_='CodelistType', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
@@ -24118,7 +24117,7 @@ class CodelistType(GeneratedsSuper):
     def exportAttributes(self, outfile, level, already_processed, namespace_='message:', name_='CodelistType'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id=%s' % (self.gds_format_string(quote_attrib(self.id).encode(ExternalEncoding), input_name='id'), ))
+            outfile.write(' id=%s' % (self.gds_format_string(quote_attrib(self.id), input_name='id'), ))
     def exportChildren(self, outfile, level, namespace_='message:', name_='CodelistType', fromsubclass_=False, pretty_print=True):
         pass
     def exportLiteral(self, outfile, level, name_='CodelistType'):
@@ -24242,7 +24241,7 @@ class KeyFamilyWhereType(GeneratedsSuper):
             eol_ = ''
         if self.KeyFamily is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamily).encode(ExternalEncoding), input_name='KeyFamily'), namespace_, eol_))
+            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamily), input_name='KeyFamily'), namespace_, eol_))
         if self.Dimension is not None:
             self.Dimension.export(outfile, level, namespace_, name_='Dimension', pretty_print=pretty_print)
         if self.Attribute is not None:
@@ -24253,13 +24252,13 @@ class KeyFamilyWhereType(GeneratedsSuper):
             self.Category.export(outfile, level, namespace_, name_='Category', pretty_print=pretty_print)
         if self.Concept is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(self.Concept).encode(ExternalEncoding), input_name='Concept'), namespace_, eol_))
+            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(self.Concept), input_name='Concept'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
         if self.Or is not None:
             self.Or.export(outfile, level, namespace_, name_='Or', pretty_print=pretty_print)
         if self.And is not None:
@@ -24275,7 +24274,7 @@ class KeyFamilyWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.KeyFamily is not None:
             showIndent(outfile, level)
-            outfile.write('KeyFamily=%s,\n' % quote_python(self.KeyFamily).encode(ExternalEncoding))
+            outfile.write('KeyFamily=%s,\n' % quote_python(self.KeyFamily))
         if self.Dimension is not None:
             showIndent(outfile, level)
             outfile.write('Dimension=model_.DimensionType(\n')
@@ -24302,13 +24301,13 @@ class KeyFamilyWhereType(GeneratedsSuper):
             outfile.write('),\n')
         if self.Concept is not None:
             showIndent(outfile, level)
-            outfile.write('Concept=%s,\n' % quote_python(self.Concept).encode(ExternalEncoding))
+            outfile.write('Concept=%s,\n' % quote_python(self.Concept))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
         if self.Or is not None:
             showIndent(outfile, level)
             outfile.write('Or=model_.OrType(\n')
@@ -24480,13 +24479,13 @@ class MetadataStructureWhereType(GeneratedsSuper):
             eol_ = ''
         if self.KeyFamily is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamily).encode(ExternalEncoding), input_name='KeyFamily'), namespace_, eol_))
+            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(self.KeyFamily), input_name='KeyFamily'), namespace_, eol_))
         if self.MetadataStructure is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructure).encode(ExternalEncoding), input_name='MetadataStructure'), namespace_, eol_))
+            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructure), input_name='MetadataStructure'), namespace_, eol_))
         if self.StructureSet is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStructureSet>%s</%sStructureSet>%s' % (namespace_, self.gds_format_string(quote_xml(self.StructureSet).encode(ExternalEncoding), input_name='StructureSet'), namespace_, eol_))
+            outfile.write('<%sStructureSet>%s</%sStructureSet>%s' % (namespace_, self.gds_format_string(quote_xml(self.StructureSet), input_name='StructureSet'), namespace_, eol_))
         if self.Dimension is not None:
             self.Dimension.export(outfile, level, namespace_, name_='Dimension', pretty_print=pretty_print)
         if self.StructureComponent is not None:
@@ -24499,13 +24498,13 @@ class MetadataStructureWhereType(GeneratedsSuper):
             self.Category.export(outfile, level, namespace_, name_='Category', pretty_print=pretty_print)
         if self.Concept is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(self.Concept).encode(ExternalEncoding), input_name='Concept'), namespace_, eol_))
+            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(self.Concept), input_name='Concept'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
         if self.Or is not None:
             self.Or.export(outfile, level, namespace_, name_='Or', pretty_print=pretty_print)
         if self.And is not None:
@@ -24521,13 +24520,13 @@ class MetadataStructureWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.KeyFamily is not None:
             showIndent(outfile, level)
-            outfile.write('KeyFamily=%s,\n' % quote_python(self.KeyFamily).encode(ExternalEncoding))
+            outfile.write('KeyFamily=%s,\n' % quote_python(self.KeyFamily))
         if self.MetadataStructure is not None:
             showIndent(outfile, level)
-            outfile.write('MetadataStructure=%s,\n' % quote_python(self.MetadataStructure).encode(ExternalEncoding))
+            outfile.write('MetadataStructure=%s,\n' % quote_python(self.MetadataStructure))
         if self.StructureSet is not None:
             showIndent(outfile, level)
-            outfile.write('StructureSet=%s,\n' % quote_python(self.StructureSet).encode(ExternalEncoding))
+            outfile.write('StructureSet=%s,\n' % quote_python(self.StructureSet))
         if self.Dimension is not None:
             showIndent(outfile, level)
             outfile.write('Dimension=model_.DimensionType(\n')
@@ -24560,13 +24559,13 @@ class MetadataStructureWhereType(GeneratedsSuper):
             outfile.write('),\n')
         if self.Concept is not None:
             showIndent(outfile, level)
-            outfile.write('Concept=%s,\n' % quote_python(self.Concept).encode(ExternalEncoding))
+            outfile.write('Concept=%s,\n' % quote_python(self.Concept))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
         if self.Or is not None:
             showIndent(outfile, level)
             outfile.write('Or=model_.OrType(\n')
@@ -24721,10 +24720,10 @@ class CodelistWhereType(GeneratedsSuper):
             self.Codelist.export(outfile, level, namespace_, name_='Codelist', pretty_print=pretty_print)
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
         if self.Or is not None:
             self.Or.export(outfile, level, namespace_, name_='Or', pretty_print=pretty_print)
         if self.And is not None:
@@ -24746,10 +24745,10 @@ class CodelistWhereType(GeneratedsSuper):
             outfile.write('),\n')
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
         if self.Or is not None:
             showIndent(outfile, level)
             outfile.write('Or=model_.OrType(\n')
@@ -24866,13 +24865,13 @@ class ConceptWhereType(GeneratedsSuper):
             eol_ = ''
         if self.Concept is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(self.Concept).encode(ExternalEncoding), input_name='Concept'), namespace_, eol_))
+            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(self.Concept), input_name='Concept'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
         if self.Or is not None:
             self.Or.export(outfile, level, namespace_, name_='Or', pretty_print=pretty_print)
         if self.And is not None:
@@ -24888,13 +24887,13 @@ class ConceptWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.Concept is not None:
             showIndent(outfile, level)
-            outfile.write('Concept=%s,\n' % quote_python(self.Concept).encode(ExternalEncoding))
+            outfile.write('Concept=%s,\n' % quote_python(self.Concept))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
         if self.Or is not None:
             showIndent(outfile, level)
             outfile.write('Or=model_.OrType(\n')
@@ -25080,23 +25079,23 @@ class AgencyWhereType(GeneratedsSuper):
             eol_ = ''
         for KeyFamily_ in self.KeyFamily:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamily_).encode(ExternalEncoding), input_name='KeyFamily'), namespace_, eol_))
+            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamily_), input_name='KeyFamily'), namespace_, eol_))
         for MetadataStructure_ in self.MetadataStructure:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataStructure_).encode(ExternalEncoding), input_name='MetadataStructure'), namespace_, eol_))
+            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataStructure_), input_name='MetadataStructure'), namespace_, eol_))
         for StructureSet_ in self.StructureSet:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStructureSet>%s</%sStructureSet>%s' % (namespace_, self.gds_format_string(quote_xml(StructureSet_).encode(ExternalEncoding), input_name='StructureSet'), namespace_, eol_))
+            outfile.write('<%sStructureSet>%s</%sStructureSet>%s' % (namespace_, self.gds_format_string(quote_xml(StructureSet_), input_name='StructureSet'), namespace_, eol_))
         for Codelist_ in self.Codelist:
             Codelist_.export(outfile, level, namespace_, name_='Codelist', pretty_print=pretty_print)
         for Category_ in self.Category:
             Category_.export(outfile, level, namespace_, name_='Category', pretty_print=pretty_print)
         for Concept_ in self.Concept:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(Concept_).encode(ExternalEncoding), input_name='Concept'), namespace_, eol_))
+            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(Concept_), input_name='Concept'), namespace_, eol_))
         for AgencyID_ in self.AgencyID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(AgencyID_).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(AgencyID_), input_name='AgencyID'), namespace_, eol_))
         for Or_ in self.Or:
             Or_.export(outfile, level, namespace_, name_='Or', pretty_print=pretty_print)
         for And_ in self.And:
@@ -25115,7 +25114,7 @@ class AgencyWhereType(GeneratedsSuper):
         level += 1
         for KeyFamily_ in self.KeyFamily:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(KeyFamily_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(KeyFamily_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25124,7 +25123,7 @@ class AgencyWhereType(GeneratedsSuper):
         level += 1
         for MetadataStructure_ in self.MetadataStructure:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataStructure_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataStructure_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25133,7 +25132,7 @@ class AgencyWhereType(GeneratedsSuper):
         level += 1
         for StructureSet_ in self.StructureSet:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(StructureSet_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(StructureSet_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25166,7 +25165,7 @@ class AgencyWhereType(GeneratedsSuper):
         level += 1
         for Concept_ in self.Concept:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Concept_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Concept_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25175,7 +25174,7 @@ class AgencyWhereType(GeneratedsSuper):
         level += 1
         for AgencyID_ in self.AgencyID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AgencyID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AgencyID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25414,29 +25413,29 @@ class DataProviderWhereType(GeneratedsSuper):
             eol_ = ''
         for DataSet_ in self.DataSet:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataSet>%s</%sDataSet>%s' % (namespace_, self.gds_format_string(quote_xml(DataSet_).encode(ExternalEncoding), input_name='DataSet'), namespace_, eol_))
+            outfile.write('<%sDataSet>%s</%sDataSet>%s' % (namespace_, self.gds_format_string(quote_xml(DataSet_), input_name='DataSet'), namespace_, eol_))
         for MetadataSet_ in self.MetadataSet:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataSet>%s</%sMetadataSet>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataSet_).encode(ExternalEncoding), input_name='MetadataSet'), namespace_, eol_))
+            outfile.write('<%sMetadataSet>%s</%sMetadataSet>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataSet_), input_name='MetadataSet'), namespace_, eol_))
         for KeyFamily_ in self.KeyFamily:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamily_).encode(ExternalEncoding), input_name='KeyFamily'), namespace_, eol_))
+            outfile.write('<%sKeyFamily>%s</%sKeyFamily>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamily_), input_name='KeyFamily'), namespace_, eol_))
         for MetadataStructure_ in self.MetadataStructure:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataStructure_).encode(ExternalEncoding), input_name='MetadataStructure'), namespace_, eol_))
+            outfile.write('<%sMetadataStructure>%s</%sMetadataStructure>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataStructure_), input_name='MetadataStructure'), namespace_, eol_))
         for StructureSet_ in self.StructureSet:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStructureSet>%s</%sStructureSet>%s' % (namespace_, self.gds_format_string(quote_xml(StructureSet_).encode(ExternalEncoding), input_name='StructureSet'), namespace_, eol_))
+            outfile.write('<%sStructureSet>%s</%sStructureSet>%s' % (namespace_, self.gds_format_string(quote_xml(StructureSet_), input_name='StructureSet'), namespace_, eol_))
         for Codelist_ in self.Codelist:
             Codelist_.export(outfile, level, namespace_, name_='Codelist', pretty_print=pretty_print)
         for Category_ in self.Category:
             Category_.export(outfile, level, namespace_, name_='Category', pretty_print=pretty_print)
         for Concept_ in self.Concept:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(Concept_).encode(ExternalEncoding), input_name='Concept'), namespace_, eol_))
+            outfile.write('<%sConcept>%s</%sConcept>%s' % (namespace_, self.gds_format_string(quote_xml(Concept_), input_name='Concept'), namespace_, eol_))
         for AgencyID_ in self.AgencyID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(AgencyID_).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(AgencyID_), input_name='AgencyID'), namespace_, eol_))
         for Or_ in self.Or:
             Or_.export(outfile, level, namespace_, name_='Or', pretty_print=pretty_print)
         for And_ in self.And:
@@ -25455,7 +25454,7 @@ class DataProviderWhereType(GeneratedsSuper):
         level += 1
         for DataSet_ in self.DataSet:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataSet_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataSet_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25464,7 +25463,7 @@ class DataProviderWhereType(GeneratedsSuper):
         level += 1
         for MetadataSet_ in self.MetadataSet:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataSet_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataSet_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25473,7 +25472,7 @@ class DataProviderWhereType(GeneratedsSuper):
         level += 1
         for KeyFamily_ in self.KeyFamily:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(KeyFamily_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(KeyFamily_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25482,7 +25481,7 @@ class DataProviderWhereType(GeneratedsSuper):
         level += 1
         for MetadataStructure_ in self.MetadataStructure:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataStructure_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataStructure_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25491,7 +25490,7 @@ class DataProviderWhereType(GeneratedsSuper):
         level += 1
         for StructureSet_ in self.StructureSet:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(StructureSet_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(StructureSet_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25524,7 +25523,7 @@ class DataProviderWhereType(GeneratedsSuper):
         level += 1
         for Concept_ in self.Concept:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(Concept_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(Concept_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25533,7 +25532,7 @@ class DataProviderWhereType(GeneratedsSuper):
         level += 1
         for AgencyID_ in self.AgencyID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AgencyID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AgencyID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -25684,13 +25683,13 @@ class TimeType(GeneratedsSuper):
             eol_ = ''
         if self.StartTime is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStartTime>%s</%sStartTime>%s' % (namespace_, self.gds_format_string(quote_xml(self.StartTime).encode(ExternalEncoding), input_name='StartTime'), namespace_, eol_))
+            outfile.write('<%sStartTime>%s</%sStartTime>%s' % (namespace_, self.gds_format_string(quote_xml(self.StartTime), input_name='StartTime'), namespace_, eol_))
         if self.EndTime is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEndTime>%s</%sEndTime>%s' % (namespace_, self.gds_format_string(quote_xml(self.EndTime).encode(ExternalEncoding), input_name='EndTime'), namespace_, eol_))
+            outfile.write('<%sEndTime>%s</%sEndTime>%s' % (namespace_, self.gds_format_string(quote_xml(self.EndTime), input_name='EndTime'), namespace_, eol_))
         if self.Time is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTime>%s</%sTime>%s' % (namespace_, self.gds_format_string(quote_xml(self.Time).encode(ExternalEncoding), input_name='Time'), namespace_, eol_))
+            outfile.write('<%sTime>%s</%sTime>%s' % (namespace_, self.gds_format_string(quote_xml(self.Time), input_name='Time'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='TimeType'):
         level += 1
         already_processed = set()
@@ -25702,13 +25701,13 @@ class TimeType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.StartTime is not None:
             showIndent(outfile, level)
-            outfile.write('StartTime=%s,\n' % quote_python(self.StartTime).encode(ExternalEncoding))
+            outfile.write('StartTime=%s,\n' % quote_python(self.StartTime))
         if self.EndTime is not None:
             showIndent(outfile, level)
-            outfile.write('EndTime=%s,\n' % quote_python(self.EndTime).encode(ExternalEncoding))
+            outfile.write('EndTime=%s,\n' % quote_python(self.EndTime))
         if self.Time is not None:
             showIndent(outfile, level)
-            outfile.write('Time=%s,\n' % quote_python(self.Time).encode(ExternalEncoding))
+            outfile.write('Time=%s,\n' % quote_python(self.Time))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -25798,13 +25797,13 @@ class StructureSetWhereType(GeneratedsSuper):
             eol_ = ''
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='StructureSetWhereType'):
         level += 1
         already_processed = set()
@@ -25816,13 +25815,13 @@ class StructureSetWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -25909,13 +25908,13 @@ class HierarchicalCodelistWhereType(GeneratedsSuper):
             eol_ = ''
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='HierarchicalCodelistWhereType'):
         level += 1
         already_processed = set()
@@ -25927,13 +25926,13 @@ class HierarchicalCodelistWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -26020,13 +26019,13 @@ class ReportingTaxonomyWhereType(GeneratedsSuper):
             eol_ = ''
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ReportingTaxonomyWhereType'):
         level += 1
         already_processed = set()
@@ -26038,13 +26037,13 @@ class ReportingTaxonomyWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -26130,13 +26129,13 @@ class DataflowWhereType(GeneratedsSuper):
             eol_ = ''
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='DataflowWhereType'):
         level += 1
         already_processed = set()
@@ -26148,13 +26147,13 @@ class DataflowWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -26241,13 +26240,13 @@ class MetadataflowWhereType(GeneratedsSuper):
             eol_ = ''
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='MetadataflowWhereType'):
         level += 1
         already_processed = set()
@@ -26259,13 +26258,13 @@ class MetadataflowWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -26351,13 +26350,13 @@ class ProcessWhereType(GeneratedsSuper):
             eol_ = ''
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ProcessWhereType'):
         level += 1
         already_processed = set()
@@ -26369,13 +26368,13 @@ class ProcessWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -26462,13 +26461,13 @@ class OrganisationSchemeWhereType(GeneratedsSuper):
             eol_ = ''
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='OrganisationSchemeWhereType'):
         level += 1
         already_processed = set()
@@ -26480,13 +26479,13 @@ class OrganisationSchemeWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -26573,13 +26572,13 @@ class ConceptSchemeWhereType(GeneratedsSuper):
             eol_ = ''
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ConceptSchemeWhereType'):
         level += 1
         already_processed = set()
@@ -26591,13 +26590,13 @@ class ConceptSchemeWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -26684,13 +26683,13 @@ class CategorySchemeWhereType(GeneratedsSuper):
             eol_ = ''
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID).encode(ExternalEncoding), input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ID), input_name='ID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='CategorySchemeWhereType'):
         level += 1
         already_processed = set()
@@ -26702,13 +26701,13 @@ class CategorySchemeWhereType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ID is not None:
             showIndent(outfile, level)
-            outfile.write('ID=%s,\n' % quote_python(self.ID).encode(ExternalEncoding))
+            outfile.write('ID=%s,\n' % quote_python(self.ID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -26894,10 +26893,10 @@ class SubmitSubscriptionResponseType(GeneratedsSuper):
             eol_ = ''
         if self.SubscriptionURN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSubscriptionURN>%s</%sSubscriptionURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.SubscriptionURN).encode(ExternalEncoding), input_name='SubscriptionURN'), namespace_, eol_))
+            outfile.write('<%sSubscriptionURN>%s</%sSubscriptionURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.SubscriptionURN), input_name='SubscriptionURN'), namespace_, eol_))
         if self.SubscriberAssignedID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSubscriberAssignedID>%s</%sSubscriberAssignedID>%s' % (namespace_, self.gds_format_string(quote_xml(self.SubscriberAssignedID).encode(ExternalEncoding), input_name='SubscriberAssignedID'), namespace_, eol_))
+            outfile.write('<%sSubscriberAssignedID>%s</%sSubscriberAssignedID>%s' % (namespace_, self.gds_format_string(quote_xml(self.SubscriberAssignedID), input_name='SubscriberAssignedID'), namespace_, eol_))
         if self.SubscriptionStatus is not None:
             self.SubscriptionStatus.export(outfile, level, namespace_, name_='SubscriptionStatus', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='SubmitSubscriptionResponseType'):
@@ -26911,10 +26910,10 @@ class SubmitSubscriptionResponseType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.SubscriptionURN is not None:
             showIndent(outfile, level)
-            outfile.write('SubscriptionURN=%s,\n' % quote_python(self.SubscriptionURN).encode(ExternalEncoding))
+            outfile.write('SubscriptionURN=%s,\n' % quote_python(self.SubscriptionURN))
         if self.SubscriberAssignedID is not None:
             showIndent(outfile, level)
-            outfile.write('SubscriberAssignedID=%s,\n' % quote_python(self.SubscriberAssignedID).encode(ExternalEncoding))
+            outfile.write('SubscriberAssignedID=%s,\n' % quote_python(self.SubscriberAssignedID))
         if self.SubscriptionStatus is not None:
             showIndent(outfile, level)
             outfile.write('SubscriptionStatus=model_.StatusMessageType(\n')
@@ -26961,7 +26960,7 @@ class NotifyRegistryEventType(GeneratedsSuper):
     superclass = None
     def __init__(self, EventTime=None, ObjectURN=None, SubscriptionURN=None, EventAction=None, StructuralEvent=None, ProvisioningEvent=None, RegistrationEvent=None):
         self.original_tagname_ = None
-        if isinstance(EventTime, basestring):
+        if isinstance(EventTime, str):
             initvalue_ = datetime_.datetime.strptime(EventTime, '%Y-%m-%dT%H:%M:%S')
         else:
             initvalue_ = EventTime
@@ -27038,13 +27037,13 @@ class NotifyRegistryEventType(GeneratedsSuper):
             outfile.write('<%sEventTime>%s</%sEventTime>%s' % (namespace_, self.gds_format_datetime(self.EventTime, input_name='EventTime'), namespace_, eol_))
         if self.ObjectURN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sObjectURN>%s</%sObjectURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.ObjectURN).encode(ExternalEncoding), input_name='ObjectURN'), namespace_, eol_))
+            outfile.write('<%sObjectURN>%s</%sObjectURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.ObjectURN), input_name='ObjectURN'), namespace_, eol_))
         if self.SubscriptionURN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSubscriptionURN>%s</%sSubscriptionURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.SubscriptionURN).encode(ExternalEncoding), input_name='SubscriptionURN'), namespace_, eol_))
+            outfile.write('<%sSubscriptionURN>%s</%sSubscriptionURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.SubscriptionURN), input_name='SubscriptionURN'), namespace_, eol_))
         if self.EventAction is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEventAction>%s</%sEventAction>%s' % (namespace_, self.gds_format_string(quote_xml(self.EventAction).encode(ExternalEncoding), input_name='EventAction'), namespace_, eol_))
+            outfile.write('<%sEventAction>%s</%sEventAction>%s' % (namespace_, self.gds_format_string(quote_xml(self.EventAction), input_name='EventAction'), namespace_, eol_))
         if self.StructuralEvent is not None:
             self.StructuralEvent.export(outfile, level, namespace_, name_='StructuralEvent', pretty_print=pretty_print)
         if self.ProvisioningEvent is not None:
@@ -27065,13 +27064,13 @@ class NotifyRegistryEventType(GeneratedsSuper):
             outfile.write('EventTime=model_.GeneratedsSuper.gds_parse_datetime("%s"),\n' % self.gds_format_datetime(self.EventTime, input_name='EventTime'))
         if self.ObjectURN is not None:
             showIndent(outfile, level)
-            outfile.write('ObjectURN=%s,\n' % quote_python(self.ObjectURN).encode(ExternalEncoding))
+            outfile.write('ObjectURN=%s,\n' % quote_python(self.ObjectURN))
         if self.SubscriptionURN is not None:
             showIndent(outfile, level)
-            outfile.write('SubscriptionURN=%s,\n' % quote_python(self.SubscriptionURN).encode(ExternalEncoding))
+            outfile.write('SubscriptionURN=%s,\n' % quote_python(self.SubscriptionURN))
         if self.EventAction is not None:
             showIndent(outfile, level)
-            outfile.write('EventAction=%s,\n' % quote_python(self.EventAction).encode(ExternalEncoding))
+            outfile.write('EventAction=%s,\n' % quote_python(self.EventAction))
         if self.StructuralEvent is not None:
             showIndent(outfile, level)
             outfile.write('StructuralEvent=model_.StructuralEventType(\n')
@@ -27409,7 +27408,7 @@ class QueryRegistrationRequestType(GeneratedsSuper):
             eol_ = ''
         if self.QueryType is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sQueryType>%s</%sQueryType>%s' % (namespace_, self.gds_format_string(quote_xml(self.QueryType).encode(ExternalEncoding), input_name='QueryType'), namespace_, eol_))
+            outfile.write('<%sQueryType>%s</%sQueryType>%s' % (namespace_, self.gds_format_string(quote_xml(self.QueryType), input_name='QueryType'), namespace_, eol_))
         if self.ProvisionAgreementRef is not None:
             self.ProvisionAgreementRef.export(outfile, level, namespace_, name_='ProvisionAgreementRef', pretty_print=pretty_print)
         if self.DataflowRef is not None:
@@ -27429,7 +27428,7 @@ class QueryRegistrationRequestType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.QueryType is not None:
             showIndent(outfile, level)
-            outfile.write('QueryType=%s,\n' % quote_python(self.QueryType).encode(ExternalEncoding))
+            outfile.write('QueryType=%s,\n' % quote_python(self.QueryType))
         if self.ProvisionAgreementRef is not None:
             showIndent(outfile, level)
             outfile.write('ProvisionAgreementRef=model_.ProvisionAgreementRefType(\n')
@@ -27668,7 +27667,7 @@ class SubmitStructureRequestType(GeneratedsSuper):
             eol_ = ''
         if self.StructureLocation is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStructureLocation>%s</%sStructureLocation>%s' % (namespace_, self.gds_format_string(quote_xml(self.StructureLocation).encode(ExternalEncoding), input_name='StructureLocation'), namespace_, eol_))
+            outfile.write('<%sStructureLocation>%s</%sStructureLocation>%s' % (namespace_, self.gds_format_string(quote_xml(self.StructureLocation), input_name='StructureLocation'), namespace_, eol_))
         if self.Structure is not None:
             self.Structure.export(outfile, level, namespace_, name_='Structure', pretty_print=pretty_print)
         for SubmittedStructure_ in self.SubmittedStructure:
@@ -27684,7 +27683,7 @@ class SubmitStructureRequestType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.StructureLocation is not None:
             showIndent(outfile, level)
-            outfile.write('StructureLocation=%s,\n' % quote_python(self.StructureLocation).encode(ExternalEncoding))
+            outfile.write('StructureLocation=%s,\n' % quote_python(self.StructureLocation))
         if self.Structure is not None:
             showIndent(outfile, level)
             outfile.write('Structure=model_.StructureType(\n')
@@ -29336,19 +29335,19 @@ class SubscriptionType(GeneratedsSuper):
             eol_ = ''
         if self.Action is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAction>%s</%sAction>%s' % (namespace_, self.gds_format_string(quote_xml(self.Action).encode(ExternalEncoding), input_name='Action'), namespace_, eol_))
+            outfile.write('<%sAction>%s</%sAction>%s' % (namespace_, self.gds_format_string(quote_xml(self.Action), input_name='Action'), namespace_, eol_))
         if self.RegistryURN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sRegistryURN>%s</%sRegistryURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.RegistryURN).encode(ExternalEncoding), input_name='RegistryURN'), namespace_, eol_))
+            outfile.write('<%sRegistryURN>%s</%sRegistryURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.RegistryURN), input_name='RegistryURN'), namespace_, eol_))
         if self.NotificationMailTo is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sNotificationMailTo>%s</%sNotificationMailTo>%s' % (namespace_, self.gds_format_string(quote_xml(self.NotificationMailTo).encode(ExternalEncoding), input_name='NotificationMailTo'), namespace_, eol_))
+            outfile.write('<%sNotificationMailTo>%s</%sNotificationMailTo>%s' % (namespace_, self.gds_format_string(quote_xml(self.NotificationMailTo), input_name='NotificationMailTo'), namespace_, eol_))
         if self.NotificationHTTP is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sNotificationHTTP>%s</%sNotificationHTTP>%s' % (namespace_, self.gds_format_string(quote_xml(self.NotificationHTTP).encode(ExternalEncoding), input_name='NotificationHTTP'), namespace_, eol_))
+            outfile.write('<%sNotificationHTTP>%s</%sNotificationHTTP>%s' % (namespace_, self.gds_format_string(quote_xml(self.NotificationHTTP), input_name='NotificationHTTP'), namespace_, eol_))
         if self.SubscriberAssignedID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSubscriberAssignedID>%s</%sSubscriberAssignedID>%s' % (namespace_, self.gds_format_string(quote_xml(self.SubscriberAssignedID).encode(ExternalEncoding), input_name='SubscriberAssignedID'), namespace_, eol_))
+            outfile.write('<%sSubscriberAssignedID>%s</%sSubscriberAssignedID>%s' % (namespace_, self.gds_format_string(quote_xml(self.SubscriberAssignedID), input_name='SubscriberAssignedID'), namespace_, eol_))
         if self.ValidityPeriod is not None:
             self.ValidityPeriod.export(outfile, level, namespace_, name_='ValidityPeriod', pretty_print=pretty_print)
         if self.EventSelector is not None:
@@ -29364,19 +29363,19 @@ class SubscriptionType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.Action is not None:
             showIndent(outfile, level)
-            outfile.write('Action=%s,\n' % quote_python(self.Action).encode(ExternalEncoding))
+            outfile.write('Action=%s,\n' % quote_python(self.Action))
         if self.RegistryURN is not None:
             showIndent(outfile, level)
-            outfile.write('RegistryURN=%s,\n' % quote_python(self.RegistryURN).encode(ExternalEncoding))
+            outfile.write('RegistryURN=%s,\n' % quote_python(self.RegistryURN))
         if self.NotificationMailTo is not None:
             showIndent(outfile, level)
-            outfile.write('NotificationMailTo=%s,\n' % quote_python(self.NotificationMailTo).encode(ExternalEncoding))
+            outfile.write('NotificationMailTo=%s,\n' % quote_python(self.NotificationMailTo))
         if self.NotificationHTTP is not None:
             showIndent(outfile, level)
-            outfile.write('NotificationHTTP=%s,\n' % quote_python(self.NotificationHTTP).encode(ExternalEncoding))
+            outfile.write('NotificationHTTP=%s,\n' % quote_python(self.NotificationHTTP))
         if self.SubscriberAssignedID is not None:
             showIndent(outfile, level)
-            outfile.write('SubscriberAssignedID=%s,\n' % quote_python(self.SubscriberAssignedID).encode(ExternalEncoding))
+            outfile.write('SubscriberAssignedID=%s,\n' % quote_python(self.SubscriberAssignedID))
         if self.ValidityPeriod is not None:
             showIndent(outfile, level)
             outfile.write('ValidityPeriod=model_.ValidityPeriodType(\n')
@@ -29440,12 +29439,12 @@ class ValidityPeriodType(GeneratedsSuper):
     superclass = None
     def __init__(self, StartDate=None, EndDate=None):
         self.original_tagname_ = None
-        if isinstance(StartDate, basestring):
+        if isinstance(StartDate, str):
             initvalue_ = datetime_.datetime.strptime(StartDate, '%Y-%m-%d').date()
         else:
             initvalue_ = StartDate
         self.StartDate = initvalue_
-        if isinstance(EndDate, basestring):
+        if isinstance(EndDate, str):
             initvalue_ = datetime_.datetime.strptime(EndDate, '%Y-%m-%d').date()
         else:
             initvalue_ = EndDate
@@ -29864,46 +29863,46 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
             eol_ = ''
         for AgencyID_ in self.AgencyID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(AgencyID_).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(AgencyID_), input_name='AgencyID'), namespace_, eol_))
         for AllEventsID_ in self.AllEventsID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAllEventsID>%s</%sAllEventsID>%s' % (namespace_, self.gds_format_string(quote_xml(AllEventsID_).encode(ExternalEncoding), input_name='AllEventsID'), namespace_, eol_))
+            outfile.write('<%sAllEventsID>%s</%sAllEventsID>%s' % (namespace_, self.gds_format_string(quote_xml(AllEventsID_), input_name='AllEventsID'), namespace_, eol_))
         for KeyFamilyID_ in self.KeyFamilyID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamilyID>%s</%sKeyFamilyID>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamilyID_).encode(ExternalEncoding), input_name='KeyFamilyID'), namespace_, eol_))
+            outfile.write('<%sKeyFamilyID>%s</%sKeyFamilyID>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamilyID_), input_name='KeyFamilyID'), namespace_, eol_))
         for ConceptSchemeID_ in self.ConceptSchemeID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConceptSchemeID>%s</%sConceptSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(ConceptSchemeID_).encode(ExternalEncoding), input_name='ConceptSchemeID'), namespace_, eol_))
+            outfile.write('<%sConceptSchemeID>%s</%sConceptSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(ConceptSchemeID_), input_name='ConceptSchemeID'), namespace_, eol_))
         for CodeListID_ in self.CodeListID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCodeListID>%s</%sCodeListID>%s' % (namespace_, self.gds_format_string(quote_xml(CodeListID_).encode(ExternalEncoding), input_name='CodeListID'), namespace_, eol_))
+            outfile.write('<%sCodeListID>%s</%sCodeListID>%s' % (namespace_, self.gds_format_string(quote_xml(CodeListID_), input_name='CodeListID'), namespace_, eol_))
         for MetadataStructureID_ in self.MetadataStructureID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructureID>%s</%sMetadataStructureID>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataStructureID_).encode(ExternalEncoding), input_name='MetadataStructureID'), namespace_, eol_))
+            outfile.write('<%sMetadataStructureID>%s</%sMetadataStructureID>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataStructureID_), input_name='MetadataStructureID'), namespace_, eol_))
         for CategorySchemeID_ in self.CategorySchemeID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCategorySchemeID>%s</%sCategorySchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(CategorySchemeID_).encode(ExternalEncoding), input_name='CategorySchemeID'), namespace_, eol_))
+            outfile.write('<%sCategorySchemeID>%s</%sCategorySchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(CategorySchemeID_), input_name='CategorySchemeID'), namespace_, eol_))
         for DataflowID_ in self.DataflowID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataflowID>%s</%sDataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(DataflowID_).encode(ExternalEncoding), input_name='DataflowID'), namespace_, eol_))
+            outfile.write('<%sDataflowID>%s</%sDataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(DataflowID_), input_name='DataflowID'), namespace_, eol_))
         for MetadataflowID_ in self.MetadataflowID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataflowID>%s</%sMetadataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataflowID_).encode(ExternalEncoding), input_name='MetadataflowID'), namespace_, eol_))
+            outfile.write('<%sMetadataflowID>%s</%sMetadataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataflowID_), input_name='MetadataflowID'), namespace_, eol_))
         for OrganisationSchemeID_ in self.OrganisationSchemeID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOrganisationSchemeID>%s</%sOrganisationSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(OrganisationSchemeID_).encode(ExternalEncoding), input_name='OrganisationSchemeID'), namespace_, eol_))
+            outfile.write('<%sOrganisationSchemeID>%s</%sOrganisationSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(OrganisationSchemeID_), input_name='OrganisationSchemeID'), namespace_, eol_))
         for HierarchicalCodelistID_ in self.HierarchicalCodelistID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sHierarchicalCodelistID>%s</%sHierarchicalCodelistID>%s' % (namespace_, self.gds_format_string(quote_xml(HierarchicalCodelistID_).encode(ExternalEncoding), input_name='HierarchicalCodelistID'), namespace_, eol_))
+            outfile.write('<%sHierarchicalCodelistID>%s</%sHierarchicalCodelistID>%s' % (namespace_, self.gds_format_string(quote_xml(HierarchicalCodelistID_), input_name='HierarchicalCodelistID'), namespace_, eol_))
         for StructureSetID_ in self.StructureSetID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStructureSetID>%s</%sStructureSetID>%s' % (namespace_, self.gds_format_string(quote_xml(StructureSetID_).encode(ExternalEncoding), input_name='StructureSetID'), namespace_, eol_))
+            outfile.write('<%sStructureSetID>%s</%sStructureSetID>%s' % (namespace_, self.gds_format_string(quote_xml(StructureSetID_), input_name='StructureSetID'), namespace_, eol_))
         for ReportingTaxonomyID_ in self.ReportingTaxonomyID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sReportingTaxonomyID>%s</%sReportingTaxonomyID>%s' % (namespace_, self.gds_format_string(quote_xml(ReportingTaxonomyID_).encode(ExternalEncoding), input_name='ReportingTaxonomyID'), namespace_, eol_))
+            outfile.write('<%sReportingTaxonomyID>%s</%sReportingTaxonomyID>%s' % (namespace_, self.gds_format_string(quote_xml(ReportingTaxonomyID_), input_name='ReportingTaxonomyID'), namespace_, eol_))
         for ProcessID_ in self.ProcessID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sProcessID>%s</%sProcessID>%s' % (namespace_, self.gds_format_string(quote_xml(ProcessID_).encode(ExternalEncoding), input_name='ProcessID'), namespace_, eol_))
+            outfile.write('<%sProcessID>%s</%sProcessID>%s' % (namespace_, self.gds_format_string(quote_xml(ProcessID_), input_name='ProcessID'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='StructuralRepositoryEventsType'):
         level += 1
         already_processed = set()
@@ -29918,7 +29917,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for AgencyID_ in self.AgencyID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AgencyID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AgencyID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -29927,7 +29926,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for AllEventsID_ in self.AllEventsID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AllEventsID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AllEventsID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -29936,7 +29935,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for KeyFamilyID_ in self.KeyFamilyID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(KeyFamilyID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(KeyFamilyID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -29945,7 +29944,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for ConceptSchemeID_ in self.ConceptSchemeID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(ConceptSchemeID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(ConceptSchemeID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -29954,7 +29953,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for CodeListID_ in self.CodeListID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(CodeListID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(CodeListID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -29963,7 +29962,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for MetadataStructureID_ in self.MetadataStructureID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataStructureID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataStructureID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -29972,7 +29971,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for CategorySchemeID_ in self.CategorySchemeID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(CategorySchemeID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(CategorySchemeID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -29981,7 +29980,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for DataflowID_ in self.DataflowID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataflowID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataflowID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -29990,7 +29989,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for MetadataflowID_ in self.MetadataflowID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataflowID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataflowID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -29999,7 +29998,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for OrganisationSchemeID_ in self.OrganisationSchemeID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(OrganisationSchemeID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(OrganisationSchemeID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30008,7 +30007,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for HierarchicalCodelistID_ in self.HierarchicalCodelistID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(HierarchicalCodelistID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(HierarchicalCodelistID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30017,7 +30016,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for StructureSetID_ in self.StructureSetID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(StructureSetID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(StructureSetID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30026,7 +30025,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for ReportingTaxonomyID_ in self.ReportingTaxonomyID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(ReportingTaxonomyID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(ReportingTaxonomyID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30035,7 +30034,7 @@ class StructuralRepositoryEventsType(GeneratedsSuper):
         level += 1
         for ProcessID_ in self.ProcessID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(ProcessID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(ProcessID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30212,19 +30211,19 @@ class ProvisioningRepositoryEventsType(GeneratedsSuper):
             eol_ = ''
         for ProvisionAgreementID_ in self.ProvisionAgreementID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sProvisionAgreementID>%s</%sProvisionAgreementID>%s' % (namespace_, self.gds_format_string(quote_xml(ProvisionAgreementID_).encode(ExternalEncoding), input_name='ProvisionAgreementID'), namespace_, eol_))
+            outfile.write('<%sProvisionAgreementID>%s</%sProvisionAgreementID>%s' % (namespace_, self.gds_format_string(quote_xml(ProvisionAgreementID_), input_name='ProvisionAgreementID'), namespace_, eol_))
         for DataProviderID_ in self.DataProviderID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataProviderID>%s</%sDataProviderID>%s' % (namespace_, self.gds_format_string(quote_xml(DataProviderID_).encode(ExternalEncoding), input_name='DataProviderID'), namespace_, eol_))
+            outfile.write('<%sDataProviderID>%s</%sDataProviderID>%s' % (namespace_, self.gds_format_string(quote_xml(DataProviderID_), input_name='DataProviderID'), namespace_, eol_))
         for DataflowID_ in self.DataflowID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataflowID>%s</%sDataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(DataflowID_).encode(ExternalEncoding), input_name='DataflowID'), namespace_, eol_))
+            outfile.write('<%sDataflowID>%s</%sDataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(DataflowID_), input_name='DataflowID'), namespace_, eol_))
         for MetadataflowID_ in self.MetadataflowID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataflowID>%s</%sMetadataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataflowID_).encode(ExternalEncoding), input_name='MetadataflowID'), namespace_, eol_))
+            outfile.write('<%sMetadataflowID>%s</%sMetadataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataflowID_), input_name='MetadataflowID'), namespace_, eol_))
         for AllEventsID_ in self.AllEventsID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAllEventsID>%s</%sAllEventsID>%s' % (namespace_, self.gds_format_string(quote_xml(AllEventsID_).encode(ExternalEncoding), input_name='AllEventsID'), namespace_, eol_))
+            outfile.write('<%sAllEventsID>%s</%sAllEventsID>%s' % (namespace_, self.gds_format_string(quote_xml(AllEventsID_), input_name='AllEventsID'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ProvisioningRepositoryEventsType'):
         level += 1
         already_processed = set()
@@ -30239,7 +30238,7 @@ class ProvisioningRepositoryEventsType(GeneratedsSuper):
         level += 1
         for ProvisionAgreementID_ in self.ProvisionAgreementID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(ProvisionAgreementID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(ProvisionAgreementID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30248,7 +30247,7 @@ class ProvisioningRepositoryEventsType(GeneratedsSuper):
         level += 1
         for DataProviderID_ in self.DataProviderID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataProviderID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataProviderID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30257,7 +30256,7 @@ class ProvisioningRepositoryEventsType(GeneratedsSuper):
         level += 1
         for DataflowID_ in self.DataflowID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataflowID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataflowID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30266,7 +30265,7 @@ class ProvisioningRepositoryEventsType(GeneratedsSuper):
         level += 1
         for MetadataflowID_ in self.MetadataflowID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataflowID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataflowID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30275,7 +30274,7 @@ class ProvisioningRepositoryEventsType(GeneratedsSuper):
         level += 1
         for AllEventsID_ in self.AllEventsID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AllEventsID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AllEventsID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30443,28 +30442,28 @@ class DataRegistrationEventsType(GeneratedsSuper):
             eol_ = ''
         for AllEventsID_ in self.AllEventsID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAllEventsID>%s</%sAllEventsID>%s' % (namespace_, self.gds_format_string(quote_xml(AllEventsID_).encode(ExternalEncoding), input_name='AllEventsID'), namespace_, eol_))
+            outfile.write('<%sAllEventsID>%s</%sAllEventsID>%s' % (namespace_, self.gds_format_string(quote_xml(AllEventsID_), input_name='AllEventsID'), namespace_, eol_))
         for DataProviderID_ in self.DataProviderID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataProviderID>%s</%sDataProviderID>%s' % (namespace_, self.gds_format_string(quote_xml(DataProviderID_).encode(ExternalEncoding), input_name='DataProviderID'), namespace_, eol_))
+            outfile.write('<%sDataProviderID>%s</%sDataProviderID>%s' % (namespace_, self.gds_format_string(quote_xml(DataProviderID_), input_name='DataProviderID'), namespace_, eol_))
         for ProvisionAgreementID_ in self.ProvisionAgreementID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sProvisionAgreementID>%s</%sProvisionAgreementID>%s' % (namespace_, self.gds_format_string(quote_xml(ProvisionAgreementID_).encode(ExternalEncoding), input_name='ProvisionAgreementID'), namespace_, eol_))
+            outfile.write('<%sProvisionAgreementID>%s</%sProvisionAgreementID>%s' % (namespace_, self.gds_format_string(quote_xml(ProvisionAgreementID_), input_name='ProvisionAgreementID'), namespace_, eol_))
         for DataflowID_ in self.DataflowID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataflowID>%s</%sDataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(DataflowID_).encode(ExternalEncoding), input_name='DataflowID'), namespace_, eol_))
+            outfile.write('<%sDataflowID>%s</%sDataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(DataflowID_), input_name='DataflowID'), namespace_, eol_))
         for KeyFamilyID_ in self.KeyFamilyID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKeyFamilyID>%s</%sKeyFamilyID>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamilyID_).encode(ExternalEncoding), input_name='KeyFamilyID'), namespace_, eol_))
+            outfile.write('<%sKeyFamilyID>%s</%sKeyFamilyID>%s' % (namespace_, self.gds_format_string(quote_xml(KeyFamilyID_), input_name='KeyFamilyID'), namespace_, eol_))
         for CategoryID_ in self.CategoryID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCategoryID>%s</%sCategoryID>%s' % (namespace_, self.gds_format_string(quote_xml(CategoryID_).encode(ExternalEncoding), input_name='CategoryID'), namespace_, eol_))
+            outfile.write('<%sCategoryID>%s</%sCategoryID>%s' % (namespace_, self.gds_format_string(quote_xml(CategoryID_), input_name='CategoryID'), namespace_, eol_))
         for CategorySchemeID_ in self.CategorySchemeID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCategorySchemeID>%s</%sCategorySchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(CategorySchemeID_).encode(ExternalEncoding), input_name='CategorySchemeID'), namespace_, eol_))
+            outfile.write('<%sCategorySchemeID>%s</%sCategorySchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(CategorySchemeID_), input_name='CategorySchemeID'), namespace_, eol_))
         for CategorySchemeAgencyID_ in self.CategorySchemeAgencyID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCategorySchemeAgencyID>%s</%sCategorySchemeAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(CategorySchemeAgencyID_).encode(ExternalEncoding), input_name='CategorySchemeAgencyID'), namespace_, eol_))
+            outfile.write('<%sCategorySchemeAgencyID>%s</%sCategorySchemeAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(CategorySchemeAgencyID_), input_name='CategorySchemeAgencyID'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='DataRegistrationEventsType'):
         level += 1
         already_processed = set()
@@ -30479,7 +30478,7 @@ class DataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for AllEventsID_ in self.AllEventsID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AllEventsID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AllEventsID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30488,7 +30487,7 @@ class DataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for DataProviderID_ in self.DataProviderID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataProviderID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataProviderID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30497,7 +30496,7 @@ class DataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for ProvisionAgreementID_ in self.ProvisionAgreementID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(ProvisionAgreementID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(ProvisionAgreementID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30506,7 +30505,7 @@ class DataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for DataflowID_ in self.DataflowID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataflowID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataflowID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30515,7 +30514,7 @@ class DataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for KeyFamilyID_ in self.KeyFamilyID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(KeyFamilyID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(KeyFamilyID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30524,7 +30523,7 @@ class DataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for CategoryID_ in self.CategoryID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(CategoryID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(CategoryID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30533,7 +30532,7 @@ class DataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for CategorySchemeID_ in self.CategorySchemeID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(CategorySchemeID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(CategorySchemeID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30542,7 +30541,7 @@ class DataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for CategorySchemeAgencyID_ in self.CategorySchemeAgencyID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(CategorySchemeAgencyID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(CategorySchemeAgencyID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30701,22 +30700,22 @@ class MetadataRegistrationEventsType(GeneratedsSuper):
             eol_ = ''
         for AllEventsID_ in self.AllEventsID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAllEventsID>%s</%sAllEventsID>%s' % (namespace_, self.gds_format_string(quote_xml(AllEventsID_).encode(ExternalEncoding), input_name='AllEventsID'), namespace_, eol_))
+            outfile.write('<%sAllEventsID>%s</%sAllEventsID>%s' % (namespace_, self.gds_format_string(quote_xml(AllEventsID_), input_name='AllEventsID'), namespace_, eol_))
         for DataProviderID_ in self.DataProviderID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataProviderID>%s</%sDataProviderID>%s' % (namespace_, self.gds_format_string(quote_xml(DataProviderID_).encode(ExternalEncoding), input_name='DataProviderID'), namespace_, eol_))
+            outfile.write('<%sDataProviderID>%s</%sDataProviderID>%s' % (namespace_, self.gds_format_string(quote_xml(DataProviderID_), input_name='DataProviderID'), namespace_, eol_))
         for ProvisionAgreementID_ in self.ProvisionAgreementID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sProvisionAgreementID>%s</%sProvisionAgreementID>%s' % (namespace_, self.gds_format_string(quote_xml(ProvisionAgreementID_).encode(ExternalEncoding), input_name='ProvisionAgreementID'), namespace_, eol_))
+            outfile.write('<%sProvisionAgreementID>%s</%sProvisionAgreementID>%s' % (namespace_, self.gds_format_string(quote_xml(ProvisionAgreementID_), input_name='ProvisionAgreementID'), namespace_, eol_))
         for MetadataflowID_ in self.MetadataflowID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataflowID>%s</%sMetadataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataflowID_).encode(ExternalEncoding), input_name='MetadataflowID'), namespace_, eol_))
+            outfile.write('<%sMetadataflowID>%s</%sMetadataflowID>%s' % (namespace_, self.gds_format_string(quote_xml(MetadataflowID_), input_name='MetadataflowID'), namespace_, eol_))
         for MetadatastructureID_ in self.MetadatastructureID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadatastructureID>%s</%sMetadatastructureID>%s' % (namespace_, self.gds_format_string(quote_xml(MetadatastructureID_).encode(ExternalEncoding), input_name='MetadatastructureID'), namespace_, eol_))
+            outfile.write('<%sMetadatastructureID>%s</%sMetadatastructureID>%s' % (namespace_, self.gds_format_string(quote_xml(MetadatastructureID_), input_name='MetadatastructureID'), namespace_, eol_))
         for CategoryID_ in self.CategoryID:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCategoryID>%s</%sCategoryID>%s' % (namespace_, self.gds_format_string(quote_xml(CategoryID_).encode(ExternalEncoding), input_name='CategoryID'), namespace_, eol_))
+            outfile.write('<%sCategoryID>%s</%sCategoryID>%s' % (namespace_, self.gds_format_string(quote_xml(CategoryID_), input_name='CategoryID'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='MetadataRegistrationEventsType'):
         level += 1
         already_processed = set()
@@ -30731,7 +30730,7 @@ class MetadataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for AllEventsID_ in self.AllEventsID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(AllEventsID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(AllEventsID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30740,7 +30739,7 @@ class MetadataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for DataProviderID_ in self.DataProviderID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(DataProviderID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(DataProviderID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30749,7 +30748,7 @@ class MetadataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for ProvisionAgreementID_ in self.ProvisionAgreementID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(ProvisionAgreementID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(ProvisionAgreementID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30758,7 +30757,7 @@ class MetadataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for MetadataflowID_ in self.MetadataflowID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadataflowID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadataflowID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30767,7 +30766,7 @@ class MetadataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for MetadatastructureID_ in self.MetadatastructureID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(MetadatastructureID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(MetadatastructureID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -30776,7 +30775,7 @@ class MetadataRegistrationEventsType(GeneratedsSuper):
         level += 1
         for CategoryID_ in self.CategoryID:
             showIndent(outfile, level)
-            outfile.write('%s,\n' % quote_python(CategoryID_).encode(ExternalEncoding))
+            outfile.write('%s,\n' % quote_python(CategoryID_))
         level -= 1
         showIndent(outfile, level)
         outfile.write('],\n')
@@ -31457,10 +31456,10 @@ class ProvisionAgreementType(GeneratedsSuper):
             outfile.write(' indexDataSet="%s"' % self.gds_format_boolean(self.indexDataSet, input_name='indexDataSet'))
         if self.urn is not None and 'urn' not in already_processed:
             already_processed.add('urn')
-            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn).encode(ExternalEncoding), input_name='urn'), ))
+            outfile.write(' urn=%s' % (self.gds_format_string(quote_attrib(self.urn), input_name='urn'), ))
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
-            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri).encode(ExternalEncoding), input_name='uri'), ))
+            outfile.write(' uri=%s' % (self.gds_format_string(quote_attrib(self.uri), input_name='uri'), ))
         if self.validTo is not None and 'validTo' not in already_processed:
             already_processed.add('validTo')
             outfile.write(' validTo=%s' % (quote_attrib(self.validTo), ))
@@ -31758,7 +31757,7 @@ class DatasourceType(GeneratedsSuper):
             eol_ = ''
         if self.SimpleDatasource is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSimpleDatasource>%s</%sSimpleDatasource>%s' % (namespace_, self.gds_format_string(quote_xml(self.SimpleDatasource).encode(ExternalEncoding), input_name='SimpleDatasource'), namespace_, eol_))
+            outfile.write('<%sSimpleDatasource>%s</%sSimpleDatasource>%s' % (namespace_, self.gds_format_string(quote_xml(self.SimpleDatasource), input_name='SimpleDatasource'), namespace_, eol_))
         if self.QueryableDatasource is not None:
             self.QueryableDatasource.export(outfile, level, namespace_, name_='QueryableDatasource', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='DatasourceType'):
@@ -31772,7 +31771,7 @@ class DatasourceType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.SimpleDatasource is not None:
             showIndent(outfile, level)
-            outfile.write('SimpleDatasource=%s,\n' % quote_python(self.SimpleDatasource).encode(ExternalEncoding))
+            outfile.write('SimpleDatasource=%s,\n' % quote_python(self.SimpleDatasource))
         if self.QueryableDatasource is not None:
             showIndent(outfile, level)
             outfile.write('QueryableDatasource=model_.QueryableDatasourceType(\n')
@@ -31873,10 +31872,10 @@ class QueryableDatasourceType(GeneratedsSuper):
             eol_ = ''
         if self.DataUrl is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDataUrl>%s</%sDataUrl>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataUrl).encode(ExternalEncoding), input_name='DataUrl'), namespace_, eol_))
+            outfile.write('<%sDataUrl>%s</%sDataUrl>%s' % (namespace_, self.gds_format_string(quote_xml(self.DataUrl), input_name='DataUrl'), namespace_, eol_))
         if self.WSDLUrl is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sWSDLUrl>%s</%sWSDLUrl>%s' % (namespace_, self.gds_format_string(quote_xml(self.WSDLUrl).encode(ExternalEncoding), input_name='WSDLUrl'), namespace_, eol_))
+            outfile.write('<%sWSDLUrl>%s</%sWSDLUrl>%s' % (namespace_, self.gds_format_string(quote_xml(self.WSDLUrl), input_name='WSDLUrl'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='QueryableDatasourceType'):
         level += 1
         already_processed = set()
@@ -31895,10 +31894,10 @@ class QueryableDatasourceType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.DataUrl is not None:
             showIndent(outfile, level)
-            outfile.write('DataUrl=%s,\n' % quote_python(self.DataUrl).encode(ExternalEncoding))
+            outfile.write('DataUrl=%s,\n' % quote_python(self.DataUrl))
         if self.WSDLUrl is not None:
             showIndent(outfile, level)
-            outfile.write('WSDLUrl=%s,\n' % quote_python(self.WSDLUrl).encode(ExternalEncoding))
+            outfile.write('WSDLUrl=%s,\n' % quote_python(self.WSDLUrl))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -32106,17 +32105,17 @@ class RegistrationType(GeneratedsSuper):
     superclass = None
     def __init__(self, LastUpdated=None, ValidFrom=None, ValidTo=None, Action=None, Datasource=None, DataflowRef=None, MetadataflowRef=None, ProvisionAgreementRef=None):
         self.original_tagname_ = None
-        if isinstance(LastUpdated, basestring):
+        if isinstance(LastUpdated, str):
             initvalue_ = datetime_.datetime.strptime(LastUpdated, '%Y-%m-%dT%H:%M:%S')
         else:
             initvalue_ = LastUpdated
         self.LastUpdated = initvalue_
-        if isinstance(ValidFrom, basestring):
+        if isinstance(ValidFrom, str):
             initvalue_ = datetime_.datetime.strptime(ValidFrom, '%Y-%m-%dT%H:%M:%S')
         else:
             initvalue_ = ValidFrom
         self.ValidFrom = initvalue_
-        if isinstance(ValidTo, basestring):
+        if isinstance(ValidTo, str):
             initvalue_ = datetime_.datetime.strptime(ValidTo, '%Y-%m-%dT%H:%M:%S')
         else:
             initvalue_ = ValidTo
@@ -32201,7 +32200,7 @@ class RegistrationType(GeneratedsSuper):
             outfile.write('<%sValidTo>%s</%sValidTo>%s' % (namespace_, self.gds_format_datetime(self.ValidTo, input_name='ValidTo'), namespace_, eol_))
         if self.Action is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAction>%s</%sAction>%s' % (namespace_, self.gds_format_string(quote_xml(self.Action).encode(ExternalEncoding), input_name='Action'), namespace_, eol_))
+            outfile.write('<%sAction>%s</%sAction>%s' % (namespace_, self.gds_format_string(quote_xml(self.Action), input_name='Action'), namespace_, eol_))
         if self.Datasource is not None:
             self.Datasource.export(outfile, level, namespace_, name_='Datasource', pretty_print=pretty_print)
         if self.DataflowRef is not None:
@@ -32230,7 +32229,7 @@ class RegistrationType(GeneratedsSuper):
             outfile.write('ValidTo=model_.GeneratedsSuper.gds_parse_datetime("%s"),\n' % self.gds_format_datetime(self.ValidTo, input_name='ValidTo'))
         if self.Action is not None:
             showIndent(outfile, level)
-            outfile.write('Action=%s,\n' % quote_python(self.Action).encode(ExternalEncoding))
+            outfile.write('Action=%s,\n' % quote_python(self.Action))
         if self.Datasource is not None:
             showIndent(outfile, level)
             outfile.write('Datasource=model_.DatasourceType(\n')
@@ -33288,19 +33287,19 @@ class AgencyRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.OrganisationSchemeAgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOrganisationSchemeAgencyID>%s</%sOrganisationSchemeAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeAgencyID).encode(ExternalEncoding), input_name='OrganisationSchemeAgencyID'), namespace_, eol_))
+            outfile.write('<%sOrganisationSchemeAgencyID>%s</%sOrganisationSchemeAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeAgencyID), input_name='OrganisationSchemeAgencyID'), namespace_, eol_))
         if self.OrganisationSchemeID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOrganisationSchemeID>%s</%sOrganisationSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeID).encode(ExternalEncoding), input_name='OrganisationSchemeID'), namespace_, eol_))
+            outfile.write('<%sOrganisationSchemeID>%s</%sOrganisationSchemeID>%s' % (namespace_, self.gds_format_string(quote_xml(self.OrganisationSchemeID), input_name='OrganisationSchemeID'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='AgencyRefType'):
         level += 1
         already_processed = set()
@@ -33312,19 +33311,19 @@ class AgencyRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.OrganisationSchemeAgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('OrganisationSchemeAgencyID=%s,\n' % quote_python(self.OrganisationSchemeAgencyID).encode(ExternalEncoding))
+            outfile.write('OrganisationSchemeAgencyID=%s,\n' % quote_python(self.OrganisationSchemeAgencyID))
         if self.OrganisationSchemeID is not None:
             showIndent(outfile, level)
-            outfile.write('OrganisationSchemeID=%s,\n' % quote_python(self.OrganisationSchemeID).encode(ExternalEncoding))
+            outfile.write('OrganisationSchemeID=%s,\n' % quote_python(self.OrganisationSchemeID))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -33429,16 +33428,16 @@ class StructureSetRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.StructureSetID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sStructureSetID>%s</%sStructureSetID>%s' % (namespace_, self.gds_format_string(quote_xml(self.StructureSetID).encode(ExternalEncoding), input_name='StructureSetID'), namespace_, eol_))
+            outfile.write('<%sStructureSetID>%s</%sStructureSetID>%s' % (namespace_, self.gds_format_string(quote_xml(self.StructureSetID), input_name='StructureSetID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='StructureSetRefType'):
         level += 1
         already_processed = set()
@@ -33450,16 +33449,16 @@ class StructureSetRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.StructureSetID is not None:
             showIndent(outfile, level)
-            outfile.write('StructureSetID=%s,\n' % quote_python(self.StructureSetID).encode(ExternalEncoding))
+            outfile.write('StructureSetID=%s,\n' % quote_python(self.StructureSetID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -33559,16 +33558,16 @@ class ProcessRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ProcessID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sProcessID>%s</%sProcessID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ProcessID).encode(ExternalEncoding), input_name='ProcessID'), namespace_, eol_))
+            outfile.write('<%sProcessID>%s</%sProcessID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ProcessID), input_name='ProcessID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ProcessRefType'):
         level += 1
         already_processed = set()
@@ -33580,16 +33579,16 @@ class ProcessRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ProcessID is not None:
             showIndent(outfile, level)
-            outfile.write('ProcessID=%s,\n' % quote_python(self.ProcessID).encode(ExternalEncoding))
+            outfile.write('ProcessID=%s,\n' % quote_python(self.ProcessID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -33689,16 +33688,16 @@ class ReportingTaxonomyRefType(GeneratedsSuper):
             eol_ = ''
         if self.URN is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN).encode(ExternalEncoding), input_name='URN'), namespace_, eol_))
+            outfile.write('<%sURN>%s</%sURN>%s' % (namespace_, self.gds_format_string(quote_xml(self.URN), input_name='URN'), namespace_, eol_))
         if self.AgencyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID).encode(ExternalEncoding), input_name='AgencyID'), namespace_, eol_))
+            outfile.write('<%sAgencyID>%s</%sAgencyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.AgencyID), input_name='AgencyID'), namespace_, eol_))
         if self.ReportingTaxonomyID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sReportingTaxonomyID>%s</%sReportingTaxonomyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ReportingTaxonomyID).encode(ExternalEncoding), input_name='ReportingTaxonomyID'), namespace_, eol_))
+            outfile.write('<%sReportingTaxonomyID>%s</%sReportingTaxonomyID>%s' % (namespace_, self.gds_format_string(quote_xml(self.ReportingTaxonomyID), input_name='ReportingTaxonomyID'), namespace_, eol_))
         if self.Version is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version).encode(ExternalEncoding), input_name='Version'), namespace_, eol_))
+            outfile.write('<%sVersion>%s</%sVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.Version), input_name='Version'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='ReportingTaxonomyRefType'):
         level += 1
         already_processed = set()
@@ -33710,16 +33709,16 @@ class ReportingTaxonomyRefType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.URN is not None:
             showIndent(outfile, level)
-            outfile.write('URN=%s,\n' % quote_python(self.URN).encode(ExternalEncoding))
+            outfile.write('URN=%s,\n' % quote_python(self.URN))
         if self.AgencyID is not None:
             showIndent(outfile, level)
-            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID).encode(ExternalEncoding))
+            outfile.write('AgencyID=%s,\n' % quote_python(self.AgencyID))
         if self.ReportingTaxonomyID is not None:
             showIndent(outfile, level)
-            outfile.write('ReportingTaxonomyID=%s,\n' % quote_python(self.ReportingTaxonomyID).encode(ExternalEncoding))
+            outfile.write('ReportingTaxonomyID=%s,\n' % quote_python(self.ReportingTaxonomyID))
         if self.Version is not None:
             showIndent(outfile, level)
-            outfile.write('Version=%s,\n' % quote_python(self.Version).encode(ExternalEncoding))
+            outfile.write('Version=%s,\n' % quote_python(self.Version))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -34011,7 +34010,7 @@ class MetadataSetType(GeneratedsSuper):
             outfile.write(' dataProviderSchemeId=%s' % (quote_attrib(self.dataProviderSchemeId), ))
         if self.publicationYear is not None and 'publicationYear' not in already_processed:
             already_processed.add('publicationYear')
-            outfile.write(' publicationYear=%s' % (self.gds_format_string(quote_attrib(self.publicationYear).encode(ExternalEncoding), input_name='publicationYear'), ))
+            outfile.write(' publicationYear=%s' % (self.gds_format_string(quote_attrib(self.publicationYear), input_name='publicationYear'), ))
         if self.reportingBeginDate is not None and 'reportingBeginDate' not in already_processed:
             already_processed.add('reportingBeginDate')
             outfile.write(' reportingBeginDate=%s' % (quote_attrib(self.reportingBeginDate), ))
@@ -34023,7 +34022,7 @@ class MetadataSetType(GeneratedsSuper):
             outfile.write(' validToDate=%s' % (quote_attrib(self.validToDate), ))
         if self.metadataStructureURI is not None and 'metadataStructureURI' not in already_processed:
             already_processed.add('metadataStructureURI')
-            outfile.write(' metadataStructureURI=%s' % (self.gds_format_string(quote_attrib(self.metadataStructureURI).encode(ExternalEncoding), input_name='metadataStructureURI'), ))
+            outfile.write(' metadataStructureURI=%s' % (self.gds_format_string(quote_attrib(self.metadataStructureURI), input_name='metadataStructureURI'), ))
         if self.dataProviderID is not None and 'dataProviderID' not in already_processed:
             already_processed.add('dataProviderID')
             outfile.write(' dataProviderID=%s' % (quote_attrib(self.dataProviderID), ))
@@ -34057,13 +34056,13 @@ class MetadataSetType(GeneratedsSuper):
             Name_.export(outfile, level, namespace_, name_='Name', pretty_print=pretty_print)
         if self.MetadataStructureRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructureRef>%s</%sMetadataStructureRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructureRef).encode(ExternalEncoding), input_name='MetadataStructureRef'), namespace_, eol_))
+            outfile.write('<%sMetadataStructureRef>%s</%sMetadataStructureRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructureRef), input_name='MetadataStructureRef'), namespace_, eol_))
         if self.MetadataStructureAgencyRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMetadataStructureAgencyRef>%s</%sMetadataStructureAgencyRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructureAgencyRef).encode(ExternalEncoding), input_name='MetadataStructureAgencyRef'), namespace_, eol_))
+            outfile.write('<%sMetadataStructureAgencyRef>%s</%sMetadataStructureAgencyRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.MetadataStructureAgencyRef), input_name='MetadataStructureAgencyRef'), namespace_, eol_))
         if self.ReportRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sReportRef>%s</%sReportRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.ReportRef).encode(ExternalEncoding), input_name='ReportRef'), namespace_, eol_))
+            outfile.write('<%sReportRef>%s</%sReportRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.ReportRef), input_name='ReportRef'), namespace_, eol_))
         for AttributeValueSet_ in self.AttributeValueSet:
             AttributeValueSet_.export(outfile, level, namespace_, name_='AttributeValueSet', pretty_print=pretty_print)
         if self.Annotations is not None:
@@ -34146,13 +34145,13 @@ class MetadataSetType(GeneratedsSuper):
         outfile.write('],\n')
         if self.MetadataStructureRef is not None:
             showIndent(outfile, level)
-            outfile.write('MetadataStructureRef=%s,\n' % quote_python(self.MetadataStructureRef).encode(ExternalEncoding))
+            outfile.write('MetadataStructureRef=%s,\n' % quote_python(self.MetadataStructureRef))
         if self.MetadataStructureAgencyRef is not None:
             showIndent(outfile, level)
-            outfile.write('MetadataStructureAgencyRef=%s,\n' % quote_python(self.MetadataStructureAgencyRef).encode(ExternalEncoding))
+            outfile.write('MetadataStructureAgencyRef=%s,\n' % quote_python(self.MetadataStructureAgencyRef))
         if self.ReportRef is not None:
             showIndent(outfile, level)
-            outfile.write('ReportRef=%s,\n' % quote_python(self.ReportRef).encode(ExternalEncoding))
+            outfile.write('ReportRef=%s,\n' % quote_python(self.ReportRef))
         showIndent(outfile, level)
         outfile.write('AttributeValueSet=[\n')
         level += 1
@@ -34345,7 +34344,7 @@ class AttributeValueSetType(GeneratedsSuper):
             eol_ = ''
         if self.TargetRef is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTargetRef>%s</%sTargetRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.TargetRef).encode(ExternalEncoding), input_name='TargetRef'), namespace_, eol_))
+            outfile.write('<%sTargetRef>%s</%sTargetRef>%s' % (namespace_, self.gds_format_string(quote_xml(self.TargetRef), input_name='TargetRef'), namespace_, eol_))
         if self.TargetValues is not None:
             self.TargetValues.export(outfile, level, namespace_, name_='TargetValues', pretty_print=pretty_print)
         for ReportedAttribute_ in self.ReportedAttribute:
@@ -34361,7 +34360,7 @@ class AttributeValueSetType(GeneratedsSuper):
     def exportLiteralChildren(self, outfile, level, name_):
         if self.TargetRef is not None:
             showIndent(outfile, level)
-            outfile.write('TargetRef=%s,\n' % quote_python(self.TargetRef).encode(ExternalEncoding))
+            outfile.write('TargetRef=%s,\n' % quote_python(self.TargetRef))
         if self.TargetValues is not None:
             showIndent(outfile, level)
             outfile.write('TargetValues=model_.TargetValuesType(\n')
@@ -34559,7 +34558,7 @@ class ComponentValueType(GeneratedsSuper):
         self.exportAttributes(outfile, level, already_processed, namespace_, name_='ComponentValueType')
         if self.hasContent_():
             outfile.write('>')
-            outfile.write(str(self.valueOf_).encode(ExternalEncoding))
+            outfile.write(str(self.valueOf_))
             self.exportChildren(outfile, level + 1, namespace_='message:', name_='ComponentValueType', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
@@ -34643,7 +34642,7 @@ class ReportedAttributeType(GeneratedsSuper):
             self.Value = []
         else:
             self.Value = Value
-        if isinstance(StartTime, basestring):
+        if isinstance(StartTime, str):
             initvalue_ = datetime_.datetime.strptime(StartTime, '%Y-%m-%dT%H:%M:%S')
         else:
             initvalue_ = StartTime
@@ -35019,7 +35018,7 @@ Usage: python <Parser>.py [ -s ] <in_xml_file>
 
 
 def usage():
-    print USAGE_TEXT
+    print(USAGE_TEXT)
     sys.exit(1)
 
 
@@ -35075,7 +35074,7 @@ def parseEtree(inFileName, silence=False):
 
 
 def parseString(inString, silence=False):
-    from StringIO import StringIO
+    from io import StringIO
     doc = parsexml_(StringIO(inString))
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)

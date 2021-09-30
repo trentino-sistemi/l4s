@@ -78,7 +78,7 @@ INSTALLED_APPS = (
     'jsonify',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -119,6 +119,8 @@ WSGI_APPLICATION = 'l4s.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
+EXPLORER_CONNECTIONS = {'lod4stat': 'lod4stat'}
+EXPLORER_DEFAULT_CONNECTION = 'lod4stat'
 EXPLORER_CONNECTION_NAME = 'lod4stat'
 EXPLORER_PERMISSION_VIEW = lambda u: True
 EXPLORER_PERMISSION_CHANGE = lambda u: True
@@ -148,16 +150,19 @@ DATABASES = {
             'HOST': 'db',
             'PORT': '', },
         'source': {
-            'ENGINE': "django_pyodbc",
-            'HOST': "127.0.0.1",
-            'USER': "user",
-            'PASSWORD': "password",
+            'ENGINE': "sql_server.pyodbc",
+            'ENGINE': "mssql",
+            'HOST': "mssql",
+            'USER': "sa",
+            'PASSWORD': "passwordL4S",
             'NAME': "DATI",
             'OPTIONS': {
-                #'encoding': 'latin1',  # see django-pyodbc issue #24
-                'host_is_server': True},
-        }
+                'driver': 'ODBC Driver 17 for SQL Server',
+            },
+        },
     }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -217,6 +222,7 @@ TEMPLATES = [
             'context_processors': [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
             'debug': True,
         },

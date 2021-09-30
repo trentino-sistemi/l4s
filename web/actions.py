@@ -20,13 +20,13 @@ Actions for l4s project.
 """
 
 from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.utils.translation import gettext_lazy as _
+from django.templatetags.static import static
 from django.core.exceptions import ObjectDoesNotExist
 from explorer.models import Query
 from l4s import settings
-from rdf import rdf_report
-from sdmx import sdmx_report
+from .rdf import rdf_report
+from .sdmx import sdmx_report
 from tempfile import NamedTemporaryFile
 from pandas import ExcelWriter
 from web.pyjstat import to_json_stat
@@ -38,17 +38,17 @@ from web.statistical_secret import load_data_frame
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
 from xlwt import easyxf, add_palette_colour
-from openpyxl.styles import Style, Color, PatternFill, Font
+from openpyxl.styles import NamedStyle, Color, PatternFill, Font
 from openpyxl.styles import Alignment as OAlignment
 from openpyxl import Workbook as OWorkbook
 from openpyxl import load_workbook
-from openpyxl.drawing import Image
-from openpyxl.cell import get_column_letter
-import arial10
+from openpyxl.drawing.image import Image
+from openpyxl.utils import get_column_letter
+from web import arial10
 import ast
 import six
 import calendar
-import StringIO
+from io import StringIO
 import shutil
 
 max_length_filename = 150 # sotto linux dipende dal file system ... sotto ntfs massimo 240 compreso path ... ma il path non lo so .....per ora metto 150 prudenziale
@@ -82,16 +82,16 @@ def generate_report_action_csv(request):
         :return: Response with CSV attachment.
         """
         df = load_data_frame(request)
-        title = title.strip().encode("UTF-8").replace(" ", '_')
+        title = title.strip().replace(" ", '_')
 
         if len(title) > max_length_filename:
             title = title[:max_length_filename]
 
-        extension = 'csv'
+        extension = '.csv'
         separator = ';'
-        filename = '%s.%s' % (title, extension)
+        filename = '%s%s' % (title, extension)
         content_type = 'text/csv'
-        out_stream = StringIO.StringIO()
+        out_stream = StringIO()
         df.to_csv(out_stream, sep=separator, index=True)
         # Setup response
         response = HttpResponse(out_stream.getvalue())
@@ -140,12 +140,12 @@ def generate_report_action_xls(request):
 
         new_sheet = new_workbook.add_sheet("Lod4Stat", cell_overwrite_ok=True)
 
-        table_description_label = unicode(_("Argomento"))
+        table_description_label = str(_("Argomento"))
         new_sheet.write(0, 0, table_description_label, head_cell)
         new_sheet.write(0, 1, table_description, head_cell)
         new_sheet.write_merge(0, 0, 1, header_len, table_description, head_cell)
 
-        title_label = unicode(_("Title"))
+        title_label = str(_("Title"))
         new_sheet.write(1, 0, title_label, head_cell)
         new_sheet.write(1, 1, title, head_cell)
         new_sheet.write_merge(1, 1, 1, header_len, title, head_cell)
@@ -153,13 +153,13 @@ def generate_report_action_xls(request):
 
         line_num = 2
         if description is not None:
-            description_label = unicode(_("Description"))
-            s = StringIO.StringIO(description)
+            description_label = str(_("Description"))
+            s = StringIO(description)
             char_per_cell = 10
             for line in s:
                 line_num += 1
                 if len(line) > char_per_cell * header_len:
-                    add = (len(line) / (char_per_cell * header_len)) + 1
+                    add = (len(line) // (char_per_cell * header_len)) + 1
                     line_num += add
 
             new_sheet.write(2, 0, description_label, head_cell)
@@ -194,7 +194,7 @@ def generate_report_action_xls(request):
                 column_len = arial10.fit_width(value, False)
                 #print column_len
                 #print isinstance(value, unicode)
-                if isinstance(value, unicode):
+                if isinstance(value, str):
                     if value.isdigit():
                         #print "a"
                         #print "prima '",value,"'"
@@ -254,7 +254,7 @@ def generate_report_action_xls(request):
 
         lim_df = df.drop(df.columns[max_length - index_len - 1:len(df.columns) - 1], axis=1)
 
-        extension = 'xls'
+        extension = '.xls'
         engine = 'xlwt'
         encoding = 'utf-8'
         content_type = 'application/vnd.ms-excel'
@@ -279,12 +279,12 @@ def generate_report_action_xls(request):
 
         add_header_and_footer(f.name, title, description, show_legend, table_description)
 
-        title = title.strip().encode("UTF-8").replace(" ", '_')
+        title = title.strip().replace(" ", '_')
 
         if len(title) > max_length_filename:
             title = title[:max_length_filename]
 
-        filename = '%s.%s' % (title, extension)
+        filename = '%s%s' % (title, extension)
 
         # Setup response
         data = f.read()
@@ -315,14 +315,14 @@ def generate_report_action_xlsx(request):
         :param title: Query tile.
         :param description: Query description.
         """
-        workbook = load_workbook(filename=file_name, use_iterators=True)
+        workbook = load_workbook(filename=file_name, read_only=True)
         sheet = workbook.active
-        new_workbook = OWorkbook(encoding="UTF-8")
+        new_workbook = OWorkbook()
         header_len = 5
         new_sheet = new_workbook.active
 
-        title_label = unicode(_("Title"))
-        table_description_label = unicode(_("Argomento"))
+        title_label = str(_("Title"))
+        table_description_label = str(_("Argomento"))
 
         line_num = 2
 
@@ -334,12 +334,12 @@ def generate_report_action_xlsx(request):
                                   fgColor=Color('8B1F3F'))
 
         header_font = Font(color="FFFFFF", bold=True)
-        header_style = Style(fill=header_fill, font=header_font, alignment=top_and_left_alignment)
+        header_style = NamedStyle(name='header', fill=header_fill, font=header_font, alignment=top_and_left_alignment)
 
         body_font = Font(color="1F556F")
 
-        r_style = Style(font=body_font, alignment=r_alignment)
-        body_style = Style(font=body_font)
+        r_style = NamedStyle(name='r', font=body_font, alignment=r_alignment)
+        body_style = NamedStyle(name='body', font=body_font)
 
         cell = new_sheet.cell(row=1, column=1)
         cell.value = table_description_label
@@ -365,13 +365,13 @@ def generate_report_action_xlsx(request):
                               end_row=2, end_column=header_len+1)
 
         if description is not None:
-            description_label = unicode(_("Description"))
-            s = StringIO.StringIO(description)
+            description_label = str(_("Description"))
+            s = StringIO(description)
             char_per_cell = 10
             for line in s:
                 line_num += 1
                 if len(line) > char_per_cell * header_len:
-                    add = (len(line) / (char_per_cell * header_len)) + 1
+                    add = (len(line) // (char_per_cell * header_len)) + 1
                     line_num += add
 
             cell = new_sheet.cell(row=3, column=1)
@@ -420,7 +420,6 @@ def generate_report_action_xlsx(request):
                 cell = new_sheet.cell(row=r + k + 1, column=c + 1)
                 if isinstance(value, six.string_types):
                     value = value.strip()
-                    value = value.encode('utf-8')
                     if value.startswith("*") or value.isdigit():
                         cell.style = r_style
                     else:
@@ -428,7 +427,7 @@ def generate_report_action_xlsx(request):
                 else:
                     cell.style = body_style
                 cell.value = value
-                r_size = arial10.fit_width(str(value), False) / 255
+                r_size = arial10.fit_width(str(value), False) // 255
                 column_len = round(r_size)
                 if r >= 1 and column_len > max_widths[c]:
                         max_widths[c] = column_len
@@ -437,7 +436,7 @@ def generate_report_action_xlsx(request):
             column_letter = get_column_letter(i+1)
             new_sheet.column_dimensions[column_letter].width = max_widths[i]
 
-        sheet_rows = len(new_sheet.rows)
+        sheet_rows = len(list(new_sheet.rows))
         k = k + sheet_rows - 1
 
         stat_bitmap = 'l4s/static/img/testata_Statistica.bmp'
@@ -450,8 +449,7 @@ def generate_report_action_xlsx(request):
         """
 
         stat_img = Image(stat_bitmap)
-        stat_img.drawing.left = 0
-        stat_img.drawing.top = k * 19
+        stat_img.anchor = f'A{k}'
 
         #new_cell = new_sheet.cell(row=k, column=1)
         #stat_img.anchor(new_cell)
@@ -466,7 +464,7 @@ def generate_report_action_xlsx(request):
         :param description: Query description.
         :return: Response with Excel 2007 attachment.
         """
-        extension = 'xlsx'
+        extension = '.xlsx'
         engine = "openpyxl"
         encoding = 'utf-8'
 
@@ -489,12 +487,12 @@ def generate_report_action_xlsx(request):
         # Setup response
         data = f.read()
 
-        title = title.strip().encode("UTF-8").replace(" ", '_')
+        title = title.strip().replace(" ", '_')
 
         if len(title) > max_length_filename:
             title = title[:max_length_filename]
 
-        filename = '%s.%s' % (title, extension)
+        filename = '%s%s' % (title, extension)
         # Setup response
         content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         response = HttpResponse(data, content_type=content_type)
@@ -528,13 +526,13 @@ def generate_report_action_sdmx(request):
         else:
             int_df = df
 
-        title = title.strip().encode("UTF-8").replace(" ", '_')
+        title = title.strip().replace(" ", '_')
 
         if len(title) > max_length_filename:
             title = title[:max_length_filename]
 
-        extension = 'sdmx'
-        filename = '%s.%s' % (title, extension)
+        extension = '.sdmx'
+        filename = '%s%s' % (title, extension)
         content_type = 'application/xml'
         res = sdmx_report(sql, int_df)
         # Setup response
@@ -573,13 +571,13 @@ def generate_report_action_json_stat(request):
             value = df.columns[len(df.columns)-1]
 
         int_df = reconciles_data_frame(int_df, sql)
-        title = title.strip().encode("UTF-8").replace(" ", '_')
+        title = title.strip().replace(" ", '_')
 
         if len(title) > max_length_filename:
             title = title[:max_length_filename]
 
-        extension = 'json'
-        filename = '%s.%s' % (title, extension)
+        extension = '.json'
+        filename = '%s%s' % (title, extension)
         content_type = 'application/json'
 
         response = HttpResponse()
@@ -623,13 +621,13 @@ def generate_report_action_rdf(request):
         else:
             int_df = df
 
-        title = title.strip().encode("UTF-8").replace(" ", '_')
+        title = title.strip().replace(" ", '_')
 
         if len(title) > max_length_filename:
             title = title[:max_length_filename]
 
-        extension = 'xml'
-        filename = '%s.%s' % (title, extension)
+        extension = '.xml'
+        filename = '%s%s' % (title, extension)
         res = rdf_report(sql, title, description,
                          data_frame=int_df,
                          rdf_format='xml')
@@ -669,13 +667,13 @@ def generate_report_action_turtle(request):
         else:
             int_df = df
 
-        title = title.strip().encode("UTF-8").replace(" ", '_')
+        title = title.strip().replace(" ", '_')
 
         if len(title) > max_length_filename:
             title = title[:max_length_filename]
 
-        extension = 'ttl'
-        filename = '%s.%s' % (title, extension)
+        extension = '.ttl'
+        filename = '%s%s' % (title, extension)
         res = rdf_report(sql, title, description,
                          data_frame=int_df,
                          rdf_format='turtle')
@@ -752,7 +750,7 @@ def query_sql(request):
 def generate_usage_report_action_xls(request):
 
     def generate_report():
-        extension = 'xls'
+        extension = '.xls'
         f = NamedTemporaryFile(suffix=extension)
 
         content_type = 'application/vnd.ms-excel'
@@ -777,13 +775,13 @@ def generate_usage_report_action_xls(request):
         head_cfg += 'alignment: horizontal left, vertical top, wrap true;'
         head_cell = easyxf(head_cfg)
         header_len = 5
-        us_title = unicode(_('Usage report'))
+        us_title = str(_('Usage report'))
         year = request.POST.get('year') or request.GET.get('year')
         month = request.POST.get('month') or request.GET.get('month')
-        us_title += " " + unicode(_('Year')) + " " + year
+        us_title += " " + str(_('Year')) + " " + year
         if month != "None":
             month_name = calendar.month_name[ast.literal_eval(month)]
-            us_title += ", " + unicode(_('Month')).lower() + " " + month_name
+            us_title += ", " + str(_('Month')).lower() + " " + month_name
 
         body_cfg = 'font: colour blue;'
         body_cfg += 'alignment: vertical top, wrap true;'
@@ -798,17 +796,17 @@ def generate_usage_report_action_xls(request):
             max_widths[col] = default_width
 
         start = 3
-        title = unicode(_("Number of saved queries for user types"))
+        title = str(_("Number of saved queries for user types"))
         new_sheet.write(start, 0, title, head_cell)
         new_sheet.write_merge(start, start, 0, 1, title, head_cell)
         start = start + 1
 
-        title = unicode(_("User type"))
+        title = str(_("User type"))
         new_sheet.write(start, 0, title, head_cell)
         column_len = arial10.fit_width(title, False)
         if column_len > max_widths[0]:
             max_widths[0] = column_len
-        title = unicode(_("Saved queries"))
+        title = str(_("Saved queries"))
         new_sheet.write(start, 1, title, head_cell)
         column_len = arial10.fit_width(title, False)
         if column_len > max_widths[1]:
@@ -824,17 +822,17 @@ def generate_usage_report_action_xls(request):
             new_sheet.write(q + start, 1, query[1], body_cell)
 
         start = start + q + 3
-        title = unicode(_("Number of manual requests for user types"))
+        title = str(_("Number of manual requests for user types"))
         new_sheet.write(start, 0, title, head_cell)
         new_sheet.write_merge(start, start, 0, 1, title, head_cell)
         start = start + 1
 
-        title = unicode(_("User type"))
+        title = str(_("User type"))
         new_sheet.write(start, 0, title, head_cell)
         column_len = arial10.fit_width(title, False)
         if column_len > max_widths[0]:
             max_widths[0] = column_len
-        title = unicode(_("Manual requests"))
+        title = str(_("Manual requests"))
         new_sheet.write(start, 1, title, head_cell)
         column_len = arial10.fit_width(title, False)
         if column_len > max_widths[1]:
@@ -852,14 +850,14 @@ def generate_usage_report_action_xls(request):
 
         start = start + q + 3
         title = _("Number of executed queries for user types (logged users)")
-        title = unicode(title)
+        title = str(title)
         new_sheet.write(start, 0, title, head_cell)
         new_sheet.write_merge(start, start, 0, 1, title, head_cell)
         start = start + 1
 
-        title = unicode(_("User type"))
+        title = str(_("User type"))
         new_sheet.write(start, 0, title, head_cell)
-        title = unicode(_("Run queries"))
+        title = str(_("Run queries"))
         new_sheet.write(start, 1, title, head_cell)
         column_len = arial10.fit_width(title, False)
         if column_len > max_widths[1]:
@@ -877,11 +875,11 @@ def generate_usage_report_action_xls(request):
 
 
         start = start + q + 3
-        title = unicode(_("Number of executed queries (anonymous users)"))
+        title = str(_("Number of executed queries (anonymous users)"))
         new_sheet.write(start, 0, title, head_cell)
         new_sheet.write_merge(start, start, 0, 1, title, head_cell)
         start = start + 1
-        title = unicode(_("Run queries"))
+        title = str(_("Run queries"))
         new_sheet.write(start, 0, title, head_cell)
         new_sheet.write_merge(start, start, 0, 1, title, head_cell)
         column_len = arial10.fit_width(title, False)
@@ -921,12 +919,12 @@ def generate_usage_report_action_xls(request):
 
         new_workbook.save(f.name)
 
-        title = us_title.strip().encode("UTF-8").replace(" ", '_')
+        title = us_title.strip().replace(" ", '_')
 
         if len(title) > max_length_filename:
             title = title[:max_length_filename]
 
-        filename = '%s.%s' % (title, extension)
+        filename = '%s%s' % (title, extension)
 
         data = f.read()
         response = HttpResponse(data)

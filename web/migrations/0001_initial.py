@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CustomSite',
             fields=[
-                ('site_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='sites.Site')),
+                ('site_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='sites.Site', on_delete=models.CASCADE)),
                 ('in_manutenzione', models.BooleanField(default=False)),
                 ('label', models.CharField(max_length=255)),
             ],
@@ -120,7 +120,7 @@ class Migration(migrations.Migration):
                 ('specific_territorial_level', models.CharField(max_length=400, verbose_name='specific territorial level', blank=True)),
                 ('url', models.CharField(max_length=256, verbose_name='url')),
                 ('dispatched', models.BooleanField(default=False)),
-                ('inquirer', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+                ('inquirer', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -236,7 +236,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='user_type',
-            field=models.ForeignKey(verbose_name='User type', to='web.UserType', null=True),
+            field=models.ForeignKey(verbose_name='User type', to='web.UserType', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

@@ -1,39 +1,43 @@
-Django~=1.8.19
+Django~=3.2.8
 
 # PostgreSQL adapter
-psycopg2-binary~=2.7.7
-requests~=2.2.1
+psycopg2-binary~=2.9.1
+requests~=2.26.0
 
 # User authentication and subscription.
-django-allauth~=0.33.0
-django-jsonify
+django-allauth~=0.45.0
+django-jsonify~=0.3.0
 
 # Sql editor.
--e git+https://github.com/trentino-sistemi/django-sql-explorer.git@0.8_update#egg=django_sql_explorer
+-e git+https://github.com/trentino-sistemi/django-sql-explorer.git@2.3_update#egg=django_sql_explorer
 
 # Excel 1997 xls export.
-xlwt
+xlwt~=1.3.0
 
 # Excel 2007 xlsx export.
-openpyxl~=2.1.2
+openpyxl~=3.0.9
 
 # Library to open excel.
-xlrd~=0.9.3
+xlrd~=2.0.1
 
 # In order to connect to the source M$ Sql server with odbc
-pyodbc
-django-pyodbc
+pyodbc~=4.0.32
+# replacing django-pyodbc
+# django-pyodbc-azure or django-mssql-backend might be alternatives
+# requires microsoft odbc driver (msodbcsql17 package)
+mssql-django~=1.0
 
 # In order to use bopotstrap in the django admin site
-django-admin-bootstrapped~=2.0.0
+#tendenci-django-admin-bootstrapped~=5.0
+-e git+https://github.com/trentino-sistemi/django-admin-bootstrapped@static#egg=tendenci-django-admin-bootstrapped
 
 # Used for rdf export.
-rdflib
+rdflib~=6.0.1
 
 # Used for pivot and export in various formats.
-pandas~=0.18.1
+pandas~=1.1.5
 # Inherited by pandas
-numpy~=1.11.0
+numpy~=1.21.2
 
 # To export images in excel 2007.
-Pillow~=6.2.2
+Pillow~=8.3.2

@@ -31,6 +31,7 @@ Example:
 import json
 import pandas as pd
 from collections import OrderedDict
+from explorer.models import ColumnHeader
 
 
 def check_input(naming):
@@ -240,13 +241,31 @@ def from_json_stat(datasets, naming='label'):
         js_dict = datasets[dataset]
         dimensions, dim_names = get_dimensions(js_dict, naming)
         values = get_values(js_dict)
-        output = pd.DataFrame(columns=dim_names + [unicode('value', 'utf-8')],
+        output = pd.DataFrame(columns=dim_names + [str('value', 'utf-8')],
                               index=range(0, len(values)))
         for i, category in enumerate(get_df_row(dimensions, naming)):
             output.loc[i] = category + [values.pop(0)]
         output = output.convert_objects(convert_numeric=True)
         results.append(output)
     return results
+
+
+def _get_item_fn(item):
+    """Return function to convert to desired format, based on input type.
+
+    Parameter "item" can be of type ColumnHeader, int or string, depending on
+    where it comes from (e.g. interrogazioni disponibili, gestione
+    interrogazioni, dati aperti).
+    """
+    if isinstance(item, ColumnHeader):
+        func = lambda x: x.title
+    elif isinstance(item, str):
+        func = lambda x: x
+    elif isinstance(item, int):
+        func = lambda x: str(x)
+    else:
+        func = lambda x: int(x)
+    return func
 
 
 def to_json_stat(input_df, value="value"):
@@ -277,17 +296,20 @@ def to_json_stat(input_df, value="value"):
         dims = data[row].filter([item for item in data[row].columns.values if item not in value])
         if len(dims.columns.values) != len(set(dims.columns.values)):
             raise ValueError('Non-value columns must constitute a unique ID')
-        dim_names = list(dims)
-        categories = [{i: {"label": i, "category": {"index":
+        get_dim = _get_item_fn(dims.columns.values[0])
+        dim_names = [get_dim(dim) for dim in dims]
+        get_label = _get_item_fn(dims.columns.values[0])
+        categories = [{get_label(i): {"label": get_label(i), "category": {"index":
                       OrderedDict([(str(j), str(k)) for k, j in
                            enumerate(uniquify(dims[i]))]),
                       "label":OrderedDict([(str(k), str(j)) for k, j in
                                           enumerate(uniquify(dims[i]))])}}}
                       for i in dims.columns.values]
+        get_val = _get_item_fn(value[0])
         dataset = {"dataset" + str(row + 1): {"dimension": OrderedDict(),
-                   "value": list(
+                   "value": [ get_val(val) for val in
                    dataframe[value].where(
-                       pd.notnull(dataframe[value]), None))}}
+                       pd.notnull(dataframe[value]), None)]}}
         for category in categories:
             dataset["dataset" + str(row + 1)]["dimension"].update(category)
         dataset[

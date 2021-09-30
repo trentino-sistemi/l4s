@@ -25,7 +25,7 @@ from django.core.validators import MaxLengthValidator
 from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm as _UserCreationForm
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from explorer.models import Query
 from l4s.settings import CONTENT_TYPES
 from web.models import UserType, Metadata, ManualRequest
@@ -82,7 +82,7 @@ class QueryForm(CreateQueryForm):
     def __init__(self, *args, **kwargs):
         self.variable_dictionary = kwargs.pop('variable_dictionary')
         self.error_msg = kwargs.pop('error_msg')
-        super(CreateQueryForm, self).__init__(*args, **kwargs)
+        super(QueryForm, self).__init__(*args, **kwargs)
 
     def clean_sql(self):
         """
@@ -312,8 +312,8 @@ class SignupForm(forms.Form):
     """
     A form for signup new users.
     """
-    num = unicode(_('Only numbers are allowed.'))
-    eg = unicode(_('e.g.'))
+    num = str(_('Only numbers are allowed.'))
+    eg = str(_('e.g.'))
     phone_number = '0461213111'
     pn = "%s %s %s" % (num, phone_number, eg)
 

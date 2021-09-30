@@ -5,7 +5,7 @@ services:
   app:
     build:
       context: .
-    image: 'l4s-py2'
+    image: 'l4s-py3'
     cpu_quota: 100000
     cpu_shares: 64
     mem_limit: 512000000
@@ -17,7 +17,7 @@ services:
       - ./l4s:/srv/app/l4s:rw
       - ./web:/srv/app/web:rw
   db:
-    image: 'postgres:9.6-buster'
+    image: 'postgres:11.13-bullseye'
     cpu_quota: 100000
     cpu_shares: 128
     mem_limit: 256000000
@@ -29,6 +29,13 @@ services:
       - db:/var/lib/postgresql/data
     ports:
       - 5432:5432
+  mssql:
+    image: 'mcr.microsoft.com/mssql/server:2019-CU13-ubuntu-20.04'
+    ports:
+      - '1433:1433'
+    environment:
+      SA_PASSWORD: "passwordL4S"
+      ACCEPT_EULA: "Y"
 
 volumes:
   db:

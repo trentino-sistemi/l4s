@@ -5,6 +5,7 @@
 !conf
 !config
 !django-sql-explorer_key
+!entrypoint.sh
 !l4s
 !manage.py
 !requirements-dev.txt

@@ -24,7 +24,7 @@ from webbrowser import get
 
 from django.db import DatabaseError
 from django.template.defaultfilters import length
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from web.utils import execute_query_on_main_db, \
     build_constraint_query, \
     build_aggregation_query, \
@@ -58,7 +58,7 @@ from web.utils import execute_query_on_main_db, \
     stampa_symtobltabel, \
     is_ref_area
 from web.models import ExecutedQueryLog
-from utils import to_utf8
+from .utils import to_utf8
 from explorer.models import Query
 import itertools
 import tempfile
@@ -205,7 +205,7 @@ def pivot(data, headers, columns, rows, value, col_dict, secret_column_dict):
         error = _("I can not pivot the table")
         e_value = _("the query return an empty result set")
 
-        error = "%s: %s" % (unicode(error), unicode(e_value))
+        error = "%s: %s" % (str(error), str(e_value))
         return None, None, error
 
     #print data
@@ -306,14 +306,14 @@ def pivot(data, headers, columns, rows, value, col_dict, secret_column_dict):
                                   margins=True,
                                   aggfunc=np.sum,
                                   fill_value=0)
-    except Exception, e:
+    except Exception as e:
         #print "errore ", e
         error = _("I can not pivot the table")
         e_value = str(e)
         if e_value == "All objects passed were None":
             e_value = _("All objects passed were None")
 
-        error = "%s: %s" % (unicode(error), unicode(e_value))
+        error = "%s: %s" % (str(error), str(e_value))
         return None, None, error
 
     """
@@ -344,7 +344,7 @@ def pivot(data, headers, columns, rows, value, col_dict, secret_column_dict):
 
     #print pivot_df.to_string()
 
-    total = unicode(_("Total")).encode('ascii')
+    total = str(_("Total"))
     pivot_df.rename(columns={'All': total}, inplace=True)
     pivot_df.rename(index={'All': total}, inplace=True)
     data = get_data_from_data_frame(pivot_df)
@@ -598,7 +598,7 @@ def estrai_tuple_per_colonne(data_frame, slices, obs_vals):
 
             #print "col_tuples dopo " , col_tuples
 
-            if type(col_tuples) <> pd.MultiIndex:  # se quello che e' rimasto e' diventato NON multilevel
+            if type(col_tuples) != pd.MultiIndex:  # se quello che e' rimasto e' diventato NON multilevel
                 #print "lllllllll"
                 # va bene che lo slice_da_preservare_originale rimanga invariato
                 lista_appoggio = []
@@ -644,7 +644,7 @@ def estrai_tuple_per_righe(data_frame, slices, obs_vals):
                 else:
                     i += 1
 
-            if type(index_tuples) <> pd.MultiIndex:  # se quello che e' rimasto e' diventato NON multilevel
+            if type(index_tuples) != pd.MultiIndex:  # se quello che e' rimasto e' diventato NON multilevel
                 # va bene che lo slice_da_preservare_originale rimanga invariato
                 lista_appoggio = []
                 appoggio = index_tuples.tolist()
@@ -778,7 +778,7 @@ def row_secondary_suppression(data,
             sel_col = start_col
 
             if stop_col > start_col: #  per eliminare slice composti da un solo elemento
-                if float(totale_slice) <> 0.0:
+                if float(totale_slice) != 0.0:
 
                     while sel_col <= stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
@@ -882,7 +882,7 @@ def row_secondary_suppression(data,
                 #print "asterisk_count ", asterisk_count
 
                 if stop_col > start_col: #  per eliminare slice composti da un solo elemento
-                    if float(totale_slice) <> 0.0:
+                    if float(totale_slice) != 0.0:
 
                         while sel_col <= stop_col:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
@@ -1140,7 +1140,7 @@ def column_secondary_suppression(data, data_frame, obs_values, debug, cols):
             #print "totale_slice ", totale_slice
 
             if stop_row > start_row: # per eliminare slice composta da un solo elemento
-                if float(totale_slice) <> 0.0:
+                if float(totale_slice) != 0.0:
 
                     while sel_row <= stop_row:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
@@ -1268,7 +1268,7 @@ def column_secondary_suppression(data, data_frame, obs_values, debug, cols):
                 """
 
                 if stop_row > start_row: # per eliminare slice composta da un solo elemento
-                    if float(totale_slice) <> 0.0:
+                    if float(totale_slice) != 0.0:
 
                         while sel_row <= stop_row:  #riscorro lo slice per asteiscare valore che coincidono col totale dello slice
 
@@ -1940,7 +1940,7 @@ def data_frame_from_tuples(data_frame, data):
         index = data_frame.index[r]
         for c, o in enumerate(data_frame.columns):
             value = data[r][c]
-            ret.set_value(index, data_frame.columns[c], value)
+            ret.at[index, data_frame.columns[c]] = value
     return ret
 
 
@@ -2078,7 +2078,7 @@ def append_total_to_plain_table(data, threshold_columns_dict, constraint_cols):
     """
     sum_row = []
     c = 1
-    sum_row.append(unicode(_("Total")))
+    sum_row.append(str(_("Total")))
     while c < len(data[0]):
         if c in threshold_columns_dict or c in constraint_cols:
             total = 0
@@ -2418,7 +2418,7 @@ def secondary_row_suppression_constraint(data,
                         #print "elementi" , elementi
                         #print target_row[new_header.index(alias)]
 
-                        if target_row[cell_row_list] <> indice_colonna:
+                        if target_row[cell_row_list] != indice_colonna:
 
                             if target_row[new_header.index(alias)] < minimo:
                                 minimo = target_row[new_header.index(alias)]
@@ -2580,7 +2580,7 @@ def secondary_row_suppression_constraint(data,
                                     if is_int(colonna):
                                         indice_colonna.append(colonna)
                                     else:
-                                        if type(colonna) == unicode:
+                                        if type(colonna) == str:
                                             indice_colonna.append(colonna)
                                         else:
                                             indice_colonna.append(colonna.decode('utf-8'))
@@ -2588,7 +2588,7 @@ def secondary_row_suppression_constraint(data,
                                 if is_int(colonna):
                                     indice_colonna.append(colonna)
                                 else:
-                                    if type(colonna) == unicode:
+                                    if type(colonna) == str:
                                         indice_colonna.append(colonna)
                                     else:
                                         indice_colonna.append(colonna.decode('utf-8'))
@@ -2711,7 +2711,7 @@ def secondary_row_suppression_constraint(data,
 
                                 #print "data_frame_appoggio.columns ", data_frame_appoggio.columns
 
-                                if elemento_da_cercare <> indice_colonna:
+                                if elemento_da_cercare != indice_colonna:
 
                                     start_row3, stop_row3 =  find_in_not_sorted_index(data_frame_appoggio.columns, elemento_da_cercare)
 
@@ -2826,10 +2826,7 @@ def secondary_row_suppression_constraint(data,
                                     if is_int(i):
                                         lista_appoggio_col_tup2.append(str(i))
                                     else:
-                                        if type(i) == unicode:
-                                            lista_appoggio_col_tup2.append(i.encode('UTF-8'))
-                                        else:
-                                            lista_appoggio_col_tup2.append(i)
+                                        lista_appoggio_col_tup2.append(i)
 
 
                                 #col_tup2 = [str(s).decode('utf8') for s in col_tup2]
@@ -3088,7 +3085,7 @@ def secondary_col_suppression_constraint(data,
                             if riga not in indice_riga:
                                 indice_riga.append(riga)
                         else:
-                            if type(riga) == unicode:
+                            if type(riga) == str:
                                 if riga not in indice_riga:
                                     indice_riga.append(riga)
                             else:
@@ -3103,7 +3100,7 @@ def secondary_col_suppression_constraint(data,
                                     if riga not in indice_riga:
                                         indice_riga.append(riga)
                                 else:
-                                    if type(riga) == unicode:
+                                    if type(riga) == str:
                                         if riga not in indice_riga:
                                             indice_riga.append(riga)
                                     else:
@@ -3171,7 +3168,7 @@ def secondary_col_suppression_constraint(data,
 
                         #print target_row[cell_row_list]
 
-                        if target_row[cell_row_list] <> indice_riga[0]:
+                        if target_row[cell_row_list] != indice_riga[0]:
 
                             if target_row[new_header.index(alias)] < minimo:
                                 minimo = target_row[new_header.index(alias)]
@@ -3362,7 +3359,7 @@ def secondary_col_suppression_constraint(data,
                                     if riga not in indice_riga:
                                         indice_riga.append(riga)
                                 else:
-                                    if type(riga) == unicode:
+                                    if type(riga) == str:
                                         if riga not in indice_riga:
                                             indice_riga.append(riga)
                                     else:
@@ -3472,7 +3469,7 @@ def secondary_col_suppression_constraint(data,
 
                                 #print "elemento_da_cercare", elemento_da_cercare
 
-                                if elemento_da_cercare <> indice_riga: #attenzione codice mai verificato per esempio mancante
+                                if elemento_da_cercare != indice_riga: #attenzione codice mai verificato per esempio mancante
 
                                     start_row3, stop_row3 =  find_in_not_sorted_index(data_frame_appoggio.index, elemento_da_cercare)
 
@@ -3585,10 +3582,7 @@ def secondary_col_suppression_constraint(data,
                                     if is_int(i):
                                         lista_appoggio_row_tup2.append(str(i))
                                     else:
-                                        if type(i) == unicode:
-                                            lista_appoggio_row_tup2.append(i.encode('UTF-8'))
-                                        else:
-                                            lista_appoggio_row_tup2.append(i)
+                                        lista_appoggio_row_tup2.append(i)
 
 
                                 #row_tup2 = [s.decode('utf8') for s in row_tup2]
@@ -3644,12 +3638,12 @@ def apply_stat_secret(headers,
                       old_cols,
                       agg_filters,
                       range,
-                      not_sel_aggregations,
-                      not_agg_selection_value,
-                      query_iniziale,
-                      rows_fields,
-                      cols_fields,
-                      table_name):
+                      not_sel_aggregations=None,
+                      not_agg_selection_value=None,
+                      query_iniziale=None,
+                      rows_fields=None,
+                      cols_fields=None,
+                      table_name=None):
     """
     Take in input the full data set and the column descriptions
     and return the data set statistical secret free.
@@ -4072,7 +4066,7 @@ def headers_and_data(user,
         old_head = executed.headers
         data = executed.data
         duration = executed.duration
-    except DatabaseError, e:
+    except DatabaseError as e:
         err = e
 
     #print "old_head", old_head
@@ -4141,7 +4135,7 @@ def headers_and_data(user,
 
     #print "cccccccccccccc"
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         id = user.pk
     else:
         id = -1
@@ -4205,7 +4199,7 @@ def load_data_frame(request):
                 columns = [ch.title for ch in executed.headers]
                 df = pd.DataFrame(executed.data, columns=columns)
                 return df
-            except DatabaseError, e:
+            except DatabaseError as e:
                 err = e
         else:
             if not query.is_public:
