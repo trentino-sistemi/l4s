@@ -194,7 +194,7 @@ $(".download_xls_button").click(function(e) {
     params += "&month=" + month;
     download('/usage_report/download_xls',
              params,
-             'POST', "{% csrf_token %}");
+             'POST', '{% csrf_token %}');
 });
 </script>
 {% endblock %}

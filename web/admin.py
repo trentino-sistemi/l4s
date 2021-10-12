@@ -77,13 +77,6 @@ class UserAdmin(_UserAdmin):
     filter_horizontal = ()
 
 
-class UserType(models.Model):
-    """
-    Include a custom user type.
-    """
-    type_form = UserTypeForm
-
-
 class Test3Admin(admin.ModelAdmin):
     list_display = ('id1', 'id2', 'numerosity')
 
@@ -108,7 +101,6 @@ class ClassCustomSite(admin.ModelAdmin):
     list_display = ('domain', 'in_manutenzione', 'label')
 
 admin.site.register(User, UserAdmin)
-admin.site.register(UserType)
 admin.site.register(Test3, Test3Admin)
 admin.site.register(Test4, Test4Admin)
 admin.site.register(Test5, Test5Admin)

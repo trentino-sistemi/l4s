@@ -423,7 +423,7 @@ $(".download_csv_button").click(function(e) {
     download('/download_csv',
              params,
              'POST',
-             "{% csrf_token %}");
+             '{% csrf_token %}');
 });
 $(".download_xls_button").click(function(e) {
     e.preventDefault();
@@ -438,7 +438,7 @@ $(".download_xls_button").click(function(e) {
     }
     download('/download_xls',
              params,
-             'POST', "{% csrf_token %}");
+             'POST', '{% csrf_token %}');
 });
 $(".download_xlsx_button").click(function(e) {
     e.preventDefault();
@@ -453,7 +453,7 @@ $(".download_xlsx_button").click(function(e) {
     }
     download('/download_xlsx',
              params,
-             'POST', "{% csrf_token %}");
+             'POST', '{% csrf_token %}');
 });
 $(".download_sdmx_button").click(function(e) {
     e.preventDefault();
@@ -463,7 +463,7 @@ $(".download_sdmx_button").click(function(e) {
     params = "store=" + store + "&title=" +  title + "&sql=" + sql
     download('/download_sdmx',
              params,
-             'POST', "{% csrf_token %}");
+             'POST', '{% csrf_token %}');
 });
 $(".download_json_stat_button").click(function(e) {
     e.preventDefault();
@@ -473,7 +473,7 @@ $(".download_json_stat_button").click(function(e) {
     params = "store=" + store + "&title=" +  title + "&sql=" + sql
     download('/download_json_stat',
              params,
-             'POST', "{% csrf_token %}");
+             'POST', '{% csrf_token %}');
 });
 $(".download_rdf_button").click(function(e) {
    e.preventDefault();
@@ -485,7 +485,7 @@ $(".download_rdf_button").click(function(e) {
            "&description=" + description
    download('/download_rdf',
             params,
-            'POST', "{% csrf_token %}");
+            'POST', '{% csrf_token %}');
 });
 $(".download_turtle_button").click(function(e) {
    e.preventDefault();
@@ -498,7 +498,7 @@ $(".download_turtle_button").click(function(e) {
    download('/download_turtle',
             params,
             'POST',
-            "{% csrf_token %}");
+            '{% csrf_token %}');
 });
 
 

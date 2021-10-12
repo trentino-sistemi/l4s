@@ -266,7 +266,7 @@ def rdf_report(sql,
     """
     g = Graph()
     data = get_data_from_data_frame(data_frame)
-    title = title.decode('utf-8')
+    title = title
     dataset = "dataset-%s" % title
     subject_t_ref = term.URIRef(my_ns[dataset])
     source_tables = get_source_tables(sql)

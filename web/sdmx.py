@@ -22,8 +22,8 @@ from web.utils import get_metadata_on_column,\
     column_position_in_dataframe,\
     add_xml_header
 from datetime import datetime
-import sdmx_message as sdmx
-import StringIO
+import web.sdmx_message as sdmx
+from io import StringIO
 import time
 
 
@@ -139,7 +139,7 @@ def sdmx_report(sql, data_frame=None):
     """
     col_dict = build_column_dict(data_frame, sql)
 
-    out_stream = StringIO.StringIO()
+    out_stream = StringIO()
     generic_data = sdmx.GenericDataType()
     header = sdmx.HeaderType()
     header.set_Test(False)

@@ -23,7 +23,7 @@ from django.db import models
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.utils.http import urlquote
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 from datetime import datetime
@@ -31,7 +31,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 
 class CustomSite(Site):
-    in_manutenzione = models.BooleanField()
+    in_manutenzione = models.BooleanField(default=False)
     label = models.CharField(max_length=255)
     class Meta:
         verbose_name = 'Sito in manutenzione'
@@ -92,7 +92,7 @@ class OntologyFileModel(models.Model):
         super(OntologyFileModel, self).delete(*args, **kwargs)
 
     @property
-    def __unicode__(self):
+    def __str__(self):
         """
         In unicode format.
 
@@ -170,7 +170,7 @@ class ManualRequest(models.Model):
     Model used in order to enable the user to do a manual request to be
     processed by an human user.
     """
-    inquirer = models.ForeignKey("User", null=True)
+    inquirer = models.ForeignKey("User", null=True, on_delete=models.CASCADE)
     dispatcher = models.CharField(max_length=30, blank=True)
     request_date = models.DateTimeField(auto_now_add=True)
     dispatch_date = models.DateTimeField(blank=True, null=True)
@@ -211,7 +211,7 @@ class UserType(models.Model):
     name = models.CharField(_('user type'), max_length=128)
     position = models.IntegerField()
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Get the name in unicode format.
 
@@ -277,7 +277,7 @@ class UserManager(BaseUserManager):
         :param extra_fields:
         :return:The created User with super user privileges.
         """
-        return self._create_user(email, password, True, True,
+        return self._create_user(email, password, True, True, True,
                                  **extra_fields)
 
 
@@ -300,7 +300,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                                     blank=True)
 
     user_type = models.ForeignKey("UserType", verbose_name=_('User type'),
-                                  null=True)
+                                  null=True, on_delete=models.CASCADE)
 
     is_staff_hlp = _('Designates whether the user can log'
                      'into this admin site.')
@@ -323,10 +323,10 @@ class User(AbstractBaseUser, PermissionsMixin):
                                     help_text=is_active_hlp)
 
     date_joined = models.DateTimeField(_('date joined'),
-                                       default=timezone.now())
+                                       auto_now_add=True)
 
     date_change_password = models.DateTimeField(_('date change password'),
-                                       default=timezone.now())
+                                       auto_now_add=True)
 
     objects = UserManager()
 
@@ -373,8 +373,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         send_mail(subject, message, from_email, [self.email])
 
     def delete(self, *args, **kwargs):
-        send_mail(unicode(_('Unused ISPAT LOD4STAT application account')),
-                  unicode(_("Your account (username %s) for access to the ISPAT LOD4STAT data dissemination web application (http://www.l4s.ispat.provincia.tn.it/) we are not used for more than two years. Therefore, considering that its interest has failed, we have canceled the account. If you would like to use the app in the future, please register again.")) % self.email,
+        send_mail(str(_('Unused ISPAT LOD4STAT application account')),
+                  str(_("Your account (username %s) for access to the ISPAT LOD4STAT data dissemination web application (http://www.l4s.ispat.provincia.tn.it/) we are not used for more than two years. Therefore, considering that its interest has failed, we have canceled the account. If you would like to use the app in the future, please register again.")) % self.email,
                   settings.DEFAULT_FROM_EMAIL,
                   [self.email])
         super(User,self).delete()

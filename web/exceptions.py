@@ -19,7 +19,7 @@
 Exceptions for l4s project.
 """
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 
 class MissingMetadataException(Exception):
@@ -31,10 +31,10 @@ class MissingMetadataException(Exception):
         :param value: Missing key value.
         :param table: Table where is missing the metadata.
         """
-        error = unicode(_("Please add the metadata "))
-        error += " " + unicode(_("with key")) + " '" + key + "' "
-        error += unicode(_("and")) + " "
-        error += unicode(_("value")) + " '" + value + "' "
-        error += unicode(_("on one of the columns of the table"))
+        error = str(_("Please add the metadata "))
+        error += " " + str(_("with key")) + " '" + key + "' "
+        error += str(_("and")) + " "
+        error += str(_("value")) + " '" + value + "' "
+        error += str(_("on one of the columns of the table"))
         error += " '" + table + "'"
         self.message = error
