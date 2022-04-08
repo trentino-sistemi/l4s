@@ -231,9 +231,9 @@ def order_tables_by_topic_and_descriptions(tables):
 
     ret_tables = []
     tables_str = "'" + "','".join(tables) + "'"
-    query =  "SELECT b.argomento, a.nome \n"
+    query =  "SELECT b.argomento, lower(a.nome) \n"
     query += "from tabelle a JOIN argomenti_tabelle b ON (b.id = a.id) \n"
-    query += "Where a.nome IN (%s) \n" % tables_str
+    query += "Where lower(a.nome) IN (%s) \n" % tables_str
     query += "ORDER BY b.argomento"
 
     #print query
@@ -3645,7 +3645,7 @@ def all_visible_tables(request):
     return ret_tables
 
 
-def exclude_invisible_tables(tables):
+def exclude_invisible_tables(request, tables):
     """
     Exclude to the input set the tables not visible in the query editor.
 
@@ -3654,8 +3654,10 @@ def exclude_invisible_tables(tables):
     """
     table_names = "'" + "','".join(tables) + "'"
     query = "SELECT DISTINCT(table_name) FROM %s \n" % METADATA
-    query += "WHERE column_name = 'NULL' and upper(key)=upper('%s') and upper(value)=upper('%s') " % (VISIBLE, TRUE)
-    query += "and table_name IN(%s)" % table_names
+    query += "where table_name IN(%s)" % table_names
+    if not request.user.is_staff:
+        query += "and column_name = 'NULL' and upper(key)=upper('%s') and upper(value)=upper('%s') " % (VISIBLE, TRUE)
+
     #print "query " , query
     rows = execute_query_on_django_db(query)
     ret_tables = []
