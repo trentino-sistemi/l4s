@@ -2094,7 +2094,7 @@ def query_editor(request):
     else:
         tables = filter_tables_by_topic(topic_id, tables, None)
         #print "tables1 ", tables
-        tables = exclude_invisible_tables(tables)
+        tables = exclude_invisible_tables(request, tables)
         #print "tables2 ", tables
         tables = order_tables_by_descriptions(tables)
         if not search:

@@ -35,10 +35,10 @@ def filter_tables_by_topic(topic_id, tables, order):
         return tables
 
     tables_str = "'" + "','".join(tables) + "'"
-    query = "SELECT a.nome from tabelle a join argomenti_tabelle b \n"
+    query = "SELECT lower(a.nome) from tabelle a join argomenti_tabelle b \n"
     query += "on (b.id = a.id) "
     query += "WHERE b.argomento=%d " % topic_id
-    query += "and a.nome IN (%s) \n" % tables_str
+    query += "and lower(a.nome) IN (%s) \n" % tables_str
     if not order is None:
         query += "ORDER BY %s" % order
 
@@ -60,7 +60,7 @@ def get_topic_id(table):
     :return: The topic id.
     """
     query = "SELECT b.argomento from tabelle a join argomenti_tabelle b "
-    query += "on (b.id = a.id) WHERE a.nome='%s'" % table
+    query += "on (b.id = a.id) WHERE lower(a.nome)='%s'" % table
     rows = execute_query_on_main_db(query)
     if rows is not None:
         for row in rows:
@@ -77,7 +77,7 @@ def get_topic_description(table):
     """
     query = "SELECT c.descrizione "
     query += "FROM tabelle a, argomenti_tabelle b, argomenti c "
-    query += "WHERE b.id = a.id and a.nome='%s' " \
+    query += "WHERE b.id = a.id and lower(a.nome)='%s' " \
              "and c.argomento=b.argomento" % table
 
     rows = execute_query_on_main_db(query)
@@ -122,7 +122,7 @@ def build_topics_counter_dict(tables):
     query = "SELECT c.argomento, COUNT(*)\n"
     query += "FROM tabelle a, argomenti_tabelle b, argomenti c\n"
     query += "WHERE b.id = a.id and c.argomento=b.argomento\n"
-    query += "and a.nome IN(%s)" % table_names
+    query += "and lower(a.nome) IN(%s)" % table_names
     query += "GROUP BY c.argomento"
 
     rows = execute_query_on_main_db(query)
@@ -178,9 +178,9 @@ def build_topics_dict(tables):
     """
     ret = dict()
     tables_s = "'" + "','".join(tables) + "'"
-    query = "SELECT a.nome, b.argomento from tabelle \n"
+    query = "SELECT lower(a.nome), b.argomento from tabelle \n"
     query += "a join argomenti_tabelle b \n"
-    query += "on (b.id = a.id) WHERE a.nome IN (%s)" % tables_s
+    query += "on (b.id = a.id) WHERE lower(a.nome) IN (%s)" % tables_s
     rows = execute_query_on_main_db(query)
     if not rows is None:
         for row in rows:
