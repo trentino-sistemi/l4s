@@ -689,16 +689,14 @@ def test_table(request):
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         else:
             return render(request, 'l4s/test_table.html',
-                                      {'form': form},
-                                      context)
+                                      {'form': form})
 
     form = TestForm(initial={'table_name': 'web_test3',
                              'rows': 10,
                              'min_value': 1,
                              'max_value': 100})
     return render(request, 'l4s/test_table.html',
-                              {'form': form},
-                              context)
+                              {'form': form})
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -717,23 +715,22 @@ def table_add_metadata(request):
             table_name = form.cleaned_data['table_name']
             column_name = form.cleaned_data['column_name']
             url = '/table/metadata/?table=' + \
-                  table_name + ';column=' + \
+                  table_name + '&column=' + \
                   column_name
             return redirect(url)
         else:
             return render(request, 'l4s/metadata_add.html',
-                                      {'form': form},
-                                      context)
+                                      {'form': form})
 
     table_name = request.GET.get('table')
     column_name = request.GET.get('column')
     form = MetadataForm(initial={'table_name': table_name,
                                  'column_name': column_name})
-    context['table_name'] = table_name
-    context['column_name'] = column_name
+
     return render(request, 'l4s/metadata_add.html',
-                              {'form': form},
-                              context)
+                              {'form': form,
+                               'table_name': table_name,
+                               'column_name': column_name})
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -768,22 +765,23 @@ def table_edit_metadata(request):
             table_name = form.cleaned_data['table_name']
             column_name = form.cleaned_data['column_name']
             url = '/table/metadata/?table=' + \
-                  table_name + ';column=' + \
+                  table_name + '&column=' + \
                   column_name
             return redirect(url)
         else:
             return render(request, 'l4s/metadata_edit.html',
-                                      {'form': form},
-                                      context)
+                          {'form': form,
+                           'id': metadata_id,
+                           'table_name': metadata.table_name,
+                           'column_name': metadata.column_name})
 
     form = MetadataChangeForm(instance=metadata)
-    context['id'] = metadata_id
-    context['table_name'] = metadata.table_name
-    context['column_name'] = metadata.column_name
 
     return render(request, 'l4s/metadata_edit.html',
-                              {'form': form},
-                              context)
+                              {'form': form,
+                               'id': metadata_id,
+                               'table_name': metadata.table_name,
+                               'column_name': metadata.column_name})
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -852,13 +850,11 @@ def add_ontology(request):
             return HttpResponseRedirect('/ontology')
         else:
             return render(request, 'l4s/add_ontology.html',
-                                      {'form': form},
-                                      {})
+                                      {'form': form})
 
     form = OntologyFileForm()
     return render(request, 'l4s/add_ontology.html',
-                              {'form': form},
-                              {})
+                              {'form': form})
 
 
 def no_implemented(request):
@@ -2089,13 +2085,13 @@ def query_editor(request):
         context['topics_counter'] = build_topics_counter_dict(tables)
         #print "tables 1", tables
         tables = order_tables_by_topic_and_descriptions(tables)
-        #print "tables 2", tables
+        #print ("tables2 ", tables)
         topic_dict = build_topics_dict(tables)
     else:
         tables = filter_tables_by_topic(topic_id, tables, None)
         #print "tables1 ", tables
-        tables = exclude_invisible_tables(request, tables)
-        #print "tables2 ", tables
+        tables = exclude_invisible_tables(tables)
+        #print ("tables2 ", tables)
         tables = order_tables_by_descriptions(tables)
         if not search:
             table_description = build_description_table_dict(tables)
@@ -2143,6 +2139,7 @@ def query_editor(request):
     print "queries", queries
     """
 
+    #print ( context )
     return render(request, "l4s/query_editor.html", context)
 
 
@@ -2207,14 +2204,13 @@ def manual_request_view(request):
             item.save()
         return HttpResponseRedirect('/manual_request_list')
 
-    context = {}
     manual_request_id = request.GET.get('id', '')
     item = ManualRequest.objects.get(id=manual_request_id)
-    context['manual_request'] = item
     form = ManualRequestDispatchForm(
         initial={'dispatcher': request.user, 'id': manual_request_id})
     return render(request, "l4s/manual_request_view.html",
-                              {'form': form}, context)
+                              {'form': form,
+                               'manual_request': item})
 
 
 @login_required
@@ -2239,7 +2235,6 @@ def manual_request_save(request):
     :param request: Django request.
     :return: The request response.
     """
-    context = {}
     form = ManualRequestForm(request.POST)
     if form.is_valid():
         instance = form.save()
@@ -2249,8 +2244,7 @@ def manual_request_save(request):
         return redirect(url)
 
     return render(request, 'l4s/manual_request.html',
-                              {'form': form},
-                              context)
+                              {'form': form})
 
 
 @login_required
@@ -2261,7 +2255,6 @@ def manual_request(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    context = {}
 
     subject = request.POST.get('title') or request.GET.get('title')
     url = request.POST.get('url') or request.GET.get('url')
@@ -2271,11 +2264,6 @@ def manual_request(request):
     else:
         topic_id = ast.literal_eval(topic)
 
-    context['title'] = subject
-    context['districts'] = list_districts()
-    context['valley_communities'] = list_valley_communities()
-    context['tourism_sectors'] = list_tourism_sectors()
-    context['health_districts'] = list_health_districts
     form = ManualRequestForm(initial={'inquirer': request.user,
                                       'url': url,
                                       'subject': subject,
@@ -2283,8 +2271,12 @@ def manual_request(request):
                                       'territorial_level': " "})
 
     return render(request, 'l4s/manual_request.html',
-                              {'form': form},
-                              context)
+                              {'form': form,
+                               'title': subject,
+                               'districts': list_districts(),
+                               'valley_communities': list_valley_communities(),
+                               'tourism_sectors': list_tourism_sectors(),
+                               'health_districts': list_health_districts})
 
 
 @login_required
@@ -2316,13 +2308,11 @@ def user_profile_change(request):
                                       {})
         else:
             return render(request, 'l4s/user_profile_change.html',
-                                      {'form': form},
-                                      {})
+                                      {'form': form})
 
     form = UserChangeForm(instance=request.user)
     return render(request, 'l4s/user_profile_change.html',
-                              {'form': form},
-                              {})
+                              {'form': form})
 
 
 def success(request):
