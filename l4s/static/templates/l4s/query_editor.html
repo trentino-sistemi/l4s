@@ -253,7 +253,7 @@ function open_query(element) {
    location.href=url*/
 
    $('#table_list').spin("modal");
-   $.get( "/query_editor_view", { table: element.dataset.table }, function( data ) {
+   $.get( "/query_editor_view/", { table: element.dataset.table }, function( data ) {
 
       var newDoc = document.open("text/html", "replace");
       newDoc.write(data);
