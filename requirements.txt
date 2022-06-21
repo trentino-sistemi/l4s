@@ -33,7 +33,7 @@ rdflib
 # Used for pivot and export in various formats.
 pandas==0.18.1
 # Inherited by pandas
-numpy==1.11.0
+numpy==1.22.0
 
 # To export images in excel 2007.
 Pillow==2.6.1
