@@ -15,7 +15,7 @@ django-jsonify
 xlwt
 
 # Excel 2007 xlsx export.
-openpyxl==2.1.2
+openpyxl==2.4.2
 
 # Library to open excel.
 xlrd==0.9.3
