@@ -2,7 +2,7 @@ Django==1.6.11
 
 # PostgreSQL adapter
 psycopg2==2.5.2
-requests==2.2.1
+requests==2.20.0
 
 # User authentication and subscription.
 django-allauth==0.16.1
