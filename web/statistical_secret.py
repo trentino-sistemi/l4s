@@ -693,14 +693,14 @@ def row_secondary_suppression(data,
     #print datetime.now().strftime("%H:%M:%S.%f")
 
     """
-    data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)  #riordina le colonne ....... menatona .... se c'e' il totale e campi stringa (es. comuni) su quella colonna sclera ... allora riordino ....
+    data_frame_appoggio_colonne = data_frame.sort_index(axis=1)  #riordina le colonne ....... menatona .... se c'e' il totale e campi stringa (es. comuni) su quella colonna sclera ... allora riordino ....
 
     data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
 
     slice_da_preservare_colonne, col_tuples = estrai_tuple_per_colonne(data_frame_appoggio_colonne, True, obs_values)  #True perche devo tutelare gli slices di colonna
 
     if has_data_frame_multi_level_index(data_frame):  #riordina il data_freame per le righe... l'if per le colonne non serve per via che sono sempre multilevel
-        data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
+        data_frame_appoggio_righe = data_frame.sort_index(axis=0)
     else:
         data_frame_appoggio_righe = data_frame.sort_index(axis=0)
 
@@ -1092,13 +1092,13 @@ def column_secondary_suppression(data, data_frame, obs_values, debug, cols):
     #print "slice_da_preservare " , slice_da_preservare
 
     """
-    data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)  #riordina le colonne ....... menatona .... se c'e' il totale e campi stringa (es. comuni) su quella colonna sclera ... allora riordino ....
+    data_frame_appoggio_colonne = data_frame.sort_index(axis=1)  #riordina le colonne ....... menatona .... se c'e' il totale e campi stringa (es. comuni) su quella colonna sclera ... allora riordino ....
     data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL), axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
 
     slice_da_preservare_colonne, col_tuples = estrai_tuple_per_colonne(data_frame_appoggio_colonne, False, obs_values)  #false perche mi servono tutte le colonne
 
     if has_data_frame_multi_level_index(data_frame):  #riordina il data_freame per le righe... l'if per le colonne non serve per via che sono sempre multilevel
-        data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
+        data_frame_appoggio_righe = data_frame.sort_index(axis=0)
     else:
         data_frame_appoggio_righe = data_frame.sort_index(axis=0)
 
@@ -1634,26 +1634,26 @@ def apply_constraint_pivot(data,
 
         #se ce' un solo obsvalue finisce in colonna, se ce ne sono di piu finiscono in riga
 
-        #print get_color()
-        #print "data_frame.columns ", data_frame.columns
+        #print ( get_color() )
+        #print ( "data_frame.columns ", data_frame.columns )
 
         if has_data_frame_multi_level_columns(data_frame):  #riordina le colonne .......
-            data_frame_appoggio_colonne = data_frame.sortlevel(axis=1)
+            #print("1.old")
+            data_frame_appoggio_colonne = data_frame.sort_index(axis=1,key=lambda x: x.str.lower() )
         else:
-            data_frame_appoggio_colonne = data_frame.sort_index(axis=1)
+            #print("2.old")
+            data_frame_appoggio_colonne = data_frame.sort_index(axis=1,key=lambda x: x.str.lower() )
 
-        #print get_color()
-        #print "data_frame_appoggio_colonne.columns 1 ", data_frame_appoggio_colonne.columns
-
+        #print ( get_color() )
+        #print ( "data_frame_appoggio_colonne.columns 1 ", data_frame_appoggio_colonne.columns )
 
         if len(obs_vals) == 1:  #se ce' un solo obsvalue finisce in colonna .... forse e' generalizzabile anche per un caso che non sia il turismo
             data_frame_appoggio_colonne.drop((','.join(data_frame_appoggio_colonne.columns.levels[0]), TOTAL),axis=1, inplace=True)  # e poi tolgo la label TOTALE sulle colonne
         else:
             data_frame_appoggio_colonne.drop(TOTAL, axis=1,inplace=True)  # e poi tolgo la label TOTALE sulle colonne
 
-        #print get_color()
-        #print "data_frame_appoggio_colonne.columns 2 ", data_frame_appoggio_colonne.columns
-
+        #print ( get_color() )
+        #print ( "data_frame_appoggio_colonne.columns 2 ", data_frame_appoggio_colonne.columns )
 
         """
         print bcolors.HEADER
@@ -1662,9 +1662,9 @@ def apply_constraint_pivot(data,
         """
 
         if has_data_frame_multi_level_index(data_frame):  #riordina il data_freame per le righe...
-            data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
+            data_frame_appoggio_righe = data_frame.sort_index(axis=0,key=lambda x: x.str.lower() )
         else:
-            data_frame_appoggio_righe = data_frame.sort_index(axis=0)
+            data_frame_appoggio_righe = data_frame.sort_index(axis=0,key=lambda x: x.str.lower() )
 
         """
         print bcolors.WARNING
@@ -1786,7 +1786,7 @@ def apply_constraint_pivot(data,
         #print new_header
 
 
-        #print query
+        #print ( query )
 
         dest_data = execute_query_on_main_db(query)
 
@@ -1795,13 +1795,13 @@ def apply_constraint_pivot(data,
             #logger.error(row)
 
             """
-            print bcolors.WARNING
-            print row
-            print "new_header ", new_header
-            print "data_frame_appoggio_colonne.columns ", data_frame_appoggio_colonne.columns
-
+            print ( bcolors.WARNING )
+            print ( row )
+            print ( "new_header ", new_header )
+            print ( "data_frame_appoggio_colonne.columns ", data_frame_appoggio_colonne.columns )            
+            
             if has_data_frame_multi_level_columns(data_frame_appoggio_colonne):
-                print data_frame_appoggio_colonne.columns.levels
+                print ( data_frame_appoggio_colonne.columns.levels )
             """
 
             key_colonna = []
@@ -1811,10 +1811,11 @@ def apply_constraint_pivot(data,
                 #print "column_name " , column_name
 
                 if not column_name is None:
-                    column_name = column_name.decode('utf-8')
+                    column_name = column_name#.decode('utf-8')
 
                 if column_name in new_header:
-                    p_col = to_utf8(row[new_header.index(column_name)])
+                    #p_col = to_utf8(row[new_header.index(column_name)])
+                    p_col = row[new_header.index(column_name)]
                     appoggio = []
                     appoggio.append(p_col)
                     key_colonna.append(tuple(appoggio))
@@ -1824,8 +1825,8 @@ def apply_constraint_pivot(data,
                     else:
                         key_colonna.append(tuple(data_frame_appoggio_colonne.columns))
 
-            #print bcolors.HEADER
-            #print "key_colonna " , key_colonna
+            #print ( bcolors.HEADER )
+            #print ( "key_colonna " , key_colonna )
 
             #logger.error("key_colonna %s" % key_colonna)
 
@@ -1833,19 +1834,20 @@ def apply_constraint_pivot(data,
 
             #logger.error("col_tuples %s" % col_tuples)
 
-            #print "col_tuples " , col_tuples
+            #print ( "col_tuples " , col_tuples )
 
             key_riga = []
             for cn, row_name in enumerate(data_frame_appoggio_righe.index.names):
 
                 if not row_name is None:
-                    row_name = row_name.decode('utf-8')
+                    row_name = row_name#.decode('utf-8')
 
                 #print "row_name" , row_name
 
                 if row_name in new_header:
                     #print "c'e'"
-                    p_col = to_utf8(row[new_header.index(row_name)])
+                    #p_col = to_utf8(row[new_header.index(row_name)])
+                    p_col = row[new_header.index(row_name)]
                     appoggio = []
                     appoggio.append(p_col)
                     key_riga.append(tuple(appoggio))
@@ -1862,11 +1864,11 @@ def apply_constraint_pivot(data,
 
             index_tuples = list(itertools.product(*key_riga))
 
-            #print "index_tuples " , index_tuples
+            #print ( "index_tuples " , index_tuples )
 
             for cn, column_name in enumerate(col_tuples):
 
-                #print "column_name ", column_name
+                #print ( "column_name ", column_name )
 
                 try:
                     if len(column_name) == 1:
@@ -1876,7 +1878,7 @@ def apply_constraint_pivot(data,
                 except (KeyError, TypeError):
                     continue
 
-                #print column_index, " column_name " , column_name
+                #print ( column_index, " column_name " , column_name )
 
                 for idxn, index_name in enumerate(index_tuples):
 
@@ -1890,8 +1892,8 @@ def apply_constraint_pivot(data,
                         except (KeyError, TypeError):
                             continue
 
-                        #print column_index, " column_name " , column_name
-                        #print row_index, " index_name " , index_name
+                        #print ( column_index, " column_name " , column_name )
+                        #print ( row_index, " index_name " , index_name )
 
 
                         constraint_val = row[new_header.index(alias)]
@@ -2186,7 +2188,7 @@ def secondary_row_suppression_constraint(data,
 
     alias = get_column_description(table, enum_column)
     if not alias is None:
-        alias = alias.decode('utf-8')
+        alias = alias#.decode('utf-8')
 
     if len(aggregation) > 0:
 
@@ -2273,7 +2275,7 @@ def secondary_row_suppression_constraint(data,
     print "data_frame_appoggio.columns prima", data_frame_appoggio.columns
 
     if has_data_frame_multi_level_columns(data_frame_appoggio):  #riordina le colonne .......
-        data_frame_appoggio = data_frame_appoggio.sortlevel(axis=1)
+        data_frame_appoggio = data_frame_appoggio.sort_index(axis=1)
     else:
         data_frame_appoggio = data_frame_appoggio.sort_index(axis=1)
 
@@ -2288,7 +2290,7 @@ def secondary_row_suppression_constraint(data,
     slice_da_preservare_colonne, col_tuples = estrai_tuple_per_colonne(data_frame_appoggio_colonne,True, obs_vals)  #True perche devo tutelare gli slices di colonna
 
     if has_data_frame_multi_level_index(data_frame):  #riordina il data_freame per le righe...
-        data_frame_appoggio_righe = data_frame.sortlevel(axis=0)
+        data_frame_appoggio_righe = data_frame.sort_index(axis=0)
     else:
         data_frame_appoggio_righe = data_frame.sort_index(axis=0)
 
@@ -2358,7 +2360,7 @@ def secondary_row_suppression_constraint(data,
                 for i, index in enumerate(data_frame_appoggio.index.names):
                     #print "index " , index
                     if not index is None:
-                        index = index.decode('utf-8')
+                        index = index#.decode('utf-8')
 
                     if index in new_header:
                         cell_col_list.append(new_header.index(index))
@@ -2375,7 +2377,7 @@ def secondary_row_suppression_constraint(data,
                 for i, column in enumerate(data_frame_appoggio.columns.names):
                     #print "column " , column
                     if not column is None:
-                        column = column.decode('utf-8')
+                        column = column#.decode('utf-8')
 
                     if column in new_header:
                         cell_row_list = new_header.index(column)
@@ -2402,7 +2404,7 @@ def secondary_row_suppression_constraint(data,
 
                 #print row[i]
 
-                minimo = sys.maxint
+                minimo = sys.maxsize
 
                 for d_r, target_row in enumerate(dest_data):  #scorre la query
 
@@ -2410,7 +2412,8 @@ def secondary_row_suppression_constraint(data,
 
                     elementi = 0
                     for i, index in enumerate(cell_col_list):
-                        if to_utf8(target_row[index]) == cell_col_value[i]:
+                        #if to_utf8(target_row[index]) == cell_col_value[i]:
+                        if target_row[index] == cell_col_value[i]:
                             elementi += 1
 
                     if elementi == len(cell_col_list):
@@ -2430,7 +2433,7 @@ def secondary_row_suppression_constraint(data,
                                 for i, column in enumerate(data_frame_appoggio.columns.names):
 
                                     if not column is None:
-                                        column = column.decode('utf-8')
+                                        column = column#.decode('utf-8')
 
                                     if i >= slice_da_preservare:
                                         if column in new_header:
@@ -2447,7 +2450,7 @@ def secondary_row_suppression_constraint(data,
                 """
 
 
-                if minimo == sys.maxint:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
+                if minimo == sys.maxsize:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
 
                     while sel_col <= stop_col:
 
@@ -2583,7 +2586,7 @@ def secondary_row_suppression_constraint(data,
                                         if type(colonna) == str:
                                             indice_colonna.append(colonna)
                                         else:
-                                            indice_colonna.append(colonna.decode('utf-8'))
+                                            indice_colonna.append(colonna)#.decode('utf-8'))
                             else:
                                 if is_int(colonna):
                                     indice_colonna.append(colonna)
@@ -2591,7 +2594,7 @@ def secondary_row_suppression_constraint(data,
                                     if type(colonna) == str:
                                         indice_colonna.append(colonna)
                                     else:
-                                        indice_colonna.append(colonna.decode('utf-8'))
+                                        indice_colonna.append(colonna)#.decode('utf-8'))
 
 
                     sel_col += 1
@@ -2632,7 +2635,7 @@ def secondary_row_suppression_constraint(data,
                         #print "column " , column
 
                         if not column is None:
-                            column = column.decode('utf-8')
+                            column = column#.decode('utf-8')
 
                         if i < slice_da_preservare:
                             if column in new_header:
@@ -2652,7 +2655,7 @@ def secondary_row_suppression_constraint(data,
                         #print "index " , index
 
                         if not index is None:
-                            index = index.decode('utf-8')
+                            index = index#.decode('utf-8')
 
                         if index in new_header:
                             cell_col_list.append(new_header.index(index))
@@ -2668,13 +2671,14 @@ def secondary_row_suppression_constraint(data,
 
                     #print "cell_row_list ", cell_row_list
 
-                    minimo = sys.maxint
+                    minimo = sys.maxsize
 
                     for d_r, target_row in enumerate(dest_data):  #scorre la query
 
                         elementi = 0
                         for i, column in enumerate(cell_col_list):
-                            if to_utf8(target_row[column]) == cell_col_value[i]:
+                            #if to_utf8(target_row[column]) == cell_col_value[i]:
+                            if target_row[column] == cell_col_value[i]:
                                 elementi += 1
 
                         if elementi == len(cell_col_list):
@@ -2693,7 +2697,7 @@ def secondary_row_suppression_constraint(data,
                                 for i, column in enumerate(data_frame_appoggio.columns.names):
 
                                     if not column is None:
-                                        column = column.decode('utf-8')
+                                        column = column#.decode('utf-8')
 
                                     #if i >= slice_da_preservare:
                                     if True:
@@ -2728,7 +2732,7 @@ def secondary_row_suppression_constraint(data,
                                         for i, column in enumerate(data_frame_appoggio.columns.names):
 
                                             if not column is None:
-                                                column = column.decode('utf-8')
+                                                column = column#.decode('utf-8')
 
                                             if i >= slice_da_preservare:
                                                 if column in new_header:
@@ -2740,7 +2744,7 @@ def secondary_row_suppression_constraint(data,
                     #print "minimo " , minimo
                     #print "indice_minimo " , indice_minimo
 
-                    if minimo == sys.maxint:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
+                    if minimo == sys.maxsize:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
 
                         while sel_col <= stop_col:
                             if condition_for_secondary_suppression(data[start_row][sel_col], apply_range) == False:
@@ -2784,7 +2788,7 @@ def secondary_row_suppression_constraint(data,
                         for i, column in enumerate(data_frame_appoggio.columns.names):
                             #print "index " , index
                             if not column is None:
-                                column = column.decode('utf-8')
+                                column = column#.decode('utf-8')
 
                             if i < slice_da_preservare:
                                 if column in new_header:
@@ -2921,7 +2925,7 @@ def secondary_col_suppression_constraint(data,
 
     alias = get_column_description(table, enum_column)
     if not alias is None:
-        alias = alias.decode('utf-8')
+        alias = alias#.decode('utf-8')
 
     if len(aggregation) > 0:
 
@@ -3011,7 +3015,7 @@ def secondary_col_suppression_constraint(data,
 
     """
     if has_data_frame_multi_level_index(data_frame_appoggio):  #riordina il data_freame per le righe...
-        data_frame_appoggio = data_frame_appoggio.sortlevel(axis=0)
+        data_frame_appoggio = data_frame_appoggio.sort_index(axis=0)
     else:
         data_frame_appoggio = data_frame_appoggio.sort_index(axis=0)
     """
@@ -3089,8 +3093,9 @@ def secondary_col_suppression_constraint(data,
                                 if riga not in indice_riga:
                                     indice_riga.append(riga)
                             else:
-                                if riga.decode('utf-8') not in indice_riga:
-                                    indice_riga.append(riga.decode('utf-8'))
+                                #if riga.decode('utf-8') not in indice_riga:
+                                if riga not in indice_riga:
+                                    indice_riga.append(riga) #.decode('utf-8'))
                     else:
 
                         for i, riga in enumerate(data_frame_appoggio.index[sel_row]): #salvo il valore che e' asteriscato per poi non incorrere nell'errore di riasteriscarlo dopo
@@ -3104,8 +3109,9 @@ def secondary_col_suppression_constraint(data,
                                         if riga not in indice_riga:
                                             indice_riga.append(riga)
                                     else:
-                                        if riga.decode('utf-8') not in indice_riga:
-                                            indice_riga.append(riga.decode('utf-8'))
+                                        #if riga.decode('utf-8') not in indice_riga:
+                                        if riga not in indice_riga:
+                                            indice_riga.append(riga)#.decode('utf-8'))
 
                 sel_row += 1
 
@@ -3128,7 +3134,7 @@ def secondary_col_suppression_constraint(data,
                 for i, column in enumerate(data_frame_appoggio.columns.names):
                     #print "column " , column
                     if not column is None:
-                        column = column.decode('utf-8')
+                        column = column#.decode('utf-8')
 
                     if column in new_header:
                         cell_col_list.append(new_header.index(column))
@@ -3143,7 +3149,7 @@ def secondary_col_suppression_constraint(data,
                 for i, index in enumerate(data_frame.index.names):
 
                     if not index is None:
-                        index = index.decode('utf-8')
+                        index = index#.decode('utf-8')
 
                     if index in new_header:
                         cell_row_list = new_header.index(index)
@@ -3155,13 +3161,14 @@ def secondary_col_suppression_constraint(data,
                 print "cell_row_list ", cell_row_list
                 """
 
-                minimo = sys.maxint
+                minimo = sys.maxsize
 
                 for d_r, target_row in enumerate(dest_data):  #scorre la query
 
                     elementi = 0
                     for i, column in enumerate(cell_col_list):
-                        if to_utf8(target_row[column]) == cell_col_value[i]:
+                        #if to_utf8(target_row[column]) == cell_col_value[i]:
+                        if target_row[column] == cell_col_value[i]:
                             elementi += 1
 
                     if elementi == len(cell_col_list):
@@ -3180,7 +3187,7 @@ def secondary_col_suppression_constraint(data,
                                 for i, index in enumerate(data_frame_appoggio.index.names):
 
                                     if not index is None:
-                                        index = index.decode('utf-8')
+                                        index = index#.decode('utf-8')
 
                                     if i >= slice_da_preservare:
                                         if index in new_header:
@@ -3190,7 +3197,7 @@ def secondary_col_suppression_constraint(data,
                 #print col
                 #print "minimo " , minimo
 
-                if minimo == sys.maxint:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
+                if minimo == sys.maxsize:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
 
                     while sel_row <= stop_row:
                         if condition_for_secondary_suppression(data[sel_row][start_col], apply_range) == False:
@@ -3363,8 +3370,9 @@ def secondary_col_suppression_constraint(data,
                                         if riga not in indice_riga:
                                             indice_riga.append(riga)
                                     else:
-                                        if riga.decode('utf-8') not in indice_riga:
-                                            indice_riga.append(riga.decode('utf-8'))
+                                        #if riga.decode('utf-8') not in indice_riga:
+                                        if riga not in indice_riga:
+                                            indice_riga.append(riga)#.decode('utf-8'))
 
 
                     sel_row += 1
@@ -3414,7 +3422,7 @@ def secondary_col_suppression_constraint(data,
                     for i, column in enumerate(data_frame_appoggio.columns.names):
                         #print "column " , column
                         if not column is None:
-                            column = column.decode('utf-8')
+                            column = column#.decode('utf-8')
 
                         if column in new_header:
                             cell_col_list.append(new_header.index(column))
@@ -3426,7 +3434,7 @@ def secondary_col_suppression_constraint(data,
                     for i, index in enumerate(data_frame_appoggio.index.names):
 
                         if not index is None:
-                            index = index.decode('utf-8')
+                            index = index#.decode('utf-8')
 
                         if i < slice_da_preservare:
                             if index in new_header:
@@ -3441,13 +3449,14 @@ def secondary_col_suppression_constraint(data,
                     #print "cell_col_list ", cell_col_list
                     #print "cell_col_value ", cell_col_value
 
-                    minimo = sys.maxint
+                    minimo = sys.maxsize
 
                     for d_r, target_row in enumerate(dest_data):  #scorre la query
 
                         elementi = 0
                         for i, column in enumerate(cell_col_list):
-                            if to_utf8(target_row[column]) == cell_col_value[i]:
+                            #if to_utf8(target_row[column]) == cell_col_value[i]:
+                            if target_row[column] == cell_col_value[i]:
                                 elementi += 1
 
                         if elementi == len(cell_col_list):
@@ -3459,7 +3468,7 @@ def secondary_col_suppression_constraint(data,
                                 for i, index in enumerate(data_frame_appoggio.index.names):
 
                                     if not index is None:
-                                        index = index.decode('utf-8')
+                                        index = index#.decode('utf-8')
 
                                     #if i >= slice_da_preservare:
                                     if True:
@@ -3487,7 +3496,7 @@ def secondary_col_suppression_constraint(data,
                                         for i, index in enumerate(data_frame_appoggio.index.names):
 
                                             if not index is None:
-                                                index = index.decode('utf-8')
+                                                index = index#.decode('utf-8')
 
                                             if i >= slice_da_preservare:
                                                 if index in new_header:
@@ -3497,7 +3506,7 @@ def secondary_col_suppression_constraint(data,
                     #print "minimo " , minimo
                     #print "indice_minimo " , indice_minimo
 
-                    if minimo == sys.maxint:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
+                    if minimo == sys.maxsize:  #non ho trovato nulla ..... quindi vuol dire che in quello slice non ho altri dati quindi asterisco il primo che trovo
 
                         while sel_row <= stop_row:
                             if condition_for_secondary_suppression(data[sel_row][start_col], apply_range) == False:
@@ -3544,7 +3553,7 @@ def secondary_col_suppression_constraint(data,
                         for i, index in enumerate(data_frame_appoggio.index.names):
                             #print "index " , index
                             if not index is None:
-                                index = index.decode('utf-8')
+                                index = index#.decode('utf-8')
 
                             if i < slice_da_preservare:
                                 if index in new_header:

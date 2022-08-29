@@ -2107,9 +2107,11 @@ def build_constraint_query_old(constraints,
 
     query += "\nORDER BY %s" % fields
 
+    """
     if debug == True:
         print(bcolors.WARNING, query_iniziale)
         print(bcolors.OKBLUE, query)
+    """
 
     return query, header
 
