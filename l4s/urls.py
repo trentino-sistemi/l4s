@@ -25,6 +25,7 @@ from django.core.mail import send_mail
 import json
 from web.utils import get_client_ip
 from django.http import HttpResponse
+from django.views.static import serve
 
 urlpatterns = [
                        re_path(r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nAllow: /about\nDisallow: /", content_type="text/plain")),
@@ -261,15 +262,11 @@ urlpatterns = [
                            name='sync'),
                        ]
 
-
-
-
 if settings.DEBUG is False:   #if DEBUG is True it will be served automatically
-    urlpatterns += patterns('',
-            re_path(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
-    )
-
-
+    urlpatterns += [
+        re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
+        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    ]
 
 def handler500(request):
 
