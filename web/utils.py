@@ -3669,6 +3669,25 @@ def exclude_invisible_tables(request, tables):
 
     return ret_tables
 
+def exclude_decoder_tables(tables):
+
+    query = "SELECT DISTINCT(table_name) FROM %s \n" % METADATA
+    query += "where column_name = 'NULL' and upper(key)=upper('%s') and upper(value)=upper('%s') " % (DECODER, TRUE)
+
+    #print "query " , query
+    rows = execute_query_on_django_db(query)
+    decoder_tables = []
+    if rows is not None:
+        for row in rows:
+            decoder_tables.append(row[0])
+
+    ret_tables = []
+    for table in tables:
+        if table not in decoder_tables:
+            ret_tables.append(table)
+
+    return ret_tables
+
 
 def get_concept(value):
     """

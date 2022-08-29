@@ -28,7 +28,7 @@ See the file LICENSE for details.
 --------------
 
 - Python 3.7.3 
-- Postgres 11.13
+- PostgreSql 11.13
 
 In order to install python packages we suggest to install pip and run
 # pip install -r requirements.txt

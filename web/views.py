@@ -97,6 +97,7 @@ from web.utils import get_variable_dictionary, \
     found_column_position, \
     exclude_invisible_tables, \
     all_visible_tables,\
+    exclude_decoder_tables, \
     order_queries_by_topics, \
     saved_queries_grouped_by_user_type,\
     saved_manual_requests_grouped_by_user_type,\
@@ -2064,7 +2065,8 @@ def query_editor(request):
     topic_mapping = build_topics_decoder_dict()
     table_description = dict()
     tables = all_visible_tables(request)
-    #print tables
+    tables = exclude_decoder_tables(tables)
+    #print ( tables )
 
     # Filter tables matching descriptions and table_name.
     if search:
@@ -2089,8 +2091,8 @@ def query_editor(request):
         topic_dict = build_topics_dict(tables)
     else:
         tables = filter_tables_by_topic(topic_id, tables, None)
-        #print "tables1 ", tables
-        tables = exclude_invisible_tables(tables)
+        #print ( "tables1 ", tables )
+        tables = exclude_invisible_tables(request, tables) #serve ?? non parto già dalla lista delle tabelle visibili ?
         #print ("tables2 ", tables)
         tables = order_tables_by_descriptions(tables)
         if not search:
