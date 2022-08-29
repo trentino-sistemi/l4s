@@ -15,7 +15,7 @@ django-jsonify~=0.3.0
 xlwt~=1.3.0
 
 # Excel 2007 xlsx export.
-openpyxl~=3.0.9
+openpyxl~=3.0.10
 
 # Library to open excel.
 xlrd~=2.0.1
@@ -32,12 +32,12 @@ mssql-django~=1.0
 -e git+https://github.com/trentino-sistemi/django-admin-bootstrapped@static#egg=tendenci-django-admin-bootstrapped
 
 # Used for rdf export.
-rdflib~=6.0.1
+rdflib~=6.2.0
 
 # Used for pivot and export in various formats.
-pandas~=1.1.5
+pandas~=1.3.5
 # Inherited by pandas
-numpy~=1.21.2
+numpy~=1.21.6
 
 # To export images in excel 2007.
-Pillow~=8.3.2
+Pillow~=9.2.0
