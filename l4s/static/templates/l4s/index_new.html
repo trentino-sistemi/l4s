@@ -108,20 +108,26 @@ tr {
                 $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graph[0]);
               });
 
-              var tid = setInterval(mycode, 5000);
-              var i = 0;
+              if (graph.length > 1) {
+                  var tid = setInterval(mycode, 5000);
+                  var i = 0;
 
-              function mycode() {
-                i++;
+                  function mycode() {
+                    i++;
 
-                if (i == {{ graphs.count }})
-                  i = 0;
+                    if (i == {{ graphs.count }})
+                      i = 0;
 
-                $("#immagine_grafici").fadeTo(1000,0, function() {
-                  $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graph[i]);
-                }).fadeTo(1000,1);
-
+                    $("#immagine_grafici").fadeTo(1000,0, function() {
+                      $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graph[i]);
+                    }).fadeTo(1000,1);
+                  }
               }
+          }
+            else {
+              $( document ).ready(function() {
+                $("#immagine_grafici").hide();
+              });
           }
 
           function abortTimer() { // to be called when you want to stop the timer
