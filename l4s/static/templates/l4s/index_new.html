@@ -98,17 +98,17 @@ tr {
 
         <script type="text/javascript">
 
-          var graph = [{% for graph in graphs %}
+          var graphs = [{% for graph in graphs %}
             '{{ graph.image }}',
           {% endfor %}];
 
-          if (graph.length > 0) {
+          if (graphs.length > 0) {
 
               $( document ).ready(function() {
-                $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graph[0]);
+                $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graphs[0]);
               });
 
-              if (graph.length > 1) {
+              if (graphs.length > 1) {
                   var tid = setInterval(mycode, 5000);
                   var i = 0;
 
@@ -119,7 +119,7 @@ tr {
                       i = 0;
 
                     $("#immagine_grafici").fadeTo(1000,0, function() {
-                      $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graph[i]);
+                      $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graphs[i]);
                     }).fadeTo(1000,1);
                   }
               }
