@@ -165,6 +165,7 @@ import shlex
 from django.utils import timezone
 from allauth.account.views import PasswordChangeView
 from django.urls import reverse_lazy
+from web.models import Graph
 
 def execute_query_viewmodel(request,
                             query,
@@ -1202,6 +1203,7 @@ def index(request):
 
     context = {}
     context['object_list'] = objects
+    context['graphs'] = Graph.objects.all().order_by('order')
 
     maintanance = CustomSite.objects.get()
     context['MAINTENANCE_MODE_LABEL'] = maintanance.label
@@ -1216,7 +1218,7 @@ def index(request):
         if timezone.now() - date_change_password > timedelta(days=PASSWORD_DURATION_DAYS):
             return redirect("/accounts/password/change/")
         else:
-            return render(response, "l4s/" + url, context)
+            return render(request, "l4s/" + url, context)
     else:
         return render(request, "l4s/" + url, context)
 

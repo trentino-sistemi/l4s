@@ -29,6 +29,8 @@ from django.contrib.auth.models import BaseUserManager
 from datetime import datetime
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.db.models.signals import pre_delete
+from django.dispatch.dispatcher import receiver
 
 class CustomSite(Site):
     in_manutenzione = models.BooleanField(default=False)
@@ -404,3 +406,16 @@ class Synonym(models.Model):
     Tuple che rappresentano sinonimi separati da ;
     """
     synonyms_list = models.CharField(max_length=5000)
+
+
+class Graph(models.Model):
+    name = models.CharField(max_length=20)
+    image = models.ImageField(upload_to='images')
+    order = models.IntegerField()
+    def __str__(self):
+        return self.name
+
+@receiver(pre_delete, sender=Graph)
+def Graph_delete(sender, instance, **kwargs):
+ # Pass false so FileField doesn't save the model.
+    instance.image.delete(False)

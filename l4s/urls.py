@@ -26,6 +26,7 @@ import json
 from web.utils import get_client_ip
 from django.http import HttpResponse
 from django.views.static import serve
+from django.conf.urls.static import static
 
 urlpatterns = [
                        re_path(r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nAllow: /about\nDisallow: /", content_type="text/plain")),
@@ -260,7 +261,7 @@ urlpatterns = [
                        re_path(r'^sync/',
                            views.sync,
                            name='sync'),
-                       ]
+                       ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG is False:   #if DEBUG is True it will be served automatically
     urlpatterns += [

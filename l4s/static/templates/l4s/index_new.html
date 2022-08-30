@@ -20,6 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {% load account %}
 {% load i18n %}
+{% load static %}
 
 <!DOCTYPE html>
 <html>
@@ -97,20 +98,30 @@ tr {
 
         <script type="text/javascript">
 
-          var tid = setInterval(mycode, 5000);
-          var i = 1;
+          var graph = [{% for graph in graphs %}
+            '{{ graph.image }}',
+          {% endfor %}];
 
-          function mycode() {
-			i++;
+          if (graph.length > 0) {
 
-			if (i == 17)
-			  i = 1;
+              $( document ).ready(function() {
+                $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graph[0]);
+              });
 
-			$("#immagine_grafici").fadeTo(1000,0, function() {
-              $("#immagine_grafici").attr("src","/static/img/Grafici/" + i + ".png");
-            }).fadeTo(1000,1);
+              var tid = setInterval(mycode, 5000);
+              var i = 0;
 
+              function mycode() {
+                i++;
 
+                if (i == {{ graphs.count }})
+                  i = 0;
+
+                $("#immagine_grafici").fadeTo(1000,0, function() {
+                  $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graph[i]);
+                }).fadeTo(1000,1);
+
+              }
           }
 
           function abortTimer() { // to be called when you want to stop the timer
@@ -161,7 +172,7 @@ tr {
             <td width='80%' rowspan=6 align='center' id="contenitore_grafici" name="contenitore_grafici">
 
 
-                <img id="immagine_grafici" name="immagine_grafici" src="/static/img/Grafici/1.png" style="width:768px;height:474px;"></img>
+                <img id="immagine_grafici" name="immagine_grafici" style="width:768px;height:474px;"></img>
              </td>
 
 			</tr>

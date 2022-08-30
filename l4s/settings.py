@@ -1,5 +1,4 @@
 # This file is part of Lod4Stat.
-# This file is part of Lod4Stat.
 #
 # Copyright (C) 2014 Provincia autonoma di Trento
 #
@@ -32,6 +31,9 @@ import locale
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 locale.setlocale(locale.LC_ALL, '')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -223,6 +225,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.media",
             ],
             'debug': True,
         },

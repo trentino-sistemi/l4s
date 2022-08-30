@@ -24,8 +24,7 @@ from django.contrib.auth.admin import UserAdmin as _UserAdmin
 from web.forms import UserChangeForm, \
     UserCreationForm, \
     UserTypeForm
-from web.models import User, Test3, Test4, Test5, ClassRange, ExecutedQueryLog, Synonym, CustomSite
-
+from web.models import User, Test3, Test4, Test5, ClassRange, ExecutedQueryLog, Synonym, CustomSite, Graph
 
 class UserAdmin(_UserAdmin):
     """
@@ -100,6 +99,9 @@ class ClassSynonymsAdmin(admin.ModelAdmin):
 class ClassCustomSite(admin.ModelAdmin):
     list_display = ('domain', 'in_manutenzione', 'label')
 
+class AdminGraphs(admin.ModelAdmin):
+    list_display = ['name','image', 'order']
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Test3, Test3Admin)
 admin.site.register(Test4, Test4Admin)
@@ -108,3 +110,4 @@ admin.site.register(ClassRange, ClassRangeAdmin)
 admin.site.register(ExecutedQueryLog, ClassLogAdmin)
 admin.site.register(Synonym, ClassSynonymsAdmin)
 admin.site.register(CustomSite, ClassCustomSite)
+admin.site.register(Graph,AdminGraphs)
