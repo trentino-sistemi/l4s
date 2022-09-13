@@ -49,13 +49,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </thead>
         <tbody>
         {% for table in table_list %}
-        {% if table in table_description_dict %}
         <tr>
             <td>{{ table }}</td>
-            <td>{{ table_description_dict|lookup:table }}</td>
+            <td>
+                {% if table in table_description_dict %}
+                    {{ table_description_dict|lookup:table }}
+                {% endif %}
+            </td>
             <td align="center"><input type="checkbox" id="table_name" value="{{ table }}"></input></td>
         </tr>
-        {% endif %}
         {% endfor %}
         </tbody>
     </table>
