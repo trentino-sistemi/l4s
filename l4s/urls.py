@@ -280,13 +280,6 @@ def handler500(request):
     elif request.method == 'POST':
         elementi = {k: v if len(v) > 1 else v[0] for k, v in request.POST.iterlists()}
 
-    '''
-    if 'HTTP_REFERER' in request.META.keys():
-        url = request.META['HTTP_REFERER']
-    else:
-        url = ' URL not recognized '
-    '''
-
     send_mail('Errore Lod4Stat (' + ip_address + ' ' + str(request.user) + ') ' + url, json.dumps(elementi), settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
 
     response = render(request, 'l4s/500.html', {}, context_instance={})
