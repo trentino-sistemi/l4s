@@ -973,6 +973,8 @@ def build_foreign_keys(table_name):
         dest_col = row[2]
         ret[col_name] = [dest_table, dest_col]
 
+    #print ret
+
     return ret
 
 
@@ -2584,18 +2586,18 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
     for a, aggregation in enumerate(aggregations):
         metadata = Metadata.objects.get(id=aggregation)
 
-
-        #print "column_name", metadata.column_name
-        #print "key", metadata.key
-        #print "value", metadata.value
-        #print "table_name", metadata.table_name
-        #print a
-
+        """
+        print "column_name", metadata.column_name
+        print "key", metadata.key
+        print "value", metadata.value
+        print "table_name", metadata.table_name
+        print a
+        """
 
         if a != 0:
             st = detect_special_columns(sql)
             cols = st.cols
-            threshold = st.threshold
+            #threshold = st.threshold #modifica del 13/02/2023 per doppie aggregazioni sulla stessa tabella
 
         metadata_value = "%s" % metadata.value
         if metadata_value.startswith(SQL_PREFIX):
@@ -2702,10 +2704,9 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
         header += "%s " % JOIN_TOKEN
         header += "%s.%s\n" % (metadata.table_name, metadata.column_name)
 
-        """
-        print "cols ", cols
-        print "threshold ", threshold
-        """
+        #print "cols ", cols
+        #print "threshold ", threshold
+
         groupby = False
 
         for c in cols:
