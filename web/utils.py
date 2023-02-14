@@ -2601,6 +2601,8 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
             cols = st.cols
             #threshold = st.threshold #modifica del 13/02/2023 per doppie aggregazioni sulla stessa tabella
 
+        last_aggregations = (a == len(aggregations) - 1)
+
         metadata_value = "%s" % metadata.value
         if metadata_value.startswith(SQL_PREFIX):
             formula, alias = get_class_formula_alias(aggregation)
@@ -2612,7 +2614,7 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
                                     threshold)
         else:
             sql = build_located_in_area_query(sql, cols, metadata, agg_filters,
-                                              threshold, constraints)
+                                              threshold, constraints, last_aggregations)
 
     #print bcolors.ENDC
     #print "metadata_value ", metadata_value
@@ -2622,7 +2624,7 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
     return sql, err
 
 
-def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, constraints):
+def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, constraints, last_aggregations):
     """
     Build query for geo spatial aggregation.
 
@@ -2780,22 +2782,23 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
         #print bcolors.OKBLUE, "cazone constraints", constraints
 
-        if len(constraints) != 0 and groupby:
+        if last_aggregations: #14-02-2023 nel caso di piu aggregazione va fatto solo sull'ultima
+            if len(constraints) != 0 and groupby:
 
-            # data non verificabile GROUP BY spostato da prima del if a qui
-            # 01/06/2016 GROUP BY rispostato fuori ... nel caso dmdstres aggrega stato per continente va fuori perche serve il group by
-            # 15/04/2021 aggiungo il groupby nell'if per tudmoex1 in colonna anni in riga comune ragruppato per ambito turistico e Strutture extra raggruppato per terzo livello
+                # data non verificabile GROUP BY spostato da prima del if a qui
+                # 01/06/2016 GROUP BY rispostato fuori ... nel caso dmdstres aggrega stato per continente va fuori perche serve il group by
+                # 15/04/2021 aggiungo il groupby nell'if per tudmoex1 in colonna anni in riga comune ragruppato per ambito turistico e Strutture extra raggruppato per terzo livello
 
-            query += " HAVING "
+                query += " HAVING "
 
-            for c, constraint in enumerate(constraints):
-                if c != 0:
-                    query += " AND "
-                operator = constraint["operator"]
-                value = constraint["value"]
-                enum_column = constraint['column']
+                for c, constraint in enumerate(constraints):
+                    if c != 0:
+                        query += " AND "
+                    operator = constraint["operator"]
+                    value = constraint["value"]
+                    enum_column = constraint['column']
 
-                query += "SUM(%s)%s%s" % (enum_column, operator, value)
+                    query += "SUM(%s)%s%s" % (enum_column, operator, value)
 
 
         query += "\nORDER BY %s" % params
