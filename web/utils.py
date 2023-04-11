@@ -973,6 +973,8 @@ def build_foreign_keys(table_name):
         dest_col = row[2]
         ret[col_name] = [dest_table, dest_col]
 
+    #print ret
+
     return ret
 
 
@@ -1095,6 +1097,7 @@ def build_query(table_name,
                         group_by.append(" %s.\"%s\" " % (a, b))
 
     #print "annotation ", annotation
+    #print "group_by ", group_by
 
     comma_sep_fields = ", ".join(fields)
     comma_sep_group_by  = ", ".join(group_by)
@@ -2586,18 +2589,20 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
     for a, aggregation in enumerate(aggregations):
         metadata = Metadata.objects.get(id=aggregation)
 
-
-        #print "column_name", metadata.column_name
-        #print "key", metadata.key
-        #print "value", metadata.value
-        #print "table_name", metadata.table_name
-        #print a
-
+        """
+        print "column_name", metadata.column_name
+        print "key", metadata.key
+        print "value", metadata.value
+        print "table_name", metadata.table_name
+        print a
+        """
 
         if a != 0:
             st = detect_special_columns(sql)
             cols = st.cols
-            threshold = st.threshold
+            #threshold = st.threshold #modifica del 13/02/2023 per doppie aggregazioni sulla stessa tabella
+
+        last_aggregations = (a == len(aggregations) - 1)
 
         metadata_value = "%s" % metadata.value
         if metadata_value.startswith(SQL_PREFIX):
@@ -2610,7 +2615,7 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
                                     threshold)
         else:
             sql = build_located_in_area_query(sql, cols, metadata, agg_filters,
-                                              threshold, constraints)
+                                              threshold, constraints, last_aggregations)
 
     #print bcolors.ENDC
     #print "metadata_value ", metadata_value
@@ -2620,7 +2625,7 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
     return sql, err
 
 
-def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, constraints):
+def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, constraints, last_aggregations):
     """
     Build query for geo spatial aggregation.
 
@@ -2704,10 +2709,9 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
         header += "%s " % JOIN_TOKEN
         header += "%s.%s\n" % (metadata.table_name, metadata.column_name)
 
-        """
-        print "cols ", cols
-        print "threshold ", threshold
-        """
+        #print "cols ", cols
+        #print "threshold ", threshold
+
         groupby = False
 
         for c in cols:
@@ -2779,22 +2783,23 @@ def build_located_in_area_query(sql, cols, metadata, agg_filters, threshold, con
 
         #print bcolors.OKBLUE, "cazone constraints", constraints
 
-        if len(constraints) != 0 and groupby:
+        if last_aggregations: #14-02-2023 nel caso di piu aggregazione va fatto solo sull'ultima
+            if len(constraints) != 0 and groupby:
 
-            # data non verificabile GROUP BY spostato da prima del if a qui
-            # 01/06/2016 GROUP BY rispostato fuori ... nel caso dmdstres aggrega stato per continente va fuori perche serve il group by
-            # 15/04/2021 aggiungo il groupby nell'if per tudmoex1 in colonna anni in riga comune ragruppato per ambito turistico e Strutture extra raggruppato per terzo livello
+                # data non verificabile GROUP BY spostato da prima del if a qui
+                # 01/06/2016 GROUP BY rispostato fuori ... nel caso dmdstres aggrega stato per continente va fuori perche serve il group by
+                # 15/04/2021 aggiungo il groupby nell'if per tudmoex1 in colonna anni in riga comune ragruppato per ambito turistico e Strutture extra raggruppato per terzo livello
 
-            query += " HAVING "
+                query += " HAVING "
 
-            for c, constraint in enumerate(constraints):
-                if c != 0:
-                    query += " AND "
-                operator = constraint["operator"]
-                value = constraint["value"]
-                enum_column = constraint['column']
+                for c, constraint in enumerate(constraints):
+                    if c != 0:
+                        query += " AND "
+                    operator = constraint["operator"]
+                    value = constraint["value"]
+                    enum_column = constraint['column']
 
-                query += "SUM(%s)%s%s" % (enum_column, operator, value)
+                    query += "SUM(%s)%s%s" % (enum_column, operator, value)
 
 
         query += "\nORDER BY %s" % params
@@ -5005,12 +5010,21 @@ def stampa_symtobltabel(st):
 
 def grouped_by_in_query(user, table_name, column_description):
 
-    secret = get_table_metadata_value(table_name, SECRET)
+    secrets = get_table_metadata_value(table_name, SECRET)
+    is_secret = False
+    for secret in secrets:
+        #print secret[0], TRUE
+        if secret[0] == TRUE:
+            is_secret = True
+            #print "c'e"
 
     #print "table_name", table_name
-    #print "secret", secret
+    #print "is_secret", is_secret
+    #print "secret", secrets
 
     result = dict()
+
+    #print column_description
 
     for index in column_description:
 
@@ -5018,8 +5032,8 @@ def grouped_by_in_query(user, table_name, column_description):
 
         value = dict()
 
-        if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) != []:
-            if user.is_superuser == True or secret == []:  # per super user nessuna limitazione riguardo a secret
+        if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> []:
+            if user.is_superuser == True or is_secret == False:  # per super user nessuna limitazione riguardo a secret
                 value['table_name'] = column_description[index]['table_name']
                 value['column_name'] = column_description[index]['name']
                 value['valore'] = '2' #confini attuali

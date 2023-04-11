@@ -895,6 +895,7 @@ def source_table_list(request):
     """
     connection = connections['source']
     tables = connection.introspection.table_names()
+    tables = [x.lower() for x in tables]
     table_description_dict = build_description_table_dict(tables)
 
     query = "select * " \
