@@ -1097,6 +1097,7 @@ def build_query(table_name,
                         group_by.append(" %s.\"%s\" " % (a, b))
 
     #print "annotation ", annotation
+    #print "group_by ", group_by
 
     comma_sep_fields = ", ".join(fields)
     comma_sep_group_by  = ", ".join(group_by)
@@ -4994,12 +4995,21 @@ def stampa_symtobltabel(st):
 
 def grouped_by_in_query(user, table_name, column_description):
 
-    secret = get_table_metadata_value(table_name, SECRET)
+    secrets = get_table_metadata_value(table_name, SECRET)
+    is_secret = False
+    for secret in secrets:
+        #print secret[0], TRUE
+        if secret[0] == TRUE:
+            is_secret = True
+            #print "c'e"
 
     #print "table_name", table_name
-    #print "secret", secret
+    #print "is_secret", is_secret
+    #print "secret", secrets
 
     result = dict()
+
+    #print column_description
 
     for index in column_description:
 
@@ -5008,7 +5018,7 @@ def grouped_by_in_query(user, table_name, column_description):
         value = dict()
 
         if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> []:
-            if user.is_superuser == True or secret == []:  # per super user nessuna limitazione riguardo a secret
+            if user.is_superuser == True or is_secret == False:  # per super user nessuna limitazione riguardo a secret
                 value['table_name'] = column_description[index]['table_name']
                 value['column_name'] = column_description[index]['name']
                 value['valore'] = '2' #confini attuali
