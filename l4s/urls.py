@@ -282,7 +282,7 @@ def handler500(request):
 
     send_mail('Errore Lod4Stat (' + ip_address + ' ' + str(request.user) + ') ' + url, json.dumps(elementi), settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
 
-    response = render(request, 'l4s/500.html', {}, context_instance={})
+    response = render(request, 'l4s/500.html', {})
     response.status_code = 500
     return response
 
