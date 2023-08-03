@@ -276,9 +276,9 @@ def handler500(request):
     url = request.method + ' ' + request.get_full_path()
 
     if request.method == 'GET':
-        elementi = {k: v if len(v) > 1 else v[0] for k, v in request.GET.iterlists()}
+        elementi = {k: v if len(v) > 1 else v[0] for k, v in request.GET.lists()}
     elif request.method == 'POST':
-        elementi = {k: v if len(v) > 1 else v[0] for k, v in request.POST.iterlists()}
+        elementi = {k: v if len(v) > 1 else v[0] for k, v in request.POST.lists()}
 
     send_mail('Errore Lod4Stat (' + ip_address + ' ' + str(request.user) + ') ' + url, json.dumps(elementi), settings.DEFAULT_FROM_EMAIL, settings.ADMINISTRATOR_EMAIL, fail_silently=False)
 
