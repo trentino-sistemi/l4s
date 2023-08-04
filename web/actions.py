@@ -750,7 +750,7 @@ def query_sql(request):
 def generate_usage_report_action_xls(request):
 
     def generate_report():
-        extension = '.xls'
+        extension = '.xlsx'
         f = NamedTemporaryFile(suffix=extension)
 
         content_type = 'application/vnd.ms-excel'
