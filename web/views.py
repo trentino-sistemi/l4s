@@ -1099,8 +1099,10 @@ def query_list(request):
         # Topic 0 means that all the topics will be displayed.
         selected_topic = 0
 
-    queries = (Query.objects.filter(created_by_user=request.user) |
-               Query.objects.filter(is_public=True))
+    queries = Query.objects.filter(is_public=True)
+
+    if request.user.is_authenticated:
+        queries = queries | Query.objects.filter(created_by_user=request.user)
 
     """
     print queries
@@ -1111,8 +1113,7 @@ def query_list(request):
 
     if search:
         queries = queries & (Query.objects.filter(title__icontains=search) |
-                             Query.objects.filter(
-                                 description__icontains=search))
+                             Query.objects.filter(description__icontains=search))
 
     queries_to_topics = build_queries_to_topics_mapping(queries, selected_topic)
 
