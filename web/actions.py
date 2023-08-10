@@ -472,7 +472,7 @@ def generate_report_action_xlsx(request):
 
         # Add content and return response
         f = NamedTemporaryFile(suffix=extension)
-        ew = ExcelWriter(f.name, engine=engine, options={'encoding': encoding})
+        ew = ExcelWriter(f.name, engine=engine, engine_kwargs={'options':{'encoding': encoding}})
         df.to_excel(ew)
         ew.save()
 
