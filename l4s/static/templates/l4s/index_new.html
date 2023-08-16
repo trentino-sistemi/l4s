@@ -184,10 +184,10 @@ tr {
 			</tr>
 
           <tr height='50px'>
-            <td width='20%'  >
 
           {% if request.user.is_authenticated %}
-             <ul align="left">
+             <td width='20%' >
+              <ul align="left">
                  <li>
                    <a class="btn" href="/user_profile"
                            data-position="top"
@@ -204,6 +204,7 @@ tr {
               </ul>
 
           {% else %}
+           <td width='20%'  align='center' >
            <br>
            <form class="login" method="POST" action="{% url 'account_login' %}">
              {% csrf_token %}
