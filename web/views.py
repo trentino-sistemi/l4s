@@ -41,7 +41,8 @@ from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
     ADMINISTRATOR_EMAIL, \
     ALLOWED_HOSTS, \
     PASSWORD_DURATION_DAYS, \
-    PRIVACY_POLICY_PDF
+    PRIVACY_POLICY_PDF, \
+    DATABASES
 from explorer.models import Query
 from explorer.utils import url_get_rows
 from explorer.views.mixins import ExplorerContextMixin
@@ -2420,7 +2421,8 @@ def sync(request):
     #f = open("blah.txt", "w")
     #result = subprocess.call(shlex.split('./sync.sh ' + ",".join(table)), stdout=f)
 
-    result = subprocess.call(shlex.split('./sync.sh ' + ",".join(table)))
+    host = DATABASES["lod4stat"]["HOST"]
+    result = subprocess.call(shlex.split('./sync.sh ' + host + ' ' + ",".join(table)))
 
     #send_mail("Result", str(result), DEFAULT_FROM_EMAIL, ['m.voltolini@trentinosistemi.com'], fail_silently=False)
 
