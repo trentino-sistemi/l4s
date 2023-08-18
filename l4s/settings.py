@@ -1,5 +1,4 @@
 # This file is part of Lod4Stat.
-# This file is part of Lod4Stat.
 #
 # Copyright (C) 2014 Provincia autonoma di Trento
 #
@@ -33,6 +32,9 @@ import locale
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 locale.setlocale(locale.LC_ALL, '')
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
@@ -41,8 +43,6 @@ SECRET_KEY = 'VeryLongSecret'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-TEMPLATE_DEBUG = True
 
 SENDER = "SSPAT"
 SENDER_NAME = "Servizio Statistica: Provincia Autonoma di Trento"
@@ -60,13 +60,6 @@ AUTHENTICATION_BACKENDS = (
 
 LOGIN_URL = '/accounts/login'
 LOGIN_REDIRECT_URL = '/'
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.request",
-    "django.contrib.auth.context_processors.auth",
-    "allauth.account.context_processors.account",
-    "allauth.socialaccount.context_processors.socialaccount",
-)
 
 # Application definition
 INSTALLED_APPS = (
@@ -87,7 +80,7 @@ INSTALLED_APPS = (
     'jsonify',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -128,6 +121,8 @@ WSGI_APPLICATION = 'l4s.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
+EXPLORER_CONNECTIONS = {'lod4stat': 'lod4stat'}
+EXPLORER_DEFAULT_CONNECTION = 'lod4stat'
 EXPLORER_CONNECTION_NAME = 'lod4stat'
 EXPLORER_PERMISSION_VIEW = lambda u: True
 EXPLORER_PERMISSION_CHANGE = lambda u: True
@@ -139,35 +134,37 @@ EXPLORER_LOGIN_URL = LOGIN_URL
 # Subject to discriminate column that contains descriptions.
 DESCRIPTION_SUBJECT = 'http://it.dbpedia.org/data/Descrizione'
 
-DATABASES = \
-    {
+DATABASES = {
         # Django database.
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'django',
-            'USER': 'django',
+            'NAME': 'djangodb',
+            'USER': 'l4s',
             'PASSWORD': 'django',
-            'HOST': 'localhost',
+            'HOST': 'db',
             'PORT': '', },
         # Main database used to perform the queries.
         'lod4stat': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'lod4stat',
-            'USER': 'django',
+            'USER': 'l4s',
             'PASSWORD': 'django',
-            'HOST': 'localhost',
+            'HOST': 'db',
             'PORT': '', },
         'source': {
-            'ENGINE': "django_pyodbc",
-            'HOST': "127.0.0.1",
-            'USER': "user",
-            'PASSWORD': "password",
+            'ENGINE': "sql_server.pyodbc",
+            'ENGINE': "mssql",
+            'HOST': "mssql",
+            'USER': "sa",
+            'PASSWORD': "passwordL4S",
             'NAME': "DATI",
             'OPTIONS': {
-                #'encoding': 'latin1',  # see django-pyodbc issue #24
-                'host_is_server': True},
-        }
+                'driver': 'ODBC Driver 17 for SQL Server',
+            },
+        },
     }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -214,12 +211,26 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "l4s/static"),
 )
 
-# Template location
-TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                 "static",
-                 "templates"),
-)
+# Template configuration
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(os.path.dirname(os.path.realpath(__file__)), "static",
+                         "templates"),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.media",
+            ],
+            'debug': True,
+        },
+    },
+]
 
 # sudo (2018-03-27): STATIC_ROOT is where collectstatic writes
 #                    django.views.static.serve looks there (DEBUG = False)
@@ -234,6 +245,38 @@ CONTENT_TYPES = ['application/rdf+xml']
 LEGEND = "* = dato coperto da segreto statistico"
 DL_ART = "art. 9 D.L. 322/89"
 LINK_DL_ART = "https://www.istat.it/it/files/2011/04/dlgs322.pdf"
+
+LOG_TIMEFMT = '%Y-%m-%d %H:%M:%S %z'
+LOG_TIMEFMT_SIMPLE = '%d %b %H:%M:%S'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format':
+            "[%(asctime)s] %(levelname).3s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': LOG_TIMEFMT
+        },
+        'simple': {
+            'format': '%(asctime)s %(levelname).3s: %(message)s',
+            'datefmt': LOG_TIMEFMT_SIMPLE
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'stream': 'ext://sys.stdout'
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        },
+    }
+}
 
 # Only defined in settings_local.py.
 LOCAL_APPS = ()

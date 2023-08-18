@@ -48,7 +48,7 @@ def lookup_unicode(dictionary, arg):
     :param arg: key
     :return: value
     """
-    return dictionary[unicode(arg)]
+    return dictionary[str(arg)]
 
 register.simple_tag(lookup)
 register.simple_tag(lookup_unicode)

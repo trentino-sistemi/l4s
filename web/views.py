@@ -21,17 +21,17 @@ Django views for l4s project.
 """
 from django.core.mail import send_mail
 from copy import deepcopy
-from django.db import connections
+from django.db import connections, DatabaseError
 from django.http import HttpResponseRedirect, HttpResponse
-from django.template import RequestContext, Context
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import View
 from django.views.generic.edit import CreateView
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import translation
-from django.shortcuts import render_to_response, \
+from django.shortcuts import render, \
     get_object_or_404, redirect
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, \
     user_passes_test
 from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
@@ -41,11 +41,12 @@ from l4s.settings import EXPLORER_RECENT_QUERY_COUNT, \
     ADMINISTRATOR_EMAIL, \
     ALLOWED_HOSTS, \
     PASSWORD_DURATION_DAYS, \
-    PRIVACY_POLICY_PDF
+    PRIVACY_POLICY_PDF, \
+    DATABASES
 from explorer.models import Query
 from explorer.utils import url_get_rows
-from explorer.views import ExplorerContextMixin, \
-    view_permission
+from explorer.views.mixins import ExplorerContextMixin
+from explorer.permissions import view_permission
 from web.exceptions import MissingMetadataException
 from web.models import Metadata, ManualRequest, OntologyFileModel, CustomSite
 from web.forms import QueryForm, \
@@ -97,6 +98,7 @@ from web.utils import get_variable_dictionary, \
     found_column_position, \
     exclude_invisible_tables, \
     all_visible_tables,\
+    exclude_decoder_tables, \
     order_queries_by_topics, \
     saved_queries_grouped_by_user_type,\
     saved_manual_requests_grouped_by_user_type,\
@@ -153,16 +155,18 @@ from web.actions import query_title,\
     generate_usage_report_action_xls
 from datetime import datetime, date, timedelta
 from collections import OrderedDict
-from utils import ALL
+from .utils import ALL
 import json
 import ast
 import calendar
 from explorer.models import MSG_FAILED_BLACKLIST
+from explorer.views.auth import PermissionRequiredMixin
 import subprocess
 import shlex
 from django.utils import timezone
 from allauth.account.views import PasswordChangeView
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
+from web.models import Graph
 
 def execute_query_viewmodel(request,
                             query,
@@ -199,7 +203,7 @@ def execute_query_viewmodel(request,
         noj = _("No --JOIN statements specified in SQL")
         as_is = _("the table is shown as-is")
         no_stat = _("without preserving statistical secret")
-        warn = "%s; %s %s." % (unicode(noj), unicode(as_is), unicode(no_stat))
+        warn = "%s; %s %s." % (str(noj), str(as_is), str(no_stat))
 
     aggregations = get_aggregations(st.cols)
 
@@ -221,7 +225,13 @@ def execute_query_viewmodel(request,
                                                False,
                                                False)
 
-    old_head, data, duration, error = query.headers_and_data()
+    error = None
+    try:
+        executed = query.execute()
+        old_head = executed.headers
+        data = executed.data
+    except DatabaseError as err:
+        error = err
     if error is None:
         if len(old_head) < 3 and len(st.secret) + len(st.constraint) + len(
                 st.secret_ref) == 1 and len(st.threshold) == 1:
@@ -240,7 +250,7 @@ def execute_query_viewmodel(request,
                 rs = _("Can not give you the result set")
                 pr = _("in order to preserve the statistical secret")
                 pl = _("please chose a pivot and push the Apply button")
-                warn = "%s %s; %s." % (unicode(rs), unicode(pr), unicode(pl))
+                warn = "%s %s; %s." % (str(rs), str(pr), str(pl))
         else:
             data, head, df, warn_n, error = apply_stat_secret(old_head,
                                                               data,
@@ -267,8 +277,7 @@ def execute_query_viewmodel(request,
             store = store_data_frame(df)
             html = data_frame_to_html(df, True, pivot)
 
-    return RequestContext(request,
-                          {'store': store,
+    return {'store': store,
                            'warning': warn,
                            'error': error,
                            'params': query.available_params(),
@@ -286,7 +295,7 @@ def execute_query_viewmodel(request,
                            'decoder_columns': st.decoder,
                            'debug': debug,
                            'manual_request': enable_manual_request,
-                           'language_code': translation.get_language()})
+                           'language_code': translation.get_language()}
 
 
 def query_viewmodel_get(request,
@@ -303,17 +312,14 @@ def query_viewmodel_get(request,
     :param form: Query form.
     :return: The request response.
     """
-    return RequestContext(request,
-                          {'params': query.available_params(),
+    return {'params': query.available_params(),
                            'title': title,
                            'query': query,
-                           'form': form})
+                           'form': form}
 
 
-class CreateQueryView(ExplorerContextMixin, CreateView):
-    def dispatch(self, *args, **kwargs):
-        return super(CreateQueryView, self).dispatch(*args, **kwargs)
-
+class CreateQueryView(PermissionRequiredMixin, ExplorerContextMixin, CreateView):
+    permission_required = 'change_permission'
     form_class = CreateQueryForm
     template_name = 'explorer/query.html'
 
@@ -324,17 +330,17 @@ class CreateQueryView(ExplorerContextMixin, CreateView):
         :param request: Django request.
         :return: The request response.
         """
-        save = request.REQUEST.get('save')
+        save = request.POST.get('save')
         to_be_saved = False
         if not save is None and save == 'true':
             to_be_saved = True
 
-        pivot_column = request.REQUEST.get('pivot_column')
+        pivot_column = request.POST.get('pivot_column')
         pivot_cols = []
         if not pivot_column is None and pivot_column != "":
             pivot_cols = [ast.literal_eval(x) for x in pivot_column.split(',')]
 
-        aggregation = request.REQUEST.get('aggregate')
+        aggregation = request.POST.get('aggregate')
         aggregation_ids = []
         if not aggregation is None and aggregation != "":
             aggregation_ids = [ast.literal_eval(x) for x in
@@ -342,7 +348,7 @@ class CreateQueryView(ExplorerContextMixin, CreateView):
 
         debug = False
         if request.user.is_staff:
-            debug_s = request.REQUEST.get('debug')
+            debug_s = request.POST.get('debug')
             if not debug_s is None and debug_s == 'true':
                 debug = True
 
@@ -375,34 +381,24 @@ class CreateQueryView(ExplorerContextMixin, CreateView):
 
         query = form.instance
         if message is not None:
-            vm = RequestContext(request,
-                                {'message': message,
+            vm = {'message': message,
                                  'params': query.available_params(),
                                  'query': query,
                                  'form': form,
                                  'debug': debug,
                                  'manual_request': False,
-                                 'language_code': translation.get_language()})
+                                 'language_code': translation.get_language()}
             return self.render_template('explorer/query.html', vm)
 
         url = '/explorer/%d/' % query.pk
         return redirect(url)
 
 
-class QueryView(ExplorerContextMixin, View):
+class QueryView(PermissionRequiredMixin, ExplorerContextMixin, View):
     """
     A query view that uses a custom QueryForm with custom validation.
     """
-    @method_decorator(view_permission)
-    def dispatch(self, *args, **kwargs):
-        """
-        Dispatch the method of the superclass.
-
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        return super(QueryView, self).dispatch(*args, **kwargs)
+    permission_required = 'view_permission'
 
     def get(self, request, query_id):
         """
@@ -438,12 +434,12 @@ class QueryView(ExplorerContextMixin, View):
         :return: The request response.
         """
 
-        save = request.REQUEST.get('save')
+        save = request.POST.get('save')
         to_be_saved = False
         if not save is None and save == 'true':
             to_be_saved = True
 
-        aggregation = request.REQUEST.get('aggregate')
+        aggregation = request.POST.get('aggregate')
         aggregation_ids = []
         if not aggregation is None and aggregation != "":
             aggregation_ids = [ast.literal_eval(x) for x in
@@ -451,11 +447,11 @@ class QueryView(ExplorerContextMixin, View):
 
         debug = False
         if request.user.is_staff:
-            debug_s = request.REQUEST.get('debug')
+            debug_s = request.POST.get('debug')
             if not debug_s is None and debug_s == 'true':
                 debug = True
 
-        pivot_column = request.REQUEST.get('pivot_column')
+        pivot_column = request.POST.get('pivot_column')
         pivot_cols = []
         if not pivot_column is None and pivot_column != "":
             pivot_cols = [ast.literal_eval(x) for x in pivot_column.split(',')]
@@ -494,23 +490,22 @@ class QueryView(ExplorerContextMixin, View):
                 vm['title'] = query.title
                 vm['url'] = url
                 return self.render_template('explorer/query.html', vm)
-            except ValueError, e:
+            except ValueError as e:
                 message = _("The Query could not be executed because "
                             "the data didn't validate.")
                 #@TODO Handle better exception message and remove print.
-                print e.message
+                print(e.message)
                 import traceback
-                print traceback.format_exc()
+                print(traceback.format_exc())
 
         if message is not None:
-            vm = RequestContext(request,
-                                {'message': message,
+            vm = {'message': message,
                                  'params': query.available_params(),
                                  'query': query,
                                  'form': form,
                                  'debug': debug,
                                  'manual_request': True,
-                                 'language_code': translation.get_language()})
+                                 'language_code': translation.get_language()}
             vm['title'] = query.title
             vm['url'] = url
             return self.render_template('explorer/query.html', vm)
@@ -526,7 +521,7 @@ class QueryView(ExplorerContextMixin, View):
         :param query: Explore query.
         :return:
         """
-        if user.is_authenticated() and user.email == query.created_by:
+        if user.is_authenticated and user.email == query.created_by_user.email:
             return True
         return False
 
@@ -672,7 +667,7 @@ def delete_query(request, pk):
     :return: The request response.
     """
     query = Query.objects.get(pk=pk)
-    if request.user.email == query.created_by:
+    if request.user.email == query.created_by_user.email:
         query.delete()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -685,7 +680,7 @@ def test_table(request):
     :param request: Django request.
     :return: The request response.
     """
-    context = RequestContext(request)
+    context = {}
     if request.method == 'POST':
         form = TestForm(request.POST)
         if form.is_valid():
@@ -696,17 +691,15 @@ def test_table(request):
             insert_random_data(table_name, rows, min_value, max_value)
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         else:
-            return render_to_response('l4s/test_table.html',
-                                      {'form': form},
-                                      context_instance=context)
+            return render(request, 'l4s/test_table.html',
+                                      {'form': form})
 
     form = TestForm(initial={'table_name': 'web_test3',
                              'rows': 10,
                              'min_value': 1,
                              'max_value': 100})
-    return render_to_response('l4s/test_table.html',
-                              {'form': form},
-                              context_instance=context)
+    return render(request, 'l4s/test_table.html',
+                              {'form': form})
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -717,7 +710,7 @@ def table_add_metadata(request):
     :param request: Django request.
     :return: The request response.
     """
-    context = RequestContext(request)
+    context = {}
     if request.method == 'POST':
         form = MetadataForm(request.POST)
         if form.is_valid():
@@ -725,23 +718,22 @@ def table_add_metadata(request):
             table_name = form.cleaned_data['table_name']
             column_name = form.cleaned_data['column_name']
             url = '/table/metadata/?table=' + \
-                  table_name + ';column=' + \
+                  table_name + '&column=' + \
                   column_name
             return redirect(url)
         else:
-            return render_to_response('l4s/metadata_add.html',
-                                      {'form': form},
-                                      context_instance=context)
+            return render(request, 'l4s/metadata_add.html',
+                                      {'form': form})
 
     table_name = request.GET.get('table')
     column_name = request.GET.get('column')
     form = MetadataForm(initial={'table_name': table_name,
                                  'column_name': column_name})
-    context['table_name'] = table_name
-    context['column_name'] = column_name
-    return render_to_response('l4s/metadata_add.html',
-                              {'form': form},
-                              context_instance=context)
+
+    return render(request, 'l4s/metadata_add.html',
+                              {'form': form,
+                               'table_name': table_name,
+                               'column_name': column_name})
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -766,8 +758,8 @@ def table_edit_metadata(request):
     :param request: Django request.
     :return: The request response.
     """
-    context = RequestContext(request)
-    metadata_id = request.REQUEST.get('id')
+    context = {}
+    metadata_id = request.POST.get('id') or request.GET.get('id')
     metadata = Metadata.objects.get(id=metadata_id)
     if request.method == 'POST':
         form = MetadataChangeForm(request.POST, instance=metadata)
@@ -776,22 +768,23 @@ def table_edit_metadata(request):
             table_name = form.cleaned_data['table_name']
             column_name = form.cleaned_data['column_name']
             url = '/table/metadata/?table=' + \
-                  table_name + ';column=' + \
+                  table_name + '&column=' + \
                   column_name
             return redirect(url)
         else:
-            return render_to_response('l4s/metadata_edit.html',
-                                      {'form': form},
-                                      context_instance=context)
+            return render(request, 'l4s/metadata_edit.html',
+                          {'form': form,
+                           'id': metadata_id,
+                           'table_name': metadata.table_name,
+                           'column_name': metadata.column_name})
 
     form = MetadataChangeForm(instance=metadata)
-    context['id'] = metadata_id
-    context['table_name'] = metadata.table_name
-    context['column_name'] = metadata.column_name
 
-    return render_to_response('l4s/metadata_edit.html',
-                              {'form': form},
-                              context_instance=context)
+    return render(request, 'l4s/metadata_edit.html',
+                              {'form': form,
+                               'id': metadata_id,
+                               'table_name': metadata.table_name,
+                               'column_name': metadata.column_name})
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -804,7 +797,7 @@ def table_view_metadata(request):
     he Django request response.
     """
 
-    context = RequestContext(request)
+    context = {}
     table_name = request.GET.get('table')
     column_name = request.GET.get('column', '')
     if not table_name is None and table_name != "":
@@ -825,7 +818,7 @@ def table_view_metadata(request):
     context['aggregations'] = aggregations
     context['groupedby'] = groupedby
     context['request'] = request
-    return render_to_response('l4s/metadata.html', context)
+    return render(request, 'l4s/metadata.html', context)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -859,14 +852,12 @@ def add_ontology(request):
             upload.save()
             return HttpResponseRedirect('/ontology')
         else:
-            return render_to_response('l4s/add_ontology.html',
-                                      {'form': form},
-                                      context_instance=RequestContext(request))
+            return render(request, 'l4s/add_ontology.html',
+                                      {'form': form})
 
     form = OntologyFileForm()
-    return render_to_response('l4s/add_ontology.html',
-                              {'form': form},
-                              context_instance=RequestContext(request))
+    return render(request, 'l4s/add_ontology.html',
+                              {'form': form})
 
 
 def no_implemented(request):
@@ -876,8 +867,8 @@ def no_implemented(request):
     :param request: Django request.
     :return: The request response.
     """
-    context = RequestContext(request)
-    return render_to_response('l4s/no_implemented.html', context)
+    context = {}
+    return render(request, 'l4s/no_implemented.html', context)
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -889,10 +880,10 @@ def ontology(request):
     :return: The Django request response.
     """
     ontology_list = OntologyFileModel.objects.all()
-    context = Context({'ontology_list': ontology_list})
+    context = {'ontology_list': ontology_list}
     context['request'] = request
-    return render_to_response('l4s/ontology.html',
-                              context_instance=context)
+    return render(request, 'l4s/ontology.html',
+                              context)
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -924,14 +915,14 @@ def source_table_list(request):
             "where success = False"
     errors = execute_query_on_main_db(query)
 
-    context = Context({'table_list': tables})
+    context = {'table_list': tables}
     context['request'] = request
     context['table_description_dict'] = table_description_dict
     context['topics'] = build_topics_decoder_dict()
     context['last_sync'] = last_sync
     context['updated_tables'] = updated_tables
     context['errors'] = errors
-    return render_to_response("l4s/source_table_list.html", context)
+    return render(request, "l4s/source_table_list.html", context)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -948,7 +939,7 @@ def usage_report(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    context = RequestContext(request)
+    context = {}
     year_s = request.GET.get('year')
     if not year_s is None:
         sel_year = ast.literal_eval(year_s)
@@ -986,7 +977,7 @@ def usage_report(request):
     context['selected_year'] = sel_year
     context['selected_month'] = sel_month
     context['selected_month_name'] = selected_month_name
-    return render_to_response("l4s/usage_report.html", context)
+    return render(request, "l4s/usage_report.html", context)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -997,7 +988,7 @@ def table_list(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    context = RequestContext(request)
+    context = {}
     topic = request.GET.get('topic')
     search = request.GET.get('search', '')
 
@@ -1006,7 +997,7 @@ def table_list(request):
     if search:
         table_description = get_table_by_name_or_desc(search, None,
                                                       'table_name')
-        tables = table_description.keys()
+        tables = list(table_description)
     else:
         connection = connections[EXPLORER_CONNECTION_NAME]
         tables = connection.introspection.table_names()
@@ -1029,7 +1020,7 @@ def table_list(request):
     context['table_description'] = table_description
     context['selected_topic'] = topic_id
 
-    return render_to_response("l4s/table_list.html", context)
+    return render(request, "l4s/table_list.html", context)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -1054,22 +1045,22 @@ def table(request):
                                                            False)
 
         fks = build_foreign_keys(table_name)
-        context = Context({'table_schema': table_schema})
+        context = {'table_schema': table_schema}
         context['table_name'] = table_name
         context['request'] = request
         context['column_description'] = column_description
         context['fks'] = fks
-        return render_to_response("l4s/table.html", context)
+        return render(request, "l4s/table.html", context)
 
     else:
-        context = Context({})
+        context = {}
         context['error_string'] = _("The table does not exist")
         send_mail('Errore Lod4Stat (' +
                   str(request.user) + ') ' +
                   ''.join(ALLOWED_HOSTS) +
                   '/table/?name=' + table_name,
-                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-        return render_to_response("l4s/error.html", context)
+                  str(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+        return render(request, "l4s/error.html", context)
 
 
 
@@ -1084,10 +1075,10 @@ def open_data(request):
     :param request: Django request.
     :return: The request response.
     """
-    context = RequestContext(request)
-    objects = Query.objects.filter(open_data='true')
+    context = {}
+    objects = Query.objects.filter(open_data=True)
     context['object_list'] = objects
-    return render_to_response("l4s/open_data.html", context)
+    return render(request, "l4s/open_data.html", context)
 
 
 def query_list(request):
@@ -1109,8 +1100,10 @@ def query_list(request):
         # Topic 0 means that all the topics will be displayed.
         selected_topic = 0
 
-    queries = (Query.objects.filter(created_by=request.user) |
-               Query.objects.filter(is_public='true'))
+    queries = Query.objects.filter(is_public=True)
+
+    if request.user.is_authenticated:
+        queries = queries | Query.objects.filter(created_by_user=request.user)
 
     """
     print queries
@@ -1121,8 +1114,7 @@ def query_list(request):
 
     if search:
         queries = queries & (Query.objects.filter(title__icontains=search) |
-                             Query.objects.filter(
-                                 description__icontains=search))
+                             Query.objects.filter(description__icontains=search))
 
     queries_to_topics = build_queries_to_topics_mapping(queries, selected_topic)
 
@@ -1140,7 +1132,7 @@ def query_list(request):
     topic_mapping = build_topics_decoder_dict()
     icons = build_topic_icons()
 
-    context = Context({'queries': queries})
+    context = {'queries': queries}
     context['selected_topic'] = selected_topic
     context['icons'] = icons
     context['request'] = request
@@ -1151,7 +1143,7 @@ def query_list(request):
 
     #print queries
 
-    return render_to_response("explorer/query_list.html", context)
+    return render(request, "explorer/query_list.html", context)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -1164,17 +1156,17 @@ def recent_queries(request):
     :return: The Django request response.
     """
     search = request.GET.get('search')
-    objects = Query.objects
+    objects = Query.objects.all()
     if not search is None and search != "":
         objects = objects & (Query.objects.filter(title__icontains=search) |
                              Query.objects.filter(description__icontains=search))
 
     recent = objects.order_by('-last_run_date')
     recent = recent[:EXPLORER_RECENT_QUERY_COUNT]
-    context = Context({'object_list': objects})
+    context = {'object_list': objects}
     context['request'] = request
     context['recent_queries'] = recent
-    return render_to_response("explorer/recent_queries.html", context)
+    return render(request, "explorer/recent_queries.html", context)
 
 
 @login_required()
@@ -1192,7 +1184,7 @@ def query_copy(request):
         new_query.id = None
         new_query.is_public = False
         # The author of the new copied query is the authenticated user.
-        new_query.created_by = request.user
+        new_query.created_by_user = request.user
         new_query.save()
     url = '/explorer'
     return redirect(url)
@@ -1212,8 +1204,9 @@ def index(request):
         found = found | Query.objects.filter(description__icontains=search)
         objects = objects & found
 
-    context = RequestContext(request)
+    context = {}
     context['object_list'] = objects
+    context['graphs'] = Graph.objects.all().order_by('order')
 
     maintanance = CustomSite.objects.get()
     context['MAINTENANCE_MODE_LABEL'] = maintanance.label
@@ -1223,14 +1216,14 @@ def index(request):
     else:
         url = "index_new.html"
 
-    if request.user.is_superuser == False and request.user.is_authenticated() == True and request.user.is_staff == False:
+    if request.user.is_superuser == False and request.user.is_authenticated == True and request.user.is_staff == False:
         date_change_password = request.user.get_date_change_password()
         if timezone.now() - date_change_password > timedelta(days=PASSWORD_DURATION_DAYS):
             return redirect("/accounts/password/change/")
         else:
-            return render_to_response("l4s/" + url, context)
+            return render(request, "l4s/" + url, context)
     else:
-        return render_to_response("l4s/" + url, context)
+        return render(request, "l4s/" + url, context)
 
     #return render_to_response("l4s/index_new.html", context)
 
@@ -1241,8 +1234,8 @@ def legal_notes(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    context = RequestContext(request)
-    return render_to_response("l4s/legal_notes.html", context)
+    context = {}
+    return render(request, "l4s/legal_notes.html", context)
 
 
 def privacy_policy(request):
@@ -1253,14 +1246,14 @@ def privacy_policy(request):
     :return: The Django request response.
     """
     context = {'PRIVACY_POLICY_PDF': PRIVACY_POLICY_PDF}
-    return render_to_response("l4s/privacy_policy.html", context)
+    return render(request, "l4s/privacy_policy.html", context)
 
 
 def query_editor_external_metadata(request):
 
-    context = RequestContext(request)
+    context = {}
 
-    table_name = request.REQUEST.get('table')
+    table_name = request.POST.get('table') or request.GET.get('table')
 
     column_warnings = build_column_warnings_and_definitions(table_name, True, False)
     column_definitions = build_column_warnings_and_definitions(table_name, False, False)
@@ -1276,9 +1269,9 @@ def query_editor_external_metadata(request):
     context['column_definitions'] = column_definitions
     context['table_external_metadata'] = table_external_metadata
 
-    context['tipo'] = request.REQUEST.get('tipo')
+    context['tipo'] = request.POST.get('tipo') or request.GET.get('tipo')
 
-    return render_to_response("l4s/query_editor_external_metadata.html", context)
+    return render(request, "l4s/query_editor_external_metadata.html", context)
 
 def query_editor_customize(request):
     """
@@ -1288,52 +1281,57 @@ def query_editor_customize(request):
     :return: The Django request response.
     """
 
-    context = RequestContext(request)
+    context = {}
 
     debug = False
     if request.user.is_staff:
-        debug_s = request.REQUEST.get('debug')
+        debug_s = request.POST.get('debug') or request.GET.get('debug')
         if not debug_s is None and debug_s == 'true':
             debug = True
 
     include_code = False
-    include_code_s = request.REQUEST.get('include_code')
+    include_code_s = request.POST.get('include_code') or request.GET.get(
+        'include_code')
     if not include_code_s is None and include_code_s == 'true':
         include_code = True
 
     range = False
     if request.user.is_staff:
-        range_s = request.REQUEST.get('range')
+        range_s = request.POST.get('range') or request.GET.get('range')
         if not range_s is None and range_s == 'true':
             range = True
 
-    selected_obs_values_s = request.REQUEST.get('selected_obs_values')
+    selected_obs_values_s = request.POST.get(
+        'selected_obs_values') or request.GET.get('selected_obs_values')
     selected_obs_values = []
     if not selected_obs_values_s is None and selected_obs_values != "":
         selected_obs_values = [x for x in selected_obs_values_s.split(',')]
 
-    table_name = request.REQUEST.get('table')
+    table_name = request.POST.get('table') or request.GET.get('table')
     table_schema = get_table_schema(table_name)
 
-    columns = request.REQUEST.get('columns')
+    columns = request.POST.get('columns') or request.GET.get('columns')
     cols = OrderedDict()
     if not columns is None and columns != "":
         for x in columns.split(','):
             cols[found_column_position(x, table_schema)] = x
 
-    rows_s = request.REQUEST.get('rows')
+    rows_s = request.POST.get('rows') or request.GET.get('rows')
     rows = OrderedDict()
     if not rows_s is None and rows_s != "":
         for x in rows_s.split(','):
             rows[found_column_position(x, table_schema)] = x
 
-    ref_periods = request.REQUEST.get('ref_periods')
+    ref_periods = request.POST.get('ref_periods') or request.GET.get(
+        'ref_periods')
     periods = []
     if not ref_periods is None and ref_periods != "":
         periods = [x for x in ref_periods.split(',')]
 
-    sel_aggregation = request.REQUEST.get('aggregate')
-    not_sel_aggregations = request.REQUEST.get('not_sel_aggregations')
+    sel_aggregation = request.POST.get('aggregate') or request.GET.get(
+        'aggregate')
+    not_sel_aggregations = request.POST.get(
+        'not_sel_aggregations') or request.GET.get('not_sel_aggregations')
 
     not_sel_aggregation_ids = []
     if not_sel_aggregations is not None and not_sel_aggregations != "":
@@ -1343,14 +1341,19 @@ def query_editor_customize(request):
     if sel_aggregation is not None and sel_aggregation != "":
         sel_aggregation_ids = [x for x in sel_aggregation.split(',')]
 
-    column_description = request.REQUEST.get('column_description')
-    grouped_by_in_query = request.REQUEST.get('grouped_by_in_query')
+    column_description = request.POST.get(
+        'column_description') or request.GET.get('column_description')
+    grouped_by_in_query = request.POST.get(
+        'grouped_by_in_query') or request.GET.get('grouped_by_in_query')
 
-    hidden_fields = request.REQUEST.get('hidden_fields')
+    hidden_fields = request.POST.get('hidden_fields') or request.GET.get(
+        'hidden_fields')
 
     fields = [field.name for field in table_schema]
 
-    obs_values = all_obs_value_column(table_name, table_schema, json.loads(hidden_fields)).values()
+    obs_values = list(
+        all_obs_value_column(table_name, table_schema,
+                             json.loads(hidden_fields)).values())
 
     context['fields'] = fields
     context['obs_values'] = obs_values
@@ -1361,15 +1364,20 @@ def query_editor_customize(request):
     context['include_code'] = include_code
     context['range'] = range
 
-    values = request.REQUEST.get('values')
-    agg_values = request.REQUEST.get('agg_values')
-    not_agg_selection_value = request.REQUEST.get('not_agg_selection_value')
-    aggregations = request.REQUEST.get('aggregations')
+    values = request.POST.get('values') or request.GET.get('values')
+    agg_values = request.POST.get('agg_values') or request.GET.get(
+        'agg_values')
+    not_agg_selection_value = request.POST.get(
+        'not_agg_selection_value') or request.GET.get(
+            'not_agg_selection_value')
+    aggregations = request.POST.get('aggregations') or request.GET.get(
+        'aggregations')
 
 
-    filters = request.REQUEST.get('filters')
+    filters = request.POST.get('filters') or request.GET.get('filters')
 
-    agg_filters = request.REQUEST.get('agg_filters')
+    agg_filters = request.POST.get('agg_filters') or request.GET.get(
+        'agg_filters')
 
     """
     print "agg_values ", agg_values
@@ -1416,7 +1424,7 @@ def query_editor_customize(request):
 
     context['secondary'] = not sec is None and len(sec) > 0;
 
-    return render_to_response("l4s/query_editor_customize.html", context)
+    return render(request, "l4s/query_editor_customize.html", context)
 
 
 def query_editor_view(request):
@@ -1431,10 +1439,8 @@ def query_editor_view(request):
 
     #print datetime.now().strftime("%H:%M:%S.%f")
 
-    #print request.REQUEST
-
-    table_name = request.REQUEST.get('table')
-    context = RequestContext(request)
+    table_name = request.POST.get('table') or request.GET.get('table')
+    context = {}
     context['error_string'] = ''
 
     if exists_table('public', table_name) == False:
@@ -1450,9 +1456,9 @@ def query_editor_view(request):
 
     if context['error_string'] == '':
         if get_table_description(table_name) == None:
-            error = unicode(_("Please add the metadata "))
-            error += " " + unicode(_("with key")) + " '" + DESCRIPTION + "' "
-            error += unicode(_("for table"))
+            error = str(_("Please add the metadata "))
+            error += " " + str(_("with key")) + " '" + DESCRIPTION + "' "
+            error += str(_("for table"))
             error += " '" + table_name + "'"
             context['error_string'] = error
 
@@ -1469,8 +1475,8 @@ def query_editor_view(request):
                   str(request.user) + ') ' +
                   ''.join(ALLOWED_HOSTS) +
                   '/query_editor_view/?table=' + table_name,
-                  unicode(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-        return render_to_response("l4s/error.html", context)
+                  str(context['error_string']), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+        return render(request, "l4s/error.html", context)
 
     topic = get_topic_description(table_name)
     topic_id = get_topic_id(table_name)
@@ -1478,21 +1484,25 @@ def query_editor_view(request):
     table_description_dict = build_description_table_dict([table_name])
     context['table_description'] = table_description_dict[table_name]
 
-    selected_obs_values_s = request.REQUEST.get('selected_obs_values')
+    selected_obs_values_s = request.POST.get(
+        'selected_obs_values') or request.GET.get('selected_obs_values')
     selected_obs_values = []
     if not selected_obs_values_s is None and selected_obs_values != "":
         selected_obs_values = [x for x in selected_obs_values_s.split(',')]
 
-    filters_s = request.REQUEST.get('filters')
-    agg_filters_s = request.REQUEST.get('agg_filters')
-    not_agg_selection_value_s = request.REQUEST.get('not_agg_selection_value')
+    filters_s = request.POST.get('filters') or request.GET.get('filters')
+    agg_filters_s = request.POST.get('agg_filters') or request.GET.get(
+        'agg_filters')
+    not_agg_selection_value_s = request.POST.get(
+        'not_agg_selection_value') or request.GET.get(
+            'not_agg_selection_value')
 
-    columns = request.REQUEST.get('columns')
+    columns = request.POST.get('columns') or request.GET.get('columns')
     cols = []
     if not columns is None and columns != "":
         cols = [x for x in columns.split(',')]
 
-    rows_s = request.REQUEST.get('rows')
+    rows_s = request.POST.get('rows') or request.GET.get('rows')
     rows = []
     if not rows_s is None and rows_s != "":
         rows = [x for x in rows_s.split(',')]
@@ -1500,25 +1510,29 @@ def query_editor_view(request):
     debug = False
     visible = False
     if request.user.is_staff:
-        debug_s = request.REQUEST.get('debug')
+        debug_s = request.POST.get('debug') or request.GET.get('debug')
         if not debug_s is None and debug_s == 'true':
             debug = True
-        visible_s = request.REQUEST.get('visible')
+        visible_s = request.POST.get('visible') or request.GET.get('visible')
         if not visible_s is None and visible_s == 'true':
             visible = True
 
     include_code = False
-    include_code_s = request.REQUEST.get('include_code')
+    include_code_s = request.POST.get('include_code') or request.GET.get(
+        'include_code')
     if not include_code_s is None and include_code_s == 'true':
         include_code = True
 
     range = False
-    range_s = request.REQUEST.get('range')
+    range_s = request.POST.get('range') or request.GET.get('range')
     if not range_s is None and range_s == 'true':
         range = True
 
-    aggregation = request.REQUEST.get('aggregate', "")
-    not_sel_aggregations = request.REQUEST.get('not_sel_aggregations', "")
+    aggregation = request.POST.get('aggregate', "") or request.GET.get(
+        'aggregate', "")
+    not_sel_aggregations = request.POST.get('not_sel_aggregations',
+                                            "") or request.GET.get(
+                                                'not_sel_aggregations', "")
 
     #print "aggregation " ,aggregation
 
@@ -1541,7 +1555,8 @@ def query_editor_view(request):
 
     #print "dd1 ", datetime.now().strftime("%H:%M:%S.%f")
 
-    obs_values = all_obs_value_column(table_name, table_schema, hidden_fields).values()
+    obs_values = list(
+        all_obs_value_column(table_name, table_schema, hidden_fields).values())
 
     #print obs_values
     #print type(obs_values)
@@ -1559,14 +1574,14 @@ def query_editor_view(request):
             try:
                 #print "xxx ", datetime.now().strftime("%H:%M:%S.%f")
                 vals = get_all_field_values(table_name, column_name, None)
-            except MissingMetadataException, e:
-                context['error'] = "%s" % (unicode(e.message))
+            except MissingMetadataException as e:
+                context['error'] = "%s" % (str(e.message))
                 send_mail('Errore Lod4Stat (' +
                           str(request.user) + ') ' +
                           ''.join(ALLOWED_HOSTS) +
                           '/query_editor_view/?table=' +
-                          ''.join(request.GET.getlist("table")), unicode(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-                return render_to_response("l4s/query_editor_view.html", context)
+                          ''.join(request.GET.getlist("table")), str(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+                return render(request, "l4s/query_editor_view.html", context)
             values[column_name] = vals
 
     #print "dd3 ", datetime.now().strftime("%H:%M:%S.%f")
@@ -1585,14 +1600,14 @@ def query_editor_view(request):
 
     try:
       aggregations, agg_values = get_all_aggregations(table_name)
-    except MissingMetadataException, e:
-        context['error'] = "%s" % (unicode(e.message))
+    except MissingMetadataException as e:
+        context['error'] = "%s" % (str(e.message))
         send_mail('Errore Lod4Stat (' +
                   str(request.user) + ') ' +
                   ''.join(ALLOWED_HOSTS) +
                   '/query_editor_view/?table=' +
-                  ''.join(request.GET.getlist("table")), unicode(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-        return render_to_response("l4s/query_editor_view.html", context)
+                  ''.join(request.GET.getlist("table")), str(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+        return render(request, "l4s/query_editor_view.html", context)
 
     """
     print "--------------------------------------"
@@ -1611,14 +1626,14 @@ def query_editor_view(request):
             cols, rows = choose_default_axis(table_name,
                                              ref_periods,
                                              hidden_fields)
-        except MissingMetadataException, e:
-            context['error'] = "%s" % (unicode(e.message))
+        except MissingMetadataException as e:
+            context['error'] = "%s" % (str(e.message))
             send_mail('Errore Lod4Stat (' +
                       str(request.user) + ') ' +
                       ''.join(ALLOWED_HOSTS) +
                       '/query_editor_view/?table=' +
-                      ''.join(request.GET.getlist("table")), unicode(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-            return render_to_response("l4s/query_editor_view.html", context)
+                      ''.join(request.GET.getlist("table")), str(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+            return render(request, "l4s/query_editor_view.html", context)
 
         if len(cols) > 1:
             if cols[0] in ref_periods.values():
@@ -1646,7 +1661,9 @@ def query_editor_view(request):
 
     #print column_description
 
-    if request.REQUEST.get('get_grouped_by_value') == None: #se non sono ancora passato dal personalizza prendo il default
+    get_grouped_by_value = request.POST.get(
+        'get_grouped_by_value') or request.GET.get('get_grouped_by_value')
+    if get_grouped_by_value == None: #se non sono ancora passato dal personalizza prendo il default
         context['grouped_by_in_query'] = grouped_by_in_query(request.user, table_name, column_description)
     else:
 
@@ -1656,7 +1673,7 @@ def query_editor_view(request):
 
             value = dict()
 
-            for index2 in json.loads(request.REQUEST.get('get_grouped_by_value')):
+            for index2 in json.loads(get_grouped_by_value):
 
                 if column_description[index1]['table_name'] == index2["table_name"]:
                     if column_description[index1]['name'] == index2["column_name"]:
@@ -1829,7 +1846,10 @@ def query_editor_view(request):
                 elementi_request = ''
                 no_display = _("Can not display the requested content")
             else:
-                elementi_request = "<br>".join(['%s:: %s' % (key, value) for (key, value) in request.REQUEST.items()])
+                items = request.POST.get(
+                    'get_grouped_by_value') or request.GET.get(
+                        'get_grouped_by_value')
+                elementi_request = "<br>".join(['%s:: %s' % (key, value) for (key, value) in items])
                 no_display = _("The requested content is empty")
 
         context['dataframe'] = no_display
@@ -1838,10 +1858,10 @@ def query_editor_view(request):
                   str(request.user) + ') ' +
                   ''.join(ALLOWED_HOSTS) +
                   '/query_editor_view/?table=' +
-                  table_name, unicode(no_display) + elementi_request, DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL,
+                  table_name, str(no_display) + elementi_request, DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL,
                   fail_silently=False)
 
-        return render_to_response("l4s/query_editor_view.html", context)
+        return render(request, "l4s/query_editor_view.html", context)
 
     store = store_data_frame(df)
     html = data_frame_to_html(df, visible, pivot)
@@ -1904,7 +1924,7 @@ def query_editor_view(request):
     print "not_agg_selection_value ", not_agg_selection_value
     """
 
-    return render_to_response("l4s/query_editor_view.html", context)
+    return render(request, "l4s/query_editor_view.html", context)
 
 
 @login_required()
@@ -1915,10 +1935,16 @@ def query_editor_save_done(request):
     :param request: Django request.
     :return: The request response.
     """
-    context = RequestContext(request)
+    context = {}
     form = CreateQueryEditorForm(request.POST)
+    User = get_user_model()
+    user = User.objects.get(id=request.POST.get('created_by_user'))
+    _mutable = request.POST._mutable
+    request.POST._mutable = True  # temporarily make POST mutable
+    request.POST['created_by_user'] = user.id
+    request.POST._mutable = _mutable
     if form.is_valid():
-        pk = request.REQUEST.get('pk')
+        pk = request.POST.get('pk') or request.GET.get('pk')
         if pk == "-1":
             form.save()
         else:
@@ -1928,10 +1954,10 @@ def query_editor_save_done(request):
             form.save()
 
         link = '/explorer?public=false'
-        here = unicode(_("here"))
-        body = unicode(_("The query has been saved")).replace('\'', '\\\'')
+        here = str(_("here"))
+        body = str(_("The query has been saved")).replace('\'', '\\\'')
         body += '.<br>'
-        body += unicode(_("In order to see the saved queries click"))
+        body += str(_("In order to see the saved queries click"))
         body += ' <a href="%s">%s</a>' % (link, here)
         http_response = '<script type="text/javascript">'
         http_response += "$('#popup').modal('hide');"
@@ -1941,7 +1967,7 @@ def query_editor_save_done(request):
         return HttpResponse(http_response)
 
     context['form'] = form
-    return render_to_response("l4s/query_editor_save.html", context)
+    return render(request, "l4s/query_editor_save.html", context)
 
 
 @login_required()
@@ -1955,10 +1981,12 @@ def query_editor_save_check(request):
     :return: pk in HttpResponse.
     """
 
-    title = request.REQUEST.get('title')
-    author = request.REQUEST.get('created_by')
+    title = request.POST.get('title')
+    author = request.POST.get('created_by_user')
+    User = get_user_model()
+    user = User.objects.get(id=author)
     try:
-        query = Query.objects.get(title=title, created_by=author)
+        query = Query.objects.get(title=title, created_by_user=user.id)
         pk = query.pk
     except ObjectDoesNotExist:
         pk = -1
@@ -1975,32 +2003,42 @@ def query_editor_save(request):
     :return: The request response.
     """
 
-    context = RequestContext(request)
+    context = {}
 
-    sql = request.REQUEST.get('sql', '')
-    title = request.REQUEST.get('title')
-    description = request.REQUEST.get('description')
-    table_name = request.REQUEST.get('table')
-    columns = request.REQUEST.get('columns')
-    rows = request.REQUEST.get('rows')
-    obs_values = request.REQUEST.get('obs_values')
-    aggregations = request.REQUEST.get('aggregations')
-    filters = request.REQUEST.get('filters')
-    agg_filters = request.REQUEST.get('agg_filters')
-    include_code = request.REQUEST.get('include_code')
-    range = request.REQUEST.get('range')
-    not_sel_aggregations = request.REQUEST.get('not_sel_aggregations')
-    not_agg_selection_value = request.REQUEST.get('not_agg_selection_value')
+    sql = request.POST.get('sql', '') or request.GET.get('sql', '')
+    title = request.POST.get('title') or request.GET.get('title')
+    description = request.POST.get('description') or request.GET.get(
+        'description')
+    table_name = request.POST.get('table') or request.GET.get('table')
+    columns = request.POST.get('columns') or request.GET.get('columns')
+    rows = request.POST.get('rows') or request.GET.get('rows')
+    obs_values = request.POST.get('obs_values') or request.GET.get(
+        'obs_values')
+    aggregations = request.POST.get('aggregations') or request.GET.get(
+        'aggregations')
+    filters = request.POST.get('filters') or request.GET.get('filters')
+    agg_filters = request.POST.get('agg_filters') or request.GET.get(
+        'agg_filters')
+    include_code = request.POST.get('include_code') or request.GET.get(
+        'include_code')
+    range = request.POST.get('range') or request.GET.get('range')
+    not_sel_aggregations = request.POST.get(
+        'not_sel_aggregations') or request.GET.get('not_sel_aggregations')
+    not_agg_selection_value = request.POST.get(
+        'not_agg_selection_value') or request.GET.get(
+            'not_agg_selection_value')
 
     #print "agg_filters '",agg_filters,"'"
     #print "not_agg_selection_value '",not_agg_selection_value,"'"
 
 
+    User = get_user_model()
+    user = User.objects.get(email=request.user.email)
     form = CreateQueryEditorForm(
         initial={'sql': sql,
                  'title': title,
                  'description': description,
-                 'created_by': request.user.email,
+                 'created_by_user': user,
                  'query_editor': True,
                  'table': table_name,
                  'columns': columns,
@@ -2014,7 +2052,7 @@ def query_editor_save(request):
                  'not_sel_aggregations':not_sel_aggregations,
                  'not_agg_selection_value':not_agg_selection_value})
     context['form'] = form
-    return render_to_response("l4s/query_editor_save.html", context)
+    return render(request, "l4s/query_editor_save.html", context)
 
 
 def query_editor(request):
@@ -2024,7 +2062,7 @@ def query_editor(request):
     :param request: Django request.
     :return: The request response.
     """
-    context = RequestContext(request)
+    context = {}
     topic = request.GET.get('topic')
     search = request.GET.get('search', '')
 
@@ -2032,15 +2070,15 @@ def query_editor(request):
     topic_mapping = build_topics_decoder_dict()
     table_description = dict()
     tables = all_visible_tables(request)
-    #print tables
+    tables = exclude_decoder_tables(tables)
+    #print ( tables )
 
     # Filter tables matching descriptions and table_name.
     if search:
         table_description = get_table_by_name_or_desc(search, tables, 'value')
         #print get_color()
         #print "table_description ", table_description
-        tables = table_description.keys()
-        #print tables
+        tables = list(table_description)
 
     if topic is not None and topic != "":
         topic_id = ast.literal_eval(topic)
@@ -2054,13 +2092,13 @@ def query_editor(request):
         context['topics_counter'] = build_topics_counter_dict(tables)
         #print "tables 1", tables
         tables = order_tables_by_topic_and_descriptions(tables)
-        #print "tables 2", tables
+        #print ("tables2 ", tables)
         topic_dict = build_topics_dict(tables)
     else:
         tables = filter_tables_by_topic(topic_id, tables, None)
-        #print "tables1 ", tables
-        tables = exclude_invisible_tables(request, tables)
-        #print "tables2 ", tables
+        #print ( "tables1 ", tables )
+        tables = exclude_invisible_tables(request, tables) #serve ?? non parto già dalla lista delle tabelle visibili ?
+        #print ("tables2 ", tables)
         tables = order_tables_by_descriptions(tables)
         if not search:
             table_description = build_description_table_dict(tables)
@@ -2068,7 +2106,7 @@ def query_editor(request):
     keywords = build_topic_keywords()
     icons = build_topic_icons()
 
-    queries = Query.objects.filter(is_public='true')
+    queries = Query.objects.filter(is_public=True)
     if search:
         queries = queries & (Query.objects.filter(title__icontains=search) |
                              Query.objects.filter(
@@ -2108,7 +2146,8 @@ def query_editor(request):
     print "queries", queries
     """
 
-    return render_to_response("l4s/query_editor.html", context)
+    #print ( context )
+    return render(request, "l4s/query_editor.html", context)
 
 
 def show_credits(request):
@@ -2118,8 +2157,8 @@ def show_credits(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    context = RequestContext(request)
-    return render_to_response("l4s/credits.html", context)
+    context = {}
+    return render(request, "l4s/credits.html", context)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -2130,10 +2169,10 @@ def manual_request_list(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    context = RequestContext(request)
+    context = {}
     objects = ManualRequest.objects.filter(dispatched=False)
     context['object_list'] = objects
-    return render_to_response("l4s/manual_request_list.html", context)
+    return render(request, "l4s/manual_request_list.html", context)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -2144,11 +2183,11 @@ def manual_request_history(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    context = RequestContext(request)
+    context = {}
     objects = ManualRequest.objects.filter(dispatched=True).order_by(
         'dispatch_date')
     context['object_list'] = objects
-    return render_to_response("l4s/manual_request_history.html", context)
+    return render(request, "l4s/manual_request_history.html", context)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -2172,14 +2211,13 @@ def manual_request_view(request):
             item.save()
         return HttpResponseRedirect('/manual_request_list')
 
-    context = RequestContext(request)
     manual_request_id = request.GET.get('id', '')
     item = ManualRequest.objects.get(id=manual_request_id)
-    context['manual_request'] = item
     form = ManualRequestDispatchForm(
         initial={'dispatcher': request.user, 'id': manual_request_id})
-    return render_to_response("l4s/manual_request_view.html",
-                              {'form': form}, context)
+    return render(request, "l4s/manual_request_view.html",
+                              {'form': form,
+                               'manual_request': item})
 
 
 @login_required
@@ -2191,9 +2229,9 @@ def manual_request_accepted(request):
     :return: The Django request response.
     """
     query_id = request.GET.get('id')
-    context = RequestContext(request)
+    context = {}
     context['id'] = query_id
-    return render_to_response("l4s/manual_request_accepted.html", context)
+    return render(request, "l4s/manual_request_accepted.html", context)
 
 
 @login_required()
@@ -2204,7 +2242,6 @@ def manual_request_save(request):
     :param request: Django request.
     :return: The request response.
     """
-    context = RequestContext(request)
     form = ManualRequestForm(request.POST)
     if form.is_valid():
         instance = form.save()
@@ -2213,9 +2250,8 @@ def manual_request_save(request):
         email_manual_request_notification(instance, request.user.email)
         return redirect(url)
 
-    return render_to_response('l4s/manual_request.html',
-                              {'form': form},
-                              context_instance=context)
+    return render(request, 'l4s/manual_request.html',
+                              {'form': form})
 
 
 @login_required
@@ -2226,30 +2262,28 @@ def manual_request(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    context = RequestContext(request)
 
-    subject = request.REQUEST.get('title')
-    url = request.REQUEST.get('url')
-    topic = request.REQUEST.get('topic')
+    subject = request.POST.get('title') or request.GET.get('title')
+    url = request.POST.get('url') or request.GET.get('url')
+    topic = request.POST.get('topic') or request.GET.get('topic')
     if topic is None:
         topic_id = 1
     else:
         topic_id = ast.literal_eval(topic)
 
-    context['title'] = subject
-    context['districts'] = list_districts()
-    context['valley_communities'] = list_valley_communities()
-    context['tourism_sectors'] = list_tourism_sectors()
-    context['health_districts'] = list_health_districts
     form = ManualRequestForm(initial={'inquirer': request.user,
                                       'url': url,
                                       'subject': subject,
                                       'topic': topic_id,
                                       'territorial_level': " "})
 
-    return render_to_response('l4s/manual_request.html',
-                              {'form': form},
-                              context_instance=context)
+    return render(request, 'l4s/manual_request.html',
+                              {'form': form,
+                               'title': subject,
+                               'districts': list_districts(),
+                               'valley_communities': list_valley_communities(),
+                               'tourism_sectors': list_tourism_sectors(),
+                               'health_districts': list_health_districts})
 
 
 @login_required
@@ -2260,8 +2294,8 @@ def user_profile(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    return render_to_response("l4s/user_profile.html",
-                              RequestContext(request))
+    return render(request, "l4s/user_profile.html",
+                              {})
 
 
 @login_required
@@ -2277,17 +2311,15 @@ def user_profile_change(request):
         form = UserChangeForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            return render_to_response("l4s/user_profile.html",
-                                      RequestContext(request))
+            return render(request, "l4s/user_profile.html",
+                                      {})
         else:
-            return render_to_response('l4s/user_profile_change.html',
-                                      {'form': form},
-                                      context_instance=RequestContext(request))
+            return render(request, 'l4s/user_profile_change.html',
+                                      {'form': form})
 
     form = UserChangeForm(instance=request.user)
-    return render_to_response('l4s/user_profile_change.html',
-                              {'form': form},
-                              context_instance=RequestContext(request))
+    return render(request, 'l4s/user_profile_change.html',
+                              {'form': form})
 
 
 def success(request):
@@ -2297,8 +2329,8 @@ def success(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    return render_to_response("account/success.html",
-                              RequestContext(request))
+    return render(request, "account/success.html",
+                              {})
 
 
 def about(request):
@@ -2308,8 +2340,8 @@ def about(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    return render_to_response("l4s/about.html",
-                              RequestContext(request))
+    return render(request, "l4s/about.html",
+                              {})
 
 
 def get_list_of_value(request):
@@ -2351,8 +2383,8 @@ def FAQ(request):
     :param request: Django request.
     :return: The Django request response.
     """
-    return render_to_response("l4s/FAQ.html",
-                              RequestContext(request))
+    return render(request, "l4s/FAQ.html",
+                              {})
 
 
 def manual_view(request):
@@ -2365,7 +2397,7 @@ def manual_view(request):
 
     #print "user " , request.user
 
-    if request.user.is_authenticated() == False:
+    if request.user.is_authenticated == False:
         nome_file = 'Manuale_Utente_Anonimo_LOD4STAT.pdf'
     else:
         if request.user.is_superuser == True:
@@ -2376,8 +2408,8 @@ def manual_view(request):
             else:
                 nome_file = 'Manuale_Utente_Registrato_LOD4STAT.pdf'
 
-    with open(path + nome_file, 'r') as pdf:
-        response = HttpResponse(pdf.read(), mimetype='application/pdf')
+    with open(path + nome_file, 'rb') as pdf:
+        response = HttpResponse(pdf.read(), content_type='application/pdf')
         response['Content-Disposition'] = 'inline;filename=' + nome_file
         return response
     pdf.closed
@@ -2389,7 +2421,8 @@ def sync(request):
     #f = open("blah.txt", "w")
     #result = subprocess.call(shlex.split('./sync.sh ' + ",".join(table)), stdout=f)
 
-    result = subprocess.call(shlex.split('./sync.sh ' + ",".join(table)))
+    host = DATABASES["lod4stat"]["HOST"]
+    result = subprocess.call(shlex.split('./sync.sh ' + host + ' ' + ",".join(table)))
 
     #send_mail("Result", str(result), DEFAULT_FROM_EMAIL, ['m.voltolini@trentinosistemi.com'], fail_silently=False)
 

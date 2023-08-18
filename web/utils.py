@@ -22,7 +22,7 @@ Utils for l4s project.
 from django.db import connections, connection
 from django.core.mail import send_mail
 from django.contrib.sites.models import Site
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from web.models import Metadata
 from web.models import User
 from web.exceptions import MissingMetadataException
@@ -104,9 +104,9 @@ DECLARE_TOKEN = '--DECLARE'
 SET_TOKEN = '--SET'
 WIDGET_TOKEN = '--WIDGET'
 TOKENS = [DESCRIPTION_TOKEN, JOIN_TOKEN, AGGREGATION_TOKEN, PIVOT_TOKEN]
-CODE = unicode(_("Code")).encode("utf-8")
-TOTAL = unicode(_("Total")).encode("utf-8")
-ALL = unicode(_("All")).encode("utf-8")
+CODE = _("Code")
+TOTAL = _("Total")
+ALL = _("All")
 
 
 def get_class_range(val):
@@ -924,7 +924,7 @@ def choose_default_axis(table_name, ref_periods, hidden_fields):
 
     if len(cols) == 0 or len(rows) == 0:
         error = _("I can not pivot the table")
-        error = "%s '%s'" % (unicode(error), table_name)
+        error = "%s '%s'" % (str(error), table_name)
         raise Exception(error)
 
     return cols, rows
@@ -1059,7 +1059,7 @@ def build_query(table_name,
                                                             column_name=grouped_by_in_query_elemento["column_name"])
                     groupedby = groupedby_value_to_column(metadata_list)
 
-                    for key, value in groupedby.iteritems():
+                    for key, value in groupedby.items():
                         join_groupedby += ' join %s on (%s."%s" = %s."%s") ' % (value[0], value[0], value[1], table_name, col)
                         a, b = get_concept(NUOVI_CONFINI_COMUNE)
                         fields.append(" %s.\"%s\" %s " % (a, b, col))
@@ -1090,7 +1090,7 @@ def build_query(table_name,
                                                             column_name=grouped_by_in_query_elemento["column_name"])
                     groupedby = groupedby_value_to_column(metadata_list)
 
-                    for key, value in groupedby.iteritems():
+                    for key, value in groupedby.items():
                         join_groupedby += ' join %s on (%s."%s" = %s."%s") ' % (value[0], value[0], value[1], table_name, row)
                         a, b = get_concept(NUOVI_CONFINI_COMUNE)
                         fields.append(" %s.\"%s\" %s " % (a, b, row))
@@ -1696,7 +1696,7 @@ def saved_queries_grouped_by_user_type(year, month):
 
     query = "SELECT UT.name, count(UT.name) \n"
     query += "FROM %s EQ join %s U \n" % (QUERY, USER)
-    query += "ON (U.email = EQ.created_by) \n"
+    query += "ON (U.id = EQ.created_by_user_id) \n"
     query += "JOIN %s UT ON (UT.id = U.user_type_id) \n" % USER_TYPE
     query += "WHERE extract('year' from EQ.created_at) = '%d' \n" % year
     if not month is None:
@@ -2110,9 +2110,11 @@ def build_constraint_query_old(constraints,
 
     query += "\nORDER BY %s" % fields
 
+    """
     if debug == True:
-        print bcolors.WARNING, query_iniziale
-        print bcolors.OKBLUE, query
+        print(bcolors.WARNING, query_iniziale)
+        print(bcolors.OKBLUE, query)
+    """
 
     return query, header
 
@@ -2490,7 +2492,7 @@ def detect_special_columns(sql):
                 #print get_color()
                 #print "qui"
                 nuovo_elemento = ''
-                for a in xrange(1, len(words) - 1):
+                for a in range(1, len(words) - 1):
                     nuovo_elemento += words[a] + ' '
                     #print words[a]
                 #print nuovo_elemento
@@ -2573,10 +2575,10 @@ def build_aggregation_query(sql, cols, aggregations, agg_filters, threshold, con
         fl = _(
             "You can aggregate for a single criterion for each column only.")
         sl = _("You have selected more than one aggregation on column")
-        err = unicode(fl) + " " + unicode(sl) + " "
+        err = str(fl) + " " + str(sl) + " "
         if desc is not None and desc != "":
             wd = _("with description")
-            err += unicode(wd) + " \'" + desc + "\'."
+            err += str(wd) + " \'" + desc + "\'."
         else:
             err += " " + column_name
         return sql, err
@@ -3315,7 +3317,7 @@ def get_params_dictionary(variable_dictionary):
 
     params_dictionary = dict()
 
-    for key in variable_dictionary.iterkeys():
+    for key in variable_dictionary:
         variable_dictionary_key_item = variable_dictionary.get(key)
         variable_name = variable_dictionary_key_item.get_name()
         variable_values = variable_dictionary_key_item.get_default_value()
@@ -3337,7 +3339,7 @@ def get_types_dictionary(variable_dictionary):
 
     types_dictionary = dict()
 
-    for key in variable_dictionary.iterkeys():
+    for key in variable_dictionary:
         variable_dictionary_key_item = variable_dictionary.get(key)
         variable_name = variable_dictionary_key_item.get_name()
         variable_values = variable_dictionary_key_item.get_type()
@@ -3359,7 +3361,7 @@ def get_widgets_dictionary(variable_dictionary):
 
     widgets_dictionary = dict()
 
-    for key in variable_dictionary.iterkeys():
+    for key in variable_dictionary:
         variable_dictionary_key_item = variable_dictionary.get(key)
         variable_name = variable_dictionary_key_item.get_name()
         variable_values = variable_dictionary_key_item.get_widget()
@@ -3441,7 +3443,7 @@ def get_variable_dictionary(query):
 
         try:
             rows = execute_query_on_main_db(internal_query)
-        except Exception, e:
+        except Exception as e:
             return variable_dictionary, str(e)
 
         values = []
@@ -3669,6 +3671,25 @@ def exclude_invisible_tables(request, tables):
     if rows is not None:
         for row in rows:
             ret_tables.append(row[0])
+
+    return ret_tables
+
+def exclude_decoder_tables(tables):
+
+    query = "SELECT DISTINCT(table_name) FROM %s \n" % METADATA
+    query += "where column_name = 'NULL' and upper(key)=upper('%s') and upper(value)=upper('%s') " % (DECODER, TRUE)
+
+    #print "query " , query
+    rows = execute_query_on_django_db(query)
+    decoder_tables = []
+    if rows is not None:
+        for row in rows:
+            decoder_tables.append(row[0])
+
+    ret_tables = []
+    for table in tables:
+        if table not in decoder_tables:
+            ret_tables.append(table)
 
     return ret_tables
 
@@ -4271,7 +4292,7 @@ def build_aggregation_title(agg_id, aggregations):
     :param aggregations: All aggregations
     :return: Title.
     """
-    group_by = unicode(_("group by"))
+    group_by = str(_("group by"))
 
     for agg in aggregations:
         val = aggregations[agg]
@@ -4317,7 +4338,7 @@ def build_all_filter(column_description,
     ret = {}
     for a, a_id in enumerate(aggregation_ids):
         target_col_desc = agg_col_desc[a_id]['description']
-        u_id = unicode(a_id)
+        u_id = str(a_id)
         summarize_agg_filters = build_agg_summarize_filters(target_col_desc,
                                                             agg_values[a_id],
                                                             agg_filters[u_id])
@@ -4325,7 +4346,7 @@ def build_all_filter(column_description,
 
     for a, a_id in enumerate(not_sel_aggregations_ids):
 
-        u_id = unicode(a_id)
+        u_id = str(a_id)
 
         agg_title, src_desc, agg_desc = build_aggregation_title(a_id,
                                                                 aggregations)
@@ -4426,7 +4447,7 @@ def build_query_desc(agg_col_desc, sel_tab):
         description += "%s\n" % agg_title
 
     if len(agg_col_desc) == 0:
-        description += "%s" % unicode(_("Selected values"))
+        description += "%s" % str(_("Selected values"))
 
     for key in sel_tab:
         value = ", ".join(sel_tab[key])
@@ -4444,8 +4465,8 @@ def build_query_title(column_description, obs_values, agg_col, cols, rows):
     :param cols:
     :param rows:
     """
-    for_s = unicode(_("for"))
-    and_s = unicode(_("and"))
+    for_s = str(_("for"))
+    and_s = str(_("and"))
     title = ""
 
     for o, obs_value in enumerate(obs_values):
@@ -4672,7 +4693,7 @@ def find_in_not_sorted_index(lista, elemento_da_cercare, debug=False):
         if type(elemento_da_cercare) == tuple:
 
             if debug == True:
-                print "after " , elemento_da_cercare
+                print("after " , elemento_da_cercare)
 
             #str(i.encode('UTF-8'))
 
@@ -4683,15 +4704,12 @@ def find_in_not_sorted_index(lista, elemento_da_cercare, debug=False):
                 if is_int(i):
                     lista_appoggio.append(str(i))
                 else:
-                    if type(i) == unicode:
-                        lista_appoggio.append(i.encode('UTF-8'))
-                    else:
-                        lista_appoggio.append(i)
+                    lista_appoggio.append(i)
 
             #elemento_da_cercare = [str(i) for i in elemento_da_cercare] non va bene in caso di unicode
 
             if debug == True:
-                print "post ", lista_appoggio
+                print("post ", lista_appoggio)
 
             nuova_lista = []
 
@@ -4713,11 +4731,11 @@ def find_in_not_sorted_index(lista, elemento_da_cercare, debug=False):
                 #elemento_da_cercare = [str(i).encode('UTF-8') for i in elemento_da_cercare]
 
                 if debug == True:
-                    print "after " , elemento_da_cercare
+                    print("after " , elemento_da_cercare)
 
                 if debug == True:
                     for i in elemento_da_cercare:
-                        print i, type(i)
+                        print(i, type(i))
 
                 #elemento_da_cercare = [i.encode('UTF-8') for i in elemento_da_cercare if type(i) == str]
 
@@ -4728,15 +4746,12 @@ def find_in_not_sorted_index(lista, elemento_da_cercare, debug=False):
                     if is_int(i):
                         lista_appoggio.append(str(i))
                     else:
-                        if type(i) == unicode:
-                            lista_appoggio.append(i.encode('UTF-8'))
-                        else:
-                            lista_appoggio.append(i)
+                        lista_appoggio.append(i)
 
                     #lista_appoggio.append(i)
 
                 if debug == True:
-                    print "post ", lista_appoggio
+                    print("post ", lista_appoggio)
 
                 #print "quiiii"
 
@@ -4749,7 +4764,7 @@ def find_in_not_sorted_index(lista, elemento_da_cercare, debug=False):
                 fine = inizio
 
                 if debug == True:
-                    print "inizio " , inizio
+                    print("inizio " , inizio)
 
             else:
                 for a, b in enumerate(lista):
@@ -4973,24 +4988,24 @@ def column_with_same_description(table_schema, table_name):
     return contatore > 0
 
 def stampa_symtobltabel(st):
-    print "aggregation"
-    print st.aggregation
-    print "cols"
-    print st.cols
-    print "constraint"
-    print st.constraint
-    print "decoder"
-    print st.decoder
-    print "include_descriptions"
-    print st.include_descriptions
-    print "pivot"
-    print st.pivot
-    print "secret"
-    print st.secret
-    print "secret_ref"
-    print st.secret_ref
-    print "threshold"
-    print st.threshold
+    print("aggregation")
+    print(st.aggregation)
+    print("cols")
+    print(st.cols)
+    print("constraint")
+    print(st.constraint)
+    print("decoder")
+    print(st.decoder)
+    print("include_descriptions")
+    print(st.include_descriptions)
+    print("pivot")
+    print(st.pivot)
+    print("secret")
+    print(st.secret)
+    print("secret_ref")
+    print(st.secret_ref)
+    print("threshold")
+    print(st.threshold)
 
 
 def grouped_by_in_query(user, table_name, column_description):
@@ -5017,7 +5032,7 @@ def grouped_by_in_query(user, table_name, column_description):
 
         value = dict()
 
-        if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) <> []:
+        if get_key_column_values(column_description[index]['table_name'], column_description[index]['name'], GROUPEDBY) != []:
             if user.is_superuser == True or is_secret == False:  # per super user nessuna limitazione riguardo a secret
                 value['table_name'] = column_description[index]['table_name']
                 value['column_name'] = column_description[index]['name']

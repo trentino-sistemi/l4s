@@ -18,9 +18,9 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 
-{% load url from future %}
 {% load account %}
 {% load i18n %}
+{% load static %}
 
 <!DOCTYPE html>
 <html>
@@ -98,20 +98,36 @@ tr {
 
         <script type="text/javascript">
 
-          var tid = setInterval(mycode, 5000);
-          var i = 1;
+          var graphs = [{% for graph in graphs %}
+            '{{ graph.image }}',
+          {% endfor %}];
 
-          function mycode() {
-			i++;
+          if (graphs.length > 0) {
 
-			if (i == 17)
-			  i = 1;
+              $( document ).ready(function() {
+                $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graphs[0]);
+              });
 
-			$("#immagine_grafici").fadeTo(1000,0, function() {
-              $("#immagine_grafici").attr("src","/static/img/Grafici/" + i + ".png");
-            }).fadeTo(1000,1);
+              if (graphs.length > 1) {
+                  var tid = setInterval(mycode, 5000);
+                  var i = 0;
 
+                  function mycode() {
+                    i++;
 
+                    if (i == {{ graphs.count }})
+                      i = 0;
+
+                    $("#immagine_grafici").fadeTo(1000,0, function() {
+                      $("#immagine_grafici").attr("src","{{ MEDIA_URL }}" + graphs[i]);
+                    }).fadeTo(1000,1);
+                  }
+              }
+          }
+            else {
+              $( document ).ready(function() {
+                $("#immagine_grafici").hide();
+              });
           }
 
           function abortTimer() { // to be called when you want to stop the timer
@@ -162,16 +178,16 @@ tr {
             <td width='80%' rowspan=6 align='center' id="contenitore_grafici" name="contenitore_grafici">
 
 
-                <img id="immagine_grafici" name="immagine_grafici" src="/static/img/Grafici/1.png" style="width:768px;height:474px;"></img>
+                <img id="immagine_grafici" name="immagine_grafici" style="width:768px;height:474px;"></img>
              </td>
 
 			</tr>
 
           <tr height='50px'>
-            <td width='20%'  align='center' >
 
           {% if request.user.is_authenticated %}
-             <ul align="left">
+             <td width='20%' >
+              <ul align="left">
                  <li>
                    <a class="btn" href="/user_profile"
                            data-position="top"
@@ -188,6 +204,7 @@ tr {
               </ul>
 
           {% else %}
+           <td width='20%'  align='center' >
            <br>
            <form class="login" method="POST" action="{% url 'account_login' %}">
              {% csrf_token %}

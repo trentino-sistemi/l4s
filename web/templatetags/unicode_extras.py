@@ -36,6 +36,6 @@ def to_unicode(arg):
     :param arg: key
     :return: value
     """
-    return unicode(arg)
+    return str(arg)
 
 register.simple_tag(to_unicode)

@@ -35,7 +35,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </li>
             {% if column_name != "NULL" %}
             <li>
-                <a href="/table/metadata/?table={{ table_name }};column={{column_name}}">
+                <a href="/table/metadata/?table={{ table_name }}&column={{column_name}}">
                     {% trans "column " %} '{{ column_name }}'
                 </a>
             </li>
@@ -54,7 +54,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% csrf_token %}
     <table class="table table-striped">{{ form.as_table }}</table>
     <center>
-        <a href="/table/metadata/?table={{ table_name }};column={{column_name}}">
+        <a href="/table/metadata/?table={{ table_name }}&column={{column_name}}">
             <input type="button" class="btn btn-default" value="{% trans "Cancel" %}"/>
         </a>
         <input type="submit" class="btn btn-default" value="{% trans "Submit" %}" />

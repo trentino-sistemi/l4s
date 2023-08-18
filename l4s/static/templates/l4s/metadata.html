@@ -41,7 +41,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <input type="button"
        class="btn btn-default"
        value="{% trans " Add metadata" %}"
-       onclick="location.href='/table/metadata/add/?table={{ table_name }};column={{column_name}}'"/>
+       onclick="location.href='/table/metadata/add/?table={{ table_name }}&column={{column_name}}'"/>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -57,7 +57,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         <td>
             {% if metadata.value in aggregations %}
             {% with aggregations|lookup:metadata.value as ref %}
-            <a href="/table/metadata/?table={{ ref.0 }};column={{ ref.1 }}">
+            <a href="/table/metadata/?table={{ ref.0 }}&column={{ ref.1 }}">
                 {{ metadata.value }}
             </a>
             {% endwith %}
@@ -66,7 +66,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                 {% if metadata.value in groupedby %}
 
                 {% with groupedby|lookup:metadata.value as ref %}
-                <a href="/table/metadata/?table={{ ref.0 }};column={{ ref.1 }}">
+                <a href="/table/metadata/?table={{ ref.0 }}&column={{ ref.1 }}">
                     {{ metadata.value }}
                 </a>
                 {% endwith %}

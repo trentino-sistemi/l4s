@@ -32,7 +32,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     </ul>
 </div>
 <h3>
-    <a href="/table/metadata/?table={{ table_name }};column=NULL">
+    <a href="/table/metadata/?table={{ table_name }}&column=NULL">
         {% trans "Table " %} {{ table_name }}
     </a>
 </h3>
@@ -48,7 +48,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
     {% for field in table_schema %}
     <tr>
         <td>
-            <a href="/table/metadata/?table={{ table_name }};column={{field.name}}">{{field.name}}</a>
+            <a href="/table/metadata/?table={{ table_name }}&column={{field.name}}">{{field.name}}</a>
         </td>
         <td>
         {% if forloop.counter0 in column_description %}
@@ -59,7 +59,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         {% if field.name in fks %}
             {% with fks|lookup:field.name as fkvalue %}
             <a href="/table/?name={{ fkvalue.0 }}">{{fkvalue.0}}</a>.<a
-                href="/table/metadata/?table={{ fkvalue.0 }};column={{fkvalue.1}}">{{fkvalue.1}}
+                href="/table/metadata/?table={{ fkvalue.0 }}&column={{fkvalue.1}}">{{fkvalue.1}}
             </a>
             {% endwith %}
         {% endif %}

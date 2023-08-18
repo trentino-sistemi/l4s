@@ -93,9 +93,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
         </button>
         <ul class="dropdown-menu">
             <li>
-                <a class="btn btn-default download_xls_button"
+                <a class="btn btn-default download_xlsx_button"
                    href="#">
-                   Excel 1997-2003
+                   Excel 2007
                 </a>
             </li>
         </ul>
@@ -178,7 +178,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="/static/js/ajax_csfrtoken.js"></script>
 <script type="text/javascript" src="/static/js/download.js"></script>
 <script>
-$(".download_xls_button").click(function(e) {
+$(".download_xlsx_button").click(function(e) {
     e.preventDefault();
     queries = '{{ queries|escapejs }}';
     manual_requests = '{{ manual_requests|escapejs }}';
@@ -194,7 +194,7 @@ $(".download_xls_button").click(function(e) {
     params += "&month=" + month;
     download('/usage_report/download_xls',
              params,
-             'POST', "{% csrf_token %}");
+             'POST', '{% csrf_token %}');
 });
 </script>
 {% endblock %}

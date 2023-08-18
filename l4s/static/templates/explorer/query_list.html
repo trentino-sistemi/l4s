@@ -189,7 +189,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     </a>
                 </td>
                 <td>{{ query.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
-                {% if query.created_by == request.user.email %}
+                {% if query.created_by_user.email == request.user.email %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
                     <a href="#" onclick='deleteQuery("{{ query.id }}", "{{ query.title }}");'
                        title="{% trans "Delete query" %}">
@@ -281,7 +281,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             </thead>
             <tbody>
             {% for query in queries %}
-            {% if query.created_by == request.user.email %}
+            {% if query.created_by_user.email == request.user.email %}
             {% if query.id in tables %}
             {% with tables|lookup:query.id as topic %}
             {% if topic in icons %}
@@ -337,7 +337,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                     </a>
                 </td>
                 <td>{{ query.created_at | date:"SHORT_DATETIME_FORMAT"}}</td>
-                {% if query.created_by == request.user.email %}
+                {% if query.created_by_user.email == request.user.email %}
                 {% if query.is_public %}
                 <td style="padding: 0px 0px 0px 20px; vertical-align: middle">
                     <i class="glyphicon glyphicon-eye-open"
