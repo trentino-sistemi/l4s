@@ -1,11 +1,11 @@
-Django~=3.2.8
+Django~=3.2.20
 
 # PostgreSQL adapter
-psycopg2-binary~=2.9.1
-requests~=2.26.0
+psycopg2-binary~=2.9.7
+requests~=2.31.0
 
 # User authentication and subscription.
-django-allauth~=0.45.0
+django-allauth~=0.54.0
 django-jsonify~=0.3.0
 
 # Sql editor.
@@ -21,18 +21,18 @@ openpyxl~=3.0.10
 xlrd~=2.0.1
 
 # In order to connect to the source M$ Sql server with odbc
-pyodbc~=4.0.32
+pyodbc~=4.0.39
 # replacing django-pyodbc
 # django-pyodbc-azure or django-mssql-backend might be alternatives
 # requires microsoft odbc driver (msodbcsql17 package)
-mssql-django~=1.0
+mssql-django~=1.3
 
 # In order to use bopotstrap in the django admin site
 #tendenci-django-admin-bootstrapped~=5.0
 -e git+https://github.com/trentino-sistemi/django-admin-bootstrapped@static#egg=tendenci-django-admin-bootstrapped
 
 # Used for rdf export.
-rdflib~=6.2.0
+rdflib~=6.3.2
 
 # Used for pivot and export in various formats.
 pandas~=1.3.5
@@ -40,4 +40,4 @@ pandas~=1.3.5
 numpy~=1.21.6
 
 # To export images in excel 2007.
-Pillow~=9.2.0
+Pillow~=9.5.0
