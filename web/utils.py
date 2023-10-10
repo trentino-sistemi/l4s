@@ -1675,13 +1675,14 @@ def saved_data_years():
 
     :return: rows
     """
-    query = "SELECT DISTINCT "
-    query += "cast(extract('year' from request_date) as int) y \n"
+    query = "SELECT cast(extract('year' from request_date) as int) y \n"
     query += "FROM %s \n" % MANUAL_REQUEST
     query += "UNION \n"
-    query += "SELECT DISTINCT "
-    query += "cast(extract('year' from created_at) as int) y \n"
+    query += "SELECT cast(extract('year' from created_at) as int) y \n"
     query += "FROM %s \n" % QUERY
+    query += "UNION \n"
+    query += "SELECT cast(extract('year' from executed_at) as int) y \n"
+    query += "FROM %s \n" % LOG
     query += "ORDER BY y DESC"
     rows = execute_query_on_django_db(query)
     return [row[0] for row in rows]
