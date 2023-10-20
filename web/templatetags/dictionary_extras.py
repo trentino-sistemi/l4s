@@ -50,6 +50,11 @@ def lookup_unicode(dictionary, arg):
     """
     return dictionary[str(arg)]
 
+@register.filter(name="get")
+def get(indexable, i):
+    return indexable[i]
+
 register.simple_tag(lookup)
 register.simple_tag(lookup_unicode)
+register.simple_tag(get)
 

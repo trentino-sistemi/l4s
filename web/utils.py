@@ -95,6 +95,7 @@ SECONDARY = 'http://dbpedia.org/ontology/secondary'
 NUOVI_CONFINI_COMUNE = 'http://it.dbpedia.org/data/Nuovi_confini_comune'
 AVVERTENZE = 'http://purl.org/ontology/warnings'
 VISIBLE_TOTAL = 'http://dbpedia.org/ontology/total'
+FORMAT = 'http://dbpedia.org/ontology/format'
 
 DESCRIPTION_TOKEN = "--INCLUDE_DESCRIPTIONS"
 JOIN_TOKEN = '--JOIN'
@@ -971,7 +972,10 @@ def build_foreign_keys(table_name):
         col_name = row[0]
         dest_table = row[1]
         dest_col = row[2]
-        ret[col_name] = [dest_table, dest_col]
+        if col_name in ret:
+            ret[col_name] += [dest_table, dest_col]
+        else:
+            ret[col_name] = [dest_table, dest_col]
 
     #print ret
 
@@ -1686,7 +1690,6 @@ def saved_data_years():
     query += "ORDER BY y DESC"
     rows = execute_query_on_django_db(query)
     return [row[0] for row in rows]
-
 
 def saved_queries_grouped_by_user_type(year, month):
     """
@@ -4570,7 +4573,59 @@ def to_utf8(v):
     return v
 
 
-def data_frame_to_html(df, visible, pivot):
+def data_frame_to_html(df, visible, pivot, table):
+
+    def format_float_column(value, format):
+
+        ##print (format )
+
+        if (format != ''):
+            grouping = format.find('thousand') != -1
+            floatpos = format.find('float')
+
+            if floatpos == -1:
+                float = '0'
+            else:
+                float = format[floatpos + 6]
+            #print( float )
+            return locale.format_string("%." + float + "f", value, grouping=grouping)
+        else:
+            return value
+
+    def format_int_column(value, format):
+        """
+        format funtion applied to all elements of column
+        """
+        #print( value, type(value), value.isdigit() )
+
+        if (format != ''):
+
+            grouping = format.find('thousand') != -1
+            floatpos = format.find('float')
+
+            if floatpos == -1:
+                float = '0'
+            else:
+                float = format[floatpos + 6]
+
+            if value[0] == '-': #per intercettare numeri negativi
+                if (value[1:].isdigit()): #se c'è segreto c'è asterisco e quindi non lo formatto
+                    #result = '{:n}'.format(int(value))
+                    result = locale.format_string("%." + float + "f", int(value), grouping=grouping)
+                else:
+                    result = value
+            else:
+                if (value.isdigit()): #se c'è segreto c'è asterisco e quindi non lo formatto
+                    #result = '{:n}'.format(int(value))
+                    result = locale.format_string("%." + float + "f", int(value), grouping=grouping)
+                else:
+                    result = value
+        else:
+            result = value
+
+        return result
+
+
     """
     Convert data frame in html language ready to be shown.
 
@@ -4582,6 +4637,13 @@ def data_frame_to_html(df, visible, pivot):
 
     locale.setlocale(locale.LC_ALL, '')
 
+    str_format = ''
+
+    if table != '':
+        formats = get_table_metadata_value(table, FORMAT)
+        for format in formats:
+            str_format = format[0]
+
     html = ""
     index_v = False
     if df is not None:
@@ -4590,18 +4652,25 @@ def data_frame_to_html(df, visible, pivot):
         else:
             df = df.drop(df.columns[0], axis=1)
 
+        formatdict = {}
+        for col in df.columns: formatdict[col] = lambda x: format_int_column(x, str_format)
+
         if not visible:
+
             html = df.to_html(classes="table table-striped",
                               index=index_v,
                               max_cols=EXPLORER_DEFAULT_COLS,
                               max_rows=EXPLORER_DEFAULT_ROWS,
-                              float_format="{:n}".format)
+                              float_format=lambda x : format_float_column(x, str_format), #questo formatta i float ma SOLO quelli, tra parentesi se le colonne sono float non passa nemmeno dai formatters
+                              formatters=formatdict) #questo va bene se sono integer
+
         else:
             html = df.to_html(classes="table table-striped",
                               index=index_v,
-                              float_format="{:n}".format)
-        #html = html.replace("...", "")
-
+                              float_format=format_float_column, #questo formatta i float ma SOLO quelli, tra parentesi se le colonne sono float non passa nemmeno dai formatters
+                              formatters=formatdict) #questo va bene se sono integer
+                         #html = html.replace("...", "")
+        #print (visible)
     return html
 
 def save_value(nome_file, stringa):

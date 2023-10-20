@@ -275,7 +275,7 @@ def execute_query_viewmodel(request,
 
         if df is not None:
             store = store_data_frame(df)
-            html = data_frame_to_html(df, True, pivot)
+            html = data_frame_to_html(df, True, pivot, '')
 
     return {'store': store,
                            'warning': warn,
@@ -1045,6 +1045,7 @@ def table(request):
                                                            False)
 
         fks = build_foreign_keys(table_name)
+        print( fks )
         context = {'table_schema': table_schema}
         context['table_name'] = table_name
         context['request'] = request
@@ -1864,7 +1865,7 @@ def query_editor_view(request):
         return render(request, "l4s/query_editor_view.html", context)
 
     store = store_data_frame(df)
-    html = data_frame_to_html(df, visible, pivot)
+    html = data_frame_to_html(df, visible, pivot, table_name)
 
     url = '/query_editor_view/?table=%s' % table_name
 
