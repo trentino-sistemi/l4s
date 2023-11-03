@@ -2944,6 +2944,7 @@ def get_table_metadata_value(table_name, key):
     """
     query = "SELECT value from %s " % METADATA
     query += "WHERE table_name='%s' " % table_name
+    query += "and column_name='NULL' "
     query += "and upper(key)=upper('%s') " % key
     #print "query", query
     rows = execute_query_on_django_db(query)
@@ -4578,19 +4579,23 @@ def data_frame_to_html(df, visible, pivot, table):
     def format_float_column(value, format):
 
         ##print (format )
+        #a differenza della format_int_column da questa funzione devi uscire con una stringa altrimenti da eccezione
 
         if (format != ''):
             grouping = format.find('thousand') != -1
             floatpos = format.find('float')
 
             if floatpos == -1:
-                float = '0'
+                float_format = '0'
             else:
-                float = format[floatpos + 6]
+                float_format = format[floatpos + 6]
             #print( float )
-            return locale.format_string("%." + float + "f", value, grouping=grouping)
+
+            # quando arrivo qui value puo essere solo float dato che l'evento viene processato solo in caso di float
+
+            return locale.format_string("%." + float_format + "f", value, grouping=grouping)
         else:
-            return value
+            return str(value)
 
     def format_int_column(value, format):
         """
@@ -4598,33 +4603,35 @@ def data_frame_to_html(df, visible, pivot, table):
         """
         #print( value, type(value), value.isdigit() )
 
+        # quando arrivo qui value puo essere stringa se la tabella ha il segreto
+        # perche per poter mettere gli asterischi devo converitre i valori in stringa
+        # se hai segreto potresti pero avere asterischi, e int o float convertiti in stringa
+        # oppure int o quant'altro (viene mantenuto il tipo, ma NON FLOAT perche passa dall'altro evento) se non ho segreto
+
         if (format != ''):
 
             grouping = format.find('thousand') != -1
             floatpos = format.find('float')
 
             if floatpos == -1:
-                float = '0'
+                float_format = '0'
             else:
-                float = format[floatpos + 6]
+                float_format = format[floatpos + 6]
 
-            if value[0] == '-': #per intercettare numeri negativi
-                if (value[1:].isdigit()): #se c'è segreto c'è asterisco e quindi non lo formatto
-                    #result = '{:n}'.format(int(value))
-                    result = locale.format_string("%." + float + "f", int(value), grouping=grouping)
-                else:
+            try:
+                float(value)
+                result = locale.format_string("%." + float_format + "f", float(value), grouping=grouping)
+            except:
+                try:
+                    int(value)
+                    result = locale.format_string("%." + float_format + "f", int(value), grouping=grouping)
+                except:
                     result = value
-            else:
-                if (value.isdigit()): #se c'è segreto c'è asterisco e quindi non lo formatto
-                    #result = '{:n}'.format(int(value))
-                    result = locale.format_string("%." + float + "f", int(value), grouping=grouping)
-                else:
-                    result = value
+
         else:
             result = value
 
         return result
-
 
     """
     Convert data frame in html language ready to be shown.
@@ -4637,13 +4644,6 @@ def data_frame_to_html(df, visible, pivot, table):
 
     locale.setlocale(locale.LC_ALL, '')
 
-    str_format = ''
-
-    if table != '':
-        formats = get_table_metadata_value(table, FORMAT)
-        for format in formats:
-            str_format = format[0]
-
     html = ""
     index_v = False
     if df is not None:
@@ -4652,8 +4652,21 @@ def data_frame_to_html(df, visible, pivot, table):
         else:
             df = df.drop(df.columns[0], axis=1)
 
+        #print(df.columns)
+        #print(df.index[0])
+        #print ( df.columns.name )
+        #print( 'pivot', pivot )
+
+        str_format = ''
+
+        if table != '':
+            formats = get_table_metadata_value(table, FORMAT)
+            for format in formats:
+                str_format = format[0]
+
         formatdict = {}
         for col in df.columns: formatdict[col] = lambda x: format_int_column(x, str_format)
+        #print( 'formatdict', formatdict)
 
         if not visible:
 
@@ -4667,7 +4680,7 @@ def data_frame_to_html(df, visible, pivot, table):
         else:
             html = df.to_html(classes="table table-striped",
                               index=index_v,
-                              float_format=format_float_column, #questo formatta i float ma SOLO quelli, tra parentesi se le colonne sono float non passa nemmeno dai formatters
+                              float_format=lambda x : format_float_column(x, str_format), #questo formatta i float ma SOLO quelli, tra parentesi se le colonne sono float non passa nemmeno dai formatters
                               formatters=formatdict) #questo va bene se sono integer
                          #html = html.replace("...", "")
         #print (visible)
@@ -5278,3 +5291,20 @@ def table_visible (table_name):
 
     for row in rows:
       return row[0] == TRUE
+
+def get_column_metadata_value(table_name, column_name, key):
+    """
+    Get the value of metadata by key.
+
+    :param table_name: Table name.
+    :param key: Key name.
+    :return: The rows result set.
+    """
+    query = "SELECT value from %s " % METADATA
+    query += "WHERE table_name='%s' " % table_name
+    query += "and upper(column_name)=upper('%s')" \
+             " " % column_name
+    query += "and upper(key)=upper('%s') " % key
+    #print "query", query
+    rows = execute_query_on_django_db(query)
+    return rows

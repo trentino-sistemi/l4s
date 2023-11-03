@@ -447,7 +447,18 @@ $(".download_xlsx_button").click(function(e) {
     table_description = "{{ table_description.strip }}";
     description = "{{ description.strip|escapejs }}";
     show_legend = "{{ show_legend }}";
-    params = "store=" + store + "&title=" +  title + "&show_legend=" +  show_legend + "&table_description=" + table_description
+    table_name = "{{ table_name|escapejs }}";
+    columns= "{{ columns|escapejs }}";
+    rows= "{{ rows|escapejs }}";
+
+    params = "store=" + store +
+             "&title=" +  title +
+             "&show_legend=" + show_legend +
+             "&table_description=" + table_description +
+             "&table_name=" + table_name +
+             "&columns=" + columns +
+             "&rows=" + rows;
+
     if (description != "" ) {
         params = params + "&description=" + description;
     }

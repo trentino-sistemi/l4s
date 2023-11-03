@@ -255,11 +255,14 @@ def pivot(data, headers, columns, rows, value, col_dict, secret_column_dict):
     """
 
     #print "contatore " , contatore
-    #print "lista " , lista
+    #print ("lista " , lista)
 
+    #print(df)
+
+    #non ho capito cosa faccia ma senza se ci sono cose miste int e float NON VA!
     df[lista] = df[lista].astype(float)
 
-    #print df
+    #print( df )
 
     #questa sotto arrotonda
     #df = df.applymap(format_value) #se si mescolano obs value interi e obs value con la virgola non funziona
@@ -330,12 +333,17 @@ def pivot(data, headers, columns, rows, value, col_dict, secret_column_dict):
     #print "lista", lista
     #print "secret_column_dict", len(secret_column_dict)
 
+    """
+    commentato in data 27-10-2023
     if len(lista) > 0: #ci sono valori float
         if (len(secret_column_dict) > 0): #se c'e segreto converto in stringa per poter mettere gli asterischi dopo
             pivot_df = pivot_df.applymap(lambda a: str(a));
     else:
         pivot_df = pivot_df.applymap(lambda a: str(a).replace(".0", "", 1));
+    """
 
+    if (len(secret_column_dict) > 0):  # se c'e segreto converto in stringa per poter mettere gli asterischi dopo
+        pivot_df = pivot_df.applymap(lambda a: str(a));
 
     #if len(lista) == 0:
     #    pivot_df = pivot_df.applymap(lambda a: str(a).replace(".0", "", 1));

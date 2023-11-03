@@ -60,8 +60,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
             {% with fks|lookup:field.name as fkvalue %}
                 {% for value in fkvalue %}
                     {% if forloop.counter|divisibleby:2 == False %}
-                        <a href="/table/?name={{ value }}">{{value}}</a>.
-                        <a href="/table/metadata/?table={{ value }}&column={{ fkvalue|get:forloop.counter }}">{{ fkvalue|get:forloop.counter }}</a>
+                        <a href="/table/?name={{ value }}">{{value}}</a>.<a href="/table/metadata/?table={{ value }}&column={{ fkvalue|get:forloop.counter }}">{{ fkvalue|get:forloop.counter }}</a>
                         <br>
                     {% endif %}
                 {% endfor %}

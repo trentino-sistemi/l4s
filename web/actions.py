@@ -33,7 +33,9 @@ from web.pyjstat import to_json_stat
 from web.reconcilation import reconciles_data_frame
 from web.utils import unpivot,\
     has_data_frame_multi_level_columns, \
-    get_color
+    get_color, \
+    get_table_metadata_value, \
+    FORMAT
 from web.statistical_secret import load_data_frame
 from xlrd import open_workbook
 from xlwt import Workbook as XWorkbook
@@ -50,7 +52,6 @@ import six
 import calendar
 from io import StringIO
 import shutil
-
 max_length_filename = 150 # sotto linux dipende dal file system ... sotto ntfs massimo 240 compreso path ... ma il path non lo so .....per ora metto 150 prudenziale
 
 def new_xlwt_colored_workbook():
@@ -307,7 +308,7 @@ def generate_report_action_xlsx(request):
     :return: Response with Excel 2007 attachment.
     """
 
-    def add_header_and_footer(file_name, title, description, show_legend, table_description):
+    def add_header_and_footer(table_name, columns, rows, file_name, title, description, show_legend, table_description):
         """
         Add header and footer to excel file.
 
@@ -315,6 +316,7 @@ def generate_report_action_xlsx(request):
         :param title: Query tile.
         :param description: Query description.
         """
+
         workbook = load_workbook(filename=file_name, read_only=True)
         sheet = workbook.active
         new_workbook = OWorkbook()
@@ -339,7 +341,36 @@ def generate_report_action_xlsx(request):
         body_font = Font(color="1F556F")
 
         r_style = NamedStyle(name='r', font=body_font, alignment=r_alignment)
-        body_style = NamedStyle(name='body', font=body_font)
+        string_style = NamedStyle(name='body', font=body_font)
+
+        str_format = ''
+
+        if table_name != '':
+            formats = get_table_metadata_value(table_name, FORMAT)
+            for format in formats:
+                str_format = format[0]
+
+        if (str_format != ''):
+
+            grouping = str_format.find('thousand') != -1
+            floatpos = str_format.find('float')
+
+            if grouping:
+                number_format = '#,##'
+            else:
+                number_format = ''
+
+            if floatpos == -1:
+                number_format += '0'
+            else:
+                number_format += '0.'
+                for i in range( int(str_format[floatpos + 6]) ):
+                    number_format += '0'
+        else:
+            number_format = ''
+
+        number_style_float = NamedStyle(name='body_format_float', font=body_font, alignment=r_alignment, number_format=number_format)
+        number_style_int = NamedStyle(name='body_format_int', font=body_font, alignment=r_alignment, number_format=number_format)
 
         cell = new_sheet.cell(row=1, column=1)
         cell.value = table_description_label
@@ -395,7 +426,7 @@ def generate_report_action_xlsx(request):
             line_num += 3
             cell = new_sheet.cell(row=line_num, column=1)
             cell.value = "%s (%s)" % (settings.LEGEND, settings.DL_ART)
-            cell.style = body_style
+            cell.style = string_style
             legend_cells = 4
             new_sheet.merge_cells(start_row=line_num,
                                   start_column=1,
@@ -418,7 +449,40 @@ def generate_report_action_xlsx(request):
                 if value is None:
                     continue
                 cell = new_sheet.cell(row=r + k + 1, column=c + 1)
+
                 if isinstance(value, six.string_types):
+                    if value.startswith("*"): #la cella ha il segreto
+                        cell.style = r_style
+                        cell.value = value
+                    else:
+                        if value.isdigit(): #oppure è cmq una cella di una tabella col segreto e non un nome di colonna
+                            try:
+                                int(value)
+                                cell.style = number_style_int
+                                cell.value = int(value)
+                            except:
+                                try:
+                                    float(value)
+                                    cell.style = number_style_float
+                                    cell.value = float(value)
+                                except:
+                                    cell.value = value
+                        else:
+                            cell.style = string_style #nome di colonna (comune etc)
+                            cell.value = value
+                else:
+                    if r>= len(columns) and c>=len(rows): #es:anno
+                        if isinstance(value, float):
+                            cell.style = number_style_float
+                        if isinstance(value, int):
+                            cell.style = number_style_int
+                    else:
+                        cell.style = string_style
+                    cell.value = value
+
+                """
+                if isinstance(value, six.string_types):
+                    print(value, 'stringa', value.isdigit())
                     value = value.strip()
                     if value.startswith("*") or value.isdigit():
                         cell.style = r_style
@@ -427,6 +491,8 @@ def generate_report_action_xlsx(request):
                 else:
                     cell.style = body_style
                 cell.value = value
+                """
+
                 r_size = arial10.fit_width(str(value), False) // 255
                 column_len = round(r_size)
                 if r >= 1 and column_len > max_widths[c]:
@@ -476,13 +542,15 @@ def generate_report_action_xlsx(request):
         df.to_excel(ew)
         ew.save()
 
-        show_legend = request.POST.get('show_legend', '') or request.GET.get(
-            'show_legend', '')
-        table_description = request.POST.get('table_description',
-                                             '') or request.GET.get(
-                                                 'table_description', '')
+        show_legend = request.POST.get('show_legend', '') or request.GET.get('show_legend', '')
+        table_description = (request.POST.get('table_description','') or
+                             request.GET.get('table_description', ''))
+        table_name = request.POST.get('table_name', '')
+        columns = [x for x in request.POST.get('columns', '').split(',')]
+        rows = [x for x in request.POST.get('rows', '').split(',')]
+        #print( rows )
 
-        add_header_and_footer(f.name, title, description, show_legend, table_description)
+        add_header_and_footer(table_name, columns, rows, f.name, title, description, show_legend, table_description)
 
         # Setup response
         data = f.read()
