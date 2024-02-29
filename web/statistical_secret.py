@@ -220,6 +220,7 @@ def pivot(data, headers, columns, rows, value, col_dict, secret_column_dict):
     """
 
     lista = []
+    lista_bigint = []
     contatore = 0
 
     #print "col_dict ", col_dict
@@ -235,6 +236,9 @@ def pivot(data, headers, columns, rows, value, col_dict, secret_column_dict):
             #print table, column, tipo
             lista.append(df.columns[a])
 
+        if (tipo == 'bigint'):
+            #print table, column, tipo
+            lista_bigint.append(df.columns[a])
 
     #print df
     #print "columns ", df.columns
@@ -261,6 +265,7 @@ def pivot(data, headers, columns, rows, value, col_dict, secret_column_dict):
 
     #non ho capito cosa faccia ma senza se ci sono cose miste int e float NON VA!
     df[lista] = df[lista].astype(float)
+    df[lista_bigint] = df[lista_bigint].astype(np.int64) #29-02-24 il bigint da problemi.. la colonna viene droppata.. convertendola cosi è ok
 
     #print( df )
 

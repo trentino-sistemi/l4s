@@ -1559,7 +1559,7 @@ def query_editor_view(request):
     obs_values = list(
         all_obs_value_column(table_name, table_schema, hidden_fields).values())
 
-    #print obs_values
+    #print (obs_values)
     #print type(obs_values)
 
     if len(selected_obs_values) == 0:
@@ -1722,7 +1722,7 @@ def query_editor_view(request):
                              context['grouped_by_in_query'],
                              table_schema)
 
-    #print "sql", sql
+    #print ("sql", sql)
     #print "pivot", pivot
 
     query = Query(title=table_name, sql=sql)
