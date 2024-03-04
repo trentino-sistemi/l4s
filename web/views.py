@@ -128,7 +128,11 @@ from web.utils import get_variable_dictionary, \
     build_table_external_medatata, \
     count_of_columns_no_obs_value, \
     get_client_ip, \
-    SYNCHRONIZATION
+    SYNCHRONIZATION, \
+    get_column_metadata_value, \
+    VISIBLE, \
+    TRUE, \
+    FALSE
 
 from web.statistical_secret import apply_stat_secret, \
     detect_special_columns, \
@@ -1572,18 +1576,24 @@ def query_editor_view(request):
     for f, field in enumerate(table_schema):
         column_name = field.name
         if not column_name in obs_values:
-            try:
-                #print "xxx ", datetime.now().strftime("%H:%M:%S.%f")
-                vals = get_all_field_values(table_name, column_name, None)
-            except MissingMetadataException as e:
-                context['error'] = "%s" % (str(e.message))
-                send_mail('Errore Lod4Stat (' +
-                          str(request.user) + ') ' +
-                          ''.join(ALLOWED_HOSTS) +
-                          '/query_editor_view/?table=' +
-                          ''.join(request.GET.getlist("table")), str(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
-                return render(request, "l4s/query_editor_view.html", context)
-            values[column_name] = vals
+            col_visible = True #aggiunto il 04/03/2024 per le nuove tabelle del commercio estero ... da veriricare se va bene con tutto
+            for row in get_column_metadata_value(table_name, column_name, VISIBLE):
+                if row[0] == FALSE:
+                    col_visible = False
+
+            if col_visible:
+                try:
+                    #print "xxx ", datetime.now().strftime("%H:%M:%S.%f")
+                    vals = get_all_field_values(table_name, column_name, None)
+                except MissingMetadataException as e:
+                    context['error'] = "%s" % (str(e.message))
+                    send_mail('Errore Lod4Stat (' +
+                              str(request.user) + ') ' +
+                              ''.join(ALLOWED_HOSTS) +
+                              '/query_editor_view/?table=' +
+                              ''.join(request.GET.getlist("table")), str(e.message), DEFAULT_FROM_EMAIL, ADMINISTRATOR_EMAIL, fail_silently=False)
+                    return render(request, "l4s/query_editor_view.html", context)
+                values[column_name] = vals
 
     #print "dd3 ", datetime.now().strftime("%H:%M:%S.%f")
 

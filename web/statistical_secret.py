@@ -2246,7 +2246,7 @@ def secondary_row_suppression_constraint(data,
                                                 False)
     query += "\n ORDER BY \"%s\"" % new_header[len(new_header) - 1]
 
-    #print query
+    #print ( query )
 
     #print "new_header " , new_header
 

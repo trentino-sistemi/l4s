@@ -1929,7 +1929,7 @@ def build_constraint_query(constraints,
 
     query += "join (select distinct %s \n " % (','.join([origin_table + "." + k for k in common_fields]))
     query += query_iniziale[from_position:group_by_position]
-    query += ") %s on (%s) \n" % (origin_table, ' and '.join([origin_table + "." + k + "=" + table + "." + k for k in common_fields]))
+    query += ") %s on (%s) \n" % (origin_table + '_distinct', ' and '.join([origin_table + '_distinct' + "." + k + "=" + table + "." + k for k in common_fields]))
 
     query += "GROUP BY %s \n" % fields
 
@@ -2274,7 +2274,17 @@ def build_secondary_query(secondary,
                     query += "WHERE "
                 else:
                     query += "AND "
-                values = ','.join(["%s" % k[0] for k in filter_value])
+                #values = ','.join(["%s" % k[0] for k in filter_value])
+
+                if (type(filter_value[0][0]) == int): # perche il codice a volte puo essere stringa ...... attenzione a codice del tipo '099393' che sembrano int ma sono stringhe
+                    #print "intero"
+                    #comma_sep_vals = ", ".join(selected_vals)
+                    values = ','.join(["%s" % k[0] for k in filter_value])
+                else:
+                    #print "stringa"
+                    values = ','.join(["'%s'" % k[0] for k in filter_value])
+
+
                 query += " %s IN (%s)\n" % (f, values)
                 counter += 1
 
