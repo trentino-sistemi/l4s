@@ -4639,7 +4639,8 @@ def data_frame_to_html(df, visible, pivot, table):
                     result = value
 
         else:
-            result = value
+            #print(value,  type(value))
+            result = str(value) #12/03/2024 per la dmdnati devi uscire in stringa ... non capisco se è un baco o na regola
 
         return result
 
@@ -4678,7 +4679,7 @@ def data_frame_to_html(df, visible, pivot, table):
         for col in df.columns: formatdict[col] = lambda x: format_int_column(x, str_format)
         #print( 'formatdict', formatdict)
 
-        if not visible:
+        if not visible: #questo è il "vedi tutti"
 
             html = df.to_html(classes="table table-striped",
                               index=index_v,
